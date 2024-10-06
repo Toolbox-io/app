@@ -1,0 +1,15 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.UltimateSecurity" parent="Theme.Material3.DayNight">
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="Theme.UltimateSecurity.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.UltimateSecurity.AppBarOverlay" parent="ThemeOverlay.Material3.Dark.ActionBar" />
+
+    <style name="Theme.UltimateSecurity.PopupOverlay" parent="ThemeOverlay.Material3.Light" />
+</resources>

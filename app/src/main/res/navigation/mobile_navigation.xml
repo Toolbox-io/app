@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="ru.morozovit.ultimatesecurity.HomeFragment"
+        android:label="@string/home"
+        tools:layout="@layout/home" />
+
+    <fragment
+        android:id="@+id/nav_applocker"
+        android:name="ru.morozovit.ultimatesecurity.applocker.ApplockerFragment"
+        android:label="@string/applocker"
+        tools:layout="@layout/applocker" />
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="ru.morozovit.ultimatesecurity.SettingsFragment"
+        android:label="@string/settings"
+        tools:layout="@layout/settings" />
+</navigation>
