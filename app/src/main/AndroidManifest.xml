@@ -2,6 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.ACCESSIBILITY_SERVICE" />
+
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+        </intent>
+    </queries>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -15,7 +27,6 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,6 +34,33 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".applocker.PermissionsRequiredActivity"
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+        <activity
+            android:name=".SelectAppsActivity"
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+        <activity
+            android:name=".applocker.FakeCrashActivity"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.UltimateSecurity.FakeCrash" />
+        <activity
+            android:name=".applocker.PasswordInputActivity"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.UltimateSecurity.FakeCrash" />
+
+        <service
+            android:name=".Service"
+            android:exported="false"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
     </application>
 
 </manifest>

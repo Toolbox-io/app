@@ -2,6 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.UltimateSecurity" parent="Theme.Material3.DayNight">
         <!-- Customize your theme here. -->
+
     </style>
 
     <style name="Theme.UltimateSecurity.NoActionBar">
@@ -9,7 +10,28 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="Theme.UltimateSecurity.FakeCrash" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+
     <style name="Theme.UltimateSecurity.AppBarOverlay" parent="ThemeOverlay.Material3.Dark.ActionBar" />
 
     <style name="Theme.UltimateSecurity.PopupOverlay" parent="ThemeOverlay.Material3.Light" />
+
+    <style name="Theme.MainSwitchCard" parent="Widget.Material3.CardView.Filled">
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent</item>
+    </style>
+
+    <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSize">20dp</item>
+    </style>
 </resources>
