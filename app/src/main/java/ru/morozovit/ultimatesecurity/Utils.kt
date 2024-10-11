@@ -1,9 +1,9 @@
+@file:Suppress("unused")
+
 package ru.morozovit.ultimatesecurity
 
 import android.app.Activity
-import android.app.ActivityManager
 import android.content.Context
-import android.content.Context.ACTIVITY_SERVICE
 import android.content.Intent
 import android.content.Intent.ACTION_MAIN
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
@@ -24,15 +24,6 @@ val Fragment.isAccessibilityPermissionAvailable: Boolean get() = requireActivity
 
 val screenWidth: Int get() = Resources.getSystem().displayMetrics.widthPixels
 val screenHeight: Int get() = Resources.getSystem().displayMetrics.heightPixels
-
-@Deprecated("Not working. A new method will be added for this action.", level = DeprecationLevel.WARNING)
-fun isForeground(context: Context, myPackage: String): Boolean {
-    val manager = context.getSystemService(ACTIVITY_SERVICE) as ActivityManager
-    val runningTaskInfo = manager.getRunningTasks(1)
-
-    val componentInfo = runningTaskInfo[0].topActivity
-    return componentInfo!!.packageName == myPackage
-}
 
 fun appName(context: Context, packageName: String): String? {
     try {

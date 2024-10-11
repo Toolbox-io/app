@@ -102,7 +102,6 @@ class ApplockerFragment : Fragment() {
             }
 
             binding.alApps.setOnClickListener {
-                // TODO select apps to apply protection to
                 val intent = Intent(requireActivity(), SelectAppsActivity::class.java)
                 startActivity(intent)
             }

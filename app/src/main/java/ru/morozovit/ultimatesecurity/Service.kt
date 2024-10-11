@@ -32,8 +32,7 @@ class Service: AccessibilityService() {
             val newPackageName = event.packageName.toString() // App package name
             if (newPackageName != applicationContext.packageName && newPackageName != prevApp && !lock) {
                 val apps = Settings.Applocker.apps
-                // TODO handle multiple packages
-                if (/* newPackageName == "com.android.vending" */ apps.contains(newPackageName)) {
+                if (apps.contains(newPackageName)) {
                     // App lock mechanism
                     homeScreen()
 

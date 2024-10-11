@@ -14,12 +14,13 @@
         android:id="@+id/appIcon"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:importantForAccessibility="no"
+        android:paddingBottom="10dp"
         android:scaleType="fitCenter"
-        tools:src="@mipmap/ic_launcher_round"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginStart="10dp"
-        android:paddingBottom="10dp" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ImageContrastCheck"
+        tools:src="@mipmap/ic_launcher_round" />
 
     <LinearLayout
         android:layout_height="wrap_content"
