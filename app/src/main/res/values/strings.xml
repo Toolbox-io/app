@@ -18,7 +18,7 @@
     <string name="grant">Grant</string>
     <string name="appear_over_other_apps">Appear over other apps</string>
     <string name="accessibility_service_label">Anti-Intruder Protection++</string>
-    <string name="accessibility_service_description"><![CDATA[This service is used for:\n<ul>\n<li>AppLocker</li>\n</ul>\nThis service NEVER collects your data to hack you, etc.\nIt is used ONLY for the provided functions above.]]></string>
+    <string name="accessibility_service_description">This service is used for:\n<ul>\n<li>AppLocker</li>\n</ul>\nThis service NEVER collects your data to hack you, etc.\nIt is used ONLY for the provided functions above.</string>
     <string name="granted">Granted</string>
     <string name="pr_wasnt_granted">The permission wasn\'t granted, try again</string>
     <string name="appinfo">App info</string>
