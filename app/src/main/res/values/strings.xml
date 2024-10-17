@@ -49,4 +49,10 @@
     <string name="passwords_dont_match">Passwords don\'t match, try again</string>
     <string name="failed_setting_password">Failed setting the password, try again</string>
     <string name="setpassword_d">Set the password that will be used to unlock the selected apps</string>
+    <string name="unlockmethod">Unlock method</string>
+    <string name="lp_ai">Long press \"App info\"</string>
+    <string name="lp_c">Long press \"Close\"</string>
+    <string name="lp_t">Long press title</string>
+    <string name="p_t">Press title</string>
+    <string name="select_something">Select something first</string>
 </resources>

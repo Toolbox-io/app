@@ -6,10 +6,16 @@ import android.content.Intent.FLAG_ACTIVITY_NEW_DOCUMENT
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.view.Window
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.postDelayed
 import ru.morozovit.ultimatesecurity.R
+import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_APP_INFO
+import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_CLOSE
+import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_TITLE
+import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
+import ru.morozovit.ultimatesecurity.Settings.Applocker.unlockMode
 import ru.morozovit.ultimatesecurity.appName
 import ru.morozovit.ultimatesecurity.databinding.FakeCrashBinding
 import ru.morozovit.ultimatesecurity.screenWidth
@@ -60,7 +66,7 @@ class FakeCrashActivity: AppCompatActivity() {
             }
         }
 
-        binding.alFcAiB.setOnLongClickListener {
+        val listener: (View?) -> Boolean = {
             setResult(RESULT_OK)
             finish()
             val intent = Intent(this, PasswordInputActivity::class.java)
@@ -73,6 +79,13 @@ class FakeCrashActivity: AppCompatActivity() {
             intent.putExtras(b)
             startActivity(intent)
             false
+        }
+
+        when (unlockMode) {
+            LONG_PRESS_APP_INFO -> binding.alFcAiB.setOnLongClickListener(listener)
+            LONG_PRESS_CLOSE -> binding.alFcCaB.setOnLongClickListener(listener)
+            LONG_PRESS_TITLE -> binding.alFcL.setOnLongClickListener(listener)
+            PRESS_TITLE -> binding.alFcL.setOnClickListener { listener(binding.alFcL) }
         }
 
         binding.alFcCaB.setOnClickListener {

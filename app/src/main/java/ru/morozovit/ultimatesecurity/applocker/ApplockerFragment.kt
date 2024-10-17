@@ -20,6 +20,8 @@ import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.SelectAppsActivity
 import ru.morozovit.ultimatesecurity.Service
 import ru.morozovit.ultimatesecurity.Settings
+import ru.morozovit.ultimatesecurity.Settings.Applocker.getUnlockModeDescription
+import ru.morozovit.ultimatesecurity.Settings.Applocker.unlockMode
 import ru.morozovit.ultimatesecurity.databinding.ApplockerBinding
 import ru.morozovit.ultimatesecurity.homeScreen
 import ru.morozovit.ultimatesecurity.isAccessibilityPermissionAvailable
@@ -127,6 +129,13 @@ class ApplockerFragment : Fragment() {
                     }
                 }
             }
+
+            binding.alUm.setOnClickListener {
+                val intent = Intent(activity, UnlockModeActivity::class.java)
+                startActivity(intent)
+            }
+
+            binding.alI5C.text = getUnlockModeDescription(unlockMode, resources)
         }
     }
 }

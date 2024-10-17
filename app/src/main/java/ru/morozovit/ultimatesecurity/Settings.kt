@@ -2,6 +2,12 @@ package ru.morozovit.ultimatesecurity
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.Resources
+import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_APP_INFO
+import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_CLOSE
+import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_TITLE
+import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.NOTHING_SELECTED
+import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
 
 object Settings {
     private lateinit var applicationContext: Context
@@ -28,6 +34,14 @@ object Settings {
             }
         }
 
+        object UnlockMode {
+            const val NOTHING_SELECTED = -1
+            const val LONG_PRESS_APP_INFO = 0
+            const val LONG_PRESS_CLOSE = 1
+            const val LONG_PRESS_TITLE = 2
+            const val PRESS_TITLE = 3
+        }
+
         var apps: Set<String>
             get() = sharedPref.getStringSet("selectedApps", setOf())!!
             set(value) {
@@ -45,5 +59,27 @@ object Settings {
                     apply()
                 }
             }
+
+        var unlockMode: Int
+            get() = sharedPref.getInt("unlockMode", LONG_PRESS_APP_INFO).let {
+                if (it == NOTHING_SELECTED) return LONG_PRESS_APP_INFO
+                return it
+            }
+            set(value) {
+                if (value in 0..PRESS_TITLE) with(sharedPref.edit()) {
+                    putInt("unlockMode", value)
+                    apply()
+                } else {
+                    throw IllegalArgumentException("The argument must be from 0 to PRESS_TITLE.")
+                }
+            }
+
+        fun getUnlockModeDescription(value: Int, resources: Resources) = when (value) {
+            LONG_PRESS_APP_INFO -> resources.getString(R.string.lp_ai)
+            LONG_PRESS_CLOSE -> resources.getString(R.string.lp_c)
+            LONG_PRESS_TITLE -> resources.getString(R.string.lp_t)
+            PRESS_TITLE -> resources.getString(R.string.p_t)
+            else -> ""
+        }
     }
 }

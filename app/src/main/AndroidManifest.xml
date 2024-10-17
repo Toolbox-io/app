@@ -49,6 +49,10 @@
             android:name=".applocker.PasswordInputActivity"
             android:excludeFromRecents="true"
             android:theme="@style/Theme.UltimateSecurity.FakeCrash" />
+        <activity
+            android:name=".applocker.UnlockModeActivity"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.UltimateSecurity.FakeCrash" />
 
         <service
             android:name=".Service"
