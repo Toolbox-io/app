@@ -8,7 +8,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.snackbar.Snackbar
 import ru.morozovit.ultimatesecurity.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -22,13 +21,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setSupportActionBar(binding.appBarMain.toolbar)
+        setSupportActionBar(binding.toolbar)
 
-        binding.appBarMain.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .setAnchorView(R.id.fab).show()
-        }
         val drawerLayout = binding.drawerLayout
         val navView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
