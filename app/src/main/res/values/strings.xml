@@ -55,4 +55,10 @@
     <string name="lp_t">Long press title</string>
     <string name="p_t">Press title</string>
     <string name="select_something">Select something first</string>
+    <string name="update">New version is available</string>
+    <string name="download">Download</string>
+    <string name="dsa">Don\'t show again</string>
+    <string name="update_version">Version %1$s</string>
+    <string name="failed_to_check_for_updates">Failed to check for updates</string>
+    <string name="install">Install</string>
 </resources>

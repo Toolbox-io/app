@@ -11,16 +11,40 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
 
 object Settings {
     private lateinit var applicationContext: Context
+    private lateinit var sharedPref: SharedPreferences
     private var init = false
 
     fun init(context: Context) {
         if (!init) {
             applicationContext = context
+            sharedPref = applicationContext.getSharedPreferences("main", Context.MODE_PRIVATE)
             // Init sub-objects
             Applocker.init()
             init = true
         }
     }
+
+    var installPackage_dsa: Boolean
+        get() = sharedPref.getBoolean("installPackage_dsa", false)
+        set(value) {
+            if (value) {
+                with(sharedPref.edit()) {
+                    putBoolean("installPackage_dsa", true)
+                    apply()
+                }
+            }
+        }
+
+    var update_dsa: Boolean
+        get() = sharedPref.getBoolean("update_dsa", false)
+        set(value) {
+            if (value) {
+                with(sharedPref.edit()) {
+                    putBoolean("update_dsa", true)
+                    apply()
+                }
+            }
+        }
 
     object Applocker {
         private lateinit var sharedPref: SharedPreferences
