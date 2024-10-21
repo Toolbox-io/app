@@ -20,6 +20,7 @@ import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
+import ru.morozovit.ultimatesecurity.Settings.applicationContext
 import ru.morozovit.ultimatesecurity.Settings.installPackage_dsa
 import ru.morozovit.ultimatesecurity.Settings.update_dsa
 import ru.morozovit.ultimatesecurity.databinding.HomeBinding
@@ -145,8 +146,16 @@ class HomeFragment : Fragment() {
     }
 
     @SuppressLint("StaticFieldLeak")
-    inner class UpdateChecker: AsyncTask<Unit, Unit, Unit>() {
-        override fun doInBackground(vararg params: Unit?) {
+    inner class UpdateChecker: AsyncTask<Any, Unit, Unit>() {
+        override fun doInBackground(vararg args: Any?) {
+            val interactive = args[0] as Boolean
+
+            val binding: HomeBinding? = if (interactive) {
+                args[1] as HomeBinding
+            } else {
+                null
+            }
+
             val request = URL("https://api.github.com/repos/denis0001-dev/AIP-Website/releases")
                 .openConnection() as HttpsURLConnection
             request.requestMethod = "GET";
@@ -191,9 +200,9 @@ class HomeFragment : Fragment() {
                 var majorCurrent = 0
                 var minorCurrent = 0
                 var patchCurrent = 0
-                requireActivity()
+                applicationContext
                     .packageManager
-                    .getPackageInfo(requireActivity().packageName, PackageManager.GET_META_DATA)
+                    .getPackageInfo(applicationContext.packageName, PackageManager.GET_META_DATA)
                     .versionName.split(".")
                     .forEachIndexed { index, s ->
                         when (index) {
@@ -221,21 +230,38 @@ class HomeFragment : Fragment() {
                     val cardText =
                         "${if (majorLatest == 0) "" else majorLatest}.${if (minorLatest == 0) "" else minorLatest}.${if (patchLatest == 0) "" else patchLatest}"
 
-                    binding.root.post {
-                        binding.updateCard.visibility = VISIBLE
-                        binding.updateCardVersion.text =
-                            String.format(resources.getString(R.string.update_version), cardText)
-                        binding.updateCardBody.text = description
-                        binding.updateCardDownload.setOnClickListener {
-                            val progress = requireActivity().findViewById<LinearProgressIndicator>(R.id.progress)
-                            progress.visibility = VISIBLE
-                            UpdateDownloader().execute(asset)
+                    if (interactive && binding != null) {
+                        binding.root.post {
+                            binding.updateCard.visibility = VISIBLE
+                            binding.updateCardVersion.text =
+                                String.format(
+                                    resources.getString(R.string.update_version),
+                                    cardText
+                                )
+                            binding.updateCardBody.text = description
+                            binding.updateCardDownload.setOnClickListener {
+                                val progress =
+                                    requireActivity().findViewById<LinearProgressIndicator>(R.id.progress)
+                                progress.visibility = VISIBLE
+                                UpdateDownloader().execute(asset)
+                            }
                         }
+                    } else {
+                        // Notification
+                        /* var builder = NotificationCompat.Builder(requireActivity())
+                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setContentTitle("Update is ready to be downloaded") */
                     }
                 }
             } catch (e: Exception) {
-                binding.root.post {
-                    Snackbar.make(binding.root, R.string.failed_to_check_for_updates, Snackbar.LENGTH_SHORT).show()
+                if (interactive && binding != null) {
+                    binding.root.post {
+                        Snackbar.make(
+                            binding.root,
+                            R.string.failed_to_check_for_updates,
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             } finally {
                 request.disconnect()
@@ -246,7 +272,7 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (!update_dsa) UpdateChecker().execute()
+        if (!update_dsa) UpdateChecker().execute(true, binding)
         binding.updateCardDsa.setOnClickListener {
             update_dsa = true
             binding.updateCard.visibility = GONE

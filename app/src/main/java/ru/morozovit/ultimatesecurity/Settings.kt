@@ -10,7 +10,7 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.NOTHING_SELEC
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
 
 object Settings {
-    private lateinit var applicationContext: Context
+    lateinit var applicationContext: Context
     private lateinit var sharedPref: SharedPreferences
     private var init = false
 
