@@ -1,6 +1,5 @@
 package ru.morozovit.android;
 
-import android.app.Activity;
 import android.content.Intent;
 
 import androidx.activity.result.ActivityResult;
@@ -75,16 +74,9 @@ public final class BetterActivityResult<I, R> {
         launcher.launch(input);
     }
 
-    public void launchIfOK(I input, @Nullable OnActivityResult<R> onActivityResult) {
-        launch(input, result -> {
-            if (((ActivityResult) result).getResultCode() == Activity.RESULT_OK && onActivityResult != null) {
-                onActivityResult.onActivityResult(result);
-            }
-        });
-    }
-
     /**
      * Same as {@link #launch(Object, OnActivityResult)} with last parameter set to {@code null}.
+     * @noinspection unused
      */
     public void launch(I input) {
         launch(input, null);

@@ -105,7 +105,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/cancel"
                     style="@style/Widget.Material3.Button.TextButton"
-                    android:id="@+id/al_um_c" />
+                    android:id="@+id/al_um_c"
+                    tools:ignore="ButtonOrder" />
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

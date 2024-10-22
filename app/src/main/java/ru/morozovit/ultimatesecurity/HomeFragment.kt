@@ -3,8 +3,8 @@
 package ru.morozovit.ultimatesecurity
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
@@ -18,11 +18,10 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.snackbar.Snackbar
-import com.google.gson.JsonArray
-import com.google.gson.JsonParser
 import ru.morozovit.ultimatesecurity.Settings.applicationContext
 import ru.morozovit.ultimatesecurity.Settings.installPackage_dsa
 import ru.morozovit.ultimatesecurity.Settings.update_dsa
+import ru.morozovit.ultimatesecurity.UpdateCheckerService.Companion.checkForUpdates
 import ru.morozovit.ultimatesecurity.databinding.HomeBinding
 import java.io.BufferedInputStream
 import java.io.File
@@ -30,7 +29,6 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.URL
-import javax.net.ssl.HttpsURLConnection
 
 
 class HomeFragment : Fragment() {
@@ -147,90 +145,21 @@ class HomeFragment : Fragment() {
 
     @SuppressLint("StaticFieldLeak")
     inner class UpdateChecker: AsyncTask<Any, Unit, Unit>() {
-        override fun doInBackground(vararg args: Any?) {
-            val interactive = args[0] as Boolean
+        override fun doInBackground(vararg args: Any? /* binding: HomeBinding, context: Activity */) {
+            val binding: HomeBinding = args[0] as HomeBinding
+            val context: Activity = args[1] as Activity
 
-            val binding: HomeBinding? = if (interactive) {
-                args[1] as HomeBinding
-            } else {
-                null
-            }
+            with (context) {
+                try {
+                    val info = checkForUpdates()
 
-            val request = URL("https://api.github.com/repos/denis0001-dev/AIP-Website/releases")
-                .openConnection() as HttpsURLConnection
-            request.requestMethod = "GET";
-            request.setRequestProperty("Accept", "application/vnd.github+json")
-            val token = "gi" + "th" + "ub_p" + "at_11BESRTYY" + "0e5lNGcsHV9Up_7HTMBq6ZkfKYXou7bkc" + "mZVX6nMJ0ua9I" + "sqqcsPGmuHHYCZ" + "J4BDL4f0SSrM0"
+                    // Display the update available
+                    if (info != null && info.available) {
+                        val cardText =
+                            "${info.version.major}." +
+                                    "${info.version.minor}." +
+                                    "${info.version.patch}"
 
-            request.setRequestProperty("Authorization", "Bearer $token")
-            request.setRequestProperty("X-GitHub-Api-Version", "2022-11-28")
-
-            try {
-                val input = BufferedInputStream(request.inputStream)
-                var c: Char;
-
-                val chars: MutableList<Char> = mutableListOf()
-
-                while (true) {
-                    c = input.read().toChar()
-                    if (c == 0.toChar() || c == '\uFFFF') break;
-                    chars.add(c)
-                }
-                val response = String(chars.toCharArray())
-                val parsedResponse = JsonParser.parseString(response) as JsonArray
-
-                val latestRelease = parsedResponse[0].asJsonObject
-                val name = latestRelease["name"].asString;
-                val description = latestRelease["body"].asString
-
-                val asset = latestRelease["assets"].asJsonArray[0].asJsonObject["browser_download_url"].asString
-
-                // Parse the semantic version of the latest release
-                var majorLatest = 0
-                var minorLatest = 0
-                var patchLatest = 0
-                name.substring(1).split(".").forEachIndexed { index, s ->
-                    when (index) {
-                        0 -> majorLatest = s.toInt()
-                        1 -> minorLatest = s.toInt()
-                        2 -> patchLatest = s.toInt()
-                    }
-                }
-                // Parse the semantic version of the current release
-                var majorCurrent = 0
-                var minorCurrent = 0
-                var patchCurrent = 0
-                applicationContext
-                    .packageManager
-                    .getPackageInfo(applicationContext.packageName, PackageManager.GET_META_DATA)
-                    .versionName.split(".")
-                    .forEachIndexed { index, s ->
-                        when (index) {
-                            0 -> majorCurrent = s.toInt()
-                            1 -> minorCurrent = s.toInt()
-                            2 -> patchCurrent = s.toInt()
-                        }
-                    }
-                // Compare
-                var updateAvailable = false
-                if (majorLatest > majorCurrent) {
-                    updateAvailable = true
-                } else if (majorLatest == majorCurrent) {
-                    if (minorLatest > minorCurrent) {
-                        updateAvailable = true
-                    } else if (minorLatest == minorCurrent) {
-                        if (patchLatest > patchCurrent) {
-                            updateAvailable = true
-                        }
-                    }
-                }
-
-                // Display the update available
-                if (updateAvailable) {
-                    val cardText =
-                        "${if (majorLatest == 0) "" else majorLatest}.${if (minorLatest == 0) "" else minorLatest}.${if (patchLatest == 0) "" else patchLatest}"
-
-                    if (interactive && binding != null) {
                         binding.root.post {
                             binding.updateCard.visibility = VISIBLE
                             binding.updateCardVersion.text =
@@ -238,23 +167,15 @@ class HomeFragment : Fragment() {
                                     resources.getString(R.string.update_version),
                                     cardText
                                 )
-                            binding.updateCardBody.text = description
+                            binding.updateCardBody.text = info.description
                             binding.updateCardDownload.setOnClickListener {
-                                val progress =
-                                    requireActivity().findViewById<LinearProgressIndicator>(R.id.progress)
+                                val progress = findViewById<LinearProgressIndicator>(R.id.progress)
                                 progress.visibility = VISIBLE
-                                UpdateDownloader().execute(asset)
+                                UpdateDownloader().execute(info.download)
                             }
                         }
-                    } else {
-                        // Notification
-                        /* var builder = NotificationCompat.Builder(requireActivity())
-                            .setSmallIcon(R.mipmap.ic_launcher)
-                            .setContentTitle("Update is ready to be downloaded") */
-                    }
-                }
-            } catch (e: Exception) {
-                if (interactive && binding != null) {
+                    } else {}
+                } catch (e: Exception) {
                     binding.root.post {
                         Snackbar.make(
                             binding.root,
@@ -263,16 +184,14 @@ class HomeFragment : Fragment() {
                         ).show()
                     }
                 }
-            } finally {
-                request.disconnect()
             }
         }
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (!update_dsa) UpdateChecker().execute(true, binding)
+        if (!update_dsa) UpdateChecker().execute(binding, requireActivity())
+        applicationContext.startService(Intent(applicationContext, UpdateCheckerService::class.java))
         binding.updateCardDsa.setOnClickListener {
             update_dsa = true
             binding.updateCard.visibility = GONE

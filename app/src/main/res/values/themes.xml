@@ -25,15 +25,6 @@
     </style>
 
 
-    <style name="Theme.UltimateSecurity.AppBarOverlay" parent="ThemeOverlay.Material3.Dark.ActionBar" />
-
     <style name="Theme.UltimateSecurity.PopupOverlay" parent="ThemeOverlay.Material3.Light" />
 
-    <style name="Theme.MainSwitchCard" parent="Widget.Material3.CardView.Filled">
-        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent</item>
-    </style>
-
-    <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.Material3.MediumComponent">
-        <item name="cornerSize">20dp</item>
-    </style>
 </resources>
