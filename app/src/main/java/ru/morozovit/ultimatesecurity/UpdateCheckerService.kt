@@ -2,24 +2,40 @@
 
 package ru.morozovit.ultimatesecurity;
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.AsyncTask
 import android.os.AsyncTask.THREAD_POOL_EXECUTOR
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.PRIORITY_DEFAULT
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.FileProvider
+import androidx.core.os.postDelayed
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import ru.morozovit.ultimatesecurity.Settings.applicationContext
 import java.io.BufferedInputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.io.OutputStream
+import java.io.Serializable
 import java.net.URL
+import java.util.concurrent.Executor
 import javax.net.ssl.HttpsURLConnection
 
 class UpdateCheckerService: Service() {
@@ -27,12 +43,19 @@ class UpdateCheckerService: Service() {
         const val UPDATE_AVAILABLE_NOTIFICATION_ID = 1
         const val UPDATE_AVAILABLE_CHANNEL_ID = "update"
 
-        data class SemanticVersion(val major: Number = 0, val minor: Number = 0, val patch: Number = 0)
+        const val DOWNLOAD_NOTIFICATION_ID = 2
+        const val DOWNLOAD_CHANNEL_ID = "download"
+
+        const val DOWNLOAD_BROADCAST = "UpdateCheckerService.DOWNLOAD"
+
+        var running = false
+
+        data class SemanticVersion(val major: Number = 0, val minor: Number = 0, val patch: Number = 0): Serializable
         data class UpdateInfo(
             val available: Boolean,
             val version: SemanticVersion,
             val description: String,
-            val download: String)
+            val download: String): Serializable
 
         @Suppress("UNUSED_VALUE")
         fun checkForUpdates(): UpdateInfo? {
@@ -118,35 +141,27 @@ class UpdateCheckerService: Service() {
                 }
             }
         }
-    }
 
-    private var interrupted = false
+        class DownloadBroadcastReceiver: BroadcastReceiver() {
+            @SuppressLint("StaticFieldLeak")
+            inner class Task : AsyncTask<String, String, Unit>() {
+                private lateinit var file: File
+                private lateinit var mime: String
+                private lateinit var builder: NotificationCompat.Builder
 
-    override fun onBind(intent: Intent) = null
-
-    @SuppressLint("StaticFieldLeak")
-    inner class Task: AsyncTask<Unit, Unit, Unit>() {
-        override fun doInBackground(vararg params: Unit?) {
-            while (!interrupted) {
-                val info = checkForUpdates()
-                if (info != null) {
-                    val text =
-                        "${info.version.major}." +
-                                "${info.version.minor}." +
-                                "${info.version.patch}"
-
-                    // Notification
-                    val builder = NotificationCompat.Builder(applicationContext, UPDATE_AVAILABLE_CHANNEL_ID)
+                override fun onPreExecute() {
+                    super.onPreExecute()
+                    builder = NotificationCompat.Builder(applicationContext, DOWNLOAD_CHANNEL_ID)
                         .setSmallIcon(R.mipmap.ic_launcher)
-                        .setContentTitle("Update available")
-                        .setContentText("Version $text")
-                        .setStyle(NotificationCompat.BigTextStyle().bigText(info.description))
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                        .setContentTitle("Downloading update...")
+                        .setContentText("")
+                        .setPriority(PRIORITY_DEFAULT)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        val channelName = "Update"
-                        val descriptionText = "When a new version is available"
-                        val importance = NotificationManager.IMPORTANCE_DEFAULT
-                        val channel = NotificationChannel(UPDATE_AVAILABLE_CHANNEL_ID, channelName, importance)
+                        val channelName = "Update download"
+                        val descriptionText = "When an update is being downloaded"
+                        val importance = NotificationManager.IMPORTANCE_LOW
+                        val channel =
+                            NotificationChannel(DOWNLOAD_CHANNEL_ID, channelName, importance)
                         channel.description = descriptionText
                         // Register the channel with the system.
                         val notificationManager: NotificationManager =
@@ -158,7 +173,7 @@ class UpdateCheckerService: Service() {
                     with(NotificationManagerCompat.from(applicationContext)) notification@{
                         if (ActivityCompat.checkSelfPermission(
                                 applicationContext,
-                                android.Manifest.permission.POST_NOTIFICATIONS
+                                Manifest.permission.POST_NOTIFICATIONS
                             ) != PackageManager.PERMISSION_GRANTED
                         ) {
                             // TODO: Consider calling
@@ -172,7 +187,213 @@ class UpdateCheckerService: Service() {
                             return@notification
                         }
                         // notificationId is a unique int for each notification that you must define.
-                        notify(UPDATE_AVAILABLE_NOTIFICATION_ID, builder.build())
+                        notify(DOWNLOAD_NOTIFICATION_ID, builder.build())
+                        cancel(UPDATE_AVAILABLE_NOTIFICATION_ID)
+                    }
+                }
+
+                override fun doInBackground(vararg params: String?) {
+                    var count: Int
+                    try {
+                        val url = URL(params[0])
+                        val connection = url.openConnection()
+                        connection.connect()
+                        mime = connection.contentType
+
+                        // this will be useful so that you can show a tipical 0-100%
+                        // progress bar
+                        val lengthOfFile = connection.contentLength
+
+                        // download the file
+                        val input: InputStream = BufferedInputStream(
+                            url.openStream(),
+                            8192
+                        )
+
+                        // Output stream
+                        file = File(applicationContext.cacheDir.absolutePath + "/update.apk")
+                        if (file.exists()) {
+                            file.delete()
+                        }
+                        file.createNewFile()
+
+                        val output: OutputStream = FileOutputStream(file)
+                        val data = ByteArray(1024)
+                        var total: Long = 0
+
+                        while ((input.read(data).also { count = it }) != -1) {
+                            total += count.toLong()
+                            // publishing the progress....
+                            // After this onProgressUpdate will be called
+                            publishProgress("" + ((total * 100) / lengthOfFile).toInt())
+
+                            // writing data to file
+                            output.write(data, 0, count)
+                        }
+
+                        // flushing output
+                        output.flush()
+
+                        // closing streams
+                        output.close()
+                        input.close()
+                    } catch (e: java.lang.Exception) {
+                        Log.e("Error: ", e.message!!)
+                    }
+                }
+
+                override fun onProgressUpdate(vararg progress: String) {
+                    // setting progress percentage
+                    builder.setProgress(100, progress[0].toInt(), false)
+                    if (ActivityCompat.checkSelfPermission(
+                            applicationContext,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                        return
+                    }
+                    NotificationManagerCompat.from(applicationContext).notify(
+                        DOWNLOAD_NOTIFICATION_ID, builder.build()
+                    )
+
+                }
+
+                override fun onPostExecute(result: Unit?) {
+                    val install = Intent(Intent.ACTION_INSTALL_PACKAGE)
+                    install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    install.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    install.data = FileProvider.getUriForFile(
+                        applicationContext,
+                        applicationContext.applicationContext.packageName + ".provider",
+                        file
+                    )
+
+                    val pendingIntent = PendingIntent.getActivity(applicationContext, 0, install, FLAG_IMMUTABLE)
+
+                    builder.setContentTitle("Update is ready")
+                        .setContentText("Tap to install")
+                        .setProgress(0, 0, false)
+                        .setContentIntent(pendingIntent)
+                        .setAutoCancel(true)
+
+                    if (ActivityCompat.checkSelfPermission(
+                            applicationContext,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) != PackageManager.PERMISSION_GRANTED
+                    ) return
+
+                    Handler(Looper.getMainLooper()).postDelayed(1000) {
+                        NotificationManagerCompat.from(applicationContext).notify(
+                            DOWNLOAD_NOTIFICATION_ID, builder.build()
+                        )
+                    }
+                }
+            }
+
+            override fun onReceive(context: Context, intent: Intent) {
+                val executor = Executor { command -> Thread(command).start() }
+                Task().executeOnExecutor(
+                    executor,
+                    (intent.getSerializableExtra("updateInfo") as UpdateInfo).download
+                )
+            }
+        }
+    }
+
+    private var interrupted = false
+    private var checked = false
+
+    override fun onBind(intent: Intent) = null
+
+    @SuppressLint("StaticFieldLeak")
+    inner class Task: AsyncTask<Unit, Unit, Unit>() {
+        override fun doInBackground(vararg params: Unit?) {
+            while (!interrupted) {
+                if (!checked) {
+                    val info = checkForUpdates()
+                    if (info != null) {
+                        val text =
+                            "${info.version.major}." +
+                                    "${info.version.minor}." +
+                                    "${info.version.patch}"
+
+                        // Notification
+                        val downloadIntent =
+                            Intent(this@UpdateCheckerService, DownloadBroadcastReceiver::class.java)
+                                .apply {
+                                    action = DOWNLOAD_BROADCAST
+                                    putExtra(UPDATE_AVAILABLE_CHANNEL_ID, 0)
+                                    putExtra("updateInfo", info)
+                                }
+                        val downloadPendingIntent = PendingIntent.getBroadcast(
+                            this@UpdateCheckerService, 0, downloadIntent,
+                            PendingIntent.FLAG_MUTABLE
+                        )
+                        val mainIntent = Intent(this@UpdateCheckerService, MainActivity::class.java)
+
+                        val pendingIntent = PendingIntent.getActivity(
+                            this@UpdateCheckerService, 0, mainIntent,
+                            FLAG_IMMUTABLE
+                        )
+
+                        val builder = NotificationCompat.Builder(
+                            applicationContext,
+                            UPDATE_AVAILABLE_CHANNEL_ID
+                        )
+                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setContentTitle("Update available")
+                            .setContentText("Version $text")
+                            .setStyle(NotificationCompat.BigTextStyle().bigText(info.description))
+                            .setPriority(PRIORITY_DEFAULT)
+                            .setContentIntent(pendingIntent)
+                            .addAction(R.mipmap.ic_launcher, "Download", downloadPendingIntent)
+                            .setAutoCancel(true)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            val channelName = "Update"
+                            val descriptionText = "When a new version is available"
+                            val importance = NotificationManager.IMPORTANCE_DEFAULT
+                            val channel = NotificationChannel(
+                                UPDATE_AVAILABLE_CHANNEL_ID,
+                                channelName,
+                                importance
+                            )
+                            channel.description = descriptionText
+                            // Register the channel with the system.
+                            val notificationManager: NotificationManager =
+                                applicationContext.getSystemService(
+                                    Context.NOTIFICATION_SERVICE
+                                ) as NotificationManager
+                            notificationManager.createNotificationChannel(channel)
+                        }
+
+                        with(NotificationManagerCompat.from(applicationContext)) notification@{
+                            if (ActivityCompat.checkSelfPermission(
+                                    applicationContext,
+                                    Manifest.permission.POST_NOTIFICATIONS
+                                ) != PackageManager.PERMISSION_GRANTED
+                            ) {
+                                // TODO: Consider calling
+                                // ActivityCompat#requestPermissions
+                                // here to request the missing permissions, and then overriding
+                                // public fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
+                                //                                        grantResults: IntArray)
+                                // to handle the case where the user grants the permission. See the documentation
+                                // for ActivityCompat#requestPermissions for more details.
+
+                                return@notification
+                            }
+                            // notificationId is a unique int for each notification that you must define.
+                            notify(UPDATE_AVAILABLE_NOTIFICATION_ID, builder.build())
+                        }
+                        checked = true
                     }
                 }
                 Thread.sleep(10 * 1000)
@@ -181,6 +402,8 @@ class UpdateCheckerService: Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        running = true
+        Settings.init(applicationContext)
         Task().executeOnExecutor(THREAD_POOL_EXECUTOR)
         return super.onStartCommand(intent, flags, startId)
     }
@@ -188,5 +411,6 @@ class UpdateCheckerService: Service() {
     override fun onDestroy() {
         super.onDestroy()
         interrupted = true
+        running = false
     }
 }

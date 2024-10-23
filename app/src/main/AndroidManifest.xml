@@ -79,6 +79,16 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-    </application>
 
+        <receiver android:name=".UpdateCheckerService$Companion$DownloadBroadcastReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="UpdateCheckerService.DOWNLOAD" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".UpdateCheckerService$Companion$InstallBroadcastReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="UpdateCheckerService.INSTALL" />
+            </intent-filter>
+        </receiver>
+    </application>
 </manifest>

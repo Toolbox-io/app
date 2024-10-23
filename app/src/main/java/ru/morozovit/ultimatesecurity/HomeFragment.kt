@@ -191,7 +191,14 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (!update_dsa) UpdateChecker().execute(binding, requireActivity())
-        applicationContext.startService(Intent(applicationContext, UpdateCheckerService::class.java))
+        if (!UpdateCheckerService.running) {
+            applicationContext.startService(
+                Intent(
+                    applicationContext,
+                    UpdateCheckerService::class.java
+                )
+            )
+        }
         binding.updateCardDsa.setOnClickListener {
             update_dsa = true
             binding.updateCard.visibility = GONE
