@@ -85,10 +85,5 @@
                 <action android:name="UpdateCheckerService.DOWNLOAD" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".UpdateCheckerService$Companion$InstallBroadcastReceiver" android:exported="false">
-            <intent-filter>
-                <action android:name="UpdateCheckerService.INSTALL" />
-            </intent-filter>
-        </receiver>
     </application>
 </manifest>
