@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
 
     <queries>
@@ -37,9 +38,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".applocker.PermissionsRequiredActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
         <activity
             android:name=".SelectAppsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
@@ -83,6 +81,21 @@
         <receiver android:name=".UpdateCheckerService$Companion$DownloadBroadcastReceiver" android:exported="false">
             <intent-filter>
                 <action android:name="UpdateCheckerService.DOWNLOAD" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".DeviceAdmin"
+            android:description="@string/app_name"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_DEVICE_ADMIN">
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/device_admin" />
+
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
         </receiver>
     </application>

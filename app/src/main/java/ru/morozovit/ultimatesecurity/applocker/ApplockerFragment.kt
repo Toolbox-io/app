@@ -13,12 +13,14 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.result.ActivityResult
 import androidx.fragment.app.Fragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.ui.makeSwitchCard
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.SelectAppsActivity
 import ru.morozovit.ultimatesecurity.Service
+import ru.morozovit.ultimatesecurity.Service.Companion.waitingForAccessibility
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.Applocker.getUnlockModeDescription
 import ru.morozovit.ultimatesecurity.Settings.Applocker.unlockMode
@@ -31,6 +33,7 @@ import java.lang.Thread.sleep
 class ApplockerFragment : Fragment() {
     private lateinit var binding: ApplockerBinding
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
+    private var checkListener = true
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,24 +50,29 @@ class ApplockerFragment : Fragment() {
         // TODO fix android 11 bug with accesibility service
         activityLauncher = BetterActivityResult.registerActivityForResult(this)
         with(binding) {
-            makeSwitchCard(applockerSwitchCard)
+            makeSwitchCard(applockerSwitchCard, applockerSwitch)
             if (isAccessibilityPermissionAvailable)
                 applockerSwitch.isChecked = true
 
-            var checkListener = true
-
-            applockerSwitch.setOnCheckedChangeListener { _, checked ->
-                if (checked) {
-                    val intent = Intent(activity, PermissionsRequiredActivity::class.java)
-                    activityLauncher.launch(intent) { result ->
-                        if (result.resultCode != RESULT_OK) {
-                            checkListener = false
-                            applockerSwitch.isChecked = false
-                            checkListener = true
-                        }
-                    }
-                } else {
-                    if (checkListener) {
+            applockerSwitch.setOnCheckedChangeListener { v, checked ->
+                if (checkListener) {
+                    if (checked) {
+                        checkListener = false
+                        v.isChecked = false
+                        checkListener = true
+                        MaterialAlertDialogBuilder(requireActivity())
+                            .setTitle(R.string.permissions_required)
+                            .setMessage(R.string.al_permissions)
+                            .setNegativeButton(R.string.cancel, null)
+                            .setPositiveButton(R.string.ok) { d, _ ->
+                                d.dismiss()
+                                val intent = Intent(ACTION_ACCESSIBILITY_SETTINGS)
+                                intent.flags = FLAG_ACTIVITY_NEW_TASK
+                                waitingForAccessibility = true
+                                startActivity(intent)
+                            }
+                            .show()
+                    } else {
                         var error = false
                         try {
                             Service.instance!!.disable()
@@ -136,6 +144,16 @@ class ApplockerFragment : Fragment() {
             }
 
             binding.alI5C.text = getUnlockModeDescription(unlockMode, resources)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (isAccessibilityPermissionAvailable && waitingForAccessibility) {
+            checkListener = false
+            binding.applockerSwitch.isChecked = true
+            checkListener = true
+            waitingForAccessibility = false
         }
     }
 }

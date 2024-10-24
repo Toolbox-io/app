@@ -1,6 +1,7 @@
 package ru.morozovit.ultimatesecurity
 
 import android.accessibilityservice.AccessibilityService
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK
 import android.content.Intent.FLAG_ACTIVITY_NEW_DOCUMENT
@@ -16,14 +17,23 @@ class Service: AccessibilityService() {
 
     private var prevApp: String? = null
 
+    @SuppressLint("StaticFieldLeak")
     companion object {
         var instance: Service? = null
+        var waitingForAccessibility = false
     }
 
     override fun onServiceConnected() {
         super.onServiceConnected()
         instance = this
         Settings.init(applicationContext)
+        if (waitingForAccessibility) {
+            val intent = Intent(applicationContext, MainActivity::class.java)
+            intent.flags = FLAG_ACTIVITY_NEW_TASK
+            intent.action = Intent.ACTION_MAIN
+            intent.addCategory(Intent.CATEGORY_LAUNCHER)
+            startActivity(intent)
+        }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
