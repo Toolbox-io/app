@@ -43,9 +43,6 @@ class UpdateCheckerService: Service() {
         const val UPDATE_AVAILABLE_NOTIFICATION_ID = 1
         const val UPDATE_AVAILABLE_CHANNEL_ID = "update"
 
-        const val DOWNLOAD_NOTIFICATION_ID = 2
-        const val DOWNLOAD_CHANNEL_ID = "download"
-
         const val DOWNLOAD_BROADCAST = "UpdateCheckerService.DOWNLOAD"
 
         var running = false
@@ -151,44 +148,19 @@ class UpdateCheckerService: Service() {
 
                 override fun onPreExecute() {
                     super.onPreExecute()
-                    builder = NotificationCompat.Builder(applicationContext, DOWNLOAD_CHANNEL_ID)
+                    builder = NotificationCompat.Builder(applicationContext, UPDATE_AVAILABLE_CHANNEL_ID)
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle("Downloading update...")
-                        .setContentText("")
                         .setPriority(PRIORITY_DEFAULT)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        val channelName = "Update download"
-                        val descriptionText = "When an update is being downloaded"
-                        val importance = NotificationManager.IMPORTANCE_LOW
-                        val channel =
-                            NotificationChannel(DOWNLOAD_CHANNEL_ID, channelName, importance)
-                        channel.description = descriptionText
-                        // Register the channel with the system.
-                        val notificationManager: NotificationManager =
-                            applicationContext.getSystemService(
-                                Context.NOTIFICATION_SERVICE
-                            ) as NotificationManager
-                        notificationManager.createNotificationChannel(channel)
-                    }
+                        .setSilent(true)
                     with(NotificationManagerCompat.from(applicationContext)) notification@{
                         if (ActivityCompat.checkSelfPermission(
                                 applicationContext,
                                 Manifest.permission.POST_NOTIFICATIONS
                             ) != PackageManager.PERMISSION_GRANTED
-                        ) {
-                            // TODO: Consider calling
-                            // ActivityCompat#requestPermissions
-                            // here to request the missing permissions, and then overriding
-                            // public fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
-                            //                                        grantResults: IntArray)
-                            // to handle the case where the user grants the permission. See the documentation
-                            // for ActivityCompat#requestPermissions for more details.
+                        ) return@notification
 
-                            return@notification
-                        }
-                        // notificationId is a unique int for each notification that you must define.
-                        notify(DOWNLOAD_NOTIFICATION_ID, builder.build())
-                        cancel(UPDATE_AVAILABLE_NOTIFICATION_ID)
+                        notify(UPDATE_AVAILABLE_NOTIFICATION_ID, builder.build())
                     }
                 }
 
@@ -245,24 +217,16 @@ class UpdateCheckerService: Service() {
                 override fun onProgressUpdate(vararg progress: String) {
                     // setting progress percentage
                     builder.setProgress(100, progress[0].toInt(), false)
+                        .setSilent(true)
                     if (ActivityCompat.checkSelfPermission(
                             applicationContext,
                             Manifest.permission.POST_NOTIFICATIONS
                         ) != PackageManager.PERMISSION_GRANTED
-                    ) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
-                        return
-                    }
-                    NotificationManagerCompat.from(applicationContext).notify(
-                        DOWNLOAD_NOTIFICATION_ID, builder.build()
-                    )
+                    ) return
 
+                    NotificationManagerCompat.from(applicationContext).notify(
+                        UPDATE_AVAILABLE_NOTIFICATION_ID, builder.build()
+                    )
                 }
 
                 override fun onPostExecute(result: Unit?) {
@@ -283,6 +247,7 @@ class UpdateCheckerService: Service() {
                         .setProgress(0, 0, false)
                         .setContentIntent(pendingIntent)
                         .setAutoCancel(true)
+                        .setSilent(false)
 
                     if (ActivityCompat.checkSelfPermission(
                             applicationContext,
@@ -292,7 +257,7 @@ class UpdateCheckerService: Service() {
 
                     Handler(Looper.getMainLooper()).postDelayed(1000) {
                         NotificationManagerCompat.from(applicationContext).notify(
-                            DOWNLOAD_NOTIFICATION_ID, builder.build()
+                            UPDATE_AVAILABLE_NOTIFICATION_ID, builder.build()
                         )
                     }
                 }
@@ -319,7 +284,7 @@ class UpdateCheckerService: Service() {
             while (!interrupted) {
                 if (!checked) {
                     val info = checkForUpdates()
-                    if (info != null) {
+                    if (info != null && info.available) {
                         val text =
                             "${info.version.major}." +
                                     "${info.version.minor}." +
@@ -379,17 +344,8 @@ class UpdateCheckerService: Service() {
                                     applicationContext,
                                     Manifest.permission.POST_NOTIFICATIONS
                                 ) != PackageManager.PERMISSION_GRANTED
-                            ) {
-                                // TODO: Consider calling
-                                // ActivityCompat#requestPermissions
-                                // here to request the missing permissions, and then overriding
-                                // public fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
-                                //                                        grantResults: IntArray)
-                                // to handle the case where the user grants the permission. See the documentation
-                                // for ActivityCompat#requestPermissions for more details.
+                            ) return@notification
 
-                                return@notification
-                            }
                             // notificationId is a unique int for each notification that you must define.
                             notify(UPDATE_AVAILABLE_NOTIFICATION_ID, builder.build())
                         }
