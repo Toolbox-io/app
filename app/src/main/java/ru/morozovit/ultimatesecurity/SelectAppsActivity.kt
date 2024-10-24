@@ -28,7 +28,7 @@ class SelectAppsActivity: AppCompatActivity() {
         
         val appList = packageManager.getInstalledPackages(0).toMutableList()
         binding.selappsRv.layoutManager = LinearLayoutManager(this)
-        binding.selappsRv.adapter = AppAdapter(appList) // TODO fix error
+        binding.selappsRv.adapter = AppAdapter(appList)
 
         val listener: (View?) -> Unit = {
             saveChoice()
