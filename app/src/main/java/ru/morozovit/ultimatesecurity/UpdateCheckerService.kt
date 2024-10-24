@@ -324,7 +324,7 @@ class UpdateCheckerService: Service() {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             val channelName = "Update"
                             val descriptionText = "When a new version is available"
-                            val importance = NotificationManager.IMPORTANCE_DEFAULT
+                            val importance = NotificationManager.IMPORTANCE_HIGH
                             val channel = NotificationChannel(
                                 UPDATE_AVAILABLE_CHANNEL_ID,
                                 channelName,
