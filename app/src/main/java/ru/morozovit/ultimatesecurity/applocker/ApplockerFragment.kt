@@ -140,7 +140,9 @@ class ApplockerFragment : Fragment() {
 
             binding.alUm.setOnClickListener {
                 val intent = Intent(activity, UnlockModeActivity::class.java)
-                startActivity(intent)
+                activityLauncher.launch(intent) {
+                    binding.alI5C.text = getUnlockModeDescription(unlockMode, resources)
+                }
             }
 
             binding.alI5C.text = getUnlockModeDescription(unlockMode, resources)

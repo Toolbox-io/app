@@ -13,6 +13,7 @@ import androidx.core.view.postDelayed
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_APP_INFO
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_CLOSE
+import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_OPEN_APP_AGAIN
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_TITLE
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
 import ru.morozovit.ultimatesecurity.Settings.Applocker.unlockMode
@@ -66,6 +67,17 @@ class FakeCrashActivity: AppCompatActivity() {
             }
         }
 
+        binding.alFcOaaB?.setOnClickListener {
+            if (packageName != "") {
+                val intent = applicationContext
+                    .packageManager
+                    .getLaunchIntentForPackage(packageName)
+                startActivity(intent)
+                setResult(RESULT_OK)
+                finish()
+            }
+        }
+
         val listener: (View?) -> Boolean = {
             setResult(RESULT_OK)
             finish()
@@ -86,6 +98,7 @@ class FakeCrashActivity: AppCompatActivity() {
             LONG_PRESS_CLOSE -> binding.alFcCaB.setOnLongClickListener(listener)
             LONG_PRESS_TITLE -> binding.alFcL.setOnLongClickListener(listener)
             PRESS_TITLE -> binding.alFcL.setOnClickListener { listener(binding.alFcL) }
+            LONG_PRESS_OPEN_APP_AGAIN -> binding.alFcOaaB?.setOnLongClickListener { listener(binding.alFcOaaB) }
         }
 
         binding.alFcCaB.setOnClickListener {

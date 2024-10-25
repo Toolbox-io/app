@@ -54,6 +54,9 @@ class PasswordInputActivity: AppCompatActivity() {
             true -> {
                 binding.pwIm.visibility = GONE
                 binding.pwSm.visibility = VISIBLE
+                if (Settings.Applocker.password.isEmpty()) {
+                    binding.pwOpw.visibility = GONE
+                }
             }
             false -> {
                 binding.pwIm.visibility = VISIBLE

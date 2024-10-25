@@ -19,7 +19,7 @@
     <string name="pr_wasnt_granted">The permission wasn\'t granted, try again</string>
     <string name="appinfo">App info</string>
     <string name="closeapp">Close app</string>
-    <string name="app_keeps_stopping">%1$s keeps stopping</string>
+    <string name="app_keeps_stopping">%1$s has stopped</string>
     <string name="error_disabling_service">Error disabling service</string>
     <string name="select_apps">Applications</string>
     <string name="select_apps_d">Select the applications to apply protection to</string>
@@ -66,4 +66,7 @@
     <string name="yes">Yes</string>
     <string name="al_permissions">This feature requires the accessibility permission in order to work.\nThe permission is needed for:\n- detecting when an app gets opened, and if it\'s in the list of selected apps, close it and show a fake crash dialog\nThis permission is NEVER used for anything not listed here.\nYou will be taken back to the app after granting this permission.</string>
     <string name="grant_notification">Grant the notification permission to know when an update is available</string>
+    <string name="open_app_again">Open app again</string>
+    <string name="lp_oaa">Long press \"Open app again\"</string>
+    <string name="p_oaa">Press \"Open app again\"</string>
 </resources>
