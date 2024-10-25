@@ -153,6 +153,7 @@ class UpdateCheckerService: Service() {
                         .setContentTitle("Downloading update...")
                         .setPriority(PRIORITY_DEFAULT)
                         .setSilent(true)
+                        .setOngoing(false)
                     with(NotificationManagerCompat.from(applicationContext)) notification@{
                         if (ActivityCompat.checkSelfPermission(
                                 applicationContext,
@@ -218,6 +219,7 @@ class UpdateCheckerService: Service() {
                     // setting progress percentage
                     builder.setProgress(100, progress[0].toInt(), false)
                         .setSilent(true)
+                        .setOngoing(true)
                     if (ActivityCompat.checkSelfPermission(
                             applicationContext,
                             Manifest.permission.POST_NOTIFICATIONS
@@ -248,6 +250,7 @@ class UpdateCheckerService: Service() {
                         .setContentIntent(pendingIntent)
                         .setAutoCancel(true)
                         .setSilent(false)
+                        .setOngoing(false)
 
                     if (ActivityCompat.checkSelfPermission(
                             applicationContext,
