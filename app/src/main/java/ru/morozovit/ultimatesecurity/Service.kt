@@ -66,10 +66,16 @@ class Service: AccessibilityService() {
 
     fun disable() {
         disableSelf()
+        instance = null
     }
 
     override fun onInterrupt() {
         interrupted = true
         instance = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        onInterrupt()
     }
 }
