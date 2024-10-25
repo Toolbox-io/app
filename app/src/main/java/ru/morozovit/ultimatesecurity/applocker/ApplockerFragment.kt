@@ -24,9 +24,9 @@ import ru.morozovit.ultimatesecurity.Service.Companion.waitingForAccessibility
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.Applocker.getUnlockModeDescription
 import ru.morozovit.ultimatesecurity.Settings.Applocker.unlockMode
+import ru.morozovit.ultimatesecurity.Settings.accessibility
 import ru.morozovit.ultimatesecurity.databinding.ApplockerBinding
 import ru.morozovit.ultimatesecurity.homeScreen
-import ru.morozovit.ultimatesecurity.isAccessibilityPermissionAvailable
 import java.lang.Thread.sleep
 
 
@@ -51,7 +51,7 @@ class ApplockerFragment : Fragment() {
         activityLauncher = BetterActivityResult.registerActivityForResult(this)
         with(binding) {
             makeSwitchCard(applockerSwitchCard, applockerSwitch)
-            if (isAccessibilityPermissionAvailable)
+            if (accessibility)
                 applockerSwitch.isChecked = true
 
             applockerSwitch.setOnCheckedChangeListener { v, checked ->
@@ -80,7 +80,7 @@ class ApplockerFragment : Fragment() {
                             error = true
                         }
 
-                        if (isAccessibilityPermissionAvailable || error) {
+                        if (accessibility || error) {
                             applockerSwitch.isChecked = true
                             Snackbar.make(
                                 root,
@@ -151,7 +151,7 @@ class ApplockerFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if (isAccessibilityPermissionAvailable && waitingForAccessibility) {
+        if (accessibility && waitingForAccessibility) {
             checkListener = false
             binding.applockerSwitch.isChecked = true
             checkListener = true

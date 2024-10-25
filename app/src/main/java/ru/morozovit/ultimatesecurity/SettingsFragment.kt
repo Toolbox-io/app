@@ -34,7 +34,7 @@ class SettingsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        super.onViewCreated(view, null)
         activityLauncher = BetterActivityResult.registerActivityForResult(this)
         dpm = requireActivity().getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
         adminComponentName = ComponentName(requireActivity(), DeviceAdmin::class.java)
@@ -66,6 +66,7 @@ class SettingsFragment : Fragment() {
                     }
                 } else {
                     dpm.removeActiveAdmin(adminComponentName)
+                    Settings.UnlockProtection.enabled = false
                 }
             }
         }
@@ -88,4 +89,6 @@ class SettingsFragment : Fragment() {
                 .show()
         }
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {}
 }

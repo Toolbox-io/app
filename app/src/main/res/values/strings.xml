@@ -69,4 +69,14 @@
     <string name="open_app_again">Open app again</string>
     <string name="lp_oaa">Long press \"Open app again\"</string>
     <string name="p_oaa">Press \"Open app again\"</string>
+    <string name="unlock_protection">Unlock protection</string>
+    <string name="unlock_protection_enable">Enable</string>
+    <string name="unlock_attempts">Unlock attempts</string>
+    <string name="unlock_attempts_d">The number of failed unlock attempts needed to trigger the security</string>
+    <string name="actions">Actions</string>
+    <string name="actions_d">The actions that will be taken when the security is triggered</string>
+    <string name="erase_unlock_attempts">Unlock attempts to erase</string>
+    <string name="erase_unlock_attempts_d">The number of failed unlock attempts before the device data is erased.\nWARNING! All your data will be lost if it isn\'t backed up. Don\'t set this setting to a low value, as you may accidentally type an incorrect password.</string>
+    <string name="attempts">Attempts</string>
+    <string name="up_permissions">This feature requires the device administrator permission in order to work.\nIt\'s used for the following:\n- Detect failed unlock attempts and take the required actions\n- Wipe your device if there was too many failed unlock attempts (configurable)\n- Disable the camera on the lock screen to prevent abuse\nThis app NEVER uses this permissions for anything not listed here.</string>
 </resources>

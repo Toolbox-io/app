@@ -34,11 +34,22 @@ class MainActivity : AppCompatActivity() {
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_applocker, R.id.nav_settings
+                R.id.nav_home, R.id.nav_applocker, R.id.nav_unlock_protection, R.id.nav_settings
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        /* navView.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+            @ExperimentalBadgeUtils
+            override fun onGlobalLayout() {
+                    val badgeDrawable = BadgeDrawable.create(this@MainActivity)
+                    badgeDrawable.verticalOffset = 25
+                    badgeDrawable.horizontalOffset = 15
+                    BadgeUtils.attachBadgeDrawable(badgeDrawable, navView, null)
+                    navView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                }
+            }) */
 
         if (Build.VERSION.SDK_INT >= 33) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {

@@ -8,16 +8,7 @@ import android.content.Intent.ACTION_MAIN
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.content.res.Resources
-import android.provider.Settings
 import androidx.fragment.app.Fragment
-
-
-val isAccessibilityPermissionAvailable: Boolean get()  =
-    try {
-        Service.instance != null
-    } catch (e: Settings.SettingNotFoundException) {
-        false
-    }
 
 val screenWidth: Int get() = Resources.getSystem().displayMetrics.widthPixels
 val screenHeight: Int get() = Resources.getSystem().displayMetrics.heightPixels

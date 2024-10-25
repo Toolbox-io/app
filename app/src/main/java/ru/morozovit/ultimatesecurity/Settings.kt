@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.os.Build
+import android.provider.Settings
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_APP_INFO
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_CLOSE
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_OPEN_APP_AGAIN
@@ -16,12 +17,17 @@ object Settings {
     private lateinit var sharedPref: SharedPreferences
     private var init = false
 
+    private interface SettingsObj {
+        fun init()
+    }
+
     fun init(context: Context) {
         if (!init) {
             applicationContext = context
             sharedPref = applicationContext.getSharedPreferences("main", Context.MODE_PRIVATE)
             // Init sub-objects
             Applocker.init()
+            UnlockProtection.init()
             init = true
         }
     }
@@ -48,11 +54,18 @@ object Settings {
             }
         }
 
-    object Applocker {
+    val accessibility: Boolean get()  =
+        try {
+            Service.instance != null
+        } catch (e: Settings.SettingNotFoundException) {
+            false
+        }
+
+    object Applocker: SettingsObj {
         private lateinit var sharedPref: SharedPreferences
         private var init = false
 
-        fun init() {
+        override fun init() {
             if (!init) {
                 sharedPref =
                     applicationContext.getSharedPreferences("applocker", Context.MODE_PRIVATE)
@@ -109,5 +122,49 @@ object Settings {
             LONG_PRESS_OPEN_APP_AGAIN -> resources.getString(R.string.lp_oaa)
             else -> ""
         }
+    }
+
+    object UnlockProtection: SettingsObj {
+        private lateinit var sharedPref: SharedPreferences
+        private var init = false
+
+        override fun init() {
+            if (!init) {
+                sharedPref =
+                    applicationContext.getSharedPreferences("unlockProtection", Context.MODE_PRIVATE)
+                init = true
+            }
+        }
+
+        var enabled: Boolean
+            get() = sharedPref.getBoolean("enabled", false)
+            set(value) {
+                if (value) with(sharedPref.edit()) {
+                    putBoolean("enabled", true)
+                    apply()
+                }
+            }
+
+        var unlockAttempts: Int
+            get() = sharedPref.getInt("unlockAttempts", 2)
+            set(value) = with(sharedPref.edit()) {
+                putInt("unlockAttempts", value)
+                apply()
+            }
+        var unlockAttemptsToErase: Int
+            get() = sharedPref.getInt("unlockAttemptsToErase", 15)
+            set(value) = with(sharedPref.edit()) {
+                putInt("unlockAttemptsToErase", value)
+                apply()
+            }
+
+        var erase: Boolean
+            get() = sharedPref.getBoolean("erase", false)
+            set(value) {
+                if (value) with(sharedPref.edit()) {
+                    putBoolean("erase", true)
+                    apply()
+                }
+            }
     }
 }
