@@ -26,7 +26,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.UltimateSecurity"
-        tools:targetApi="31">
+        tools:targetApi="31"
+        android:name=".App">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -53,6 +54,12 @@
             android:name=".applocker.UnlockModeActivity"
             android:excludeFromRecents="true"
             android:theme="@style/Theme.UltimateSecurity.FakeCrash" />
+        <activity
+            android:name=".unlockprotection.ActionsActivity"
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+        <activity
+            android:name=".unlockprotection.AlarmSettingsActivity"
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
 
         <service
             android:name=".Service"

@@ -8,6 +8,8 @@ import android.content.Intent.ACTION_MAIN
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.text.Editable
+import android.widget.EditText
 import androidx.fragment.app.Fragment
 
 val screenWidth: Int get() = Resources.getSystem().displayMetrics.widthPixels
@@ -34,3 +36,6 @@ fun Context.homeScreen() {
 }
 
 fun Fragment.homeScreen() = requireActivity().homeScreen()
+
+fun Editable?.toInt() = toString().toInt()
+fun EditText.toInt() = text.toInt()

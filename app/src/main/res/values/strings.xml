@@ -79,4 +79,18 @@
     <string name="erase_unlock_attempts_d">The number of failed unlock attempts before the device data is erased.\nWARNING! All your data will be lost if it isn\'t backed up. Don\'t set this setting to a low value, as you may accidentally type an incorrect password.</string>
     <string name="attempts">Attempts</string>
     <string name="up_permissions">This feature requires the device administrator permission in order to work.\nIt\'s used for the following:\n- Detect failed unlock attempts and take the required actions\n- Wipe your device if there was too many failed unlock attempts (configurable)\n- Disable the camera on the lock screen to prevent abuse\nThis app NEVER uses this permissions for anything not listed here.</string>
+    <string name="alarm">Alarm</string>
+    <string name="alarm_d">An alarm sound will be played at 100% volume, and any attempts to change it will be prevented</string>
+    <string name="intruderphoto">Intruder photo</string>
+    <string name="intruderphoto_d">Take a photo without the intruder knowing</string>
+    <string name="notification">Notification</string>
+    <string name="notification_d">A notification saying that the security was triggered.\nIt\'s recommended to disable this notification on the lock screen.</string>
+    <string name="sms">SMS message</string>
+    <string name="sms_d">An SMS message will be sent to the selected numbers. Requires a SIM card.</string>
+    <string name="voice">Voice</string>
+    <string name="voice_d">The device will say \"Don\'t touch my phone!\" or something else.</string>
+    <string name="enable">Enable</string>
+    <string name="sound">Sound</string>
+    <string name="sound_d">Select the sound that will be played</string>
+    <string name="add">Add</string>
 </resources>

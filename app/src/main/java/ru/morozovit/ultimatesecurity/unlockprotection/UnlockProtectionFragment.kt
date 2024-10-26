@@ -7,11 +7,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import androidx.activity.result.ActivityResult
 import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -22,6 +20,7 @@ import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.enabled
 import ru.morozovit.ultimatesecurity.databinding.UnlockProtectionBinding
+import ru.morozovit.ultimatesecurity.toInt
 
 class UnlockProtectionFragment : Fragment() {
     private lateinit var binding: UnlockProtectionBinding
@@ -48,18 +47,8 @@ class UnlockProtectionFragment : Fragment() {
 
         // Settings
         val unlockAttempts = binding.upUa
-        val unlockAttemptsToErase = binding.upUaE
-        val unlockAttemptsToEraseSwitch = binding.upI3Sw
 
         unlockAttempts.setText("${Settings.UnlockProtection.unlockAttempts}")
-        unlockAttemptsToErase.setText("${Settings.UnlockProtection.unlockAttemptsToErase}")
-
-        unlockAttemptsToEraseSwitch.setOnCheckedChangeListener { _, isChecked ->
-            Settings.UnlockProtection.erase = isChecked
-            unlockAttemptsToErase.isEnabled = isChecked
-        }
-        unlockAttemptsToEraseSwitch.isChecked = Settings.UnlockProtection.erase
-        unlockAttemptsToErase.isEnabled = unlockAttemptsToEraseSwitch.isChecked
 
         // Switch
         var checkListener = false
@@ -113,14 +102,17 @@ class UnlockProtectionFragment : Fragment() {
         }
 
         checkListener = true
+        // Other buttons
+        binding.upActions.setOnClickListener {
+            val intent = Intent(requireActivity(), ActionsActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun save() {
         val unlockAttempts = binding.upUa
-        val unlockAttemptsToErase = binding.upUaE
 
         Settings.UnlockProtection.unlockAttempts = unlockAttempts.toInt()
-        Settings.UnlockProtection.unlockAttemptsToErase = unlockAttemptsToErase.toInt()
     }
 
     override fun onPause() {
@@ -137,6 +129,3 @@ class UnlockProtectionFragment : Fragment() {
         outState.clear()
     }
 }
-
-fun Editable?.toInt() = toString().toInt()
-fun EditText.toInt() = text.toInt()

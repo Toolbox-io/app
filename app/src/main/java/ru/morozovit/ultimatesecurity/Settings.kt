@@ -132,6 +132,7 @@ object Settings {
             if (!init) {
                 sharedPref =
                     applicationContext.getSharedPreferences("unlockProtection", Context.MODE_PRIVATE)
+                Actions.init()
                 init = true
             }
         }
@@ -139,8 +140,8 @@ object Settings {
         var enabled: Boolean
             get() = sharedPref.getBoolean("enabled", false)
             set(value) {
-                if (value) with(sharedPref.edit()) {
-                    putBoolean("enabled", true)
+                with(sharedPref.edit()) {
+                    putBoolean("enabled", value)
                     apply()
                 }
             }
@@ -151,20 +152,45 @@ object Settings {
                 putInt("unlockAttempts", value)
                 apply()
             }
-        var unlockAttemptsToErase: Int
-            get() = sharedPref.getInt("unlockAttemptsToErase", 15)
-            set(value) = with(sharedPref.edit()) {
-                putInt("unlockAttemptsToErase", value)
-                apply()
-            }
 
-        var erase: Boolean
-            get() = sharedPref.getBoolean("erase", false)
-            set(value) {
-                if (value) with(sharedPref.edit()) {
-                    putBoolean("erase", true)
-                    apply()
+        object Actions: SettingsObj {
+            private lateinit var sharedPref: SharedPreferences
+            private var init = false
+
+            override fun init() {
+                if (!init) {
+                    sharedPref =
+                        applicationContext.getSharedPreferences("unlockProtection.actions", Context.MODE_PRIVATE)
+                    init = true
                 }
             }
+
+            var alarm: Boolean
+                get() = sharedPref.getBoolean("alarm", false)
+                set(value) {
+                    with(sharedPref.edit()) {
+                        putBoolean("alarm", value)
+                        commit()
+                    }
+                }
+
+            var customAlarms: Set<String>
+                get() = sharedPref.getStringSet("customAlarms", setOf())!!
+                set(value) {
+                    with(sharedPref.edit()) {
+                        putStringSet("customAlarms", value)
+                        commit()
+                    }
+                }
+
+            var currentCustomAlarm: String
+                get() = sharedPref.getString("currentCustomAlarm", "")!!
+                set(value) {
+                    with(sharedPref.edit()) {
+                        putString("currentCustomAlarm", value)
+                        commit()
+                    }
+                }
+        }
     }
 }
