@@ -63,7 +63,7 @@ class AlarmSettingsActivity: AppCompatActivity() {
 
         fun createRadiobutton(item: Uri) {
             val radiobutton = RadioButton(this)
-            radiobutton.text = File(item.path!!).nameWithoutExtension.replace("primary:", "")
+            radiobutton.text = File(item.path!!).absolutePath
             val padding = resources.getDimensionPixelSize(R.dimen.padding)
             radiobutton.setPadding(padding, 0, padding, 0)
             binding.upActionsAlarmAlarms.addView(radiobutton)
@@ -117,6 +117,13 @@ class AlarmSettingsActivity: AppCompatActivity() {
         }
         for (item in Settings.UnlockProtection.Actions.customAlarms) {
             createRadiobutton(item)
+        }
+
+        binding.upActionsAlarmClear.setOnClickListener {
+            binding.upActionsAlarmAlarm.isChecked = true
+            binding.upActionsAlarmAlarms.removeAllViews()
+            binding.upActionsAlarmAlarms.addView(binding.upActionsAlarmAlarm)
+            Settings.UnlockProtection.Actions.customAlarms = emptySet()
         }
     }
 

@@ -6,7 +6,7 @@ import android.content.Intent
 import android.content.res.AssetFileDescriptor
 import android.media.AudioAttributes
 import android.media.AudioManager
-import android.media.AudioManager.STREAM_MUSIC
+import android.media.AudioManager.STREAM_ALARM
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Handler
@@ -49,6 +49,12 @@ class DeviceAdmin: DeviceAdminReceiver() {
                     mediaPlayer.apply {
                         if (mediaPlayer.isPlaying) stop()
                         reset()
+                        setAudioAttributes(
+                            AudioAttributes.Builder()
+                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                                .setUsage(AudioAttributes.USAGE_ALARM)
+                                .build()
+                        )
                         if (currentCustomAlarm == "") {
                             val afd: AssetFileDescriptor =
                                 applicationContext.assets.openFd("alarm.mp3")
@@ -58,12 +64,6 @@ class DeviceAdmin: DeviceAdminReceiver() {
                                 afd.length
                             )
                         } else {
-                            setAudioAttributes(
-                                AudioAttributes.Builder()
-                                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                                    .build()
-                            )
                             setDataSource(applicationContext, Uri.parse(currentCustomAlarm))
                         }
                         prepare()
@@ -71,7 +71,7 @@ class DeviceAdmin: DeviceAdminReceiver() {
 
                         Thread {
                             while (mediaPlayer.isPlaying) {
-                                audioManager.setStreamVolume(STREAM_MUSIC, audioManager.getStreamMaxVolume(STREAM_MUSIC), 0);
+                                audioManager.setStreamVolume(STREAM_ALARM, audioManager.getStreamMaxVolume(STREAM_ALARM), 0);
                                 Thread.sleep(100)
                             }
                         }.start()
