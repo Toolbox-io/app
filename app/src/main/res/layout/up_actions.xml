@@ -38,7 +38,8 @@
                 android:layout_height="wrap_content"
                 android:minHeight="56dp"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:layout_marginEnd="6dp">
                 <LinearLayout
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
@@ -107,7 +108,8 @@
                 android:layout_height="wrap_content"
                 android:minHeight="56dp"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:layout_marginEnd="6dp">
                 <LinearLayout
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
@@ -159,8 +161,7 @@
                     app:layout_constraintRight_toRightOf="parent"
                     android:layout_marginEnd="10dp"
                     android:id="@+id/up_actions_i2_sw"
-                    android:saveEnabled="false"
-                    android:enabled="false" />
+                    android:saveEnabled="false" />
 
                 <com.google.android.material.divider.MaterialDivider
                     android:layout_width="match_parent"
@@ -178,7 +179,8 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?attr/selectableItemBackground"
-                android:id="@+id/up_actions_notification">
+                android:id="@+id/up_actions_notification"
+                android:layout_marginEnd="6dp">
                 <LinearLayout
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
@@ -236,7 +238,8 @@
                 android:layout_height="wrap_content"
                 android:minHeight="56dp"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:layout_marginEnd="6dp">
                 <LinearLayout
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
@@ -306,7 +309,8 @@
                 android:layout_height="wrap_content"
                 android:minHeight="56dp"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:layout_marginEnd="6dp">
                 <LinearLayout
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"

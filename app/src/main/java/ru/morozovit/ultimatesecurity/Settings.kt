@@ -191,6 +191,51 @@ object Settings {
                         commit()
                     }
                 }
+
+            var intruderPhoto: Boolean
+                get() = sharedPref.getBoolean("intruderPhoto", false)
+                set(value) {
+                    with(sharedPref.edit()) {
+                        putBoolean("intruderPhoto", value)
+                        commit()
+                    }
+                }
+
+            var intruderPhotoFromBackCam: Boolean
+                get() = sharedPref.getBoolean("intruderPhotoFromBackCam", false)
+                set(value) {
+                    with(sharedPref.edit()) {
+                        putBoolean("intruderPhotoFromBackCam", value)
+                        commit()
+                    }
+                }
+
+            var intruderPhotoFromFrontCam: Boolean
+                get() = sharedPref.getBoolean("intruderPhotoFromFrontCam", false)
+                set(value) {
+                    with(sharedPref.edit()) {
+                        putBoolean("intruderPhotoFromFrontCam", value)
+                        commit()
+                    }
+                }
+
+            var intruderPhotoDirEnabled: Boolean
+                get() = sharedPref.getBoolean("intruderPhotoDirEnabled", false)
+                set(value) {
+                    with(sharedPref.edit()) {
+                        putBoolean("intruderPhotoDirEnabled", value)
+                        commit()
+                    }
+                }
+
+            var intruderPhotoDir: String
+                get() = sharedPref.getString("intruderPhotoDir", "")!!
+                set(value) {
+                    with(sharedPref.edit()) {
+                        putString("intruderPhotoDir", value)
+                        commit()
+                    }
+                }
         }
     }
 }

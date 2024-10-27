@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <uses-permission android:name="android.permission.ACCESSIBILITY_SERVICE" />
     <uses-permission
@@ -11,7 +16,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
-
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <queries>
         <intent>
@@ -59,6 +64,9 @@
             android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
         <activity
             android:name=".unlockprotection.AlarmSettingsActivity"
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+        <activity
+            android:name=".unlockprotection.IntruderPhotoSettingsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
 
         <service

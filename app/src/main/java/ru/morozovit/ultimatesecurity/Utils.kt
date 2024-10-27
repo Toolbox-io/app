@@ -8,9 +8,12 @@ import android.content.Intent.ACTION_MAIN
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.net.Uri
 import android.text.Editable
 import android.widget.EditText
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
+
 
 val screenWidth: Int get() = Resources.getSystem().displayMetrics.widthPixels
 val screenHeight: Int get() = Resources.getSystem().displayMetrics.heightPixels
@@ -34,6 +37,17 @@ fun Context.homeScreen() {
     intentHome.flags = FLAG_ACTIVITY_NEW_TASK
     startActivity(intentHome)
 }
+
+fun Context.fileExists(contentUri: Uri): Boolean {
+    try {
+        val file = DocumentFile.fromTreeUri(this, contentUri)!!
+        return file.exists()
+    } catch (_: Exception) {
+        return false
+    }
+}
+
+fun Context.fileExists(contentUri: String): Boolean = fileExists(Uri.parse(contentUri))
 
 fun Fragment.homeScreen() = requireActivity().homeScreen()
 

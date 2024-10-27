@@ -93,4 +93,12 @@
     <string name="sound">Sound</string>
     <string name="sound_d">Select the sound that will be played</string>
     <string name="add">Add</string>
+    <string name="takefromfrontcam">Take picture from frontal camera</string>
+    <string name="takefrombackcam">Take picture from back camera</string>
+    <string name="intruderphotos">Intruder photos</string>
+    <string name="all">All</string>
+    <string name="backcam">Back camera</string>
+    <string name="frontcam">Front camera</string>
+    <string name="photodir">External photo folder</string>
+    <string name="photodir_d">Select the folder in which the photos will be saved</string>
 </resources>

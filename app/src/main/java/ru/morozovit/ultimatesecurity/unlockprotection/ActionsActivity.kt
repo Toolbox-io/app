@@ -28,6 +28,7 @@ class ActionsActivity: AppCompatActivity() {
 
         makeSwitchCard(binding.upActionsNotification, binding.upActionsI3Sw)
 
+        // Alarm
         binding.upActionsI1Sw.isChecked = Settings.UnlockProtection.Actions.alarm
         binding.upActionsI1Sw.setOnCheckedChangeListener { _, isChecked ->
             Settings.UnlockProtection.Actions.alarm = isChecked
@@ -36,6 +37,17 @@ class ActionsActivity: AppCompatActivity() {
             val intent = Intent(this, AlarmSettingsActivity::class.java)
             activityLauncher.launch(intent) {
                 binding.upActionsI1Sw.isChecked = it.resultCode == 1
+            }
+        }
+        // Intruder photo
+        binding.upActionsI2Sw.isChecked = Settings.UnlockProtection.Actions.intruderPhoto
+        binding.upActionsI2Sw.setOnCheckedChangeListener { _, isChecked ->
+            Settings.UnlockProtection.Actions.intruderPhoto = isChecked
+        }
+        binding.upActionsI2Hc.setOnClickListener {
+            val intent = Intent(this, IntruderPhotoSettingsActivity::class.java)
+            activityLauncher.launch(intent) {
+                binding.upActionsI2Sw.isChecked = it.resultCode == 1
             }
         }
     }

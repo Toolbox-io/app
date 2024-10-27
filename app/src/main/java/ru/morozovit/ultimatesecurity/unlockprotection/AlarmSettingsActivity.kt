@@ -61,7 +61,7 @@ class AlarmSettingsActivity: AppCompatActivity() {
         }
         binding.upActionsAlarmAlarm.isChecked = currentCustomAlarm == ""
 
-        fun createRadiobutton(item: Uri) {
+        fun createRadiobutton(item: Uri): RadioButton {
             val radiobutton = RadioButton(this)
             radiobutton.text = File(item.path!!).absolutePath
             val padding = resources.getDimensionPixelSize(R.dimen.padding)
@@ -91,6 +91,7 @@ class AlarmSettingsActivity: AppCompatActivity() {
                 currentCustomAlarm = "$item"
             }
             binding.upActionsAlarmAlarms.requestLayout()
+            return radiobutton
         }
 
         fun createRadiobutton(item: String) {
@@ -104,12 +105,12 @@ class AlarmSettingsActivity: AppCompatActivity() {
             activityLauncher.launch(intent) {
                 if (it.resultCode == Activity.RESULT_OK) {
                     val uri = it.data?.data
-                    if (uri != null && it.data != null) {
+                    if (uri != null) {
                         contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                         val set = Settings.UnlockProtection.Actions.customAlarms.toMutableSet()
                         if (set.add("$uri")) {
                             Settings.UnlockProtection.Actions.customAlarms = set.toSet()
-                            createRadiobutton(uri)
+                            createRadiobutton(uri).isChecked = true
                         }
                     }
                 }
