@@ -12,6 +12,7 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResult
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.tabs.TabLayout
@@ -26,6 +27,7 @@ import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderP
 import ru.morozovit.ultimatesecurity.databinding.IntruderPhotoSettingsBinding
 import ru.morozovit.ultimatesecurity.databinding.IntruderphotoBinding
 import ru.morozovit.ultimatesecurity.fileExists
+import java.io.File
 import java.util.Date
 
 class IntruderPhotoSettingsActivity: AppCompatActivity() {
@@ -126,13 +128,23 @@ class IntruderPhotoSettingsActivity: AppCompatActivity() {
         val tabListener = object: TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 try {
+                    binding.root.post {
+                        binding.upActionsIpP.visibility = GONE
+                        binding.upActionsIpS.visibility = VISIBLE
+                    }
                     val adapter = binding.upActionsIpP.adapter as IntruderPhotosAdapter
                     when (tab!!.position) {
                         0 -> adapter.filterList(allPhotos.toTypedArray())
                         1 -> adapter.filterList(backPhotos.toTypedArray())
                         2 -> adapter.filterList(frontPhotos.toTypedArray())
                     }
-                } catch (_: Exception) {}
+                } catch (_: Exception) {
+                } finally {
+                    binding.root.post {
+                        binding.upActionsIpP.visibility = VISIBLE
+                        binding.upActionsIpS.visibility = GONE
+                    }
+                }
             }
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
             override fun onTabReselected(tab: TabLayout.Tab?) = onTabSelected(tab)
@@ -145,8 +157,125 @@ class IntruderPhotoSettingsActivity: AppCompatActivity() {
                     binding.upActionsIpS.visibility = VISIBLE
                     binding.upActionsIpP.adapter = null
                 }
-                if (intruderPhotoDir == "") {
-                    // TODO implement
+                if (intruderPhotoDir == "" || !intruderPhotoDirEnabled) {
+                    val dir = filesDir
+                    val front = File(dir.absolutePath + "/front")
+                    if (!front.exists()) front.mkdir()
+                    val back = File(dir.absolutePath + "/back")
+                    if (!back.exists()) back.mkdir()
+
+                    val frontFiles = front.listFiles()!!
+                    val frontDrawables = mutableListOf<IntruderPhoto>()
+                    val backFiles = back.listFiles()!!
+                    val backDrawables = mutableListOf<IntruderPhoto>()
+
+                    val files = mutableSetOf<File>()
+
+                    val frontNames = mutableListOf<Pair<Int, String>>()
+                    val backNames = mutableListOf<Pair<Int, String>>()
+
+                    allPhotos = mutableListOf()
+                    backPhotos = mutableListOf()
+                    frontPhotos = mutableListOf()
+
+                    for (index in frontFiles.indices) {
+                        val it = frontFiles[index]
+                        val uri = FileProvider.getUriForFile(
+                            this,
+                            applicationContext.packageName + ".provider",
+                            it
+                        )
+                        val stream = contentResolver.openInputStream(uri)
+                        val drawable = Drawable.createFromStream(stream, null)!!
+                        stream!!.close()
+                        frontDrawables.add(
+                            IntruderPhoto(
+                                drawable,
+                                Date(it.lastModified()),
+                                it.name
+                            )
+                        )
+                        files.add(it)
+                        frontNames.add(Pair(index, it.name))
+                    }
+                    for (index in backFiles.indices) {
+                        val it = backFiles[index]
+                        val uri = FileProvider.getUriForFile(
+                            this,
+                            applicationContext.packageName + ".provider",
+                            it
+                        )
+                        val stream = contentResolver.openInputStream(uri)
+                        val drawable = Drawable.createFromStream(stream, null)!!
+                        stream!!.close()
+                        backDrawables.add(
+                            IntruderPhoto(
+                                drawable,
+                                Date(it.lastModified()),
+                                it.name
+                            )
+                        )
+                        files.add(it)
+                        backNames.add(Pair(index, it.name))
+                    }
+                    files.forEach {
+                        var bool1 = false
+                        var frontIndex: Int? = null
+                        var frontName: Pair<Int, String>? = null
+                        for (frontName1 in frontNames) {
+                            if (frontName1.second == it.name) {
+                                bool1 = true
+                                frontIndex = frontName1.first
+                                frontName = frontName1
+                                break
+                            }
+                        }
+                        var bool2 = false
+                        var backIndex: Int? = null
+                        var backName: Pair<Int, String>? = null
+                        for (backName1 in backNames) {
+                            if (backName1.second == it.name) {
+                                bool2 = true
+                                backIndex = backName1.first
+                                backName = backName1
+                                break
+                            }
+                        }
+                        if (bool1 && bool2 && frontIndex != null && backIndex != null && backName != null && frontName != null) {
+                            val frontDrawable = frontDrawables[frontIndex]
+                            val backDrawable = backDrawables[backIndex]
+
+                            allPhotos.add(IntruderPhoto(
+                                Pair(
+                                    backDrawable.drawables.first,
+                                    frontDrawable.drawables.first
+                                ),
+                                backDrawable.timestamp
+                            ))
+                            backPhotos.add(backDrawable)
+                            frontPhotos.add(frontDrawable)
+                            frontNames.remove(frontName)
+                            backNames.remove(backName)
+                        } else if (bool2 && backIndex != null) {
+                            val backDrawable = backDrawables[backIndex]
+                            allPhotos.add(IntruderPhoto(backDrawable.drawables.first, backDrawable.timestamp))
+                            backPhotos.add(backDrawable)
+                            backNames.remove(backName)
+                        } else if (bool1 && frontIndex != null) {
+                            val frontDrawable = frontDrawables[frontIndex]
+                            allPhotos.add(IntruderPhoto(frontDrawable.drawables.first, frontDrawable.timestamp))
+                            frontPhotos.add(frontDrawable)
+                            frontNames.remove(frontName)
+                        }
+                    }
+
+                    allPhotos.sortByDescending { it.timestamp }
+                    backPhotos.sortByDescending { it.timestamp }
+                    frontPhotos.sortByDescending { it.timestamp }
+
+                    binding.upActionsIpP.post {
+                        binding.upActionsIpP.adapter = IntruderPhotosAdapter(allPhotos.toTypedArray())
+                    }
                 }
                 else if (intruderPhotoDirEnabled) {
                     val dir = DocumentFile.fromTreeUri(this, Uri.parse(intruderPhotoDir))!!
@@ -224,9 +353,9 @@ class IntruderPhotoSettingsActivity: AppCompatActivity() {
                                 break
                             }
                         }
-                        if (bool1 && bool2 && frontIndex != null && backIndex != null && backName != null && frontName != null) {
-                            val frontDrawable = frontDrawables[frontIndex]
-                            val backDrawable = backDrawables[backIndex]
+                        if (bool1 && bool2) {
+                            val frontDrawable = frontDrawables[frontIndex!!]
+                            val backDrawable = backDrawables[backIndex!!]
 
                             allPhotos.add(IntruderPhoto(
                                 Pair(
@@ -239,13 +368,13 @@ class IntruderPhotoSettingsActivity: AppCompatActivity() {
                             frontPhotos.add(frontDrawable)
                             frontNames.remove(frontName)
                             backNames.remove(backName)
-                        } else if (bool2 && backIndex != null) {
-                            val backDrawable = backDrawables[backIndex]
+                        } else if (bool2) {
+                            val backDrawable = backDrawables[backIndex!!]
                             allPhotos.add(IntruderPhoto(backDrawable.drawables.first, backDrawable.timestamp))
                             backPhotos.add(backDrawable)
                             backNames.remove(backName)
-                        } else if (bool1 && frontIndex != null) {
-                            val frontDrawable = frontDrawables[frontIndex]
+                        } else if (bool1) {
+                            val frontDrawable = frontDrawables[frontIndex!!]
                             allPhotos.add(IntruderPhoto(frontDrawable.drawables.first, frontDrawable.timestamp))
                             frontPhotos.add(frontDrawable)
                             frontNames.remove(frontName)

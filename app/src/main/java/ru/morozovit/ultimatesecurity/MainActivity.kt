@@ -1,5 +1,6 @@
 package ru.morozovit.ultimatesecurity
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -24,6 +25,17 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        if (!UpdateCheckerService.running) {
+            try {
+                startService(
+                    Intent(
+                        this,
+                        UpdateCheckerService::class.java
+                    )
+                )
+            } catch (_: Exception) {}
+        }
 
         setSupportActionBar(binding.toolbar)
 

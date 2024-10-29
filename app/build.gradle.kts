@@ -12,8 +12,8 @@ android {
         minSdk = 24
         //noinspection OldTargetApi
         targetSdk = 34
-        versionCode = 14
-        versionName = "1.5.2"
+        versionCode = 15
+        versionName = "1.5.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -52,5 +52,6 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     // Add the following dependency
     implementation(libs.gson)
+    implementation(libs.androidx.exifinterface)
     testImplementation(libs.junit)
 }

@@ -17,6 +17,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
 
     <queries>
         <intent>
@@ -39,7 +41,6 @@
             android:theme="@style/Theme.UltimateSecurity.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -68,7 +69,21 @@
         <activity
             android:name=".unlockprotection.IntruderPhotoSettingsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+        <service
+            android:name=".IntruderPhotoService"
+            android:exported="false"
+            android:foregroundServiceType="camera" />
 
+        <receiver
+            android:name=".UpdateCheckerBroadcastReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="ru.morozovit.ultimatesecurity.UpdateCheckerBroadcastReceiver.START_UPDATE_CHECKER" />
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+            </intent-filter>
+        </receiver>
         <service
             android:name=".Service"
             android:exported="false"

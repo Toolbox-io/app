@@ -28,6 +28,7 @@ import androidx.core.os.postDelayed
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import ru.morozovit.ultimatesecurity.Settings.applicationContext
+import ru.morozovit.ultimatesecurity.UpdateCheckerBroadcastReceiver.Companion.ACTION_START_UPDATE_CHECKER
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -146,6 +147,7 @@ class UpdateCheckerService: Service() {
                 private lateinit var mime: String
                 private lateinit var builder: NotificationCompat.Builder
 
+                @SuppressLint("MissingPermission")
                 override fun onPreExecute() {
                     super.onPreExecute()
                     builder = NotificationCompat.Builder(applicationContext, UPDATE_AVAILABLE_CHANNEL_ID)
@@ -215,6 +217,7 @@ class UpdateCheckerService: Service() {
                     }
                 }
 
+                @SuppressLint("MissingPermission")
                 override fun onProgressUpdate(vararg progress: String) {
                     // setting progress percentage
                     builder.setProgress(100, progress[0].toInt(), false)
@@ -231,6 +234,7 @@ class UpdateCheckerService: Service() {
                     )
                 }
 
+                @SuppressLint("MissingPermission")
                 override fun onPostExecute(result: Unit?) {
                     val install = Intent(Intent.ACTION_INSTALL_PACKAGE)
                     install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -364,12 +368,15 @@ class UpdateCheckerService: Service() {
         running = true
         Settings.init(applicationContext)
         Task().executeOnExecutor(THREAD_POOL_EXECUTOR)
-        return super.onStartCommand(intent, flags, startId)
+        return START_REDELIVER_INTENT
     }
 
     override fun onDestroy() {
         super.onDestroy()
         interrupted = true
         running = false
+        Log.d(javaClass.simpleName, "Destroying service")
+        applicationContext.sendBroadcast(Intent(ACTION_START_UPDATE_CHECKER))
+        Log.d(javaClass.simpleName, "Restarted")
     }
 }

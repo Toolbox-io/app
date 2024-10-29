@@ -18,7 +18,6 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.snackbar.Snackbar
-import ru.morozovit.ultimatesecurity.Settings.applicationContext
 import ru.morozovit.ultimatesecurity.Settings.installPackage_dsa
 import ru.morozovit.ultimatesecurity.Settings.update_dsa
 import ru.morozovit.ultimatesecurity.UpdateCheckerService.Companion.checkForUpdates
@@ -191,14 +190,6 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (!update_dsa) UpdateChecker().execute(binding, requireActivity())
-        if (!UpdateCheckerService.running) {
-            applicationContext.startService(
-                Intent(
-                    applicationContext,
-                    UpdateCheckerService::class.java
-                )
-            )
-        }
         binding.updateCardDsa.setOnClickListener {
             update_dsa = true
             binding.updateCard.visibility = GONE

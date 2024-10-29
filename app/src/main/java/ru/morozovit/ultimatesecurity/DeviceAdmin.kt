@@ -13,8 +13,15 @@ import android.os.Handler
 import android.os.Looper
 import android.os.UserHandle
 import androidx.core.os.postDelayed
+import ru.morozovit.ultimatesecurity.IntruderPhotoService.Companion.BACK_CAM
+import ru.morozovit.ultimatesecurity.IntruderPhotoService.Companion.BOTH_CAMS
+import ru.morozovit.ultimatesecurity.IntruderPhotoService.Companion.FRONT_CAM
+import ru.morozovit.ultimatesecurity.IntruderPhotoService.Companion.takePhoto
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.alarm
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.currentCustomAlarm
+import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhoto
+import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoFromBackCam
+import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoFromFrontCam
 import ru.morozovit.ultimatesecurity.Settings.applicationContext
 
 
@@ -75,6 +82,24 @@ class DeviceAdmin: DeviceAdminReceiver() {
                                 Thread.sleep(100)
                             }
                         }.start()
+                    }
+                }
+                if (intruderPhoto) {
+                    if (intruderPhotoFromFrontCam) {
+                        // Take the intruder photo from the back camera
+                        val cam = if (intruderPhotoFromFrontCam && intruderPhotoFromBackCam) {
+                            BOTH_CAMS
+                        } else if (intruderPhotoFromFrontCam) {
+                            FRONT_CAM
+                        } else if (intruderPhotoFromBackCam) {
+                            BACK_CAM
+                        } else {
+                            null
+                        }
+
+                        if (cam != null) {
+                            takePhoto(context, "${System.currentTimeMillis()}", cam)
+                        }
                     }
                 }
                 attemptsCounter = 0
