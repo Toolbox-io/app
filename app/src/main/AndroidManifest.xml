@@ -67,8 +67,12 @@
             android:name=".unlockprotection.AlarmSettingsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
         <activity
-            android:name=".unlockprotection.IntruderPhotoSettingsActivity"
+            android:name=".unlockprotection.intruderphoto.IntruderPhotoSettingsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+        <activity
+            android:name=".unlockprotection.intruderphoto.IntruderPhotoActivity"
+            android:theme="@style/Theme.UltimateSecurity.ImageViewer"
+            android:exported="true" />
         <service
             android:name=".IntruderPhotoService"
             android:exported="false"

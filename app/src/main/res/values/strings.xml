@@ -101,4 +101,6 @@
     <string name="frontcam">Front camera</string>
     <string name="photodir">External photo folder</string>
     <string name="photodir_d">Select the folder in which the photos will be saved</string>
+    <string name="rotate90">Rotate 90°</string>
+    <string name="rotaten90">Rotate -90°</string>
 </resources>

@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityOptionsCompat;
 
 public final class BetterActivityResult<I, R> {
     /**
@@ -74,12 +75,21 @@ public final class BetterActivityResult<I, R> {
         launcher.launch(input);
     }
 
+    public void launch(I input, ActivityOptionsCompat options, @Nullable OnActivityResult<R> onActivityResult) {
+        this.onActivityResult = onActivityResult;
+        launcher.launch(input, options);
+    }
+
     /**
      * Same as {@link #launch(Object, OnActivityResult)} with last parameter set to {@code null}.
      * @noinspection unused
      */
     public void launch(I input) {
-        launch(input, null);
+        launch(input, (OnActivityResult<R>) null);
+    }
+
+    public void launch(I input, ActivityOptionsCompat options) {
+        launch(input, options, null);
     }
 
     private void callOnActivityResult(R result) {

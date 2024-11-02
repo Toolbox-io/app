@@ -12,6 +12,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.os.UserHandle
+import android.util.Log
 import androidx.core.os.postDelayed
 import ru.morozovit.ultimatesecurity.IntruderPhotoService.Companion.BACK_CAM
 import ru.morozovit.ultimatesecurity.IntruderPhotoService.Companion.BOTH_CAMS
@@ -23,6 +24,7 @@ import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderP
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoFromBackCam
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoFromFrontCam
 import ru.morozovit.ultimatesecurity.Settings.applicationContext
+import java.io.IOException
 
 
 class DeviceAdmin: DeviceAdminReceiver() {
@@ -71,7 +73,19 @@ class DeviceAdmin: DeviceAdminReceiver() {
                                 afd.length
                             )
                         } else {
-                            setDataSource(applicationContext, Uri.parse(currentCustomAlarm))
+                            try {
+                                setDataSource(applicationContext, Uri.parse(currentCustomAlarm))
+                            } catch (e: IOException) {
+                                Log.w("DeviceAdmin", "Invalid custom alarm URI, falling back to default")
+                                currentCustomAlarm = ""
+                                val afd: AssetFileDescriptor =
+                                    applicationContext.assets.openFd("alarm.mp3")
+                                setDataSource(
+                                    afd.fileDescriptor,
+                                    afd.startOffset,
+                                    afd.length
+                                )
+                            }
                         }
                         prepare()
                         start()

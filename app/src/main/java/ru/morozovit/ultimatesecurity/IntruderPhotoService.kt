@@ -13,7 +13,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.PRIORITY_LOW
 import androidx.core.content.ContextCompat
 import org.jetbrains.annotations.Range
-import ru.morozovit.ultimatesecurity.unlockprotection.CameraController
+import ru.morozovit.ultimatesecurity.unlockprotection.intruderphoto.CameraController
 
 class IntruderPhotoService: Service() {
     companion object {
@@ -24,55 +24,80 @@ class IntruderPhotoService: Service() {
         const val BACK_CAM = 2
         const val BOTH_CAMS = 3
         private var filename: String? = null
+        private var running = false
+        private var instance: IntruderPhotoService? = null
         
         fun takePhoto(context: Context, name: String, cam: @Range(from = FRONT_CAM.toLong(), to = BOTH_CAMS.toLong()) Int) {
             filename = name
-            ContextCompat.startForegroundService(
-                context, 
-                Intent(context, IntruderPhotoService::class.java).apply {
-                    putExtra("cam", cam)
+            if (!running) {
+                ContextCompat.startForegroundService(
+                    context,
+                    Intent(context, IntruderPhotoService::class.java).apply {
+                        putExtra("cam", cam)
+                    }
+                )
+            } else {
+                instance?.run(null)
+            }
+        }
+    }
+
+    private fun run(intent: Intent?) {
+        try {
+            if (filename != null) {
+                CameraController.getInstance(this).apply {
+                    val cam = (intent ?: Intent()).getIntExtra("cam", FRONT_CAM)
+                    if (open(if (cam == BOTH_CAMS) FRONT_CAM else cam)) {
+                        Thread.sleep(20)
+                        takePicture(filename!!)
+                        if (cam == BOTH_CAMS) {
+                            Thread.sleep(100)
+                            if (open(BACK_CAM)) {
+                                Thread.sleep(20)
+                                @Suppress("ControlFlowWithEmptyBody")
+                                Thread {
+                                    try {
+                                        while (getWaitingForImage()) {}
+                                        Handler(mainLooper).post {
+                                            takePicture(filename!!)
+                                            close()
+                                            stop()
+                                        }
+                                    } catch (e: Exception) {
+                                        Log.e("IntruderPhotoService", e.message?: "Unknown error")
+                                        close()
+                                    }
+                                }.start()
+                            } else {
+                                Log.e("CameraController", "Error taking photo!")
+                            }
+                        }
+                        else {
+                            close()
+                        }
+                    } else {
+                        Log.e("CameraController", "Error taking photo!")
+                        close()
+                    }
                 }
-            )
+            }
+        } catch (e: Exception) {
+            Log.e("IntruderPhotoService", e.message ?: "Unknown error")
         }
     }
 
     override fun onBind(intent: Intent?) = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val notification = getNotification()
-        startForeground(FG_SERVICE_NOTIFICATION_ID, notification)
-        if (filename != null) {
-            CameraController.getInstance(this).apply {
-                val cam = (intent ?: Intent()).getIntExtra("cam", FRONT_CAM)
-                if (open(if (cam == BOTH_CAMS) FRONT_CAM else cam)) {
-                    Thread.sleep(20)
-                    takePicture(filename!!)
-                    if (cam == BOTH_CAMS) {
-                        Thread.sleep(100)
-                        if (open(BACK_CAM)) {
-                            Thread.sleep(20)
-                            @Suppress("ControlFlowWithEmptyBody")
-                            Thread {
-                                while (getWaitingForImage()) {}
-                                Handler(mainLooper).post {
-                                    takePicture(filename!!)
-                                    close()
-                                    stopForeground(STOP_FOREGROUND_REMOVE)
-                                    stopSelf()
-                                }
-                            }.start()
-                        } else {
-                            Log.e("CameraController", "Error taking photo!")
-                        }
-                    } else {
-                        stopForeground(STOP_FOREGROUND_REMOVE)
-                        stopSelf()
-                    }
-                } else {
-                    Log.e("CameraController", "Error taking photo!")
-                }
-            }
+        running = true
+        instance = this
+        try {
+            startForeground(FG_SERVICE_NOTIFICATION_ID, getNotification())
+        } catch (e: Exception) {
+            Log.e("IntruderPhotoService", e.message ?: "Unknown error")
+            stopSelf()
         }
+        run(intent)
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -101,5 +126,16 @@ class IntruderPhotoService: Service() {
             .setSilent(true)
             .setOngoing(true)
             .build()
+    }
+
+    private fun stop() {
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        running = false
+        instance = null
     }
 }

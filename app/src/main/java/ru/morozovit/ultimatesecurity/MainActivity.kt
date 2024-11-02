@@ -52,17 +52,6 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        /* navView.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
-            @ExperimentalBadgeUtils
-            override fun onGlobalLayout() {
-                    val badgeDrawable = BadgeDrawable.create(this@MainActivity)
-                    badgeDrawable.verticalOffset = 25
-                    badgeDrawable.horizontalOffset = 15
-                    BadgeUtils.attachBadgeDrawable(badgeDrawable, navView, null)
-                    navView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                }
-            }) */
-
         if (Build.VERSION.SDK_INT >= 33) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 Snackbar.make(binding.root, R.string.grant_notification, Snackbar.LENGTH_LONG)

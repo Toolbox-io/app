@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:title="@string/rotate90"
+        android:icon="@drawable/rotate_p"
+        app:showAsAction="never"
+        android:id="@+id/up_actions_ip_v_tb_rp" />
+    <item
+        android:title="@string/rotaten90"
+        android:icon="@drawable/rotate_n"
+        app:showAsAction="never"
+        android:id="@+id/up_actions_ip_v_tb_rn"
+        android:enabled="false" />
+    <item
+        android:title="@string/delete"
+        android:icon="@drawable/delete"
+        app:showAsAction="never"
+        android:id="@+id/up_actions_ip_v_tb_d"
+        android:enabled="false" />
+</menu>

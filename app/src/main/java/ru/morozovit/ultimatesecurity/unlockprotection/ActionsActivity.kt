@@ -10,6 +10,7 @@ import ru.morozovit.android.BetterActivityResult.registerActivityForResult
 import ru.morozovit.android.ui.makeSwitchCard
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.databinding.UpActionsBinding
+import ru.morozovit.ultimatesecurity.unlockprotection.intruderphoto.IntruderPhotoSettingsActivity
 
 class ActionsActivity: AppCompatActivity() {
     private lateinit var binding: UpActionsBinding

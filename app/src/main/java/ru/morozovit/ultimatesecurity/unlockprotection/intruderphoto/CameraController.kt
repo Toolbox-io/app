@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.unlockprotection
+package ru.morozovit.ultimatesecurity.unlockprotection.intruderphoto
 
 import android.Manifest
 import android.content.Context

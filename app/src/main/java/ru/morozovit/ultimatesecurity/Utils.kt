@@ -10,6 +10,8 @@ import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.net.Uri
 import android.text.Editable
+import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
@@ -53,3 +55,23 @@ fun Fragment.homeScreen() = requireActivity().homeScreen()
 
 fun Editable?.toInt() = toString().toInt()
 fun EditText.toInt() = text.toInt()
+
+val View.screenX: Int get() {
+    val arr = intArrayOf(0, 0)
+    getLocationOnScreen(arr)
+    return arr[0]
+}
+
+val View.screenY: Int get() {
+    val arr = intArrayOf(0, 0)
+    getLocationOnScreen(arr)
+    return arr[1]
+}
+
+val View.relativeX: Int get() {
+    return (parent as ViewGroup).screenX - screenX
+}
+
+val View.relativeY: Int get() {
+    return (parent as ViewGroup).screenY - screenY
+}

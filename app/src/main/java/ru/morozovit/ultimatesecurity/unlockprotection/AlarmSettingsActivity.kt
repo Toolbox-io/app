@@ -19,6 +19,7 @@ import ru.morozovit.android.ui.makeSwitchCard
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.currentCustomAlarm
+import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.customAlarms
 import ru.morozovit.ultimatesecurity.databinding.AlarmSettingsBinding
 import java.io.File
 
@@ -59,9 +60,16 @@ class AlarmSettingsActivity: AppCompatActivity() {
             }
             currentCustomAlarm = ""
         }
-        binding.upActionsAlarmAlarm.isChecked = currentCustomAlarm == ""
 
-        fun createRadiobutton(item: Uri): RadioButton {
+        fun createRadiobutton(item: Uri): RadioButton? {
+            try {
+                contentResolver.openInputStream(item)!!.apply {
+                    read()
+                    close()
+                }
+            } catch (e: Exception) {
+                return null
+            }
             val radiobutton = RadioButton(this)
             radiobutton.text = File(item.path!!).absolutePath
             val padding = resources.getDimensionPixelSize(R.dimen.padding)
@@ -94,9 +102,7 @@ class AlarmSettingsActivity: AppCompatActivity() {
             return radiobutton
         }
 
-        fun createRadiobutton(item: String) {
-            createRadiobutton(Uri.parse(item))
-        }
+        fun createRadiobutton(item: String) = createRadiobutton(Uri.parse(item))
 
         binding.upActionsAlarmAdd.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
@@ -107,25 +113,44 @@ class AlarmSettingsActivity: AppCompatActivity() {
                     val uri = it.data?.data
                     if (uri != null) {
                         contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                        val set = Settings.UnlockProtection.Actions.customAlarms.toMutableSet()
+                        val set = customAlarms.toMutableSet()
                         if (set.add("$uri")) {
-                            Settings.UnlockProtection.Actions.customAlarms = set.toSet()
-                            createRadiobutton(uri).isChecked = true
+                            customAlarms = set.toSet()
+                            createRadiobutton(uri)!!.isChecked = true
                         }
                     }
                 }
             }
         }
-        for (item in Settings.UnlockProtection.Actions.customAlarms) {
-            createRadiobutton(item)
+        val toRemove = mutableListOf<String>()
+        for (item in customAlarms) {
+            if (createRadiobutton(item) == null) {
+                toRemove.add(item)
+            }
+        }
+        if (customAlarms.isEmpty()) {
+            currentCustomAlarm = ""
+            binding.upActionsAlarmAlarm.isChecked = true
+        }
+        if (toRemove.isNotEmpty()) {
+            val alarms = customAlarms.toMutableList()
+            for (item in toRemove) {
+                if (currentCustomAlarm == item) {
+                    currentCustomAlarm = ""
+                    binding.upActionsAlarmAlarm.isChecked = true
+                }
+                alarms.remove(item)
+            }
+            customAlarms = alarms.toSet()
         }
 
         binding.upActionsAlarmClear.setOnClickListener {
             binding.upActionsAlarmAlarm.isChecked = true
             binding.upActionsAlarmAlarms.removeAllViews()
             binding.upActionsAlarmAlarms.addView(binding.upActionsAlarmAlarm)
-            Settings.UnlockProtection.Actions.customAlarms = emptySet()
+            customAlarms = emptySet()
         }
+        binding.upActionsAlarmAlarm.isChecked = currentCustomAlarm == ""
     }
 
     @SuppressLint("MissingSuperCall")
