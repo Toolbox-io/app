@@ -5,6 +5,11 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="fontFamily">@font/rethink_sans</item>
+    </style>
+
+    <style name="Theme.UltimateSecurity.SplashScreen" parent="Theme.SplashScreen">
+        <item name="android:windowBackground">@drawable/splash1</item>
     </style>
 
     <style name="Theme.UltimateSecurity.NoActionBar">

@@ -5,7 +5,8 @@
         android:title="@string/rotate90"
         android:icon="@drawable/rotate_p"
         app:showAsAction="never"
-        android:id="@+id/up_actions_ip_v_tb_rp" />
+        android:id="@+id/up_actions_ip_v_tb_rp"
+        android:enabled="false" />
     <item
         android:title="@string/rotaten90"
         android:icon="@drawable/rotate_n"
@@ -16,6 +17,5 @@
         android:title="@string/delete"
         android:icon="@drawable/delete"
         app:showAsAction="never"
-        android:id="@+id/up_actions_ip_v_tb_d"
-        android:enabled="false" />
+        android:id="@+id/up_actions_ip_v_tb_d" />
 </menu>

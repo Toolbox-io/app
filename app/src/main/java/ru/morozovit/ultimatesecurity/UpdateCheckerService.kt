@@ -151,7 +151,7 @@ class UpdateCheckerService: Service() {
                 override fun onPreExecute() {
                     super.onPreExecute()
                     builder = NotificationCompat.Builder(applicationContext, UPDATE_AVAILABLE_CHANNEL_ID)
-                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setSmallIcon(R.drawable.primitive_icon)
                         .setContentTitle("Downloading update...")
                         .setPriority(PRIORITY_DEFAULT)
                         .setSilent(true)
@@ -320,13 +320,13 @@ class UpdateCheckerService: Service() {
                             applicationContext,
                             UPDATE_AVAILABLE_CHANNEL_ID
                         )
-                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setSmallIcon(R.drawable.primitive_icon)
                             .setContentTitle("Update available")
                             .setContentText("Version $text")
                             .setStyle(NotificationCompat.BigTextStyle().bigText(info.description))
                             .setPriority(PRIORITY_DEFAULT)
                             .setContentIntent(pendingIntent)
-                            .addAction(R.mipmap.ic_launcher, "Download", downloadPendingIntent)
+                            .addAction(R.drawable.primitive_icon, "Download", downloadPendingIntent)
                             .setAutoCancel(true)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             val channelName = "Update"

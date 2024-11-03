@@ -120,7 +120,7 @@ class IntruderPhotoService: Service() {
             notificationManager.createNotificationChannel(channel)
         }
         return NotificationCompat.Builder(Settings.applicationContext, FG_SERVICE_CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.primitive_icon)
             .setContentTitle("")
             .setPriority(PRIORITY_LOW)
             .setSilent(true)

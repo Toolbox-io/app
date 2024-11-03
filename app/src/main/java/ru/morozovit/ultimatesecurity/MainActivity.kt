@@ -1,5 +1,7 @@
 package ru.morozovit.ultimatesecurity
 
+import android.animation.Animator
+import android.animation.Animator.AnimatorListener
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -7,6 +9,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -20,6 +23,30 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (Build.VERSION.SDK_INT >= 31) {
+            val splashScreen = installSplashScreen()
+            splashScreen.setOnExitAnimationListener { splashScreenView ->
+                // Create your custom animation.
+                splashScreenView.view.animate()
+                    .scaleX(3f)
+                    .scaleY(3f)
+                    .alpha(0f)
+                    .setDuration(200L)
+                    .setListener(object: AnimatorListener {
+                        override fun onAnimationStart(animation: Animator) {}
+                        override fun onAnimationEnd(animation: Animator) {
+                            splashScreenView.remove()
+                        }
+                        override fun onAnimationCancel(animation: Animator) {
+                            splashScreenView.remove()
+                        }
+                        override fun onAnimationRepeat(animation: Animator) {}
+                    })
+                    .start()
+            }
+        } else {
+            setTheme(R.style.Theme_UltimateSecurity_NoActionBar)
+        }
         super.onCreate(savedInstanceState)
         Settings.init(applicationContext)
 
