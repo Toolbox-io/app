@@ -5,13 +5,13 @@ plugins {
 
 android {
     namespace = "ru.morozovit.ultimatesecurity"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "ru.morozovit.ultimatesecurity"
         minSdk = 24
         //noinspection OldTargetApi
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 16
         versionName = "1.5.4"
 
