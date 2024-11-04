@@ -2,7 +2,7 @@ package ru.morozovit.ultimatesecurity.applocker
 
 import android.os.Bundle
 import android.view.Window
-import androidx.appcompat.app.AppCompatActivity
+import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_APP_INFO
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_CLOSE
@@ -13,7 +13,7 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.unlockMode
 import ru.morozovit.ultimatesecurity.databinding.UnlockModeBinding
 import ru.morozovit.ultimatesecurity.screenWidth
 
-class UnlockModeActivity: AppCompatActivity() {
+class UnlockModeActivity: BaseActivity() {
     private lateinit var binding: UnlockModeBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

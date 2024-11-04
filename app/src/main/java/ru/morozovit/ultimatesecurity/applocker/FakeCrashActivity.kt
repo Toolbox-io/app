@@ -8,8 +8,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.Window
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.postDelayed
+import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_APP_INFO
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_CLOSE
@@ -21,7 +21,7 @@ import ru.morozovit.ultimatesecurity.appName
 import ru.morozovit.ultimatesecurity.databinding.FakeCrashBinding
 import ru.morozovit.ultimatesecurity.screenWidth
 
-class FakeCrashActivity: AppCompatActivity() {
+class FakeCrashActivity: BaseActivity() {
     private lateinit var binding: FakeCrashBinding
 
 

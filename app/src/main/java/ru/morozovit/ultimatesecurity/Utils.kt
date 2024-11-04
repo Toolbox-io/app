@@ -2,17 +2,24 @@
 
 package ru.morozovit.ultimatesecurity
 
+import android.animation.Animator
+import android.animation.Animator.AnimatorListener
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_MAIN
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.text.Editable
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.EditText
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 
@@ -75,3 +82,50 @@ val View.relativeX: Int get() {
 val View.relativeY: Int get() {
     return (parent as ViewGroup).screenY - screenY
 }
+
+fun Activity.setWindowFlag(bits: Int, on: Boolean) {
+    val win = window
+    val winParams = win.attributes
+    if (on) {
+        winParams.flags = winParams.flags or bits
+    } else {
+        winParams.flags = winParams.flags and bits.inv()
+    }
+    win.attributes = winParams
+}
+
+@Suppress("DEPRECATION")
+fun Activity.transparentStatusBar() {
+    window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+    setWindowFlag(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, false)
+    window.statusBarColor = Color.TRANSPARENT
+}
+
+fun Activity.preSplashScreen() {
+    if (Build.VERSION.SDK_INT >= 31) {
+        val splashScreen = installSplashScreen()
+        splashScreen.setOnExitAnimationListener { splashScreenView ->
+            // Create your custom animation.
+            splashScreenView.view.animate()
+                .scaleX(3f)
+                .scaleY(3f)
+                .alpha(0f)
+                .setDuration(200L)
+                .setListener(object: AnimatorListener {
+                    override fun onAnimationStart(animation: Animator) {}
+                    override fun onAnimationEnd(animation: Animator) {
+                        splashScreenView.remove()
+                    }
+                    override fun onAnimationCancel(animation: Animator) {
+                        splashScreenView.remove()
+                    }
+                    override fun onAnimationRepeat(animation: Animator) {}
+                })
+                .start()
+        }
+    } else {
+        setTheme(R.style.Theme_UltimateSecurity_NoActionBar)
+    }
+}
+
+fun async(exec: () -> Unit) = Thread(exec).start()

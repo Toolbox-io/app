@@ -20,7 +20,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="ImageContrastCheck"
-        tools:src="@mipmap/ic_launcher_round" />
+        tools:src="@mipmap/app_icon" />
 
     <LinearLayout
         android:layout_height="wrap_content"

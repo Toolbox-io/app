@@ -4,15 +4,15 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.ActivityResult
-import androidx.appcompat.app.AppCompatActivity
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
 import ru.morozovit.android.ui.makeSwitchCard
+import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.databinding.UpActionsBinding
 import ru.morozovit.ultimatesecurity.unlockprotection.intruderphoto.IntruderPhotoSettingsActivity
 
-class ActionsActivity: AppCompatActivity() {
+class ActionsActivity: BaseActivity() {
     private lateinit var binding: UpActionsBinding
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
 

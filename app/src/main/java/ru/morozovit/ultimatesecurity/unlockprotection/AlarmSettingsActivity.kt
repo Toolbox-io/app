@@ -12,10 +12,10 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.RadioButton
 import androidx.activity.result.ActivityResult
-import androidx.appcompat.app.AppCompatActivity
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
 import ru.morozovit.android.ui.makeSwitchCard
+import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.currentCustomAlarm
@@ -23,7 +23,7 @@ import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.customAla
 import ru.morozovit.ultimatesecurity.databinding.AlarmSettingsBinding
 import java.io.File
 
-class AlarmSettingsActivity: AppCompatActivity() {
+class AlarmSettingsActivity: BaseActivity() {
     private lateinit var binding: AlarmSettingsBinding
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
     private val mediaPlayer = MediaPlayer()

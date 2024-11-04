@@ -99,21 +99,18 @@ class DeviceAdmin: DeviceAdminReceiver() {
                     }
                 }
                 if (intruderPhoto) {
-                    if (intruderPhotoFromFrontCam) {
-                        // Take the intruder photo from the back camera
-                        val cam = if (intruderPhotoFromFrontCam && intruderPhotoFromBackCam) {
-                            BOTH_CAMS
-                        } else if (intruderPhotoFromFrontCam) {
-                            FRONT_CAM
-                        } else if (intruderPhotoFromBackCam) {
-                            BACK_CAM
-                        } else {
-                            null
-                        }
+                    val cam = if (intruderPhotoFromFrontCam && intruderPhotoFromBackCam) {
+                        BOTH_CAMS
+                    } else if (intruderPhotoFromFrontCam) {
+                        FRONT_CAM
+                    } else if (intruderPhotoFromBackCam) {
+                        BACK_CAM
+                    } else {
+                        null
+                    }
 
-                        if (cam != null) {
-                            takePhoto(context, "${System.currentTimeMillis()}", cam)
-                        }
+                    if (cam != null) {
+                        takePhoto(context, "${System.currentTimeMillis()}", cam)
                     }
                 }
                 attemptsCounter = 0

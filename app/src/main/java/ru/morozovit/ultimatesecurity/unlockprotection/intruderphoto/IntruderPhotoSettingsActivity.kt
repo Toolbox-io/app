@@ -12,7 +12,6 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResult
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.RecyclerView
@@ -20,6 +19,7 @@ import com.google.android.material.tabs.TabLayout
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
 import ru.morozovit.android.ui.makeSwitchCard
+import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhoto
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoDir
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoDirEnabled
@@ -31,7 +31,7 @@ import ru.morozovit.ultimatesecurity.fileExists
 import java.io.File
 import java.util.Date
 
-class IntruderPhotoSettingsActivity: AppCompatActivity() {
+class IntruderPhotoSettingsActivity: BaseActivity() {
     private lateinit var binding: IntruderPhotoSettingsBinding
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
     private var checkListener = true
@@ -203,9 +203,30 @@ class IntruderPhotoSettingsActivity: AppCompatActivity() {
                     }
                     val adapter = binding.upActionsIpP.adapter as IntruderPhotosAdapter
                     when (tab!!.position) {
-                        0 -> adapter.filterList(allPhotos.toTypedArray())
-                        1 -> adapter.filterList(backPhotos.toTypedArray())
-                        2 -> adapter.filterList(frontPhotos.toTypedArray())
+                        0 -> {
+                            adapter.filterList(allPhotos.toTypedArray())
+                            if (allPhotos.isEmpty()) {
+                                binding.upActionsIpNt.visibility = VISIBLE
+                            } else {
+                                binding.upActionsIpNt.visibility = GONE
+                            }
+                        }
+                        1 -> {
+                            adapter.filterList(backPhotos.toTypedArray())
+                            if (backPhotos.isEmpty()) {
+                                binding.upActionsIpNt.visibility = VISIBLE
+                            } else {
+                                binding.upActionsIpNt.visibility = GONE
+                            }
+                        }
+                        2 -> {
+                            adapter.filterList(frontPhotos.toTypedArray())
+                            if (frontPhotos.isEmpty()) {
+                                binding.upActionsIpNt.visibility = VISIBLE
+                            } else {
+                                binding.upActionsIpNt.visibility = GONE
+                            }
+                        }
                     }
                 } catch (_: Exception) {
                 } finally {
@@ -363,7 +384,12 @@ class IntruderPhotoSettingsActivity: AppCompatActivity() {
                     frontPhotos.sortByDescending { it.timestamp }
 
                     binding.upActionsIpP.post {
-                        binding.upActionsIpP.adapter = IntruderPhotosAdapter(allPhotos.toTypedArray())
+                        if (allPhotos.isEmpty()) {
+                            binding.upActionsIpNt.visibility = VISIBLE
+                        } else {
+                            binding.upActionsIpNt.visibility = GONE
+                            binding.upActionsIpP.adapter = IntruderPhotosAdapter(allPhotos.toTypedArray())
+                        }
                     }
                 }
 //                else if (intruderPhotoDirEnabled) {

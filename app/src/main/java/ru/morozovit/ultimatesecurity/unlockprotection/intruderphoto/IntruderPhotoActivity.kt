@@ -3,12 +3,12 @@ package ru.morozovit.ultimatesecurity.unlockprotection.intruderphoto
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Window
-import androidx.appcompat.app.AppCompatActivity
+import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.databinding.IntruderPhotoActivityBinding
 import java.io.File
 
-class IntruderPhotoActivity: AppCompatActivity() {
+class IntruderPhotoActivity: BaseActivity() {
     private lateinit var binding: IntruderPhotoActivityBinding
     companion object {
         var data: IntruderPhotoSettingsActivity.IntruderPhoto? = null

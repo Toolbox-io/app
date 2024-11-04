@@ -37,7 +37,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="SpeakableTextPresentCheck,ImageContrastCheck"
-                tools:src="@mipmap/ic_launcher" />
+                tools:src="@mipmap/app_icon" />
 
             <ImageView
                 android:id="@+id/up_actions_ip_p_r"
@@ -50,7 +50,7 @@
                 app:layout_constraintStart_toEndOf="@id/up_actions_ip_p_l"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="SpeakableTextPresentCheck,ImageContrastCheck"
-                tools:src="@mipmap/ic_launcher" />
+                tools:src="@mipmap/app_icon" />
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

@@ -9,12 +9,14 @@ import android.content.Intent
 import android.os.Build
 import android.os.Handler
 import android.util.Log
+import androidx.annotation.MainThread
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.PRIORITY_LOW
 import androidx.core.content.ContextCompat
 import org.jetbrains.annotations.Range
 import ru.morozovit.ultimatesecurity.unlockprotection.intruderphoto.CameraController
 
+@MainThread
 class IntruderPhotoService: Service() {
     companion object {
         const val FG_SERVICE_CHANNEL_ID = "fgservice"
@@ -26,19 +28,17 @@ class IntruderPhotoService: Service() {
         private var filename: String? = null
         private var running = false
         private var instance: IntruderPhotoService? = null
-        
+
         fun takePhoto(context: Context, name: String, cam: @Range(from = FRONT_CAM.toLong(), to = BOTH_CAMS.toLong()) Int) {
             filename = name
-            if (!running) {
-                ContextCompat.startForegroundService(
-                    context,
-                    Intent(context, IntruderPhotoService::class.java).apply {
-                        putExtra("cam", cam)
-                    }
-                )
-            } else {
-                instance?.run(null)
-            }
+            context.applicationContext.stopService(Intent(context, IntruderPhotoService::class.java))
+            assert(instance == null && !running)
+            ContextCompat.startForegroundService(
+                context.applicationContext,
+                Intent(context, IntruderPhotoService::class.java).apply {
+                    putExtra("cam", cam)
+                }
+            )
         }
     }
 
@@ -50,39 +50,60 @@ class IntruderPhotoService: Service() {
                     if (open(if (cam == BOTH_CAMS) FRONT_CAM else cam)) {
                         Thread.sleep(20)
                         takePicture(filename!!)
-                        if (cam == BOTH_CAMS) {
-                            Thread.sleep(100)
-                            if (open(BACK_CAM)) {
-                                Thread.sleep(20)
+                        async {
+                            try {
+                                val handler = Handler(mainLooper)
                                 @Suppress("ControlFlowWithEmptyBody")
-                                Thread {
+                                while (getWaitingForImage()) {}
+                                handler.post {
                                     try {
-                                        while (getWaitingForImage()) {}
-                                        Handler(mainLooper).post {
-                                            takePicture(filename!!)
+                                        close()
+                                        if (cam == BOTH_CAMS) {
+                                            Thread.sleep(100)
+                                            if (open(BACK_CAM)) {
+                                                Thread.sleep(20)
+                                                takePicture(filename!!)
+                                            } else {
+                                                Log.e("CameraController", "Error taking photo!")
+                                            }
                                             close()
                                             stop()
                                         }
                                     } catch (e: Exception) {
-                                        Log.e("IntruderPhotoService", e.message?: "Unknown error")
-                                        close()
+                                        Log.e(
+                                            "IntruderPhotoService",
+                                            e.message?: "Unknown error"
+                                        )
+                                        try {
+                                            close()
+                                        } catch (_: Exception) {}
+                                        stop()
                                     }
-                                }.start()
-                            } else {
-                                Log.e("CameraController", "Error taking photo!")
+                                }
+                            } catch (e: Exception) {
+                                Log.e(
+                                    "IntruderPhotoService",
+                                    e.message?: "Unknown error"
+                                )
+                                try {
+                                    close()
+                                } catch (_: Exception) {}
+                                stop()
                             }
-                        }
-                        else {
-                            close()
                         }
                     } else {
                         Log.e("CameraController", "Error taking photo!")
+                        try {
+                            close()
+                        } catch (_: Exception) {}
                         close()
                     }
                 }
             }
         } catch (e: Exception) {
             Log.e("IntruderPhotoService", e.message ?: "Unknown error")
+        } finally {
+            stop()
         }
     }
 

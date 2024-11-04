@@ -1,17 +1,17 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">AIP++</string>
+    <string name="app_name" translatable="false">AIP++</string>
     <string name="nav_header_desc">securing your device</string>
 
     <string name="home">Home</string>
     <string name="applocker">App Locker</string>
     <string name="settings">Settings</string>
-    <string name="applocker_enable">Enable app locking</string>
+    <string name="applocker_enable">Enable</string>
     <string name="permissions_required">Permissions required</string>
     <string name="permissions_required_text">The following permissions are required for this feature:</string>
     <string name="permissions_required_text2">This app NEVER uses these permissions to send private data, hack you, etc.\nThe permissions are only used to provide the feature you are enabling.</string>
     <string name="accessibility">Accessibility</string>
     <string name="grant">Grant</string>
-    <string name="accessibility_service_label" tools:keep="@string/accessibility_service_label">Anti-Intruder Protection++</string>
+    <string name="accessibility_service_label" tools:keep="@string/accessibility_service_label" translatable="false">Anti-Intruder Protection++</string>
     <string name="accessibility_service_description">This service is used for:\n<ul>\n<li>AppLocker</li>\n</ul>\nThis service NEVER collects your data to hack you, etc.\nIt is used ONLY for the provided functions above.</string>
     <string name="granted" tools:keep="@string/granted">Granted</string>
     <string name="pr_wasnt_granted">The permission wasn\'t granted, try again</string>
@@ -24,10 +24,9 @@
     <string name="test_crash">Test crash</string>
     <string name="test_crash_d">This app will crash by dividing by 0</string>
     <string name="test_fake_crash">Test fake crash</string>
-    <string name="test_fake_crash_d">Show a fake crash dialog. It should look similar to the one in the stock Android 14 ROM.</string>
+    <string name="test_fake_crash_d">Show a fake crash dialog</string>
     <string name="select_apps1">Select applications</string>
     <string name="selall">Select all</string>
-    <string name="select_apps1_d" tools:keep="@string/select_apps1_d">Select the apps to apply protection to.\nThe selected apps are displayed first if any.</string>
     <string name="done">Done</string>
     <string name="sel">%1$d selected</string>
     <string name="clear">Clear</string>
@@ -48,7 +47,7 @@
     <string name="lp_c">Long press \"Close\"</string>
     <string name="lp_t">Long press title</string>
     <string name="p_t">Press title</string>
-    <string name="select_something" tools:keep="@string/select_something">Select something first</string>
+    <string name="select_something" tools:keep="@string/select_something" translatable="false">Select something first</string>
     <string name="update">New version is available</string>
     <string name="download">Download</string>
     <string name="dsa">Don\'t show again</string>
@@ -73,8 +72,8 @@
     <string name="unlock_attempts_d">The number of failed unlock attempts needed to trigger the security</string>
     <string name="actions">Actions</string>
     <string name="actions_d">The actions that will be taken when the security is triggered</string>
-    <string name="erase_unlock_attempts">Unlock attempts to erase</string>
-    <string name="erase_unlock_attempts_d">The number of failed unlock attempts before the device data is erased.\nWARNING! All your data will be lost if it isn\'t backed up. Don\'t set this setting to a low value, as you may accidentally type an incorrect password.</string>
+    <string name="erase_unlock_attempts" translatable="false">Unlock attempts to erase</string>
+    <string name="erase_unlock_attempts_d" translatable="false">The number of failed unlock attempts before the device data is erased.\nWARNING! All your data will be lost if it isn\'t backed up. Don\'t set this setting to a low value, as you may accidentally type an incorrect password.</string>
     <string name="attempts">Attempts</string>
     <string name="up_permissions">This feature requires the device administrator permission in order to work.\nIt\'s used for the following:\n- Detect failed unlock attempts and take the required actions\n- Wipe your device if there was too many failed unlock attempts (configurable)\n- Disable the camera on the lock screen to prevent abuse\nThis app NEVER uses this permissions for anything not listed here.</string>
     <string name="alarm">Alarm</string>
@@ -82,23 +81,26 @@
     <string name="intruderphoto">Intruder photo</string>
     <string name="intruderphoto_d">Take a photo without the intruder knowing</string>
     <string name="notification">Notification</string>
-    <string name="notification_d">A notification saying that the security was triggered.\nIt\'s recommended to disable this notification on the lock screen.</string>
+    <string name="notification_d">A notification saying that the security was triggered. It\'s recommended to disable this notification on the lock screen</string>
     <string name="sms">SMS message</string>
-    <string name="sms_d">An SMS message will be sent to the selected numbers. Requires a SIM card.</string>
+    <string name="sms_d">An SMS message will be sent to the selected numbers. Requires a SIM card</string>
     <string name="voice">Voice</string>
     <string name="voice_d">The device will say \"Don\'t touch my phone!\" or something else.</string>
     <string name="enable">Enable</string>
-    <string name="sound">Sound</string>
-    <string name="sound_d">Select the sound that will be played</string>
+    <string name="sound" translatable="false">Sound</string>
+    <string name="sound_d" translatable="false">Select the sound that will be played</string>
     <string name="add">Add</string>
     <string name="takefromfrontcam">Take picture from frontal camera</string>
     <string name="takefrombackcam">Take picture from back camera</string>
-    <string name="intruderphotos">Intruder photos</string>
+    <string name="intruderphotos" translatable="false">Intruder photos</string>
     <string name="all">All</string>
     <string name="backcam">Back camera</string>
     <string name="frontcam">Front camera</string>
-    <string name="photodir">External photo folder</string>
-    <string name="photodir_d">Select the folder in which the photos will be saved</string>
+    <string name="photodir" translatable="false">External photo folder</string>
+    <string name="photodir_d" translatable="false">Select the folder in which the photos will be saved</string>
     <string name="rotate90">Rotate 90°</string>
     <string name="rotaten90">Rotate -90°</string>
+    <string name="website">Website</string>
+    <string name="nothing">No intruders :)</string>
+    <string name="camrestriction">It is not recommended to select both because of strange Android restrictions, which can cause unexpected behavior and crashes.</string>
 </resources>

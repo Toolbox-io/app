@@ -27,4 +27,9 @@
         android:name="ru.morozovit.ultimatesecurity.SettingsFragment"
         android:label="@string/settings"
         tools:layout="@layout/settings" />
+    <activity
+        android:id="@+id/nav_website"
+        android:label="@string/website"
+        app:action="android.intent.action.VIEW"
+        app:data="https://denis0001-dev.github.io/AIP-Website" />
 </navigation>

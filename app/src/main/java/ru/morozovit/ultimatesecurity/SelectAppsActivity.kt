@@ -10,14 +10,13 @@ import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.addCallback
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import ru.morozovit.ultimatesecurity.databinding.SelectAppsBinding
 import kotlin.collections.set
 
 
-class SelectAppsActivity: AppCompatActivity() {
+class SelectAppsActivity: BaseActivity() {
     private lateinit var binding: SelectAppsBinding
 
     @SuppressLint("NotifyDataSetChanged")
@@ -93,7 +92,7 @@ class SelectAppsActivity: AppCompatActivity() {
             for (item in appList) {
                 if (selectedAppList.contains(item.packageName)) {
                     selectedApps[appList.indexOf(item)] = AppEntry(
-                        item.applicationInfo.loadLabel(packageManager).toString(),
+                        item.applicationInfo!!.loadLabel(packageManager).toString(),
                         item.packageName,
                     )
                 }
@@ -107,8 +106,8 @@ class SelectAppsActivity: AppCompatActivity() {
             val appCheckbox: CheckBox = itemView.findViewById(R.id.appCheckbox)
 
             fun bind(packageInfo: PackageInfo, index: Int) {
-                val icon = packageInfo.applicationInfo.loadIcon(this@SelectAppsActivity.packageManager)
-                val label = packageInfo.applicationInfo.loadLabel(this@SelectAppsActivity.packageManager).toString()
+                val icon = packageInfo.applicationInfo!!.loadIcon(this@SelectAppsActivity.packageManager)
+                val label = packageInfo.applicationInfo!!.loadLabel(this@SelectAppsActivity.packageManager).toString()
                 val packageName = packageInfo.packageName
 
                 appIcon.setImageDrawable(icon)

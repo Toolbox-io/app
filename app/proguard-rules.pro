@@ -18,7 +18,14 @@
 
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
-#-renamesourcefileattribute SourceFile
+-renamesourcefileattribute SourceFile
 -repackageclasses
 -keep public class ru.morozovit.ultimatesecurity.MainActivity
--assumenosideeffects class android.util.Log { public static int d(...); }
+-assumenosideeffects class android.util.Log {
+    public static int d(...);
+    public static int w(...);
+    public static int e(...);
+    public static int wtf(...);
+    public static int i(...);
+    public static int v(...);
+}

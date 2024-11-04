@@ -6,8 +6,8 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.Window
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.postDelayed
+import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Service
 import ru.morozovit.ultimatesecurity.Settings
@@ -15,7 +15,7 @@ import ru.morozovit.ultimatesecurity.databinding.PasswordBinding
 import ru.morozovit.ultimatesecurity.screenWidth
 
 
-class PasswordInputActivity: AppCompatActivity() {
+class PasswordInputActivity: BaseActivity() {
     private lateinit var binding: PasswordBinding
 
     companion object {

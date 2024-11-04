@@ -104,8 +104,7 @@ class UpdateCheckerService: Service() {
                     var patchCurrent = 0
                     packageManager
                         .getPackageInfo(packageName, PackageManager.GET_META_DATA)
-                        .versionName.split(".")
-                        .forEachIndexed { index, s ->
+                        .versionName?.split(".")?.forEachIndexed { index, s ->
                             when (index) {
                                 0 -> majorCurrent = s.toInt()
                                 1 -> minorCurrent = s.toInt()
