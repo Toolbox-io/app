@@ -3,19 +3,19 @@ package ru.morozovit.ultimatesecurity
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
-import android.media.AudioManager
 
 
 class App : Application() {
     companion object {
         @SuppressLint("StaticFieldLeak")
-        lateinit var context: Context
+        private var mContext: Context? = null
+
+        val context get() = mContext ?: throw IllegalStateException("Context hasn't been initialized")
     }
 
     override fun onCreate() {
         super.onCreate()
-        context = applicationContext
-        Settings.init(context)
-        context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        mContext = applicationContext
+        Settings.init()
     }
 }

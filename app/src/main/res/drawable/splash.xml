@@ -4,7 +4,8 @@
     android:width="200dp"
     android:height="200dp"
     android:viewportWidth="500"
-    android:viewportHeight="500">
+    android:viewportHeight="500"
+    tools:keep="@drawable/splash">
   <path
       android:strokeWidth="1"
       android:pathData="M0,0h500v500h-500z"

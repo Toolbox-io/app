@@ -19,14 +19,8 @@
     </style>
 
     <style name="Theme.UltimateSecurity.Night" parent="Theme.Material3.Dark" />
-    <style name="Theme.UltimateSecurity.Day" parent="Theme.Material3.Light" />
 
     <style name="Theme.UltimateSecurity.Night.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="Theme.UltimateSecurity.Day.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
@@ -50,4 +44,9 @@
 
 
     <style name="Theme.UltimateSecurity.PopupOverlay" parent="ThemeOverlay.Material3.Light" />
+
+    <style name="Widget.Material3.Button.IconButton.Filled.Red">
+        <item name="colorPrimary">#FF4F4F</item>
+        <item name="colorOnPrimary">#ffffff</item>
+    </style>
 </resources>

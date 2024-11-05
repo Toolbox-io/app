@@ -57,7 +57,7 @@ class UpdateCheckerService: Service() {
 
         @Suppress("UNUSED_VALUE")
         fun checkForUpdates(): UpdateInfo? {
-            with (applicationContext) {
+            with (App.context) {
                 val request = URL("https://api.github.com/repos/denis0001-dev/AIP-Website/releases")
                     .openConnection() as HttpsURLConnection
                 request.requestMethod = "GET";
@@ -365,7 +365,6 @@ class UpdateCheckerService: Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         running = true
-        Settings.init(applicationContext)
         Task().executeOnExecutor(THREAD_POOL_EXECUTOR)
         return START_REDELIVER_INTENT
     }

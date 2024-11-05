@@ -11,18 +11,23 @@ class StatusFitView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
     ) : FrameLayout(context, attrs, defStyleAttr) {
+    private var top: Int? = null
 
     init {
         fitsSystemWindows = true
     }
 
-    override fun onApplyWindowInsets(insets: WindowInsets?): WindowInsets {
+    override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
+        val pT = top ?: 0
         val result = super.onApplyWindowInsets(insets)
+
         setPadding(
             paddingLeft,
-            paddingTop,
+            if (paddingTop != 0) paddingTop else pT,
             paddingRight,
-            0)
+            0
+        )
+        top = paddingTop
         return result
     }
 }

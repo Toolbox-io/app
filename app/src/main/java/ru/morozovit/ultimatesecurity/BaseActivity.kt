@@ -1,12 +1,19 @@
 package ru.morozovit.ultimatesecurity
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
 abstract class BaseActivity: AppCompatActivity() {
+    protected var authEnabled = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        // transparentStatusBar()
-        Settings.init(applicationContext)
         super.onCreate(savedInstanceState)
+        if (authEnabled) auth()
+    }
+
+    protected fun auth(): Boolean {
+        startActivity(Intent(this, AuthActivity::class.java))
+        return authEnabled
     }
 }

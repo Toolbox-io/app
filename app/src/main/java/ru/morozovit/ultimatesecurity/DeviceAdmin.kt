@@ -23,7 +23,6 @@ import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.currentCu
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhoto
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoFromBackCam
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoFromFrontCam
-import ru.morozovit.ultimatesecurity.Settings.applicationContext
 import java.io.IOException
 
 
@@ -66,7 +65,7 @@ class DeviceAdmin: DeviceAdminReceiver() {
                         )
                         if (currentCustomAlarm == "") {
                             val afd: AssetFileDescriptor =
-                                applicationContext.assets.openFd("alarm.mp3")
+                                App.context.assets.openFd("alarm.mp3")
                             setDataSource(
                                 afd.fileDescriptor,
                                 afd.startOffset,
@@ -74,12 +73,12 @@ class DeviceAdmin: DeviceAdminReceiver() {
                             )
                         } else {
                             try {
-                                setDataSource(applicationContext, Uri.parse(currentCustomAlarm))
+                                setDataSource(App.context, Uri.parse(currentCustomAlarm))
                             } catch (e: IOException) {
                                 Log.w("DeviceAdmin", "Invalid custom alarm URI, falling back to default")
                                 currentCustomAlarm = ""
                                 val afd: AssetFileDescriptor =
-                                    applicationContext.assets.openFd("alarm.mp3")
+                                    App.context.assets.openFd("alarm.mp3")
                                 setDataSource(
                                     afd.fileDescriptor,
                                     afd.startOffset,

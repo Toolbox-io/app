@@ -26,7 +26,6 @@ class Service: AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         instance = this
-        Settings.init(applicationContext)
         if (waitingForAccessibility) {
             val intent = Intent(applicationContext, MainActivity::class.java)
             intent.flags = FLAG_ACTIVITY_NEW_TASK

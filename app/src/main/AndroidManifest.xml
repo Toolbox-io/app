@@ -19,6 +19,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <queries>
         <intent>
@@ -71,7 +72,10 @@
             android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
         <activity
             android:name=".unlockprotection.intruderphoto.IntruderPhotoActivity"
-            android:theme="@style/Theme.UltimateSecurity.ImageViewer"
+            android:theme="@style/Theme.UltimateSecurity.ImageViewer" />
+        <activity
+            android:name=".AuthActivity"
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
             android:exported="true" />
         <service
             android:name=".IntruderPhotoService"

@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.os.Build
-import android.provider.Settings
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_APP_INFO
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_CLOSE
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_OPEN_APP_AGAIN
@@ -13,6 +12,9 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.NOTHING_SELEC
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
 
 object Settings {
+    @Deprecated("Use App.context instead.", ReplaceWith("App.context", "ru.morozovit" +
+            ".ultimatesecurity.App.context")
+    )
     lateinit var applicationContext: Context
     private lateinit var sharedPref: SharedPreferences
     private var init = false
@@ -21,10 +23,9 @@ object Settings {
         fun init()
     }
 
-    fun init(context: Context) {
+    fun init() {
         if (!init) {
-            applicationContext = context
-            sharedPref = applicationContext.getSharedPreferences("main", Context.MODE_PRIVATE)
+            sharedPref = App.context.getSharedPreferences("main", Context.MODE_PRIVATE)
             // Init sub-objects
             Applocker.init()
             UnlockProtection.init()
@@ -54,11 +55,15 @@ object Settings {
             }
         }
 
-    val accessibility: Boolean get()  =
-        try {
-            Service.instance != null
-        } catch (e: Settings.SettingNotFoundException) {
-            false
+    val accessibility: Boolean get() = Service.instance != null
+
+    var globalPassword: String
+        get() = sharedPref.getString("globalPassword", "")!!
+        set(value) {
+            with(sharedPref.edit()) {
+                putString("globalPassword", value)
+                apply()
+            }
         }
 
     object Applocker: SettingsObj {
@@ -68,7 +73,7 @@ object Settings {
         override fun init() {
             if (!init) {
                 sharedPref =
-                    applicationContext.getSharedPreferences("applocker", Context.MODE_PRIVATE)
+                    App.context.getSharedPreferences("applocker", Context.MODE_PRIVATE)
                 init = true
             }
         }
@@ -131,7 +136,7 @@ object Settings {
         override fun init() {
             if (!init) {
                 sharedPref =
-                    applicationContext.getSharedPreferences("unlockProtection", Context.MODE_PRIVATE)
+                    App.context.getSharedPreferences("unlockProtection", Context.MODE_PRIVATE)
                 Actions.init()
                 init = true
             }
@@ -160,7 +165,7 @@ object Settings {
             override fun init() {
                 if (!init) {
                     sharedPref =
-                        applicationContext.getSharedPreferences("unlockProtection.actions", Context.MODE_PRIVATE)
+                        App.context.getSharedPreferences("unlockProtection.actions", Context.MODE_PRIVATE)
                     init = true
                 }
             }

@@ -88,6 +88,7 @@ public final class BetterActivityResult<I, R> {
         launch(input, (OnActivityResult<R>) null);
     }
 
+    /** @noinspection unused*/
     public void launch(I input, ActivityOptionsCompat options) {
         launch(input, options, null);
     }

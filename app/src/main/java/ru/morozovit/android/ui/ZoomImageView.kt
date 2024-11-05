@@ -1,4 +1,4 @@
-package com.thuytrinh.android.collageviews
+package ru.morozovit.android.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -95,7 +95,9 @@ class ZoomImageView @JvmOverloads constructor(
 
     data class ImageCoords(val x: Float, val y: Float, val width: Int, val height: Int)
 
-    val imageCoords: ImageCoords get() {
+    @Suppress("unused")
+    val imageCoords: ImageCoords
+        get() {
         val matrix = Matrix()
         imageMatrix.invert(matrix)
 

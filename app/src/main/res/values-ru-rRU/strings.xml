@@ -7,13 +7,8 @@
     <string name="settings">Настройки</string>
     <string name="applocker_enable">Включить</string>
     <string name="permissions_required">Необходимы разрешения</string>
-    <string name="permissions_required_text">Для этой функции требуются следующие разрешения:</string>
-    <string name="permissions_required_text2">Вся разрешения НИКОГДА не используются для действий, не предоставленных здесь.</string>
-    <string name="accessibility">Специальные возможности</string>
     <string name="grant">Предоставить</string>
     <string name="accessibility_service_description">Этот сервис используется для Блокировки приложений.</string>
-    <string name="granted">Предоставлено</string>
-    <string name="pr_wasnt_granted">Разрешение не предоставлено, попробуйте еще раз</string>
     <string name="appinfo">О приложении</string>
     <string name="closeapp">Закрыть</string>
     <string name="error_disabling_service">Ошибка выключения сервиса</string>
@@ -93,4 +88,5 @@
     <string name="website">Сайт</string>
     <string name="nothing">Ура, мошенников нет!</string>
     <string name="camrestriction">Не рекомендуется выбирать оба варианта из-за странных ограничений Android, которые могут вызвать неожиданное поведение и сбои.</string>
+    <string name="erase">Erase</string>
 </resources>
