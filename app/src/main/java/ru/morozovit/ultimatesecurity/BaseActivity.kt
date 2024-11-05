@@ -4,9 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
-abstract class BaseActivity: AppCompatActivity() {
-    protected var authEnabled = true
-
+abstract class BaseActivity(protected var authEnabled: Boolean = true): AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (authEnabled) auth()

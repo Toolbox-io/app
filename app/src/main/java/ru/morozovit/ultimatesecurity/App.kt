@@ -9,8 +9,9 @@ class App : Application() {
     companion object {
         @SuppressLint("StaticFieldLeak")
         private var mContext: Context? = null
-
         val context get() = mContext ?: throw IllegalStateException("Context hasn't been initialized")
+
+        var authenticated = false
     }
 
     override fun onCreate() {

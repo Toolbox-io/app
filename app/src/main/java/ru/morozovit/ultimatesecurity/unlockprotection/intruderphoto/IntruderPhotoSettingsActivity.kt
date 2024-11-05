@@ -25,13 +25,14 @@ import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderP
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoDirEnabled
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoFromBackCam
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoFromFrontCam
+import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoWarning_dsa
 import ru.morozovit.ultimatesecurity.databinding.IntruderPhotoSettingsBinding
 import ru.morozovit.ultimatesecurity.databinding.IntruderphotoBinding
 import ru.morozovit.ultimatesecurity.fileExists
 import java.io.File
 import java.util.Date
 
-class IntruderPhotoSettingsActivity: BaseActivity() {
+class IntruderPhotoSettingsActivity: BaseActivity(false) {
     private lateinit var binding: IntruderPhotoSettingsBinding
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
     private var checkListener = true
@@ -41,7 +42,12 @@ class IntruderPhotoSettingsActivity: BaseActivity() {
         private const val REQUEST_CAMERA = 1
     }
 
-    data class IntruderPhoto(val drawables: Pair<Drawable, Drawable?>, val timestamp: Date, val name: String, val path: String) {
+    data class IntruderPhoto(
+        val drawables: Pair<Drawable, Drawable?>,
+        val timestamp: Date,
+        val name: String,
+        val path: String
+    ) {
         val is2 get() = drawables.second != null
 
         constructor(back: Drawable, timestamp: Date, name: String, path: String): this(Pair(back, null), timestamp, name, path)
@@ -586,6 +592,14 @@ class IntruderPhotoSettingsActivity: BaseActivity() {
 
         // Tabs
         binding.upActionsIpTabs.addOnTabSelectedListener(tabListener)
+
+        if (intruderPhotoWarning_dsa) {
+            binding.upActionsIpW.visibility = GONE
+        }
+        binding.upActionsIpWDsa.setOnClickListener {
+            intruderPhotoWarning_dsa = true
+            binding.upActionsIpW.visibility = GONE
+        }
     }
 
     override fun onRequestPermissionsResult(

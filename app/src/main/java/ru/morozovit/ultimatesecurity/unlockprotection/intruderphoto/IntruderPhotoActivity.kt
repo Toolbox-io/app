@@ -8,8 +8,9 @@ import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.databinding.IntruderPhotoActivityBinding
 import java.io.File
 
-class IntruderPhotoActivity: BaseActivity() {
+class IntruderPhotoActivity: BaseActivity(false) {
     private lateinit var binding: IntruderPhotoActivityBinding
+
     companion object {
         var data: IntruderPhotoSettingsActivity.IntruderPhoto? = null
     }

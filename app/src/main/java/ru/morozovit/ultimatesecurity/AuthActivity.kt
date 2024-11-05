@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.Button
 import android.widget.TextView
+import ru.morozovit.ultimatesecurity.App.Companion.authenticated
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.databinding.AuthActivityBinding
 
@@ -34,7 +35,7 @@ class AuthActivity: BaseActivity() {
             preSplashScreen()
         } catch (_: Exception) {}
         super.onCreate(savedInstanceState)
-        if (globalPassword == "") {
+        if (globalPassword == "" || authenticated) {
             finish()
             return
         }
@@ -80,6 +81,7 @@ class AuthActivity: BaseActivity() {
                     .start()
 
                 symbols[textView] = char
+                @Suppress("DEPRECATION")
                 val vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
 
                 // Vibrate for 500 milliseconds
@@ -97,6 +99,7 @@ class AuthActivity: BaseActivity() {
                 if (symbols.size == maxLength) {
                     val password = symbols.values.joinToString("")
                     if (password == globalPassword) {
+                        authenticated = true
                         finish()
                     } else {
                         clear(binding.authClear)

@@ -64,7 +64,8 @@
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
             style="@style/Widget.Material3.CardView.Filled"
-            app:cardBackgroundColor="?attr/colorPrimaryContainer">
+            app:cardBackgroundColor="?attr/colorPrimaryContainer"
+            android:id="@+id/up_actions_ip_w">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -92,7 +93,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/dsa"
                     style="@style/Widget.Material3.Button.TextButton"
-                    android:layout_marginStart="6dp" />
+                    android:layout_marginStart="6dp"
+                    android:id="@+id/up_actions_ip_w_dsa" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

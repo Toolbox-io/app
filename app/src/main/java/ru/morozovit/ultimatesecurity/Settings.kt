@@ -241,6 +241,15 @@ object Settings {
                         commit()
                     }
                 }
+
+            var intruderPhotoWarning_dsa: Boolean
+                get() = sharedPref.getBoolean("intruderPhotoWarning_dsa", false)
+                set(value) {
+                    with(sharedPref.edit()) {
+                        putBoolean("intruderPhotoWarning_dsa", value)
+                        commit()
+                    }
+                }
         }
     }
 }
