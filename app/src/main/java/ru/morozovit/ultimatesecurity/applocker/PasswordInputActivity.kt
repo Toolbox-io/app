@@ -15,7 +15,7 @@ import ru.morozovit.ultimatesecurity.databinding.PasswordBinding
 import ru.morozovit.ultimatesecurity.screenWidth
 
 
-class PasswordInputActivity: BaseActivity() {
+class PasswordInputActivity: BaseActivity(false) {
     private lateinit var binding: PasswordBinding
 
     companion object {

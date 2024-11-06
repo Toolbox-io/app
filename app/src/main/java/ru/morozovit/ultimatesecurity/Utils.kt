@@ -13,7 +13,6 @@ import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Color
 import android.net.Uri
-import android.os.Build
 import android.text.Editable
 import android.view.View
 import android.view.ViewGroup
@@ -102,7 +101,7 @@ fun Activity.transparentStatusBar() {
 }
 
 fun Activity.preSplashScreen() {
-    if (Build.VERSION.SDK_INT >= 31) {
+    try {
         val splashScreen = installSplashScreen()
         splashScreen.setOnExitAnimationListener { splashScreenView ->
             // Create your custom animation.
@@ -110,22 +109,22 @@ fun Activity.preSplashScreen() {
                 .scaleX(3f)
                 .scaleY(3f)
                 .alpha(0f)
-                .setDuration(200L)
-                .setListener(object: AnimatorListener {
+                .setDuration(250)
+                .setListener(object : AnimatorListener {
                     override fun onAnimationStart(animation: Animator) {}
                     override fun onAnimationEnd(animation: Animator) {
                         splashScreenView.remove()
                     }
+
                     override fun onAnimationCancel(animation: Animator) {
                         splashScreenView.remove()
                     }
+
                     override fun onAnimationRepeat(animation: Animator) {}
                 })
                 .start()
         }
-    } else {
-        setTheme(R.style.Theme_UltimateSecurity_NoActionBar)
-    }
+    } catch (_: Exception) {}
 }
 
 fun async(exec: () -> Unit) = Thread(exec).start()

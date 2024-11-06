@@ -15,14 +15,10 @@ import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.databinding.AuthActivityBinding
 
 
-class AuthActivity: BaseActivity() {
+class AuthActivity: BaseActivity(false) {
     companion object {
         const val PASSWORD_DOT = "●"
         const val PASSWORD_TEXT_SIZE = 30f
-    }
-
-    init {
-        authEnabled = false
     }
 
     private lateinit var binding: AuthActivityBinding
@@ -77,7 +73,7 @@ class AuthActivity: BaseActivity() {
                 textView.animate()
                     .scaleX(1f)
                     .scaleY(1f)
-                    .setDuration(32)
+                    .setDuration(125)
                     .start()
 
                 symbols[textView] = char

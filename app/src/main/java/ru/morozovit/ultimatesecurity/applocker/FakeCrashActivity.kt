@@ -21,7 +21,7 @@ import ru.morozovit.ultimatesecurity.appName
 import ru.morozovit.ultimatesecurity.databinding.FakeCrashBinding
 import ru.morozovit.ultimatesecurity.screenWidth
 
-class FakeCrashActivity: BaseActivity() {
+class FakeCrashActivity: BaseActivity(false) {
     private lateinit var binding: FakeCrashBinding
 
 
