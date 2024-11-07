@@ -119,14 +119,6 @@ abstract class BaseActivity(protected val authEnabled: Boolean = true): AppCompa
         interactionDetector()
     }
 
-    override fun onUserLeaveHint() {
-        super.onUserLeaveHint()
-//        Log.d("TAG", "Home Button Pressed")
-//        paused = false
-//        noPause = true
-//        interactionDetector()
-    }
-
     override fun onPause() {
         super.onPause()
         if (!noPause) {
@@ -162,7 +154,6 @@ abstract class BaseActivity(protected val authEnabled: Boolean = true): AppCompa
     }
 
     override fun finishAfterTransition() = finishAfterTransition(transitionExit, transitionEnter)
-
 
     open fun finishAfterTransition(@AnimRes enterAnim: Int, @AnimRes exitAnim: Int) {
         if (transitionCalled) {

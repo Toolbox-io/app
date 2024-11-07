@@ -1,0 +1,42 @@
+package ru.morozovit.ultimatesecurity
+
+import androidx.annotation.IntDef
+
+
+object JobIdManager {
+    const val JOB_TYPE_CHANNEL_PROGRAMS: Int = 1
+    const val JOB_TYPE_CHANNEL_METADATA: Int = 2
+    const val JOB_TYPE_CHANNEL_DELETION: Int = 3
+    const val JOB_TYPE_CHANNEL_LOGGER: Int = 4
+
+    const val JOB_TYPE_USER_PREFS: Int = 11
+    const val JOB_TYPE_USER_BEHAVIOR: Int = 21
+
+    //16-1 for short. Adjust per your needs
+    private const val JOB_TYPE_SHIFTS = 15
+
+    fun getJobId(@JobType jobType: Int, objectId: Int): Int {
+        if (0 < objectId && objectId < (1 shl JOB_TYPE_SHIFTS)) {
+            return (jobType shl JOB_TYPE_SHIFTS) + objectId
+        } else {
+            val err = String.format(
+                "objectId %s must be between %s and %s",
+                objectId, 0, (1 shl JOB_TYPE_SHIFTS)
+            )
+            throw IllegalArgumentException(err)
+        }
+    }
+
+    @IntDef(
+        value = [
+            JOB_TYPE_CHANNEL_PROGRAMS,
+            JOB_TYPE_CHANNEL_METADATA,
+            JOB_TYPE_CHANNEL_DELETION,
+            JOB_TYPE_CHANNEL_LOGGER,
+            JOB_TYPE_USER_PREFS,
+            JOB_TYPE_USER_BEHAVIOR
+        ]
+    )
+    @Retention(AnnotationRetention.SOURCE)
+    annotation class JobType
+}

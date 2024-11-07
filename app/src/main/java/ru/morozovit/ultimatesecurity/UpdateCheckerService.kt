@@ -4,11 +4,11 @@ package ru.morozovit.ultimatesecurity;
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.IntentService
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
-import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -39,7 +39,7 @@ import java.net.URL
 import java.util.concurrent.Executor
 import javax.net.ssl.HttpsURLConnection
 
-class UpdateCheckerService: Service() {
+class UpdateCheckerService: IntentService("${this::class.simpleName}") {
     companion object {
         const val UPDATE_AVAILABLE_NOTIFICATION_ID = 1
         const val UPDATE_AVAILABLE_CHANNEL_ID = "update"
@@ -277,12 +277,46 @@ class UpdateCheckerService: Service() {
                 )
             }
         }
+
+        fun start(context: Context) {
+            if (!running) {
+                context.startService(
+                    Intent(context, UpdateCheckerService::class.java).apply {
+                        action = ACTION_START_UPDATE_CHECKER
+                    }
+                )
+            }
+        }
     }
 
     private var interrupted = false
     private var checked = false
 
+    object TaskExecutor: Executor {
+        private var running = false
+        var thread: Thread? = null
+
+        override fun execute(command: Runnable) {
+            running = true
+            thread = async {
+                command.run()
+                running = false
+            }
+        }
+    }
+
     override fun onBind(intent: Intent) = null
+
+    override fun onHandleIntent(intent: Intent?) {
+        if (intent != null) {
+            if (ACTION_START_UPDATE_CHECKER == intent.action) {
+                running = true
+                Handler(mainLooper).post {
+                    Task().executeOnExecutor(TaskExecutor)
+                }
+            }
+        }
+    }
 
     @SuppressLint("StaticFieldLeak")
     inner class Task: AsyncTask<Unit, Unit, Unit>() {
