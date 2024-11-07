@@ -94,4 +94,5 @@
     <string name="nothing">No intruders :)</string>
     <string name="camrestriction">It is not recommended to select both because of strange Android restrictions, which can cause unexpected behavior and crashes.</string>
     <string name="erase">Erase</string>
+    <string name="lock">Lock</string>
 </resources>

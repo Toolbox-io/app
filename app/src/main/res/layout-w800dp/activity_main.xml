@@ -4,14 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
-
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
+    android:baselineAligned="false"
+    tools:context=".MainActivity"
+    android:fitsSystemWindows="false">
+    
+    <ru.morozovit.android.ui.RoundedCornerLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/activity_main_drawer" />
+        app:topRightCornerRadius="16dp"
+        app:bottomRightCornerRadius="16dp">
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/nav_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:headerLayout="@layout/nav_header_main"
+            app:menu="@menu/activity_main_drawer" />
+    </ru.morozovit.android.ui.RoundedCornerLayout>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="0dp"

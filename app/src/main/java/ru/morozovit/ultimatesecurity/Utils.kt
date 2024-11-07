@@ -2,8 +2,6 @@
 
 package ru.morozovit.ultimatesecurity
 
-import android.animation.Animator
-import android.animation.Animator.AnimatorListener
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -11,14 +9,11 @@ import android.content.Intent.ACTION_MAIN
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.content.res.Resources
-import android.graphics.Color
 import android.net.Uri
 import android.text.Editable
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.EditText
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 
@@ -93,38 +88,8 @@ fun Activity.setWindowFlag(bits: Int, on: Boolean) {
     win.attributes = winParams
 }
 
-@Suppress("DEPRECATION")
-fun Activity.transparentStatusBar() {
-    window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-    setWindowFlag(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, false)
-    window.statusBarColor = Color.TRANSPARENT
+fun async(exec: () -> Unit): Thread {
+    val thr = Thread(exec)
+    thr.start()
+    return thr
 }
-
-fun Activity.preSplashScreen() {
-    try {
-        val splashScreen = installSplashScreen()
-        splashScreen.setOnExitAnimationListener { splashScreenView ->
-            // Create your custom animation.
-            splashScreenView.view.animate()
-                .scaleX(3f)
-                .scaleY(3f)
-                .alpha(0f)
-                .setDuration(250)
-                .setListener(object : AnimatorListener {
-                    override fun onAnimationStart(animation: Animator) {}
-                    override fun onAnimationEnd(animation: Animator) {
-                        splashScreenView.remove()
-                    }
-
-                    override fun onAnimationCancel(animation: Animator) {
-                        splashScreenView.remove()
-                    }
-
-                    override fun onAnimationRepeat(animation: Animator) {}
-                })
-                .start()
-        }
-    } catch (_: Exception) {}
-}
-
-fun async(exec: () -> Unit) = Thread(exec).start()

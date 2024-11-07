@@ -1,9 +1,17 @@
 package ru.morozovit.ultimatesecurity
 
+import android.animation.Animator
+import android.animation.Animator.AnimatorListener
 import android.content.Intent
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.WindowManager
+import androidx.annotation.AnimRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
 import ru.morozovit.ultimatesecurity.BaseActivity.InteractionDetector.execute
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
@@ -13,50 +21,77 @@ import java.util.concurrent.Executor
 abstract class BaseActivity(protected val authEnabled: Boolean = true): AppCompatActivity() {
     private var paused = false
     private var interacted = false
+    private var noPause = false
+
+    @AnimRes
+    private var transitionEnter = 0
+    @AnimRes
+    private var transitionExit = 0
+
+    private var transitionCalled = false
 
     private object InteractionDetector: Executor {
         private var executing = false
+        private var thread: Thread? = null
 
         override fun execute(command: Runnable) {
             if (!executing) {
                 executing = true
-                Thread {
+                thread = async {
                     command.run()
                     executing = false
-                }.start()
+                }
             }
+        }
+
+        fun interrupt() {
+            thread?.interrupt()
+        }
+
+        fun join() {
+            thread?.join()
         }
     }
 
     private fun interactionDetector() {
         if (authEnabled && globalPassword != "") {
             execute {
-                var timer = 0
-                while (true) {
-                    var br = false
-                    for (i in 0..1000) {
-                        sleep(1)
-                        if (paused) {
-                            br = true
+                try {
+                    var timer = 0
+                    while (true) {
+                        var br = false
+                        for (i in 0..1000) {
+                            sleep(1)
+                            if (paused) {
+                                br = true
+                                paused = false
+                                Log.d("Auth", "Paused. [${this::class.simpleName}]")
+                                break
+                            }
+                        }
+                        if (br) break
+                        if (interacted) {
+                            interacted = false
+                            timer = 0
+                            Log.i(
+                                "Auth",
+                                "Interaction detected, resetting. [${this::class.simpleName}]"
+                            )
+                        } else {
+                            timer++
+                            Log.i(
+                                "Auth",
+                                "No interaction, timer = $timer. [${this::class.simpleName}] "
+                            )
+                        }
+
+                        if (timer >= 60) {
+                            authenticated = false
+                            auth()
                             break
                         }
                     }
-                    if (br) break
-                    if (interacted) {
-                        interacted = false
-                        timer = 0
-                        Log.i("Auth", "Interaction detected, resetting")
-                    } else {
-                        timer++
-                        Log.i("Auth", "No interaction, timer = $timer")
-                    }
-
-                    if (timer >= 60) {
-                        authenticated = false
-                        auth()
-                        break
-                    }
-                }
+                } catch (_: InterruptedException) {}
             }
         }
     }
@@ -72,6 +107,7 @@ abstract class BaseActivity(protected val authEnabled: Boolean = true): AppCompa
 
     protected fun auth(): Boolean {
         if (authEnabled && globalPassword != "" && !authenticated) {
+            paused = true
             startActivity(Intent(this, AuthActivity::class.java))
         }
         return authEnabled
@@ -83,13 +119,97 @@ abstract class BaseActivity(protected val authEnabled: Boolean = true): AppCompa
         interactionDetector()
     }
 
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+//        Log.d("TAG", "Home Button Pressed")
+//        paused = false
+//        noPause = true
+//        interactionDetector()
+    }
+
     override fun onPause() {
         super.onPause()
-        paused = true
+        if (!noPause) {
+            paused = true
+        } else {
+            noPause = false
+        }
     }
 
     override fun onUserInteraction() {
         super.onUserInteraction()
         interacted = true
+    }
+
+    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+    override fun overridePendingTransition(enterAnim: Int, exitAnim: Int) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            overrideActivityTransition(
+                OVERRIDE_TRANSITION_OPEN,
+                enterAnim,
+                exitAnim,
+                com.google.android.material.R.attr.colorSurface
+            )
+        } else {
+            super.overridePendingTransition(
+                enterAnim,
+                exitAnim
+            )
+        }
+        transitionEnter = enterAnim
+        transitionExit = exitAnim
+        transitionCalled = true
+    }
+
+    override fun finishAfterTransition() = finishAfterTransition(transitionExit, transitionEnter)
+
+
+    open fun finishAfterTransition(@AnimRes enterAnim: Int, @AnimRes exitAnim: Int) {
+        if (transitionCalled) {
+            transitionCalled = false
+            finish()
+            @Suppress("DEPRECATION")
+            super.overridePendingTransition(enterAnim, exitAnim)
+        } else {
+            super.finishAfterTransition()
+        }
+    }
+
+    open fun finishAfterTransitionReverse() = finishAfterTransition(transitionEnter, transitionExit)
+
+    open fun overridePendingTransition() = overridePendingTransition(0, 0)
+
+    @Suppress("DEPRECATION")
+    fun transparentStatusBar() {
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        setWindowFlag(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, false)
+        window.statusBarColor = Color.TRANSPARENT
+    }
+
+    fun preSplashScreen() {
+        try {
+            val splashScreen = installSplashScreen()
+            splashScreen.setOnExitAnimationListener { splashScreenView ->
+                // Create your custom animation.
+                splashScreenView.view.animate()
+                    .scaleX(3f)
+                    .scaleY(3f)
+                    .alpha(0f)
+                    .setDuration(250)
+                    .setListener(object : AnimatorListener {
+                        override fun onAnimationStart(animation: Animator) {}
+                        override fun onAnimationEnd(animation: Animator) {
+                            splashScreenView.remove()
+                        }
+
+                        override fun onAnimationCancel(animation: Animator) {
+                            splashScreenView.remove()
+                        }
+
+                        override fun onAnimationRepeat(animation: Animator) {}
+                    })
+                    .start()
+            }
+        } catch (_: Exception) {}
     }
 }

@@ -35,6 +35,7 @@ class AuthActivity: BaseActivity(false) {
             finish()
             return
         }
+        overridePendingTransition(R.anim.scale_up, R.anim.scale_down)
         binding = AuthActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -96,7 +97,7 @@ class AuthActivity: BaseActivity(false) {
                     val password = symbols.values.joinToString("")
                     if (password == globalPassword) {
                         authenticated = true
-                        finish()
+                        finishAfterTransitionReverse()
                     } else {
                         clear(binding.authClear)
                     }
