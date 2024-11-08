@@ -95,4 +95,7 @@
     <string name="camrestriction">It is not recommended to select both because of strange Android restrictions, which can cause unexpected behavior and crashes.</string>
     <string name="erase">Erase</string>
     <string name="lock">Lock</string>
+    <string name="locked">Locked</string>
+    <string name="lockapp">Password lock</string>
+    <string name="lockapp_d">Lock this app with a PIN code.</string>
 </resources>

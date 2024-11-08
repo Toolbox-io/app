@@ -1,20 +1,26 @@
-@file:Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
+@file:Suppress("DEPRECATION")
 
-package ru.morozovit.ultimatesecurity;
+package ru.morozovit.ultimatesecurity
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.IntentService
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.app.job.JobInfo
+import android.app.job.JobParameters
+import android.app.job.JobScheduler
+import android.app.job.JobService
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.ACTION_BOOT_COMPLETED
+import android.content.Intent.ACTION_PACKAGE_ADDED
+import android.content.Intent.ACTION_PACKAGE_REPLACED
 import android.content.pm.PackageManager
 import android.os.AsyncTask
-import android.os.AsyncTask.THREAD_POOL_EXECUTOR
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -27,8 +33,6 @@ import androidx.core.content.FileProvider
 import androidx.core.os.postDelayed
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
-import ru.morozovit.ultimatesecurity.Settings.applicationContext
-import ru.morozovit.ultimatesecurity.UpdateCheckerBroadcastReceiver.Companion.ACTION_START_UPDATE_CHECKER
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -37,27 +41,106 @@ import java.io.OutputStream
 import java.io.Serializable
 import java.net.URL
 import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit
 import javax.net.ssl.HttpsURLConnection
 
-class UpdateCheckerService: IntentService("${this::class.simpleName}") {
+class UpdateChecker: JobService() {
     companion object {
+        private var prevInfo: UpdateInfo? = null
+        private var scheduled = false
+
+        fun schedule(context: Context) {
+            Log.d("UpdateChecker", "schedule: adding job to scheduler")
+            (context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler)
+                .schedule(
+                    JobInfo.Builder(
+                        JobIdManager.getJobId(
+                            JobIdManager.JOB_TYPE_CHANNEL_PROGRAMS,
+                            2
+                        ),
+                        ComponentName(context, UpdateChecker::class.java)
+                    ).apply {
+                        if (scheduled) setMinimumLatency(10000)
+                        setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                        setRequiresDeviceIdle(false)
+                        setRequiresCharging(false)
+                        setBackoffCriteria(
+                            TimeUnit.SECONDS.toMillis(10),
+                            JobInfo.BACKOFF_POLICY_LINEAR
+                        )
+                    }.build()
+                )
+            Log.d("UpdateChecker", "schedule: job scheduled")
+            scheduled = true
+        }
+
+        object TaskExecutor: Executor {
+            private val running get() = thread != null
+            private var thread: Thread? = null
+
+            override fun execute(command: Runnable) {
+                if (!running) {
+                    thread = async {
+                        command.run()
+                        thread = null
+                    }
+                }
+            }
+        }
+
         const val UPDATE_AVAILABLE_NOTIFICATION_ID = 1
         const val UPDATE_AVAILABLE_CHANNEL_ID = "update"
+        const val ACTION_START_UPDATE_CHECKER = "ru.morozovit.ultimatesecurity." +
+                "UpdateChecker.START"
 
-        const val DOWNLOAD_BROADCAST = "UpdateCheckerService.DOWNLOAD"
+        const val DOWNLOAD_BROADCAST = "UpdateChecker.DOWNLOAD"
 
-        var running = false
+        data class SemanticVersion(
+            val major: Number = 0,
+            val minor: Number = 0,
+            val patch: Number = 0
+        ): Serializable {
+            override fun equals(other: Any?): Boolean {
+                return other is SemanticVersion &&
+                        major == other.major &&
+                        minor == other.minor &&
+                        patch == other.patch
+            }
 
-        data class SemanticVersion(val major: Number = 0, val minor: Number = 0, val patch: Number = 0): Serializable
+            override fun hashCode(): Int {
+                var result = major.hashCode()
+                result = 31 * result + minor.hashCode()
+                result = 31 * result + patch.hashCode()
+                return result
+            }
+        }
         data class UpdateInfo(
             val available: Boolean,
             val version: SemanticVersion,
             val description: String,
-            val download: String): Serializable
+            val download: String
+        ) : Serializable {
+            override fun equals(other: Any?): Boolean {
+                return other is UpdateInfo &&
+                        available == other.available &&
+                        version == other.version &&
+                        description == other.description &&
+                        download == other.download
+            }
+
+            override fun hashCode(): Int {
+                var result = available.hashCode()
+                result = 31 * result + version.hashCode()
+                result = 31 * result + description.hashCode()
+                result = 31 * result + download.hashCode()
+                return result
+            }
+        }
 
         @Suppress("UNUSED_VALUE")
         fun checkForUpdates(): UpdateInfo? {
             with (App.context) {
+                Log.d("UpdateChecker", "Checking for updates")
                 val request = URL("https://api.github.com/repos/denis0001-dev/AIP-Website/releases")
                     .openConnection() as HttpsURLConnection
                 request.requestMethod = "GET";
@@ -130,7 +213,8 @@ class UpdateCheckerService: IntentService("${this::class.simpleName}") {
                         updateAvailable,
                         SemanticVersion(majorLatest, minorLatest, patchLatest),
                         description,
-                        asset)
+                        asset
+                    )
                 } catch (e: Exception) {
                     return null
                 } finally {
@@ -140,6 +224,7 @@ class UpdateCheckerService: IntentService("${this::class.simpleName}") {
         }
 
         class DownloadBroadcastReceiver: BroadcastReceiver() {
+            @Suppress("OVERRIDE_DEPRECATION")
             @SuppressLint("StaticFieldLeak")
             inner class Task : AsyncTask<String, String, Unit>() {
                 private lateinit var file: File
@@ -149,15 +234,15 @@ class UpdateCheckerService: IntentService("${this::class.simpleName}") {
                 @SuppressLint("MissingPermission")
                 override fun onPreExecute() {
                     super.onPreExecute()
-                    builder = NotificationCompat.Builder(applicationContext, UPDATE_AVAILABLE_CHANNEL_ID)
+                    builder = NotificationCompat.Builder(App.context, UPDATE_AVAILABLE_CHANNEL_ID)
                         .setSmallIcon(R.drawable.primitive_icon)
                         .setContentTitle("Downloading update...")
                         .setPriority(PRIORITY_DEFAULT)
                         .setSilent(true)
                         .setOngoing(false)
-                    with(NotificationManagerCompat.from(applicationContext)) notification@{
+                    with(NotificationManagerCompat.from(App.context)) notification@{
                         if (ActivityCompat.checkSelfPermission(
-                                applicationContext,
+                                App.context,
                                 Manifest.permission.POST_NOTIFICATIONS
                             ) != PackageManager.PERMISSION_GRANTED
                         ) return@notification
@@ -185,7 +270,7 @@ class UpdateCheckerService: IntentService("${this::class.simpleName}") {
                         )
 
                         // Output stream
-                        file = File(applicationContext.cacheDir.absolutePath + "/update.apk")
+                        file = File(App.context.cacheDir.absolutePath + "/update.apk")
                         if (file.exists()) {
                             file.delete()
                         }
@@ -223,12 +308,12 @@ class UpdateCheckerService: IntentService("${this::class.simpleName}") {
                         .setSilent(true)
                         .setOngoing(true)
                     if (ActivityCompat.checkSelfPermission(
-                            applicationContext,
+                            App.context,
                             Manifest.permission.POST_NOTIFICATIONS
                         ) != PackageManager.PERMISSION_GRANTED
                     ) return
 
-                    NotificationManagerCompat.from(applicationContext).notify(
+                    NotificationManagerCompat.from(App.context).notify(
                         UPDATE_AVAILABLE_NOTIFICATION_ID, builder.build()
                     )
                 }
@@ -240,12 +325,12 @@ class UpdateCheckerService: IntentService("${this::class.simpleName}") {
                     install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     install.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     install.data = FileProvider.getUriForFile(
-                        applicationContext,
-                        applicationContext.applicationContext.packageName + ".provider",
+                        App.context,
+                        App.context.packageName + ".provider",
                         file
                     )
 
-                    val pendingIntent = PendingIntent.getActivity(applicationContext, 0, install, FLAG_IMMUTABLE)
+                    val pendingIntent = PendingIntent.getActivity(App.context, 0, install, FLAG_IMMUTABLE)
 
                     builder.setContentTitle("Update is ready")
                         .setContentText("Tap to install")
@@ -256,13 +341,13 @@ class UpdateCheckerService: IntentService("${this::class.simpleName}") {
                         .setOngoing(false)
 
                     if (ActivityCompat.checkSelfPermission(
-                            applicationContext,
+                            App.context,
                             Manifest.permission.POST_NOTIFICATIONS
                         ) != PackageManager.PERMISSION_GRANTED
                     ) return
 
                     Handler(Looper.getMainLooper()).postDelayed(1000) {
-                        NotificationManagerCompat.from(applicationContext).notify(
+                        NotificationManagerCompat.from(App.context).notify(
                             UPDATE_AVAILABLE_NOTIFICATION_ID, builder.build()
                         )
                     }
@@ -277,138 +362,111 @@ class UpdateCheckerService: IntentService("${this::class.simpleName}") {
                 )
             }
         }
-
-        fun start(context: Context) {
-            if (!running) {
-                context.startService(
-                    Intent(context, UpdateCheckerService::class.java).apply {
-                        action = ACTION_START_UPDATE_CHECKER
-                    }
-                )
-            }
-        }
-    }
-
-    private var interrupted = false
-    private var checked = false
-
-    object TaskExecutor: Executor {
-        private var running = false
-        var thread: Thread? = null
-
-        override fun execute(command: Runnable) {
-            running = true
-            thread = async {
-                command.run()
-                running = false
-            }
-        }
-    }
-
-    override fun onBind(intent: Intent) = null
-
-    override fun onHandleIntent(intent: Intent?) {
-        if (intent != null) {
-            if (ACTION_START_UPDATE_CHECKER == intent.action) {
-                running = true
-                Handler(mainLooper).post {
-                    Task().executeOnExecutor(TaskExecutor)
+        class Receiver: BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (
+                    intent.action == ACTION_BOOT_COMPLETED ||
+                    intent.action == ACTION_START_UPDATE_CHECKER ||
+                    intent.action == ACTION_PACKAGE_REPLACED ||
+                    intent.action == ACTION_PACKAGE_ADDED
+                ) {
+                    schedule(context)
                 }
             }
         }
     }
 
+    @Suppress("OVERRIDE_DEPRECATION")
     @SuppressLint("StaticFieldLeak")
     inner class Task: AsyncTask<Unit, Unit, Unit>() {
-        override fun doInBackground(vararg params: Unit?) {
-            while (!interrupted) {
-                if (!checked) {
-                    val info = checkForUpdates()
-                    if (info != null && info.available) {
-                        val text =
-                            "${info.version.major}." +
-                                    "${info.version.minor}." +
-                                    "${info.version.patch}"
+        override fun doInBackground(vararg params: Unit) {
+            val info = checkForUpdates()
+            if (info != null && info.available && info != prevInfo) {
+                val text =
+                    "${info.version.major}." +
+                            "${info.version.minor}." +
+                            "${info.version.patch}"
 
-                        // Notification
-                        val downloadIntent =
-                            Intent(this@UpdateCheckerService, DownloadBroadcastReceiver::class.java)
-                                .apply {
-                                    action = DOWNLOAD_BROADCAST
-                                    putExtra(UPDATE_AVAILABLE_CHANNEL_ID, 0)
-                                    putExtra("updateInfo", info)
-                                }
-                        val downloadPendingIntent = PendingIntent.getBroadcast(
-                            this@UpdateCheckerService, 0, downloadIntent,
-                            PendingIntent.FLAG_MUTABLE
-                        )
-                        val mainIntent = Intent(this@UpdateCheckerService, MainActivity::class.java)
-
-                        val pendingIntent = PendingIntent.getActivity(
-                            this@UpdateCheckerService, 0, mainIntent,
-                            FLAG_IMMUTABLE
-                        )
-
-                        val builder = NotificationCompat.Builder(
-                            applicationContext,
-                            UPDATE_AVAILABLE_CHANNEL_ID
-                        )
-                            .setSmallIcon(R.drawable.primitive_icon)
-                            .setContentTitle("Update available")
-                            .setContentText("Version $text")
-                            .setStyle(NotificationCompat.BigTextStyle().bigText(info.description))
-                            .setPriority(PRIORITY_DEFAULT)
-                            .setContentIntent(pendingIntent)
-                            .addAction(R.drawable.primitive_icon, "Download", downloadPendingIntent)
-                            .setAutoCancel(true)
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            val channelName = "Update"
-                            val descriptionText = "When a new version is available"
-                            val importance = NotificationManager.IMPORTANCE_HIGH
-                            val channel = NotificationChannel(
-                                UPDATE_AVAILABLE_CHANNEL_ID,
-                                channelName,
-                                importance
-                            )
-                            channel.description = descriptionText
-                            // Register the channel with the system.
-                            val notificationManager: NotificationManager =
-                                applicationContext.getSystemService(
-                                    Context.NOTIFICATION_SERVICE
-                                ) as NotificationManager
-                            notificationManager.createNotificationChannel(channel)
+                // Notification
+                val downloadIntent =
+                    Intent(App.context, DownloadBroadcastReceiver::class.java)
+                        .apply {
+                            action = DOWNLOAD_BROADCAST
+                            putExtra(UPDATE_AVAILABLE_CHANNEL_ID, 0)
+                            putExtra("updateInfo", info)
                         }
+                val downloadPendingIntent = PendingIntent.getBroadcast(
+                    App.context, 0, downloadIntent,
+                    PendingIntent.FLAG_MUTABLE
+                )
+                val mainIntent = Intent(App.context, MainActivity::class.java)
 
-                        with(NotificationManagerCompat.from(applicationContext)) notification@{
-                            if (ActivityCompat.checkSelfPermission(
-                                    applicationContext,
-                                    Manifest.permission.POST_NOTIFICATIONS
-                                ) != PackageManager.PERMISSION_GRANTED
-                            ) return@notification
+                val pendingIntent = PendingIntent.getActivity(
+                    App.context, 0, mainIntent,
+                    FLAG_IMMUTABLE
+                )
 
-                            // notificationId is a unique int for each notification that you must define.
-                            notify(UPDATE_AVAILABLE_NOTIFICATION_ID, builder.build())
-                        }
-                        checked = true
-                    }
+                val builder = NotificationCompat.Builder(
+                    App.context,
+                    UPDATE_AVAILABLE_CHANNEL_ID
+                )
+                    .setSmallIcon(R.drawable.primitive_icon)
+                    .setContentTitle("Update available")
+                    .setContentText("Version $text")
+                    .setStyle(NotificationCompat.BigTextStyle().bigText(info.description))
+                    .setPriority(PRIORITY_DEFAULT)
+                    .setContentIntent(pendingIntent)
+                    .addAction(R.drawable.primitive_icon, "Download", downloadPendingIntent)
+                    .setAutoCancel(true)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val channelName = "Update"
+                    val descriptionText = "When a new version is available"
+                    val importance = NotificationManager.IMPORTANCE_HIGH
+                    val channel = NotificationChannel(
+                        UPDATE_AVAILABLE_CHANNEL_ID,
+                        channelName,
+                        importance
+                    )
+                    channel.description = descriptionText
+                    // Register the channel with the system.
+                    val notificationManager: NotificationManager =
+                        App.context.getSystemService(
+                            Context.NOTIFICATION_SERVICE
+                        ) as NotificationManager
+                    notificationManager.createNotificationChannel(channel)
                 }
-                Thread.sleep(10 * 1000)
+
+                with(NotificationManagerCompat.from(App.context)) notification@{
+                    if (ActivityCompat.checkSelfPermission(
+                            App.context,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) != PackageManager.PERMISSION_GRANTED
+                    ) return@notification
+
+                    // notificationId is a unique int for each notification that you must define.
+                    notify(UPDATE_AVAILABLE_NOTIFICATION_ID, builder.build())
+                }
+                prevInfo = info
+            } else {
+                Log.d("UpdateChecker", "Conditions are not met. (info != null) = ${info != null}," +
+                        " (info.available) = ${info?.available}, (info != prevInfo) = ${info !=
+                                prevInfo
+                        } ")
             }
+        }
+
+        override fun onPostExecute(result: Unit?) {
+            super.onPostExecute(result)
+            schedule(App.context)
+            stopSelf()
         }
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        running = true
-        Task().executeOnExecutor(THREAD_POOL_EXECUTOR)
-        return START_REDELIVER_INTENT
+    override fun onStartJob(params: JobParameters?): Boolean {
+        @Suppress("DEPRECATION")
+        Task().executeOnExecutor(TaskExecutor)
+        return true
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        interrupted = true
-        running = false
-        Log.d(javaClass.simpleName, "Destroying service")
-        applicationContext.sendBroadcast(Intent(ACTION_START_UPDATE_CHECKER))
-        Log.d(javaClass.simpleName, "Restarted")
-    }
+    override fun onStopJob(params: JobParameters?) = true
 }

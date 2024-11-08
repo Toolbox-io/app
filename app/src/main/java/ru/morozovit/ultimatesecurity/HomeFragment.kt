@@ -20,7 +20,7 @@ import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.snackbar.Snackbar
 import ru.morozovit.ultimatesecurity.Settings.installPackage_dsa
 import ru.morozovit.ultimatesecurity.Settings.update_dsa
-import ru.morozovit.ultimatesecurity.UpdateCheckerService.Companion.checkForUpdates
+import ru.morozovit.ultimatesecurity.UpdateChecker.Companion.checkForUpdates
 import ru.morozovit.ultimatesecurity.databinding.HomeBinding
 import java.io.BufferedInputStream
 import java.io.File

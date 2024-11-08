@@ -1,11 +1,14 @@
 package ru.morozovit.ultimatesecurity
 
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewTreeObserver
+import androidx.appcompat.view.menu.ActionMenuItemView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
@@ -21,6 +24,7 @@ import ru.morozovit.ultimatesecurity.databinding.ActivityMainBinding
 class MainActivity : BaseActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    lateinit var lockView: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,16 +32,13 @@ class MainActivity : BaseActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (!UpdateCheckerService.running) {
-            try {
-                startService(
-                    Intent(
-                        this,
-                        UpdateCheckerService::class.java
-                    )
-                )
-            } catch (_: Exception) {}
+
+        try {
+            UpdateChecker.schedule(this)
+        } catch (e: Exception) {
+            Log.e("MainActivity", "${e::class.qualifiedName}: ${e.message}")
         }
+
 
         setSupportActionBar(binding.toolbar)
 
@@ -63,12 +64,28 @@ class MainActivity : BaseActivity() {
                     .show()
             }
         }
+
+        window.decorView.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                val th = this
+                findViewById<ActionMenuItemView>(R.id.lock).apply {
+                    if (this@apply != null) {
+                        lockView = this
+                        transitionName = "lock"
+
+                        window.decorView.viewTreeObserver.removeOnGlobalLayoutListener(th)
+                    }
+                }
+            }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main, menu)
-        menu.findItem(R.id.lock).isVisible = globalPassword != ""
+        menu.findItem(R.id.lock).apply {
+            isVisible = globalPassword != ""
+        }
         return true
     }
 
@@ -76,7 +93,7 @@ class MainActivity : BaseActivity() {
         when (item.itemId) {
             R.id.lock -> {
                 authenticated = false
-                startActivity(Intent(this, AuthActivity::class.java))
+                auth()
             }
         }
         return super.onOptionsItemSelected(item)

@@ -3,12 +3,9 @@ package ru.morozovit.ultimatesecurity
 import android.animation.Animator
 import android.animation.Animator.AnimatorListener
 import android.content.Intent
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.view.WindowManager
 import androidx.annotation.AnimRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -42,14 +39,6 @@ abstract class BaseActivity(protected val authEnabled: Boolean = true): AppCompa
                     executing = false
                 }
             }
-        }
-
-        fun interrupt() {
-            thread?.interrupt()
-        }
-
-        fun join() {
-            thread?.join()
         }
     }
 
@@ -140,7 +129,7 @@ abstract class BaseActivity(protected val authEnabled: Boolean = true): AppCompa
                 OVERRIDE_TRANSITION_OPEN,
                 enterAnim,
                 exitAnim,
-                com.google.android.material.R.attr.colorSurface
+                0
             )
         } else {
             super.overridePendingTransition(
@@ -169,13 +158,6 @@ abstract class BaseActivity(protected val authEnabled: Boolean = true): AppCompa
     open fun finishAfterTransitionReverse() = finishAfterTransition(transitionEnter, transitionExit)
 
     open fun overridePendingTransition() = overridePendingTransition(0, 0)
-
-    @Suppress("DEPRECATION")
-    fun transparentStatusBar() {
-        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        setWindowFlag(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, false)
-        window.statusBarColor = Color.TRANSPARENT
-    }
 
     fun preSplashScreen() {
         try {

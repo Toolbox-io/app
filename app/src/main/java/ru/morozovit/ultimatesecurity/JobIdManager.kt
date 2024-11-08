@@ -19,11 +19,10 @@ object JobIdManager {
         if (0 < objectId && objectId < (1 shl JOB_TYPE_SHIFTS)) {
             return (jobType shl JOB_TYPE_SHIFTS) + objectId
         } else {
-            val err = String.format(
+            throw IllegalArgumentException(String.format(
                 "objectId %s must be between %s and %s",
                 objectId, 0, (1 shl JOB_TYPE_SHIFTS)
-            )
-            throw IllegalArgumentException(err)
+            ))
         }
     }
 

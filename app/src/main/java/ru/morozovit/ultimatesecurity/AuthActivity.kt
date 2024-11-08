@@ -35,12 +35,14 @@ class AuthActivity: BaseActivity(false) {
             finish()
             return
         }
-        overridePendingTransition(R.anim.scale_up, R.anim.scale_down)
+        overridePendingTransition(R.anim.alpha_up, R.anim.scale_up)
         binding = AuthActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val clear: (View) -> Unit = {
             for (symbol in symbols) {
+                symbol.key.pivotX = (symbol.key.width / 2).toFloat()
+                symbol.key.pivotY = (symbol.key.height / 2).toFloat()
                 symbol.key
                     .animate()
                     .scaleX(0f)
@@ -97,9 +99,52 @@ class AuthActivity: BaseActivity(false) {
                     val password = symbols.values.joinToString("")
                     if (password == globalPassword) {
                         authenticated = true
-                        finishAfterTransitionReverse()
+                        finishAfterTransition(R.anim.scale_down, R.anim.alpha_down)
                     } else {
-                        clear(binding.authClear)
+                        val duration = 70L
+                        binding.authPassword
+                            .animate()
+                            .translationX(-10f)
+                            .setDuration(duration)
+                            .withEndAction {
+                                binding.authPassword
+                                    .animate()
+                                    .translationX(15f)
+                                    .setDuration(duration)
+                                    .withEndAction {
+                                        binding.authPassword
+                                            .animate()
+                                            .translationX(-20f)
+                                            .setDuration(duration)
+                                            .withEndAction {
+                                                binding.authPassword
+                                                    .animate()
+                                                    .translationX(15f)
+                                                    .setDuration(duration)
+                                                    .withEndAction {
+                                                        binding.authPassword
+                                                            .animate()
+                                                            .translationX(-10f)
+                                                            .setDuration(duration)
+                                                            .withEndAction {
+                                                                binding.authPassword
+                                                                    .animate()
+                                                                    .translationX(10f)
+                                                                    .setDuration(duration)
+                                                                    .withEndAction {
+                                                                        binding.authPassword
+                                                                            .animate()
+                                                                            .translationX(10f)
+                                                                            .setDuration(duration)
+                                                                            .withEndAction {
+                                                                                clear(binding.authClear)
+                                                                            }
+                                                                    }
+                                                            }
+                                                    }
+                                            }
+                                    }
+                            }
                     }
                 }
             }
@@ -119,16 +164,20 @@ class AuthActivity: BaseActivity(false) {
 
         binding.authErase.setOnClickListener {
             val key = symbols.entries.lastOrNull()?.key
-            key
-                ?.animate()
-                ?.scaleX(0f)
-                ?.scaleY(0f)
-                ?.setDuration(125)
-                ?.withEndAction {
-                    binding.authPassword.removeView(key)
-                    symbols.remove(key)
-                }
-                ?.start()
+            if (key != null) {
+                key.pivotX = (key.width / 2).toFloat()
+                key.pivotY = (key.height / 2).toFloat()
+                key
+                    .animate()
+                    .scaleX(0f)
+                    .scaleY(0f)
+                    .setDuration(125)
+                    .withEndAction {
+                        binding.authPassword.removeView(key)
+                        symbols.remove(key)
+                    }
+                    .start()
+            }
         }
     }
 }

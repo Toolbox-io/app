@@ -20,6 +20,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <queries>
         <intent>
@@ -83,11 +84,11 @@
             android:foregroundServiceType="camera" />
 
         <receiver
-            android:name=".UpdateCheckerBroadcastReceiver"
+            android:name=".UpdateChecker$Companion$Receiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="ru.morozovit.ultimatesecurity.UpdateCheckerBroadcastReceiver.START_UPDATE_CHECKER" />
+                <action android:name="ru.morozovit.ultimatesecurity.UpdateChecker.START" />
                 <action android:name="android.intent.action.PACKAGE_REPLACED" />
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
             </intent-filter>
@@ -105,10 +106,8 @@
         </service>
 
         <service
-            android:name=".UpdateCheckerService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="true"
-            android:enabled="true" />
+            android:name=".UpdateChecker"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -120,9 +119,10 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <receiver android:name=".UpdateCheckerService$Companion$DownloadBroadcastReceiver" android:exported="false">
+        <receiver android:name=".UpdateChecker$Companion$DownloadBroadcastReceiver"
+            android:exported="false">
             <intent-filter>
-                <action android:name="UpdateCheckerService.DOWNLOAD" />
+                <action android:name="UpdateChecker.DOWNLOAD" />
             </intent-filter>
         </receiver>
 

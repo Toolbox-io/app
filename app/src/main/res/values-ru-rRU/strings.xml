@@ -90,4 +90,7 @@
     <string name="camrestriction">Не рекомендуется выбирать оба варианта из-за странных ограничений Android, которые могут вызвать неожиданное поведение и сбои.</string>
     <string name="erase">Erase</string>
     <string name="lock">Заблокировать</string>
+    <string name="locked">Заблокированно</string>
+    <string name="lockapp">Блокировка</string>
+    <string name="lockapp_d">Заблокировать это приложение PIN-кодом.</string>
 </resources>
