@@ -18,7 +18,6 @@ class ActionsActivity: BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(null)
-        savedInstanceState?.clear()
         binding = UpActionsBinding.inflate(layoutInflater)
         activityLauncher = registerActivityForResult(this)
         setContentView(binding.root)
@@ -57,15 +56,5 @@ class ActionsActivity: BaseActivity() {
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
         finish()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.clear()
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        savedInstanceState.clear()
     }
 }

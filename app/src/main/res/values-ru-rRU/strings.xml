@@ -93,4 +93,8 @@
     <string name="locked">Заблокированно</string>
     <string name="lockapp">Блокировка</string>
     <string name="lockapp_d">Заблокировать это приложение PIN-кодом.</string>
+    <string name="enter_old_password">Введите старый пароль</string>
+    <string name="dpw">Удалить пароль?</string>
+    <string name="dpw_d">Вы моете удалить пароль, который установлен сейчас после его отключения.</string>
+    <string name="no">Нет</string>
 </resources>

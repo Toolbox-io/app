@@ -98,4 +98,8 @@
     <string name="locked">Locked</string>
     <string name="lockapp">Password lock</string>
     <string name="lockapp_d">Lock this app with a PIN code.</string>
+    <string name="enter_old_password">Enter old password</string>
+    <string name="dpw">Delete password?</string>
+    <string name="dpw_d">You can delete the password that is set right now after disabling it.</string>
+    <string name="no">No</string>
 </resources>

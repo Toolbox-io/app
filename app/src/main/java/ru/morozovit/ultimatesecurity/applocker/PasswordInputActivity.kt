@@ -12,7 +12,7 @@ import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Service
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.databinding.PasswordBinding
-import ru.morozovit.ultimatesecurity.screenWidth
+import ru.morozovit.android.screenWidth
 
 
 class PasswordInputActivity: BaseActivity(false) {

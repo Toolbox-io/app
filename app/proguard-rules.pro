@@ -29,3 +29,6 @@
     public static int i(...);
     public static int v(...);
 }
+-assumenosideeffects class ru.morozovit.ultimatesecurity.UpdateChecker$Companion {
+    public void schedule(...);
+}

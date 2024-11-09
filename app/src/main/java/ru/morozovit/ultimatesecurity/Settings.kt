@@ -12,10 +12,6 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.NOTHING_SELEC
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
 
 object Settings {
-    @Deprecated("Use App.context instead.", ReplaceWith("App.context", "ru.morozovit" +
-            ".ultimatesecurity.App.context")
-    )
-    lateinit var applicationContext: Context
     private lateinit var sharedPref: SharedPreferences
     private var init = false
 
@@ -47,11 +43,18 @@ object Settings {
     var update_dsa: Boolean
         get() = sharedPref.getBoolean("update_dsa", false)
         set(value) {
-            if (value) {
-                with(sharedPref.edit()) {
-                    putBoolean("update_dsa", true)
-                    apply()
-                }
+            with(sharedPref.edit()) {
+                putBoolean("update_dsa", value)
+                apply()
+            }
+        }
+
+    var deleteGlobalPasswordDsa: Boolean
+        get() = sharedPref.getBoolean("deleteGlobalPasswordDsa", false)
+        set(value) {
+            with(sharedPref.edit()) {
+                putBoolean("deleteGlobalPasswordDsa", value)
+                apply()
             }
         }
 
@@ -62,6 +65,15 @@ object Settings {
         set(value) {
             with(sharedPref.edit()) {
                 putString("globalPassword", value)
+                apply()
+            }
+        }
+
+    var globalPasswordEnabled: Boolean
+        get() = sharedPref.getBoolean("globalPasswordEnabled", false)
+        set(value) {
+            with(sharedPref.edit()) {
+                putBoolean("globalPasswordEnabled", value)
                 apply()
             }
         }

@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package ru.morozovit.ultimatesecurity
+package ru.morozovit.android
 
 import android.app.Activity
 import android.content.Context
@@ -16,7 +16,6 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
-
 
 val screenWidth: Int get() = Resources.getSystem().displayMetrics.widthPixels
 val screenHeight: Int get() = Resources.getSystem().displayMetrics.heightPixels
@@ -50,7 +49,7 @@ fun Context.fileExists(contentUri: Uri): Boolean {
     }
 }
 
-fun Context.fileExists(contentUri: String): Boolean = fileExists(Uri.parse(contentUri))
+fun Context.fileExists(contentUri: String) = fileExists(Uri.parse(contentUri))
 
 fun Fragment.homeScreen() = requireActivity().homeScreen()
 
@@ -69,13 +68,13 @@ val View.screenY: Int get() {
     return arr[1]
 }
 
-val View.relativeX: Int get() {
-    return (parent as ViewGroup).screenX - screenX
-}
+val View.relativeX: Int
+    inline get() = (parent as ViewGroup).screenX - screenX
 
-val View.relativeY: Int get() {
-    return (parent as ViewGroup).screenY - screenY
-}
+
+val View.relativeY: Int
+    inline get() = (parent as ViewGroup).screenY - screenY
+
 
 fun Activity.setWindowFlag(bits: Int, on: Boolean) {
     val win = window
@@ -89,7 +88,7 @@ fun Activity.setWindowFlag(bits: Int, on: Boolean) {
 }
 
 fun async(exec: () -> Unit): Thread {
-    val thr = Thread(exec)
-    thr.start()
-    return thr
+    return Thread(exec).apply {
+        start()
+    }
 }

@@ -11,7 +11,7 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.NOTHING_SELEC
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
 import ru.morozovit.ultimatesecurity.Settings.Applocker.unlockMode
 import ru.morozovit.ultimatesecurity.databinding.UnlockModeBinding
-import ru.morozovit.ultimatesecurity.screenWidth
+import ru.morozovit.android.screenWidth
 
 class UnlockModeActivity: BaseActivity() {
     private lateinit var binding: UnlockModeBinding

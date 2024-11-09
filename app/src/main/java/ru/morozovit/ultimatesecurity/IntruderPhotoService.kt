@@ -14,6 +14,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.PRIORITY_LOW
 import androidx.core.content.ContextCompat
 import org.jetbrains.annotations.Range
+import ru.morozovit.android.async
 import ru.morozovit.ultimatesecurity.unlockprotection.intruderphoto.CameraController
 
 @MainThread

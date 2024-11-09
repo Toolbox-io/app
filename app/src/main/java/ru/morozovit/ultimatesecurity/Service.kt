@@ -8,6 +8,7 @@ import android.content.Intent.FLAG_ACTIVITY_NEW_DOCUMENT
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
 import android.view.accessibility.AccessibilityEvent
+import ru.morozovit.android.homeScreen
 import ru.morozovit.ultimatesecurity.applocker.FakeCrashActivity
 import java.lang.Thread.sleep
 

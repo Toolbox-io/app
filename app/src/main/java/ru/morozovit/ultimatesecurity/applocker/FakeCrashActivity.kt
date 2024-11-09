@@ -17,9 +17,9 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_OP
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_TITLE
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
 import ru.morozovit.ultimatesecurity.Settings.Applocker.unlockMode
-import ru.morozovit.ultimatesecurity.appName
+import ru.morozovit.android.appName
 import ru.morozovit.ultimatesecurity.databinding.FakeCrashBinding
-import ru.morozovit.ultimatesecurity.screenWidth
+import ru.morozovit.android.screenWidth
 
 class FakeCrashActivity: BaseActivity(false) {
     private lateinit var binding: FakeCrashBinding

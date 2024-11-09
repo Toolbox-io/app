@@ -33,6 +33,7 @@ import androidx.core.content.FileProvider
 import androidx.core.os.postDelayed
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
+import ru.morozovit.android.NoParallelExecutor
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -40,7 +41,6 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.io.Serializable
 import java.net.URL
-import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.HttpsURLConnection
 
@@ -74,19 +74,7 @@ class UpdateChecker: JobService() {
             scheduled = true
         }
 
-        object TaskExecutor: Executor {
-            private val running get() = thread != null
-            private var thread: Thread? = null
-
-            override fun execute(command: Runnable) {
-                if (!running) {
-                    thread = async {
-                        command.run()
-                        thread = null
-                    }
-                }
-            }
-        }
+        private val TASK_EXECUTOR = NoParallelExecutor()
 
         const val UPDATE_AVAILABLE_NOTIFICATION_ID = 1
         const val UPDATE_AVAILABLE_CHANNEL_ID = "update"
@@ -96,17 +84,24 @@ class UpdateChecker: JobService() {
         const val DOWNLOAD_BROADCAST = "UpdateChecker.DOWNLOAD"
 
         data class SemanticVersion(
-            val major: Number = 0,
-            val minor: Number = 0,
-            val patch: Number = 0
-        ): Serializable {
+            val major: Int = 0,
+            val minor: Int = 0,
+            val patch: Int = 0
+        ) : Serializable {
             override fun equals(other: Any?): Boolean {
-                return other is SemanticVersion &&
+                return (other is SemanticVersion &&
                         major == other.major &&
                         minor == other.minor &&
-                        patch == other.patch
+                        patch == other.patch) ||
+                        (other is Number && other.toInt() == toString().toInt())
             }
-
+            override fun toString(): String {
+                return StringBuilder().apply {
+                    if (major > 0) append(major)
+                    if (minor > 0) append(".$minor")
+                    if (patch > 0) append(".$patch")
+                }.toString()
+            }
             override fun hashCode(): Int {
                 var result = major.hashCode()
                 result = 31 * result + minor.hashCode()
@@ -120,6 +115,10 @@ class UpdateChecker: JobService() {
             val description: String,
             val download: String
         ) : Serializable {
+            override fun toString(): String {
+                return "UpdateInfo {available = $available, version = $version, description = " +
+                        "\"$description\", download = $download}"
+            }
             override fun equals(other: Any?): Boolean {
                 return other is UpdateInfo &&
                         available == other.available &&
@@ -127,7 +126,6 @@ class UpdateChecker: JobService() {
                         description == other.description &&
                         download == other.download
             }
-
             override fun hashCode(): Int {
                 var result = available.hashCode()
                 result = 31 * result + version.hashCode()
@@ -137,7 +135,6 @@ class UpdateChecker: JobService() {
             }
         }
 
-        @Suppress("UNUSED_VALUE")
         fun checkForUpdates(): UpdateInfo? {
             with (App.context) {
                 Log.d("UpdateChecker", "Checking for updates")
@@ -197,6 +194,7 @@ class UpdateChecker: JobService() {
                     // Compare
                     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
                     var updateAvailable = false
+                    @Suppress("UNUSED_VALUE")
                     if (majorLatest > majorCurrent) {
                         updateAvailable = true
                     } else if (majorLatest == majorCurrent) {
@@ -224,9 +222,13 @@ class UpdateChecker: JobService() {
         }
 
         class DownloadBroadcastReceiver: BroadcastReceiver() {
+            companion object {
+                private val TASK_EXECUTOR = NoParallelExecutor()
+            }
+
             @Suppress("OVERRIDE_DEPRECATION")
             @SuppressLint("StaticFieldLeak")
-            inner class Task : AsyncTask<String, String, Unit>() {
+            inner class Task: AsyncTask<String, String, Unit>() {
                 private lateinit var file: File
                 private lateinit var mime: String
                 private lateinit var builder: NotificationCompat.Builder
@@ -240,7 +242,7 @@ class UpdateChecker: JobService() {
                         .setPriority(PRIORITY_DEFAULT)
                         .setSilent(true)
                         .setOngoing(false)
-                    with(NotificationManagerCompat.from(App.context)) notification@{
+                    with(NotificationManagerCompat.from(App.context)) notification@ {
                         if (ActivityCompat.checkSelfPermission(
                                 App.context,
                                 Manifest.permission.POST_NOTIFICATIONS
@@ -355,13 +357,13 @@ class UpdateChecker: JobService() {
             }
 
             override fun onReceive(context: Context, intent: Intent) {
-                val executor = Executor { command -> Thread(command).start() }
                 Task().executeOnExecutor(
-                    executor,
+                    TASK_EXECUTOR,
                     (intent.getSerializableExtra("updateInfo") as UpdateInfo).download
                 )
             }
         }
+
         class Receiver: BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 if (
@@ -376,10 +378,9 @@ class UpdateChecker: JobService() {
         }
     }
 
-    @Suppress("OVERRIDE_DEPRECATION")
     @SuppressLint("StaticFieldLeak")
-    inner class Task: AsyncTask<Unit, Unit, Unit>() {
-        override fun doInBackground(vararg params: Unit) {
+    inner class Task: SimpleAsyncTask() {
+        override fun run() {
             val info = checkForUpdates()
             if (info != null && info.available && info != prevInfo) {
                 val text =
@@ -455,8 +456,7 @@ class UpdateChecker: JobService() {
             }
         }
 
-        override fun onPostExecute(result: Unit?) {
-            super.onPostExecute(result)
+        override fun postRun() {
             schedule(App.context)
             stopSelf()
         }
@@ -464,7 +464,7 @@ class UpdateChecker: JobService() {
 
     override fun onStartJob(params: JobParameters?): Boolean {
         @Suppress("DEPRECATION")
-        Task().executeOnExecutor(TaskExecutor)
+        Task().executeOnExecutor(TASK_EXECUTOR)
         return true
     }
 

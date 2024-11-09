@@ -1,6 +1,7 @@
 package ru.morozovit.ultimatesecurity
 
 import androidx.annotation.IntDef
+import org.jetbrains.annotations.Contract
 
 
 object JobIdManager {
@@ -15,8 +16,9 @@ object JobIdManager {
     //16-1 for short. Adjust per your needs
     private const val JOB_TYPE_SHIFTS = 15
 
+    @Contract(pure = true)
     fun getJobId(@JobType jobType: Int, objectId: Int): Int {
-        if (0 < objectId && objectId < (1 shl JOB_TYPE_SHIFTS)) {
+        if (objectId > 0 && objectId < (1 shl JOB_TYPE_SHIFTS)) {
             return (jobType shl JOB_TYPE_SHIFTS) + objectId
         } else {
             throw IllegalArgumentException(String.format(
@@ -37,5 +39,5 @@ object JobIdManager {
         ]
     )
     @Retention(AnnotationRetention.SOURCE)
-    annotation class JobType
+    private annotation class JobType
 }

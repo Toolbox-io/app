@@ -25,6 +25,7 @@ class MainActivity : BaseActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     lateinit var lockView: View
+    private lateinit var menu: Menu
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,9 +84,8 @@ class MainActivity : BaseActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main, menu)
-        menu.findItem(R.id.lock).apply {
-            isVisible = globalPassword != ""
-        }
+        this.menu = menu
+        updateLock()
         return true
     }
 
@@ -99,6 +99,11 @@ class MainActivity : BaseActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        updateLock(menu)
+        return true
+    }
+
     override fun finish() {
         super.finish()
         authenticated = false
@@ -107,5 +112,16 @@ class MainActivity : BaseActivity() {
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateLock()
+    }
+
+    fun updateLock(menu: Menu? = if (this::menu.isInitialized) this.menu else null) {
+        menu?.findItem(R.id.lock)?.apply {
+            isVisible = globalPassword != ""
+        }
     }
 }

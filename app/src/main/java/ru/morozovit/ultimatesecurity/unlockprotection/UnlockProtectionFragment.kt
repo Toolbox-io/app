@@ -20,7 +20,7 @@ import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.enabled
 import ru.morozovit.ultimatesecurity.databinding.UnlockProtectionBinding
-import ru.morozovit.ultimatesecurity.toInt
+import ru.morozovit.android.toInt
 
 class UnlockProtectionFragment : Fragment() {
     private lateinit var binding: UnlockProtectionBinding

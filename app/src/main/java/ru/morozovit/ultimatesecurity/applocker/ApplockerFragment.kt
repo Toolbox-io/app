@@ -26,7 +26,7 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.getUnlockModeDescription
 import ru.morozovit.ultimatesecurity.Settings.Applocker.unlockMode
 import ru.morozovit.ultimatesecurity.Settings.accessibility
 import ru.morozovit.ultimatesecurity.databinding.ApplockerBinding
-import ru.morozovit.ultimatesecurity.homeScreen
+import ru.morozovit.android.homeScreen
 import java.lang.Thread.sleep
 
 

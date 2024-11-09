@@ -18,6 +18,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.tabs.TabLayout
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
+import ru.morozovit.android.OnTabClickListener
+import ru.morozovit.android.async
+import ru.morozovit.android.fileExists
 import ru.morozovit.android.ui.makeSwitchCard
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhoto
@@ -28,7 +31,6 @@ import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderP
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoWarning_dsa
 import ru.morozovit.ultimatesecurity.databinding.IntruderPhotoSettingsBinding
 import ru.morozovit.ultimatesecurity.databinding.IntruderphotoBinding
-import ru.morozovit.ultimatesecurity.fileExists
 import java.io.File
 import java.util.Date
 
@@ -50,11 +52,18 @@ class IntruderPhotoSettingsActivity: BaseActivity(false) {
     ) {
         val is2 get() = drawables.second != null
 
-        constructor(back: Drawable, timestamp: Date, name: String, path: String): this(Pair(back, null), timestamp, name, path)
+        constructor(
+            back: Drawable,
+            timestamp: Date,
+            name: String,
+            path: String
+        ): this(Pair(back, null), timestamp, name, path)
     }
 
 
-    inner class IntruderPhotoViewHolder(val binding: IntruderphotoBinding): RecyclerView.ViewHolder(binding.root) {
+    inner class IntruderPhotoViewHolder(
+        val binding: IntruderphotoBinding
+    ): RecyclerView.ViewHolder(binding.root) {
         private lateinit var data: IntruderPhoto
 
         fun bind(data: IntruderPhoto) {
@@ -126,7 +135,9 @@ class IntruderPhotoSettingsActivity: BaseActivity(false) {
         }
     }
 
-    inner class IntruderPhotosAdapter(private var data: Array<IntruderPhoto>): RecyclerView.Adapter<IntruderPhotoViewHolder>() {
+    inner class IntruderPhotosAdapter(
+        private var data: Array<IntruderPhoto>
+    ): RecyclerView.Adapter<IntruderPhotoViewHolder>() {
         override fun onCreateViewHolder(
             parent: ViewGroup,
             viewType: Int
@@ -153,8 +164,7 @@ class IntruderPhotoSettingsActivity: BaseActivity(false) {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(null)
-        savedInstanceState?.clear()
+        super.onCreate(savedInstanceState)
         binding = IntruderPhotoSettingsBinding.inflate(layoutInflater)
         activityLauncher = registerActivityForResult(this)
         setContentView(binding.root)
@@ -200,54 +210,50 @@ class IntruderPhotoSettingsActivity: BaseActivity(false) {
         var backPhotos: MutableList<IntruderPhoto> = mutableListOf()
         var frontPhotos: MutableList<IntruderPhoto> = mutableListOf()
 
-        val tabListener = object: TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                try {
-                    binding.root.post {
-                        binding.upActionsIpP.visibility = GONE
-                        binding.upActionsIpS.visibility = VISIBLE
-                    }
-                    val adapter = binding.upActionsIpP.adapter as IntruderPhotosAdapter
-                    when (tab!!.position) {
-                        0 -> {
-                            adapter.filterList(allPhotos.toTypedArray())
-                            if (allPhotos.isEmpty()) {
-                                binding.upActionsIpNt.visibility = VISIBLE
-                            } else {
-                                binding.upActionsIpNt.visibility = GONE
-                            }
-                        }
-                        1 -> {
-                            adapter.filterList(backPhotos.toTypedArray())
-                            if (backPhotos.isEmpty()) {
-                                binding.upActionsIpNt.visibility = VISIBLE
-                            } else {
-                                binding.upActionsIpNt.visibility = GONE
-                            }
-                        }
-                        2 -> {
-                            adapter.filterList(frontPhotos.toTypedArray())
-                            if (frontPhotos.isEmpty()) {
-                                binding.upActionsIpNt.visibility = VISIBLE
-                            } else {
-                                binding.upActionsIpNt.visibility = GONE
-                            }
+        val tabListener = OnTabClickListener { tab: TabLayout.Tab ->
+            try {
+                binding.root.post {
+                    binding.upActionsIpP.visibility = GONE
+                    binding.upActionsIpS.visibility = VISIBLE
+                }
+                val adapter = binding.upActionsIpP.adapter as IntruderPhotosAdapter
+                when (tab.position) {
+                    0 -> {
+                        adapter.filterList(allPhotos.toTypedArray())
+                        if (allPhotos.isEmpty()) {
+                            binding.upActionsIpNt.visibility = VISIBLE
+                        } else {
+                            binding.upActionsIpNt.visibility = GONE
                         }
                     }
-                } catch (_: Exception) {
-                } finally {
-                    binding.root.post {
-                        binding.upActionsIpP.visibility = VISIBLE
-                        binding.upActionsIpS.visibility = GONE
+                    1 -> {
+                        adapter.filterList(backPhotos.toTypedArray())
+                        if (backPhotos.isEmpty()) {
+                            binding.upActionsIpNt.visibility = VISIBLE
+                        } else {
+                            binding.upActionsIpNt.visibility = GONE
+                        }
+                    }
+                    2 -> {
+                        adapter.filterList(frontPhotos.toTypedArray())
+                        if (frontPhotos.isEmpty()) {
+                            binding.upActionsIpNt.visibility = VISIBLE
+                        } else {
+                            binding.upActionsIpNt.visibility = GONE
+                        }
                     }
                 }
+            } catch (_: Exception) {
+            } finally {
+                binding.root.post {
+                    binding.upActionsIpP.visibility = VISIBLE
+                    binding.upActionsIpS.visibility = GONE
+                }
             }
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
-            override fun onTabReselected(tab: TabLayout.Tab?) = onTabSelected(tab)
         }
 
         fun loadAllPhotos() {
-            Thread {
+            async {
                 binding.root.post {
                     binding.upActionsIpP.visibility = GONE
                     binding.upActionsIpS.visibility = VISIBLE
@@ -398,148 +404,148 @@ class IntruderPhotoSettingsActivity: BaseActivity(false) {
                         }
                     }
                 }
-//                else if (intruderPhotoDirEnabled) {
-//                    val dir = DocumentFile.fromTreeUri(this, Uri.parse(intruderPhotoDir))!!
-//                    var fileTmp: DocumentFile? = dir.findFile("front")
-//
-//                    val front = fileTmp ?: dir.createDirectory("front")!!
-//                    fileTmp = dir.findFile("back")
-//                    val back = fileTmp ?: dir.createDirectory("back")!!
-//
-//                    val frontFiles = front.listFiles()
-//                    val frontDrawables = mutableListOf<IntruderPhoto>()
-//                    val backFiles = back.listFiles()
-//                    val backDrawables = mutableListOf<IntruderPhoto>()
-//
-//                    val files = mutableSetOf<DocumentFile>()
-//
-//                    val frontNames = mutableListOf<Pair<Int, String>>()
-//                    val backNames = mutableListOf<Pair<Int, String>>()
-//
-//                    allPhotos = mutableListOf()
-//                    backPhotos = mutableListOf()
-//                    frontPhotos = mutableListOf()
-//
-//                    for (index in frontFiles.indices) {
-//                        val it = frontFiles[index]
-//                        val stream = contentResolver.openInputStream(it.uri)
-//                        val drawable = Drawable.createFromStream(stream, null)!!
-//                        stream!!.close()
-//                        frontDrawables.add(
-//                            IntruderPhoto(
-//                                drawable,
-//                                Date(it.lastModified()),
-//                                it.name!!,
-//                                "front"
-//                            )
-//                        )
-//                        files.add(it)
-//                        frontNames.add(Pair(index, it.name!!))
-//                    }
-//                    for (index in backFiles.indices) {
-//                        val it = backFiles[index]
-//                        val stream = contentResolver.openInputStream(it.uri)
-//                        val drawable = Drawable.createFromStream(stream, null)!!
-//                        stream!!.close()
-//                        backDrawables.add(
-//                            IntruderPhoto(
-//                                drawable,
-//                                Date(it.lastModified()),
-//                                it.name!!,
-//                                "back"
-//                            )
-//                        )
-//                        files.add(it)
-//                        backNames.add(Pair(index, it.name!!))
-//                    }
-//
-//                    files.forEach {
-//                        var bool1 = false
-//                        var frontIndex: Int? = null
-//                        var frontName: Pair<Int, String>? = null
-//                        for (frontName1 in frontNames) {
-//                            if (frontName1.second == it.name) {
-//                                bool1 = true
-//                                frontIndex = frontName1.first
-//                                frontName = frontName1
-//                                break
-//                            }
-//                        }
-//                        var bool2 = false
-//                        var backIndex: Int? = null
-//                        var backName: Pair<Int, String>? = null
-//                        for (backName1 in backNames) {
-//                            if (backName1.second == it.name) {
-//                                bool2 = true
-//                                backIndex = backName1.first
-//                                backName = backName1
-//                                break
-//                            }
-//                        }
-//                        if (bool1 && bool2) {
-//                            val frontDrawable = frontDrawables[frontIndex!!]
-//                            val backDrawable = backDrawables[backIndex!!]
-//
-//                            allPhotos.add(
-//                                IntruderPhoto(
-//                                    Pair(
-//                                        backDrawable.drawables.first,
-//                                        frontDrawable.drawables.first
-//                                    ),
-//                                    backDrawable.timestamp,
-//                                    backDrawable.name,
-//                                    "frontback"
-//                                )
-//                            )
-//                            backPhotos.add(backDrawable)
-//                            frontPhotos.add(frontDrawable)
-//                            frontNames.remove(frontName)
-//                            backNames.remove(backName)
-//                        } else if (bool2) {
-//                            val backDrawable = backDrawables[backIndex!!]
-//                            allPhotos.add(
-//                                IntruderPhoto(
-//                                    backDrawable.drawables.first,
-//                                    backDrawable.timestamp,
-//                                    backDrawable.name,
-//                                    "back"
-//                                )
-//                            )
-//                            backPhotos.add(backDrawable)
-//                            backNames.remove(backName)
-//                        } else if (bool1) {
-//                            val frontDrawable = frontDrawables[frontIndex!!]
-//                            allPhotos.add(
-//                                IntruderPhoto(
-//                                    frontDrawable.drawables.first,
-//                                    frontDrawable.timestamp,
-//                                    frontDrawable.name,
-//                                    "front"
-//                                )
-//                            )
-//                            frontPhotos.add(frontDrawable)
-//                            frontNames.remove(frontName)
-//                        }
-//                    }
-//
-//                    allPhotos.sortByDescending {it.timestamp}
-//                    backPhotos.sortByDescending {it.timestamp}
-//                    frontPhotos.sortByDescending {it.timestamp}
-//
-//                    binding.upActionsIpP.post {
-//                        binding.upActionsIpP.adapter = IntruderPhotosAdapter(allPhotos.toTypedArray())
-//                    }
-//                }
+                /* else if (intruderPhotoDirEnabled) {
+                    val dir = DocumentFile.fromTreeUri(this, Uri.parse(intruderPhotoDir))!!
+                    var fileTmp: DocumentFile? = dir.findFile("front")
+
+                    val front = fileTmp ?: dir.createDirectory("front")!!
+                    fileTmp = dir.findFile("back")
+                    val back = fileTmp ?: dir.createDirectory("back")!!
+
+                    val frontFiles = front.listFiles()
+                    val frontDrawables = mutableListOf<IntruderPhoto>()
+                    val backFiles = back.listFiles()
+                    val backDrawables = mutableListOf<IntruderPhoto>()
+
+                    val files = mutableSetOf<DocumentFile>()
+
+                    val frontNames = mutableListOf<Pair<Int, String>>()
+                    val backNames = mutableListOf<Pair<Int, String>>()
+
+                    allPhotos = mutableListOf()
+                    backPhotos = mutableListOf()
+                    frontPhotos = mutableListOf()
+
+                    for (index in frontFiles.indices) {
+                        val it = frontFiles[index]
+                        val stream = contentResolver.openInputStream(it.uri)
+                        val drawable = Drawable.createFromStream(stream, null)!!
+                        stream!!.close()
+                        frontDrawables.add(
+                            IntruderPhoto(
+                                drawable,
+                                Date(it.lastModified()),
+                                it.name!!,
+                                "front"
+                            )
+                        )
+                        files.add(it)
+                        frontNames.add(Pair(index, it.name!!))
+                    }
+                    for (index in backFiles.indices) {
+                        val it = backFiles[index]
+                        val stream = contentResolver.openInputStream(it.uri)
+                        val drawable = Drawable.createFromStream(stream, null)!!
+                        stream!!.close()
+                        backDrawables.add(
+                            IntruderPhoto(
+                                drawable,
+                                Date(it.lastModified()),
+                                it.name!!,
+                                "back"
+                            )
+                        )
+                        files.add(it)
+                        backNames.add(Pair(index, it.name!!))
+                    }
+
+                    files.forEach {
+                        var bool1 = false
+                        var frontIndex: Int? = null
+                        var frontName: Pair<Int, String>? = null
+                        for (frontName1 in frontNames) {
+                            if (frontName1.second == it.name) {
+                                bool1 = true
+                                frontIndex = frontName1.first
+                                frontName = frontName1
+                                break
+                            }
+                        }
+                        var bool2 = false
+                        var backIndex: Int? = null
+                        var backName: Pair<Int, String>? = null
+                        for (backName1 in backNames) {
+                            if (backName1.second == it.name) {
+                                bool2 = true
+                                backIndex = backName1.first
+                                backName = backName1
+                                break
+                            }
+                        }
+                        if (bool1 && bool2) {
+                            val frontDrawable = frontDrawables[frontIndex!!]
+                            val backDrawable = backDrawables[backIndex!!]
+
+                            allPhotos.add(
+                                IntruderPhoto(
+                                    Pair(
+                                        backDrawable.drawables.first,
+                                        frontDrawable.drawables.first
+                                    ),
+                                    backDrawable.timestamp,
+                                    backDrawable.name,
+                                    "frontback"
+                                )
+                            )
+                            backPhotos.add(backDrawable)
+                            frontPhotos.add(frontDrawable)
+                            frontNames.remove(frontName)
+                            backNames.remove(backName)
+                        } else if (bool2) {
+                            val backDrawable = backDrawables[backIndex!!]
+                            allPhotos.add(
+                                IntruderPhoto(
+                                    backDrawable.drawables.first,
+                                    backDrawable.timestamp,
+                                    backDrawable.name,
+                                    "back"
+                                )
+                            )
+                            backPhotos.add(backDrawable)
+                            backNames.remove(backName)
+                        } else if (bool1) {
+                            val frontDrawable = frontDrawables[frontIndex!!]
+                            allPhotos.add(
+                                IntruderPhoto(
+                                    frontDrawable.drawables.first,
+                                    frontDrawable.timestamp,
+                                    frontDrawable.name,
+                                    "front"
+                                )
+                            )
+                            frontPhotos.add(frontDrawable)
+                            frontNames.remove(frontName)
+                        }
+                    }
+
+                    allPhotos.sortByDescending {it.timestamp}
+                    backPhotos.sortByDescending {it.timestamp}
+                    frontPhotos.sortByDescending {it.timestamp}
+
+                    binding.upActionsIpP.post {
+                        binding.upActionsIpP.adapter = IntruderPhotosAdapter(allPhotos.toTypedArray())
+                    }
+                } */
                 binding.root.post {
                     binding.upActionsIpS.visibility = GONE
                     binding.upActionsIpP.visibility = VISIBLE
                     binding.upActionsIpP.layoutManager =
                         androidx.recyclerview.widget.GridLayoutManager(this, 3)
                     binding.upActionsIpTabs.apply {
-                        tabListener.onTabSelected(getTabAt(selectedTabPosition))
+                        tabListener.onTabSelected(getTabAt(selectedTabPosition)!!)
                     }
                 }
-            }.start()
+            }
         }
 
         var listener = true
@@ -621,16 +627,6 @@ class IntruderPhotoSettingsActivity: BaseActivity(false) {
     override fun onBackPressed() {
         setResult(if (binding.upActionsIpSwitch.isChecked) 1 else 2)
         finish()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.clear()
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        savedInstanceState.clear()
-        super.onRestoreInstanceState(savedInstanceState)
     }
 
     override fun onResume() {

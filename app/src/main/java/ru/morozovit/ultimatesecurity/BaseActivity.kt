@@ -2,23 +2,33 @@ package ru.morozovit.ultimatesecurity
 
 import android.animation.Animator
 import android.animation.Animator.AnimatorListener
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.Log
 import androidx.annotation.AnimRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import ru.morozovit.android.NoParallelExecutor
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
-import ru.morozovit.ultimatesecurity.BaseActivity.InteractionDetector.execute
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
+import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
 import java.lang.Thread.sleep
-import java.util.concurrent.Executor
 
-abstract class BaseActivity(protected val authEnabled: Boolean = true): AppCompatActivity() {
+@Suppress("unused")
+abstract class BaseActivity(
+    @Suppress("MemberVisibilityCanBePrivate")
+    protected var authEnabled: Boolean = true,
+    private val savedInstanceStateEnabled: Boolean = false
+): AppCompatActivity() {
     private var paused = false
     private var interacted = false
     private var noPause = false
+
+    protected var savedInstanceState: Bundle? = null
 
     @AnimRes
     private var transitionEnter = 0
@@ -27,24 +37,11 @@ abstract class BaseActivity(protected val authEnabled: Boolean = true): AppCompa
 
     private var transitionCalled = false
 
-    private object InteractionDetector: Executor {
-        private var executing = false
-        private var thread: Thread? = null
-
-        override fun execute(command: Runnable) {
-            if (!executing) {
-                executing = true
-                thread = async {
-                    command.run()
-                    executing = false
-                }
-            }
-        }
-    }
+    private val interactionDetectorExecutor = NoParallelExecutor()
 
     private fun interactionDetector() {
         if (authEnabled && globalPassword != "") {
-            execute {
+            interactionDetectorExecutor.execute {
                 try {
                     var timer = 0
                     while (true) {
@@ -87,19 +84,24 @@ abstract class BaseActivity(protected val authEnabled: Boolean = true): AppCompa
 
     override fun onCreate(savedInstanceState: Bundle?) {
         preSplashScreen()
-        super.onCreate(savedInstanceState)
+        if (savedInstanceStateEnabled) {
+            super.onCreate(savedInstanceState)
+        } else {
+            savedInstanceState?.clear()
+            super.onCreate(null)
+        }
         if (authEnabled && globalPassword != "") {
             auth()
             interactionDetector()
         }
+        this.savedInstanceState = savedInstanceState
     }
 
-    protected fun auth(): Boolean {
-        if (authEnabled && globalPassword != "" && !authenticated) {
+    protected fun auth() {
+        if (authEnabled && globalPassword != "" && !authenticated && globalPasswordEnabled) {
             paused = true
             startActivity(Intent(this, AuthActivity::class.java))
         }
-        return authEnabled
     }
 
     override fun onResume() {
@@ -144,6 +146,13 @@ abstract class BaseActivity(protected val authEnabled: Boolean = true): AppCompa
 
     override fun finishAfterTransition() = finishAfterTransition(transitionExit, transitionEnter)
 
+    @Suppress("OVERRIDE_DEPRECATION")
+    @SuppressLint("MissingSuperCall")
+    override fun onBackPressed() {
+        setResult(RESULT_CANCELED)
+        finish()
+    }
+
     open fun finishAfterTransition(@AnimRes enterAnim: Int, @AnimRes exitAnim: Int) {
         if (transitionCalled) {
             transitionCalled = false
@@ -159,7 +168,7 @@ abstract class BaseActivity(protected val authEnabled: Boolean = true): AppCompa
 
     open fun overridePendingTransition() = overridePendingTransition(0, 0)
 
-    fun preSplashScreen() {
+    private fun preSplashScreen() {
         try {
             val splashScreen = installSplashScreen()
             splashScreen.setOnExitAnimationListener { splashScreenView ->
@@ -184,5 +193,30 @@ abstract class BaseActivity(protected val authEnabled: Boolean = true): AppCompa
                     .start()
             }
         } catch (_: Exception) {}
+    }
+
+    @Suppress("DEPRECATION")
+    open fun vibrate(millis: Long) {
+        val vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(
+                VibrationEffect.createOneShot(
+                    millis, VibrationEffect
+                        .DEFAULT_AMPLITUDE
+                )
+            )
+        } else {
+            vibrator.vibrate(millis)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        if (!savedInstanceStateEnabled) outState.clear()
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        if (!savedInstanceStateEnabled) savedInstanceState.clear()
+        super.onRestoreInstanceState(savedInstanceState)
     }
 }

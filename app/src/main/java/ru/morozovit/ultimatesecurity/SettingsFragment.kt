@@ -15,6 +15,9 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.ui.makeSwitchCard
+import ru.morozovit.ultimatesecurity.Settings.deleteGlobalPasswordDsa
+import ru.morozovit.ultimatesecurity.Settings.globalPassword
+import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
 import ru.morozovit.ultimatesecurity.databinding.SettingsBinding
 
 
@@ -88,7 +91,75 @@ class SettingsFragment : Fragment() {
                 }
                 .show()
         }
+
+        var listener2 = true
+
+        val setPassword = { _: View? ->
+            activityLauncher.launch(
+                Intent(
+                    requireActivity(),
+                    AuthActivity::class.java
+                ).apply {
+                    putExtra("mode", 1)
+                }
+            ) {
+                if (it.resultCode == RESULT_OK) {
+                    listener2 = false
+                    binding.sI3Sw.isChecked = true
+                    globalPasswordEnabled = true
+                    listener2 = true
+                }
+            }
+        }
+
+        binding.sI3Sw.isChecked = globalPasswordEnabled && globalPassword != ""
+        if (globalPassword == "") globalPasswordEnabled = false
+
+        binding.sI3Sw.setOnCheckedChangeListener pw@ { v, isChecked ->
+            if (listener2) {
+                if (isChecked) {
+                    if (globalPassword == "") {
+                        v.isChecked = false
+                        setPassword(binding.sI3Hc)
+                        return@pw
+                    }
+                } else {
+                    if (!deleteGlobalPasswordDsa) {
+                        listener2 = false
+                        v.isChecked = true
+                        listener2 = true
+                        MaterialAlertDialogBuilder(requireActivity())
+                            .setTitle(R.string.dpw)
+                            .setMessage(R.string.dpw_d)
+                            .setNegativeButton(R.string.no) { _, _ ->
+                                listener2 = false
+                                v.isChecked = false
+                                listener2 = true
+                            }
+                            .setNeutralButton(R.string.dsa) { _ ,_ ->
+                                listener2 = false
+                                v.isChecked = false
+                                listener2 = true
+                                deleteGlobalPasswordDsa = true
+                            }
+                            .setPositiveButton(R.string.yes) { _, _ ->
+                                listener2 = false
+                                v.isChecked = false
+                                listener2 = true
+                                globalPassword = ""
+                            }
+                            .show()
+                    }
+                }
+            }
+            globalPasswordEnabled = isChecked
+            (requireActivity() as MainActivity).updateLock()
+        }
+
+        binding.sI3Hc.setOnClickListener(setPassword)
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {}
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.clear()
+    }
 }

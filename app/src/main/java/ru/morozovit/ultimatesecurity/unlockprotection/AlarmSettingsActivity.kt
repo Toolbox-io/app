@@ -160,16 +160,6 @@ class AlarmSettingsActivity: BaseActivity() {
         finish()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.clear()
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        savedInstanceState.clear()
-        super.onRestoreInstanceState(savedInstanceState)
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         if (mediaPlayer.isPlaying) mediaPlayer.stop()
