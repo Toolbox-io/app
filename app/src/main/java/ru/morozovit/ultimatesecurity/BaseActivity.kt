@@ -13,6 +13,7 @@ import androidx.annotation.AnimRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import ru.morozovit.android.NoParallelExecutor
+import ru.morozovit.android.homeScreen
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
@@ -22,11 +23,35 @@ import java.lang.Thread.sleep
 abstract class BaseActivity(
     @Suppress("MemberVisibilityCanBePrivate")
     protected var authEnabled: Boolean = true,
-    private val savedInstanceStateEnabled: Boolean = false
+    private val savedInstanceStateEnabled: Boolean = false,
+    private var backButtonBehavior: BackButtonBehavior = BackButtonBehavior.FINISH,
 ): AppCompatActivity() {
-    private var paused = false
-    private var interacted = false
-    private var noPause = false
+    companion object {
+        enum class BackButtonBehavior {
+            DEFAULT,
+            FINISH,
+            HOME_SCREEN,
+            NONE
+        }
+
+        private var interacted = false
+        private val interactionDetectorExecutor = NoParallelExecutor()
+        private var currentActivity: BaseActivity? = null
+        private var authScheduled = false
+
+        fun scheduleAuth() {
+            with(currentActivity!!) {
+                Log.d("Auth", "Scheduling auth")
+                if (hasWindowFocus()) {
+                    Log.d("Auth", "Authenticating now.")
+                    currentActivity!!.startActivity(Intent(this, AuthActivity::class.java))
+                } else {
+                    Log.d("Auth", "Scheduled auth.")
+                    authScheduled = true
+                }
+            }
+        }
+    }
 
     protected var savedInstanceState: Bundle? = null
 
@@ -37,25 +62,13 @@ abstract class BaseActivity(
 
     private var transitionCalled = false
 
-    private val interactionDetectorExecutor = NoParallelExecutor()
-
-    private fun interactionDetector() {
-        if (authEnabled && globalPassword != "") {
+    protected fun interactionDetector() {
+        if (globalPassword != "" && globalPasswordEnabled) {
             interactionDetectorExecutor.execute {
                 try {
                     var timer = 0
                     while (true) {
-                        var br = false
-                        for (i in 0..1000) {
-                            sleep(1)
-                            if (paused) {
-                                br = true
-                                paused = false
-                                Log.d("Auth", "Paused. [${this::class.simpleName}]")
-                                break
-                            }
-                        }
-                        if (br) break
+                        sleep(1000)
                         if (interacted) {
                             interacted = false
                             timer = 0
@@ -72,8 +85,12 @@ abstract class BaseActivity(
                         }
 
                         if (timer >= 60) {
-                            authenticated = false
-                            auth()
+                            if (currentActivity?.authEnabled == true) {
+                                authenticated = false
+                                auth()
+                            } else {
+                                Log.d("Auth", "Auth activity, not starting again")
+                            }
                             break
                         }
                     }
@@ -83,6 +100,7 @@ abstract class BaseActivity(
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        currentActivity = this
         preSplashScreen()
         if (savedInstanceStateEnabled) {
             super.onCreate(savedInstanceState)
@@ -90,33 +108,29 @@ abstract class BaseActivity(
             savedInstanceState?.clear()
             super.onCreate(null)
         }
-        if (authEnabled && globalPassword != "") {
+        if (authEnabled && globalPassword != "" && globalPasswordEnabled) {
             auth()
-            interactionDetector()
         }
         this.savedInstanceState = savedInstanceState
     }
 
     protected fun auth() {
-        if (authEnabled && globalPassword != "" && !authenticated && globalPasswordEnabled) {
-            paused = true
-            startActivity(Intent(this, AuthActivity::class.java))
+        if (currentActivity?.authEnabled == true && globalPassword != "" && !authenticated &&
+            globalPasswordEnabled) {
+            authenticated = false
+            scheduleAuth()
         }
     }
 
     override fun onResume() {
         super.onResume()
-        paused = false
+        currentActivity = this
         interactionDetector()
     }
 
     override fun onPause() {
         super.onPause()
-        if (!noPause) {
-            paused = true
-        } else {
-            noPause = false
-        }
+        interactionDetector()
     }
 
     override fun onUserInteraction() {
@@ -146,11 +160,18 @@ abstract class BaseActivity(
 
     override fun finishAfterTransition() = finishAfterTransition(transitionExit, transitionEnter)
 
-    @Suppress("OVERRIDE_DEPRECATION")
+    @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
-        setResult(RESULT_CANCELED)
-        finish()
+        when (backButtonBehavior) {
+            BackButtonBehavior.DEFAULT -> super.onBackPressed()
+            BackButtonBehavior.FINISH -> {
+                setResult(RESULT_CANCELED)
+                finish()
+            }
+            BackButtonBehavior.HOME_SCREEN -> homeScreen()
+            BackButtonBehavior.NONE -> {}
+        }
     }
 
     open fun finishAfterTransition(@AnimRes enterAnim: Int, @AnimRes exitAnim: Int) {
@@ -218,5 +239,15 @@ abstract class BaseActivity(
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         if (!savedInstanceStateEnabled) savedInstanceState.clear()
         super.onRestoreInstanceState(savedInstanceState)
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (authScheduled && hasFocus) {
+            Log.d("Auth", "Running scheduled auth")
+            authScheduled = false
+            currentActivity!!.startActivity(Intent(this, AuthActivity::class.java))
+        }
+        Log.d("BaseActivity", "Focus changed, hasFocus = $hasFocus")
     }
 }

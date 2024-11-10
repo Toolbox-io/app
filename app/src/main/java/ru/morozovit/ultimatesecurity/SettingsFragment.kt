@@ -149,6 +149,7 @@ class SettingsFragment : Fragment() {
                                 globalPassword = ""
                             }
                             .show()
+                        return@pw
                     }
                 }
             }

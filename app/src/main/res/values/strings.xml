@@ -102,4 +102,5 @@
     <string name="dpw">Delete password?</string>
     <string name="dpw_d">You can delete the password that is set right now after disabling it.</string>
     <string name="no">No</string>
+    <string name="exit">Exit?</string>
 </resources>

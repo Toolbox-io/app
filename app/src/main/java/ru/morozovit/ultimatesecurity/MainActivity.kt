@@ -11,17 +11,24 @@ import android.view.ViewTreeObserver
 import androidx.appcompat.view.menu.ActionMenuItemView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.get
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import ru.morozovit.android.setNegativeButton
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
+import ru.morozovit.ultimatesecurity.Settings.exitDsa
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
+import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
 import ru.morozovit.ultimatesecurity.databinding.ActivityMainBinding
 
-class MainActivity : BaseActivity() {
+class MainActivity : BaseActivity(
+    backButtonBehavior = Companion.BackButtonBehavior.DEFAULT,
+) {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     lateinit var lockView: View
@@ -99,14 +106,39 @@ class MainActivity : BaseActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         updateLock(menu)
         return true
     }
 
     override fun finish() {
-        super.finish()
-        authenticated = false
+        if (!exitDsa) {
+            MaterialAlertDialogBuilder(this)
+                .setMessage(R.string.exit)
+                .setNeutralButton(R.string.dsa) { _, _ ->
+                    exitDsa = true
+                    super.finish()
+                    authenticated = false
+                }
+                .setNegativeButton(R.string.no)
+                .setPositiveButton(R.string.yes) { _, _ ->
+                    super.finish()
+                    authenticated = false
+                }
+                .show()
+        } else {
+            super.finish()
+            authenticated = false
+        }
+    }
+
+    @Suppress("OVERRIDE_DEPRECATION")
+    override fun onBackPressed() {
+        if (binding.navView.menu[0].isChecked) {
+            finish()
+        } else {
+            super.onBackPressed()
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -119,9 +151,12 @@ class MainActivity : BaseActivity() {
         updateLock()
     }
 
-    fun updateLock(menu: Menu? = if (this::menu.isInitialized) this.menu else null) {
-        menu?.findItem(R.id.lock)?.apply {
-            isVisible = globalPassword != ""
+    fun updateLock(
+        menu: Menu = binding.toolbar.menu
+    ) {
+        menu.findItem(R.id.lock)?.apply {
+            isVisible = globalPassword != "" && globalPasswordEnabled
         }
+        interactionDetector()
     }
 }

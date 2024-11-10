@@ -14,8 +14,10 @@ import android.text.Editable
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import androidx.annotation.StringRes
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 val screenWidth: Int get() = Resources.getSystem().displayMetrics.widthPixels
 val screenHeight: Int get() = Resources.getSystem().displayMetrics.heightPixels
@@ -92,3 +94,18 @@ fun async(exec: () -> Unit): Thread {
         start()
     }
 }
+
+fun MaterialAlertDialogBuilder.setNeutralButton(text: CharSequence)
+    = setNeutralButton(text, null)
+fun MaterialAlertDialogBuilder.setNeutralButton(@StringRes textRes: Int)
+    = setNeutralButton(textRes, null)
+
+fun MaterialAlertDialogBuilder.setNegativeButton(text: CharSequence)
+        = setNegativeButton(text, null)
+fun MaterialAlertDialogBuilder.setNegativeButton(@StringRes textRes: Int)
+        = setNegativeButton(textRes, null)
+
+fun MaterialAlertDialogBuilder.setPositiveButton(text: CharSequence)
+        = setPositiveButton(text, null)
+fun MaterialAlertDialogBuilder.setPositiveButton(@StringRes textRes: Int)
+        = setPositiveButton(textRes, null)

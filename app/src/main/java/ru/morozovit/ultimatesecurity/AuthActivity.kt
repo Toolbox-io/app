@@ -13,6 +13,7 @@ import android.widget.TextView
 import androidx.activity.result.ActivityResult
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
+import ru.morozovit.android.homeScreen
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.databinding.AuthActivityBinding
@@ -24,6 +25,7 @@ class AuthActivity: BaseActivity(false) {
         private const val PASSWORD_TEXT_SIZE = 30f
         const val MAX_PASSWORD_LENGTH = 6
 
+        const val MODE_NONE = -1
         const val MODE_ENTER = 0
         const val MODE_SET = 1
         const val MODE_CONFIRM = 2
@@ -33,7 +35,9 @@ class AuthActivity: BaseActivity(false) {
     private lateinit var binding: AuthActivityBinding
     private val symbols = mutableMapOf<TextView, Char>()
 
-    private val mode inline get() = intent.getIntExtra("mode", MODE_ENTER)
+    private var mode
+        inline get() = intent.getIntExtra("mode", MODE_ENTER)
+        inline set(value) { intent.putExtra("mode", value) }
     private val isSetOrConfirm inline get() =
         mode == MODE_SET ||
         mode == MODE_CONFIRM ||
@@ -237,5 +241,19 @@ class AuthActivity: BaseActivity(false) {
                 }
                 ?.start()
         }
+    }
+
+    @Suppress("OVERRIDE_DEPRECATION")
+    override fun onBackPressed() {
+        if (mode == MODE_ENTER) {
+            homeScreen()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    override fun finish() {
+        super.finish()
+        mode = MODE_NONE
     }
 }
