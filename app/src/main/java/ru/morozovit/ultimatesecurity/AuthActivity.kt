@@ -30,6 +30,8 @@ class AuthActivity: BaseActivity(false) {
         const val MODE_SET = 1
         const val MODE_CONFIRM = 2
         const val MODE_ENTER_OLD_PW = 3
+
+        var started = false
     }
 
     private lateinit var binding: AuthActivityBinding
@@ -37,13 +39,11 @@ class AuthActivity: BaseActivity(false) {
 
     private var mode
         inline get() = intent.getIntExtra("mode", MODE_ENTER)
-        inline set(value) { intent.putExtra("mode", value) }
-    private val isSetOrConfirm inline get() =
-        mode == MODE_SET ||
-        mode == MODE_CONFIRM ||
-        mode == MODE_ENTER_OLD_PW
+        inline set(value) {intent.putExtra("mode", value)}
+    private val isSetOrConfirm inline get() = mode in 1..3
     private val enteredPassword inline get() = intent.getStringExtra("password")
     private val oldPwConfirmed inline get() = intent.getBooleanExtra("oldPwConfirmed", false)
+    private val setStarted inline get() = intent.getBooleanExtra("setStarted", false)
 
     private var confirm = false
 
@@ -56,8 +56,15 @@ class AuthActivity: BaseActivity(false) {
             finish()
             return
         }
-        if (!isSetOrConfirm) {
+        if (setStarted) {
+            started = true
+        }
+
+        if (!isSetOrConfirm && !isSplashScreenVisible) {
             overridePendingTransition(R.anim.alpha_up, R.anim.scale_up)
+        }
+        if (isSplashScreenVisible) {
+            overridePendingTransition()
         }
         binding = AuthActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)

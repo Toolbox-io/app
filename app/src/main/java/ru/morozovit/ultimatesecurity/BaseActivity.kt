@@ -1,7 +1,5 @@
 package ru.morozovit.ultimatesecurity
 
-import android.animation.Animator
-import android.animation.Animator.AnimatorListener
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
@@ -9,12 +7,15 @@ import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
+import android.view.ViewTreeObserver
 import androidx.annotation.AnimRes
+import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import ru.morozovit.android.NoParallelExecutor
 import ru.morozovit.android.homeScreen
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
+import ru.morozovit.ultimatesecurity.AuthActivity.Companion.started
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
 import java.lang.Thread.sleep
@@ -38,16 +39,40 @@ abstract class BaseActivity(
         private val interactionDetectorExecutor = NoParallelExecutor()
         private var currentActivity: BaseActivity? = null
         private var authScheduled = false
+        protected var authScheduled2 = false
+        @JvmStatic
+        protected var isSplashScreenVisible = true
+            set(value) {
+                if (authScheduled2 && !value) {
+                    authScheduled2 = false
+                    startAuth {
+                        putExtra("setAuthscheduled", true)
+                    }
+                }
+                field = value
+            }
+
+        private inline fun startAuth(apply: Intent.() -> Unit) {
+            currentActivity!!.startActivity(
+                Intent(currentActivity!!, AuthActivity::class.java)
+                    .apply {
+                        apply()
+                        putExtra("setStarted", true)
+                    }
+            )
+        }
+
+        private fun startAuth() = startAuth {}
 
         fun scheduleAuth() {
             with(currentActivity!!) {
                 Log.d("Auth", "Scheduling auth")
-                if (hasWindowFocus()) {
+                if (hasWindowFocus() || isSplashScreenVisible) {
                     Log.d("Auth", "Authenticating now.")
-                    currentActivity!!.startActivity(Intent(this, AuthActivity::class.java))
+                    startAuth()
                 } else {
                     Log.d("Auth", "Scheduled auth.")
-                    authScheduled = true
+                    authScheduled2 = true
                 }
             }
         }
@@ -59,7 +84,6 @@ abstract class BaseActivity(
     private var transitionEnter = 0
     @AnimRes
     private var transitionExit = 0
-
     private var transitionCalled = false
 
     protected fun interactionDetector() {
@@ -99,6 +123,7 @@ abstract class BaseActivity(
         }
     }
 
+    @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         currentActivity = this
         preSplashScreen()
@@ -109,6 +134,17 @@ abstract class BaseActivity(
             super.onCreate(null)
         }
         if (authEnabled && globalPassword != "" && globalPasswordEnabled) {
+            window.decorView.viewTreeObserver.addOnPreDrawListener(
+                object: ViewTreeObserver.OnPreDrawListener {
+                    override fun onPreDraw(): Boolean {
+                        if (started) {
+                            window.decorView.viewTreeObserver.removeOnPreDrawListener(this)
+                            return true
+                        }
+                        return false
+                    }
+                }
+            )
             auth()
         }
         this.savedInstanceState = savedInstanceState
@@ -193,24 +229,15 @@ abstract class BaseActivity(
         try {
             val splashScreen = installSplashScreen()
             splashScreen.setOnExitAnimationListener { splashScreenView ->
-                // Create your custom animation.
+                isSplashScreenVisible = false
                 splashScreenView.view.animate()
                     .scaleX(3f)
                     .scaleY(3f)
                     .alpha(0f)
                     .setDuration(250)
-                    .setListener(object : AnimatorListener {
-                        override fun onAnimationStart(animation: Animator) {}
-                        override fun onAnimationEnd(animation: Animator) {
-                            splashScreenView.remove()
-                        }
-
-                        override fun onAnimationCancel(animation: Animator) {
-                            splashScreenView.remove()
-                        }
-
-                        override fun onAnimationRepeat(animation: Animator) {}
-                    })
+                    .withEndAction {
+                        splashScreenView.remove()
+                    }
                     .start()
             }
         } catch (_: Exception) {}
@@ -246,7 +273,7 @@ abstract class BaseActivity(
         if (authScheduled && hasFocus) {
             Log.d("Auth", "Running scheduled auth")
             authScheduled = false
-            currentActivity!!.startActivity(Intent(this, AuthActivity::class.java))
+            startAuth()
         }
         Log.d("BaseActivity", "Focus changed, hasFocus = $hasFocus")
     }

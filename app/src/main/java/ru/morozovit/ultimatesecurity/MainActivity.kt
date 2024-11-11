@@ -40,7 +40,6 @@ class MainActivity : BaseActivity(
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         try {
             UpdateChecker.schedule(this)
         } catch (e: Exception) {
