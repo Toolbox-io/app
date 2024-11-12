@@ -1,13 +1,15 @@
 package ru.morozovit.ultimatesecurity
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
-import android.view.ViewTreeObserver
+import android.util.TypedValue
+import android.view.View
+import android.view.ViewTreeObserver.OnPreDrawListener
+import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.annotation.AnimRes
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
@@ -40,6 +42,7 @@ abstract class BaseActivity(
         private var currentActivity: BaseActivity? = null
         private var authScheduled = false
         protected var authScheduled2 = false
+        private var splashScreenDisplayed = false
         @JvmStatic
         protected var isSplashScreenVisible = true
             set(value) {
@@ -56,20 +59,27 @@ abstract class BaseActivity(
             currentActivity!!.startActivity(
                 Intent(currentActivity!!, AuthActivity::class.java)
                     .apply {
-                        apply()
                         putExtra("setStarted", true)
+                        putExtra("noAnim", true)
+                        apply()
                     }
             )
         }
 
         private fun startAuth() = startAuth {}
 
-        fun scheduleAuth() {
+        fun scheduleAuth(noAnim: Boolean = true) {
             with(currentActivity!!) {
                 Log.d("Auth", "Scheduling auth")
                 if (hasWindowFocus() || isSplashScreenVisible) {
                     Log.d("Auth", "Authenticating now.")
-                    startAuth()
+                    if (!noAnim) {
+                        startAuth {
+                            putExtra("noAnim", false)
+                        }
+                    } else {
+                        startAuth()
+                    }
                 } else {
                     Log.d("Auth", "Scheduled auth.")
                     authScheduled2 = true
@@ -135,7 +145,7 @@ abstract class BaseActivity(
         }
         if (authEnabled && globalPassword != "" && globalPasswordEnabled) {
             window.decorView.viewTreeObserver.addOnPreDrawListener(
-                object: ViewTreeObserver.OnPreDrawListener {
+                object: OnPreDrawListener {
                     override fun onPreDraw(): Boolean {
                         if (started) {
                             window.decorView.viewTreeObserver.removeOnPreDrawListener(this)
@@ -145,30 +155,33 @@ abstract class BaseActivity(
                     }
                 }
             )
-            auth()
+            auth(false)
         }
         this.savedInstanceState = savedInstanceState
     }
 
-    protected fun auth() {
+    protected fun auth(noAnim: Boolean = true) {
         if (currentActivity?.authEnabled == true && globalPassword != "" && !authenticated &&
             globalPasswordEnabled) {
             authenticated = false
-            scheduleAuth()
+            scheduleAuth(noAnim)
         }
     }
 
+    @CallSuper
     override fun onResume() {
         super.onResume()
         currentActivity = this
         interactionDetector()
     }
 
+    @CallSuper
     override fun onPause() {
         super.onPause()
         interactionDetector()
     }
 
+    @CallSuper
     override fun onUserInteraction() {
         super.onUserInteraction()
         interacted = true
@@ -197,7 +210,6 @@ abstract class BaseActivity(
     override fun finishAfterTransition() = finishAfterTransition(transitionExit, transitionEnter)
 
     @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
-    @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
         when (backButtonBehavior) {
             BackButtonBehavior.DEFAULT -> super.onBackPressed()
@@ -226,21 +238,31 @@ abstract class BaseActivity(
     open fun overridePendingTransition() = overridePendingTransition(0, 0)
 
     private fun preSplashScreen() {
-        try {
-            val splashScreen = installSplashScreen()
-            splashScreen.setOnExitAnimationListener { splashScreenView ->
-                isSplashScreenVisible = false
-                splashScreenView.view.animate()
-                    .scaleX(3f)
-                    .scaleY(3f)
-                    .alpha(0f)
-                    .setDuration(250)
-                    .withEndAction {
-                        splashScreenView.remove()
-                    }
-                    .start()
+        if (!splashScreenDisplayed) {
+            try {
+                val splashScreen = installSplashScreen()
+                splashScreen.setOnExitAnimationListener { splashScreenView ->
+                    isSplashScreenVisible = false
+                    splashScreenDisplayed = true
+                    splashScreenView.view.animate()
+                        .scaleX(3f)
+                        .scaleY(3f)
+                        .alpha(0f)
+                        .setDuration(250)
+                        .withEndAction(splashScreenView::remove)
+                }
+            } catch (_: Exception) {
             }
-        } catch (_: Exception) {}
+        } else {
+            val typedValue = TypedValue()
+            if (theme.resolveAttribute(androidx.core.splashscreen.R.attr.postSplashScreenTheme,
+                typedValue, true)) {
+                val themeId = typedValue.resourceId
+                if (themeId != 0) {
+                    setTheme(themeId)
+                }
+            }
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -268,6 +290,7 @@ abstract class BaseActivity(
         super.onRestoreInstanceState(savedInstanceState)
     }
 
+    @CallSuper
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (authScheduled && hasFocus) {
@@ -276,5 +299,28 @@ abstract class BaseActivity(
             startAuth()
         }
         Log.d("BaseActivity", "Focus changed, hasFocus = $hasFocus")
+    }
+
+    protected open fun startEnterAnimation(root: View) {
+        if (!intent.getBooleanExtra("noAnim", false) && Build.VERSION.SDK_INT >= 31) {
+            root.viewTreeObserver.addOnPreDrawListener(object: OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    root.apply {
+                        scaleY = 1.4f
+                        scaleX = 1.4f
+                        pivotX = width / 2f
+                        pivotY = height / 2f
+
+                        animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .setInterpolator(AccelerateDecelerateInterpolator())
+                            .duration = 250
+                    }
+                    root.viewTreeObserver.removeOnPreDrawListener(this)
+                    return true
+                }
+            })
+        }
     }
 }

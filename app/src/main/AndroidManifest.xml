@@ -40,7 +40,8 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.UltimateSecurity.SplashScreen">
+            android:theme="@style/Theme.UltimateSecurity.SplashScreen"
+            android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -49,35 +50,44 @@
 
         <activity
             android:name=".SelectAppsActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
             android:name=".applocker.FakeCrashActivity"
             android:excludeFromRecents="true"
-            android:theme="@style/Theme.UltimateSecurity.FakeCrash" />
+            android:theme="@style/Theme.UltimateSecurity.FakeCrash"
+            android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode" />
         <activity
             android:name=".applocker.PasswordInputActivity"
             android:excludeFromRecents="true"
-            android:theme="@style/Theme.UltimateSecurity.FakeCrash" />
+            android:theme="@style/Theme.UltimateSecurity.FakeCrash"
+            android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode" />
         <activity
             android:name=".applocker.UnlockModeActivity"
             android:excludeFromRecents="true"
-            android:theme="@style/Theme.UltimateSecurity.FakeCrash" />
+            android:theme="@style/Theme.UltimateSecurity.FakeCrash"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
             android:name=".unlockprotection.ActionsActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
             android:name=".unlockprotection.AlarmSettingsActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
             android:name=".unlockprotection.intruderphoto.IntruderPhotoSettingsActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
             android:name=".unlockprotection.intruderphoto.IntruderPhotoActivity"
-            android:theme="@style/Theme.UltimateSecurity.ImageViewer" />
+            android:theme="@style/Theme.UltimateSecurity.ImageViewer"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
             android:name=".AuthActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar"
-            android:exported="true" />
+            android:exported="true"
+            android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode" />
         <service
             android:name=".IntruderPhotoService"
             android:exported="false"

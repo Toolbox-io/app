@@ -1,7 +1,7 @@
 package ru.morozovit.ultimatesecurity
 
-import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
@@ -41,7 +41,9 @@ class AuthActivity: BaseActivity(false) {
         inline get() = intent.getIntExtra("mode", MODE_ENTER)
         inline set(value) {intent.putExtra("mode", value)}
     private val isSetOrConfirm inline get() = mode in 1..3
-    private val enteredPassword inline get() = intent.getStringExtra("password")
+    private val enteredPassword inline get() =
+        intent.getStringExtra("password") ?:
+        throw NullPointerException("Password must be set")
     private val oldPwConfirmed inline get() = intent.getBooleanExtra("oldPwConfirmed", false)
     private val setStarted inline get() = intent.getBooleanExtra("setStarted", false)
 
@@ -49,23 +51,19 @@ class AuthActivity: BaseActivity(false) {
 
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
 
-    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if ((globalPassword == "" || authenticated) && !isSetOrConfirm) {
             finish()
             return
         }
-        if (setStarted) {
-            started = true
-        }
+        if (setStarted) started = true
 
-        if (!isSetOrConfirm && !isSplashScreenVisible) {
+        if (!isSetOrConfirm && !isSplashScreenVisible)
             overridePendingTransition(R.anim.alpha_up, R.anim.scale_up)
-        }
-        if (isSplashScreenVisible) {
-            overridePendingTransition()
-        }
+
+        if (isSplashScreenVisible) overridePendingTransition()
+
         binding = AuthActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -152,6 +150,7 @@ class AuthActivity: BaseActivity(false) {
                         startActivity(Intent(this, AuthActivity::class.java).apply {
                             putExtra("mode", MODE_SET)
                             putExtra("oldPwConfirmed", true)
+                            putExtra("noAnim", true)
                         })
                         finish()
                     } else if (mode == MODE_SET) {
@@ -159,6 +158,7 @@ class AuthActivity: BaseActivity(false) {
                         activityLauncher.launch(Intent(this, AuthActivity::class.java).apply {
                             putExtra("mode", MODE_CONFIRM)
                             putExtra("password", password)
+                            putExtra("noAnim", true)
                         }) {
                             if (it.resultCode == RESULT_OK) {
                                 setResult(RESULT_OK)
@@ -248,6 +248,8 @@ class AuthActivity: BaseActivity(false) {
                 }
                 ?.start()
         }
+
+        startEnterAnimation(binding.root)
     }
 
     @Suppress("OVERRIDE_DEPRECATION")
@@ -262,5 +264,10 @@ class AuthActivity: BaseActivity(false) {
     override fun finish() {
         super.finish()
         mode = MODE_NONE
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (!isSetOrConfirm) recreate()
     }
 }

@@ -1,5 +1,4 @@
 @file:Suppress("unused")
-
 package ru.morozovit.android
 
 import android.app.Activity
@@ -13,7 +12,9 @@ import android.net.Uri
 import android.text.Editable
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils.loadAnimation
 import android.widget.EditText
+import androidx.annotation.AnimRes
 import androidx.annotation.StringRes
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
@@ -77,7 +78,6 @@ val View.relativeX: Int
 val View.relativeY: Int
     inline get() = (parent as ViewGroup).screenY - screenY
 
-
 fun Activity.setWindowFlag(bits: Int, on: Boolean) {
     val win = window
     val winParams = win.attributes
@@ -89,10 +89,8 @@ fun Activity.setWindowFlag(bits: Int, on: Boolean) {
     win.attributes = winParams
 }
 
-fun async(exec: () -> Unit): Thread {
-    return Thread(exec).apply {
-        start()
-    }
+fun async(exec: () -> Unit) = Thread(exec).apply {
+    start()
 }
 
 fun MaterialAlertDialogBuilder.setNeutralButton(text: CharSequence)
@@ -109,3 +107,5 @@ fun MaterialAlertDialogBuilder.setPositiveButton(text: CharSequence)
         = setPositiveButton(text, null)
 fun MaterialAlertDialogBuilder.setPositiveButton(@StringRes textRes: Int)
         = setPositiveButton(textRes, null)
+
+fun View.startAnimation(@AnimRes animRes: Int) = startAnimation(loadAnimation(context, animRes))

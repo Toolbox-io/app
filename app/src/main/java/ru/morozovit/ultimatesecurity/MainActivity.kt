@@ -6,12 +6,10 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.view.ViewTreeObserver
-import androidx.appcompat.view.menu.ActionMenuItemView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -30,9 +28,9 @@ class MainActivity : BaseActivity(
     backButtonBehavior = Companion.BackButtonBehavior.DEFAULT,
 ) {
     private lateinit var appBarConfiguration: AppBarConfiguration
+    private lateinit var navController: NavController
+
     private lateinit var binding: ActivityMainBinding
-    lateinit var lockView: View
-    private lateinit var menu: Menu
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,18 +38,18 @@ class MainActivity : BaseActivity(
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Start update checker
         try {
             UpdateChecker.schedule(this)
         } catch (e: Exception) {
             Log.e("MainActivity", "${e::class.qualifiedName}: ${e.message}")
         }
 
-
+        // Navigation
         setSupportActionBar(binding.toolbar)
-
         val drawerLayout = binding.drawerLayout
         val navView = binding.navView
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
+        navController = findNavController(R.id.nav_host_fragment_content_main)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
@@ -62,6 +60,9 @@ class MainActivity : BaseActivity(
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
+        navController.navigate(intent.getIntExtra("nav", R.id.nav_home))
+
+        // Notifications
         if (Build.VERSION.SDK_INT >= 33) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 Snackbar.make(binding.rootView, R.string.grant_notification, Snackbar.LENGTH_LONG)
@@ -72,25 +73,12 @@ class MainActivity : BaseActivity(
             }
         }
 
-        window.decorView.viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                val th = this
-                findViewById<ActionMenuItemView>(R.id.lock).apply {
-                    if (this@apply != null) {
-                        lockView = this
-                        transitionName = "lock"
-
-                        window.decorView.viewTreeObserver.removeOnGlobalLayoutListener(th)
-                    }
-                }
-            }
-        })
+        startEnterAnimation(binding.root)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main, menu)
-        this.menu = menu
         updateLock()
         return true
     }
@@ -141,7 +129,6 @@ class MainActivity : BaseActivity(
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
