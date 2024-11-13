@@ -27,6 +27,12 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="Widget.Material3.NavigationView.NoSeparators"
+        parent="Theme.UltimateSecurity">
+        <item name="android:listDivider">@android:color/transparent</item>
+        <item name="android:dividerHeight">0dp</item>
+    </style>
+
     <style name="Theme.UltimateSecurity.ImageViewer" parent="Theme.UltimateSecurity.Night.NoActionBar">
         <item name="android:windowSharedElementEnterTransition">@transition/img</item>
         <item name="android:windowSharedElementExitTransition">@transition/img</item>

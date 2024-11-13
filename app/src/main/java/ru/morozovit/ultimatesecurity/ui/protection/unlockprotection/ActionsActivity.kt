@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.unlockprotection
+package ru.morozovit.ultimatesecurity.ui.protection.unlockprotection
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -10,7 +10,7 @@ import ru.morozovit.android.ui.makeSwitchCard
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.databinding.UpActionsBinding
-import ru.morozovit.ultimatesecurity.unlockprotection.intruderphoto.IntruderPhotoSettingsActivity
+import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoSettingsActivity
 
 class ActionsActivity: BaseActivity() {
     private lateinit var binding: UpActionsBinding

@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
 
-package ru.morozovit.ultimatesecurity
+package ru.morozovit.android
 
 import android.os.AsyncTask
 

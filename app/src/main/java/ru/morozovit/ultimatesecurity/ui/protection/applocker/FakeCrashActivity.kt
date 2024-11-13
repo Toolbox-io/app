@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.applocker
+package ru.morozovit.ultimatesecurity.ui.protection.applocker
 
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK

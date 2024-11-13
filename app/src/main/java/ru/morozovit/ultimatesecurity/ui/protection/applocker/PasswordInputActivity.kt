@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.applocker
+package ru.morozovit.ultimatesecurity.ui.protection.applocker
 
 import android.os.Bundle
 import android.os.Handler
@@ -7,12 +7,12 @@ import android.view.View.VISIBLE
 import android.view.Window
 import android.widget.Toast
 import androidx.core.os.postDelayed
+import ru.morozovit.android.screenWidth
+import ru.morozovit.ultimatesecurity.services.Accessibility
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
-import ru.morozovit.ultimatesecurity.Service
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.databinding.PasswordBinding
-import ru.morozovit.android.screenWidth
 
 
 class PasswordInputActivity: BaseActivity(false) {
@@ -71,13 +71,13 @@ class PasswordInputActivity: BaseActivity(false) {
                     if (password == Settings.Applocker.password) {
                         setResult(RESULT_OK, intent)
                         finish()
-                        Service.instance?.lock = true
+                        Accessibility.instance?.lock = true
                         val intent = applicationContext
                             .packageManager
                             .getLaunchIntentForPackage(packageName)
                         startActivity(intent)
                         Handler(mainLooper).postDelayed(2000) {
-                            Service.instance?.lock = false
+                            Accessibility.instance?.lock = false
                         }
                     } else {
                         setResult(RESULT_INVALID_PASSWORD)

@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity
+package ru.morozovit.ultimatesecurity.ui
 
 import android.content.pm.PackageManager
 import android.os.Build
@@ -19,10 +19,13 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import ru.morozovit.android.setNegativeButton
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
+import ru.morozovit.ultimatesecurity.BaseActivity
+import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings.exitDsa
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
 import ru.morozovit.ultimatesecurity.databinding.ActivityMainBinding
+import ru.morozovit.ultimatesecurity.services.UpdateChecker
 
 class MainActivity : BaseActivity(
     backButtonBehavior = Companion.BackButtonBehavior.DEFAULT,
@@ -54,7 +57,12 @@ class MainActivity : BaseActivity(
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_applocker, R.id.nav_unlock_protection, R.id.nav_settings, R.id.nav_website
+                R.id.nav_home,
+                R.id.nav_applocker,
+                R.id.nav_unlock_protection,
+                R.id.nav_settings,
+                R.id.nav_website,
+                R.id.nav_tiles
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)

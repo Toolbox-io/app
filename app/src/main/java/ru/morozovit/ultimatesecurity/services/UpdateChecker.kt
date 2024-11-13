@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION")
 
-package ru.morozovit.ultimatesecurity
+package ru.morozovit.ultimatesecurity.services
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -33,7 +33,12 @@ import androidx.core.content.FileProvider
 import androidx.core.os.postDelayed
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
+import ru.morozovit.android.JobIdManager
 import ru.morozovit.android.NoParallelExecutor
+import ru.morozovit.ultimatesecurity.App
+import ru.morozovit.ultimatesecurity.ui.MainActivity
+import ru.morozovit.ultimatesecurity.R
+import ru.morozovit.android.SimpleAsyncTask
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream

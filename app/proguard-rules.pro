@@ -20,7 +20,7 @@
 # hide the original source file name.
 -renamesourcefileattribute SourceFile
 -repackageclasses
--keep public class ru.morozovit.ultimatesecurity.MainActivity
+-keep public class ru.morozovit.ultimatesecurity.ui.MainActivity
 -assumenosideeffects class android.util.Log {
     public static int d(...);
     public static int w(...);

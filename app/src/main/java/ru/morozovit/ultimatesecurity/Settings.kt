@@ -10,6 +10,7 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_OP
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_TITLE
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.NOTHING_SELECTED
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
+import ru.morozovit.ultimatesecurity.services.Accessibility
 
 object Settings {
     private lateinit var sharedPref: SharedPreferences
@@ -67,7 +68,7 @@ object Settings {
             }
         }
 
-    val accessibility: Boolean get() = Service.instance != null
+    val accessibility: Boolean get() = Accessibility.instance != null
 
     var globalPassword: String
         get() = sharedPref.getString("globalPassword", "")!!

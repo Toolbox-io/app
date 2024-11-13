@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity
+package ru.morozovit.ultimatesecurity.ui.protection.applocker
 
 import android.annotation.SuppressLint
 import android.content.pm.PackageInfo
@@ -12,6 +12,9 @@ import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import ru.morozovit.ultimatesecurity.BaseActivity
+import ru.morozovit.ultimatesecurity.R
+import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.databinding.SelectAppsBinding
 import kotlin.collections.set
 
@@ -74,7 +77,7 @@ class SelectAppsActivity: BaseActivity() {
 
     inner class AppAdapter(private val appList: MutableList<PackageInfo>) :
         RecyclerView.Adapter<AppAdapter.AppViewHolder>() {
-        private val mSelectedApps = mutableMapOf<Int,AppEntry>()
+        private val mSelectedApps = mutableMapOf<Int, AppEntry>()
 
         val selectedApps get() = mSelectedApps
         val selectedAppsSet get(): Set<String?> {

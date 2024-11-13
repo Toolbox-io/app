@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.applocker
+package ru.morozovit.ultimatesecurity.ui.protection.applocker
 
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
@@ -16,17 +16,16 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import ru.morozovit.android.BetterActivityResult
+import ru.morozovit.android.homeScreen
 import ru.morozovit.android.ui.makeSwitchCard
+import ru.morozovit.ultimatesecurity.services.Accessibility
+import ru.morozovit.ultimatesecurity.services.Accessibility.Companion.waitingForAccessibility
 import ru.morozovit.ultimatesecurity.R
-import ru.morozovit.ultimatesecurity.SelectAppsActivity
-import ru.morozovit.ultimatesecurity.Service
-import ru.morozovit.ultimatesecurity.Service.Companion.waitingForAccessibility
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.Applocker.getUnlockModeDescription
 import ru.morozovit.ultimatesecurity.Settings.Applocker.unlockMode
 import ru.morozovit.ultimatesecurity.Settings.accessibility
 import ru.morozovit.ultimatesecurity.databinding.ApplockerBinding
-import ru.morozovit.android.homeScreen
 import java.lang.Thread.sleep
 
 
@@ -75,7 +74,7 @@ class ApplockerFragment : Fragment() {
                     } else {
                         var error = false
                         try {
-                            Service.instance!!.disable()
+                            Accessibility.instance!!.disable()
                         } catch (e: Exception) {
                             error = true
                         }

@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity
+package ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -15,7 +15,8 @@ import androidx.core.app.NotificationCompat.PRIORITY_LOW
 import androidx.core.content.ContextCompat
 import org.jetbrains.annotations.Range
 import ru.morozovit.android.async
-import ru.morozovit.ultimatesecurity.unlockprotection.intruderphoto.CameraController
+import ru.morozovit.ultimatesecurity.App
+import ru.morozovit.ultimatesecurity.R
 
 @MainThread
 class IntruderPhotoService: Service() {

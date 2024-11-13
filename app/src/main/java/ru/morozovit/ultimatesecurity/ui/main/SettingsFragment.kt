@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity
+package ru.morozovit.ultimatesecurity.ui.main
 
 import android.app.Activity.RESULT_OK
 import android.app.admin.DevicePolicyManager
@@ -15,10 +15,15 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.ui.makeSwitchCard
+import ru.morozovit.ultimatesecurity.R
+import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.deleteGlobalPasswordDsa
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
 import ru.morozovit.ultimatesecurity.databinding.SettingsBinding
+import ru.morozovit.ultimatesecurity.services.DeviceAdmin
+import ru.morozovit.ultimatesecurity.ui.AuthActivity
+import ru.morozovit.ultimatesecurity.ui.MainActivity
 
 
 class SettingsFragment : Fragment() {
@@ -136,7 +141,7 @@ class SettingsFragment : Fragment() {
                                 v.isChecked = false
                                 listener2 = true
                             }
-                            .setNeutralButton(R.string.dsa) { _ ,_ ->
+                            .setNeutralButton(R.string.dsa) { _, _ ->
                                 listener2 = false
                                 v.isChecked = false
                                 listener2 = true

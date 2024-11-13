@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:baselineAligned="false"
-    tools:context=".MainActivity"
+    tools:context=".ui.MainActivity"
     android:fitsSystemWindows="false">
     
     <ru.morozovit.android.ui.RoundedCornerLayout
@@ -18,7 +18,8 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             app:headerLayout="@layout/nav_header_main"
-            app:menu="@menu/activity_main_drawer" />
+            app:menu="@menu/activity_main_drawer"
+            android:theme="@style/Widget.Material3.NavigationView.NoSeparators" />
     </ru.morozovit.android.ui.RoundedCornerLayout>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout

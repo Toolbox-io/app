@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.unlockprotection.intruderphoto
+package ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto
 
 import android.Manifest
 import android.content.Context
@@ -26,8 +26,8 @@ import androidx.core.os.postDelayed
 import androidx.documentfile.provider.DocumentFile
 import androidx.documentfile.provider.DocumentFile.fromTreeUri
 import org.jetbrains.annotations.Range
-import ru.morozovit.ultimatesecurity.IntruderPhotoService.Companion.BACK_CAM
-import ru.morozovit.ultimatesecurity.IntruderPhotoService.Companion.FRONT_CAM
+import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoService.Companion.BACK_CAM
+import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoService.Companion.FRONT_CAM
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoDir
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoDirEnabled
 import java.io.File

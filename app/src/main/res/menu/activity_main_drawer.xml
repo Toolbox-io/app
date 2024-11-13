@@ -1,30 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="navigation_view">
+    tools:showIn="navigation_view"
+    android:checkableBehavior="single">
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/home"
+        android:title="@string/home"
+        android:checkable="true" />
+    <item
+        android:id="@+id/nav_settings"
+        android:icon="@drawable/settings"
+        android:title="@string/settings"
+        android:checkable="true" />
 
-    <group android:checkableBehavior="single" android:id="@+id/main_items">
-        <item
-            android:id="@+id/nav_home"
-            android:icon="@drawable/home"
-            android:title="@string/home" />
-        <item
-            android:id="@+id/nav_applocker"
-            android:icon="@drawable/applocker"
-            android:title="@string/applocker" />
-        <item
-            android:id="@+id/nav_unlock_protection"
-            android:icon="@drawable/lock"
-            android:title="@string/unlock_protection" />
-        <item
-            android:id="@+id/nav_settings"
-            android:icon="@drawable/settings"
-            android:title="@string/settings" />
-    </group>
-    <group android:checkableBehavior="none" android:id="@+id/second_items">
-        <item
-            android:id="@+id/nav_website"
-            android:icon="@drawable/internet"
-            android:title="@string/website" />
-    </group>
+    <item
+        android:id="@+id/security_items"
+        android:title="@string/security"
+        android:checkableBehavior="single">
+        <menu android:checkableBehavior="single">
+            <item
+                android:id="@+id/nav_applocker"
+                android:icon="@drawable/applocker"
+                android:title="@string/applocker"
+                android:checkable="true" />
+            <item
+                android:id="@+id/nav_unlock_protection"
+                android:icon="@drawable/lock"
+                android:title="@string/unlock_protection"
+                android:checkable="true" />
+        </menu>
+    </item>
+    <item android:id="@+id/customization_items"
+        android:title="@string/customization"
+        android:checkableBehavior="single">
+        <menu android:checkableBehavior="single">
+            <item
+                android:id="@+id/nav_tiles"
+                android:title="@string/tiles"
+                android:icon="@drawable/tiles"
+                android:checkable="true" />
+            <item
+                android:id="@+id/nav_shortcuts"
+                android:title="@string/shortcuts"
+                android:icon="@drawable/shortcut"
+                android:checkable="true" />
+        </menu>
+    </item>
 </menu>

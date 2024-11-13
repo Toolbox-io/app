@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity
+package ru.morozovit.ultimatesecurity.ui
 
 import android.content.Intent
 import android.content.res.Configuration
@@ -15,6 +15,8 @@ import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
 import ru.morozovit.android.homeScreen
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
+import ru.morozovit.ultimatesecurity.BaseActivity
+import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.databinding.AuthActivityBinding
 

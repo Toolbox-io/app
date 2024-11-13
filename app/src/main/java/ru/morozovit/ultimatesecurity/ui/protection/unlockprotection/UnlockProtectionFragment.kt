@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.unlockprotection
+package ru.morozovit.ultimatesecurity.ui.protection.unlockprotection
 
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.ui.makeSwitchCard
-import ru.morozovit.ultimatesecurity.DeviceAdmin
+import ru.morozovit.ultimatesecurity.services.DeviceAdmin
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.enabled

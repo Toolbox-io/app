@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity
+package ru.morozovit.ultimatesecurity.services
 
 import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
@@ -9,10 +9,12 @@ import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
 import android.view.accessibility.AccessibilityEvent
 import ru.morozovit.android.homeScreen
-import ru.morozovit.ultimatesecurity.applocker.FakeCrashActivity
+import ru.morozovit.ultimatesecurity.Settings
+import ru.morozovit.ultimatesecurity.ui.MainActivity
+import ru.morozovit.ultimatesecurity.ui.protection.applocker.FakeCrashActivity
 import java.lang.Thread.sleep
 
-class Service: AccessibilityService() {
+class Accessibility: AccessibilityService() {
     private var interrupted = false
     var lock = false
 
@@ -20,7 +22,7 @@ class Service: AccessibilityService() {
 
     @SuppressLint("StaticFieldLeak")
     companion object {
-        var instance: Service? = null
+        var instance: Accessibility? = null
         var waitingForAccessibility = false
     }
 

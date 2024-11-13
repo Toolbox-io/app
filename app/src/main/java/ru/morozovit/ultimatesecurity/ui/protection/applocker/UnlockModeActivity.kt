@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.applocker
+package ru.morozovit.ultimatesecurity.ui.protection.applocker
 
 import android.os.Bundle
 import android.view.Window

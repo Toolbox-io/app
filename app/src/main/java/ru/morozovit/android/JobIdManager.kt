@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity
+package ru.morozovit.android
 
 import androidx.annotation.IntDef
 import org.jetbrains.annotations.Contract

@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
 
-package ru.morozovit.ultimatesecurity
+package ru.morozovit.ultimatesecurity.ui.main
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -18,9 +18,10 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.snackbar.Snackbar
+import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings.installPackage_dsa
 import ru.morozovit.ultimatesecurity.Settings.update_dsa
-import ru.morozovit.ultimatesecurity.UpdateChecker.Companion.checkForUpdates
+import ru.morozovit.ultimatesecurity.services.UpdateChecker.Companion.checkForUpdates
 import ru.morozovit.ultimatesecurity.databinding.HomeBinding
 import java.io.BufferedInputStream
 import java.io.File

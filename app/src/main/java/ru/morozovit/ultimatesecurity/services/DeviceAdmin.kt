@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity
+package ru.morozovit.ultimatesecurity.services
 
 import android.app.admin.DeviceAdminReceiver
 import android.content.Context
@@ -14,10 +14,12 @@ import android.os.Looper
 import android.os.UserHandle
 import android.util.Log
 import androidx.core.os.postDelayed
-import ru.morozovit.ultimatesecurity.IntruderPhotoService.Companion.BACK_CAM
-import ru.morozovit.ultimatesecurity.IntruderPhotoService.Companion.BOTH_CAMS
-import ru.morozovit.ultimatesecurity.IntruderPhotoService.Companion.FRONT_CAM
-import ru.morozovit.ultimatesecurity.IntruderPhotoService.Companion.takePhoto
+import ru.morozovit.ultimatesecurity.App
+import ru.morozovit.ultimatesecurity.Settings
+import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoService.Companion.BACK_CAM
+import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoService.Companion.BOTH_CAMS
+import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoService.Companion.FRONT_CAM
+import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoService.Companion.takePhoto
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.alarm
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.currentCustomAlarm
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhoto

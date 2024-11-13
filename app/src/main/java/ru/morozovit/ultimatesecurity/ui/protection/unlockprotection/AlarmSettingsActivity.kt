@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.unlockprotection
+package ru.morozovit.ultimatesecurity.ui.protection.unlockprotection
 
 import android.annotation.SuppressLint
 import android.app.Activity

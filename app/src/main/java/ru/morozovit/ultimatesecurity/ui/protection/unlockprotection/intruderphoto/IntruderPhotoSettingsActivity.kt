@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.unlockprotection.intruderphoto
+package ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto
 
 import android.Manifest
 import android.annotation.SuppressLint
