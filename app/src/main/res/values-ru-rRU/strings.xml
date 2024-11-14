@@ -98,4 +98,9 @@
     <string name="dpw_d">Вы моете удалить пароль, который установлен сейчас после его отключения.</string>
     <string name="no">Нет</string>
     <string name="exit">Выйти?</string>
+    <string name="security">Защита</string>
+    <string name="customization">Персонализация</string>
+    <string name="tiles">Плитки</string>
+    <string name="shortcuts">Ярлыки</string>
+    <string name="sleep">Спящий режим</string>
 </resources>
