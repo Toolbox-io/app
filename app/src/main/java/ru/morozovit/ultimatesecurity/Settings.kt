@@ -1,9 +1,14 @@
 package ru.morozovit.ultimatesecurity
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+import android.content.pm.PackageManager.DONT_KILL_APP
 import android.content.res.Resources
 import android.os.Build
+import android.service.quicksettings.Tile.STATE_UNAVAILABLE
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_APP_INFO
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_CLOSE
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_OPEN_APP_AGAIN
@@ -11,6 +16,7 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_TI
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.NOTHING_SELECTED
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
 import ru.morozovit.ultimatesecurity.services.Accessibility
+import ru.morozovit.ultimatesecurity.services.tiles.SleepTile
 
 object Settings {
     private lateinit var sharedPref: SharedPreferences
@@ -26,11 +32,12 @@ object Settings {
             // Init sub-objects
             Applocker.init()
             UnlockProtection.init()
+            Tiles.init()
             init = true
         }
     }
 
-    var installPackage_dsa: Boolean
+    var installPackage_dsa
         get() = sharedPref.getBoolean("installPackage_dsa", false)
         set(value) {
             if (value) {
@@ -41,7 +48,7 @@ object Settings {
             }
         }
 
-    var update_dsa: Boolean
+    var update_dsa
         get() = sharedPref.getBoolean("update_dsa", false)
         set(value) {
             with(sharedPref.edit()) {
@@ -50,7 +57,7 @@ object Settings {
             }
         }
 
-    var deleteGlobalPasswordDsa: Boolean
+    var deleteGlobalPasswordDsa
         get() = sharedPref.getBoolean("deleteGlobalPasswordDsa", false)
         set(value) {
             with(sharedPref.edit()) {
@@ -59,7 +66,7 @@ object Settings {
             }
         }
 
-    var exitDsa: Boolean
+    var exitDsa
         get() = sharedPref.getBoolean("exitDsa", false)
         set(value) {
             with(sharedPref.edit()) {
@@ -68,9 +75,9 @@ object Settings {
             }
         }
 
-    val accessibility: Boolean get() = Accessibility.instance != null
+    val accessibility get() = Accessibility.instance != null
 
-    var globalPassword: String
+    var globalPassword
         get() = sharedPref.getString("globalPassword", "")!!
         set(value) {
             with(sharedPref.edit()) {
@@ -79,7 +86,7 @@ object Settings {
             }
         }
 
-    var globalPasswordEnabled: Boolean
+    var globalPasswordEnabled
         get() = sharedPref.getBoolean("globalPasswordEnabled", false)
         set(value) {
             with(sharedPref.edit()) {
@@ -118,7 +125,7 @@ object Settings {
                 }
             }
 
-        var password: String
+        var password
             get() = sharedPref.getString("password", "")!!
             set(value) {
                 if (value != "") with(sharedPref.edit()) {
@@ -164,7 +171,7 @@ object Settings {
             }
         }
 
-        var enabled: Boolean
+        var enabled
             get() = sharedPref.getBoolean("enabled", false)
             set(value) {
                 with(sharedPref.edit()) {
@@ -173,7 +180,7 @@ object Settings {
                 }
             }
 
-        var unlockAttempts: Int
+        var unlockAttempts
             get() = sharedPref.getInt("unlockAttempts", 2)
             set(value) = with(sharedPref.edit()) {
                 putInt("unlockAttempts", value)
@@ -192,7 +199,7 @@ object Settings {
                 }
             }
 
-            var alarm: Boolean
+            var alarm
                 get() = sharedPref.getBoolean("alarm", false)
                 set(value) {
                     with(sharedPref.edit()) {
@@ -210,7 +217,7 @@ object Settings {
                     }
                 }
 
-            var currentCustomAlarm: String
+            var currentCustomAlarm
                 get() = sharedPref.getString("currentCustomAlarm", "")!!
                 set(value) {
                     with(sharedPref.edit()) {
@@ -219,7 +226,7 @@ object Settings {
                     }
                 }
 
-            var intruderPhoto: Boolean
+            var intruderPhoto
                 get() = sharedPref.getBoolean("intruderPhoto", false)
                 set(value) {
                     with(sharedPref.edit()) {
@@ -228,7 +235,7 @@ object Settings {
                     }
                 }
 
-            var intruderPhotoFromBackCam: Boolean
+            var intruderPhotoFromBackCam
                 get() = sharedPref.getBoolean("intruderPhotoFromBackCam", false)
                 set(value) {
                     with(sharedPref.edit()) {
@@ -237,7 +244,7 @@ object Settings {
                     }
                 }
 
-            var intruderPhotoFromFrontCam: Boolean
+            var intruderPhotoFromFrontCam
                 get() = sharedPref.getBoolean("intruderPhotoFromFrontCam", false)
                 set(value) {
                     with(sharedPref.edit()) {
@@ -246,7 +253,7 @@ object Settings {
                     }
                 }
 
-            var intruderPhotoDirEnabled: Boolean
+            var intruderPhotoDirEnabled
                 get() = sharedPref.getBoolean("intruderPhotoDirEnabled", false)
                 set(value) {
                     with(sharedPref.edit()) {
@@ -255,7 +262,7 @@ object Settings {
                     }
                 }
 
-            var intruderPhotoDir: String
+            var intruderPhotoDir
                 get() = sharedPref.getString("intruderPhotoDir", "")!!
                 set(value) {
                     with(sharedPref.edit()) {
@@ -264,7 +271,7 @@ object Settings {
                     }
                 }
 
-            var intruderPhotoWarning_dsa: Boolean
+            var intruderPhotoWarning_dsa
                 get() = sharedPref.getBoolean("intruderPhotoWarning_dsa", false)
                 set(value) {
                     with(sharedPref.edit()) {
@@ -273,5 +280,40 @@ object Settings {
                     }
                 }
         }
+    }
+
+    object Tiles: SettingsObj {
+        private var init = false
+
+        override fun init() {
+            if (!init) {
+                sharedPref = App.context.getSharedPreferences("tiles", Context.MODE_PRIVATE)
+                init = true
+            }
+        }
+
+        var sleep
+            get() = sharedPref.getBoolean("sleep", false)
+            set(value) {
+                with(sharedPref.edit()) {
+                    putBoolean("sleep", value)
+                    apply()
+                }
+                with (App.context) {
+                    packageManager.setComponentEnabledSetting(
+                        ComponentName(this, SleepTile::class.java),
+                        if (value)
+                            COMPONENT_ENABLED_STATE_ENABLED
+                        else
+                            COMPONENT_ENABLED_STATE_DISABLED,
+                        DONT_KILL_APP
+                    )
+                    try {
+                        SleepTile.scheduleConfig {
+                            state = STATE_UNAVAILABLE
+                        }
+                    } catch (_: Exception) {}
+                }
+            }
     }
 }

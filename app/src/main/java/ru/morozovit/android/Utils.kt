@@ -9,6 +9,7 @@ import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.net.Uri
+import android.service.quicksettings.Tile
 import android.text.Editable
 import android.view.View
 import android.view.ViewGroup
@@ -109,3 +110,8 @@ fun MaterialAlertDialogBuilder.setPositiveButton(@StringRes textRes: Int)
         = setPositiveButton(textRes, null)
 
 fun View.startAnimation(@AnimRes animRes: Int) = startAnimation(loadAnimation(context, animRes))
+
+inline fun Tile.configure(apply: Tile.() -> Unit) {
+    apply.invoke(this)
+    updateTile()
+}

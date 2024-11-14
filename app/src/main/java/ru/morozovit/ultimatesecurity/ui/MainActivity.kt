@@ -62,7 +62,8 @@ class MainActivity : BaseActivity(
                 R.id.nav_unlock_protection,
                 R.id.nav_settings,
                 R.id.nav_website,
-                R.id.nav_tiles
+                R.id.nav_tiles,
+                R.id.nav_shortcuts
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
