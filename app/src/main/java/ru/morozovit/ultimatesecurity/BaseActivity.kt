@@ -17,10 +17,10 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import ru.morozovit.android.NoParallelExecutor
 import ru.morozovit.android.homeScreen
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
-import ru.morozovit.ultimatesecurity.ui.AuthActivity.Companion.started
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
 import ru.morozovit.ultimatesecurity.ui.AuthActivity
+import ru.morozovit.ultimatesecurity.ui.AuthActivity.Companion.started
 import java.lang.Thread.sleep
 
 @Suppress("unused")
@@ -303,7 +303,7 @@ abstract class BaseActivity(
     }
 
     protected open fun startEnterAnimation(root: View) {
-        if (!intent.getBooleanExtra("noAnim", false) && Build.VERSION.SDK_INT >= 31) {
+        if (!intent.getBooleanExtra("noAnim", false)/* && Build.VERSION.SDK_INT >= 31* */) {
             root.viewTreeObserver.addOnPreDrawListener(object: OnPreDrawListener {
                 override fun onPreDraw(): Boolean {
                     root.apply {

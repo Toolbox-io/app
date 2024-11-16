@@ -124,4 +124,6 @@
     <string name="ri">Remove icon</string>
     <string name="ir">The icon was removed. To add it again, press \"Add\" and choose \"As a separate app\".</string>
     <string name="tiles_beta">Tiles (Beta)</string>
+    <string name="install_package">Install package</string>
+    <string name="install_package_d">The new version is ready to be installed. Install?\nPlease note that you will need to grant the \"Install unknown apps\" permission to this app in order to continue.</string>
 </resources>

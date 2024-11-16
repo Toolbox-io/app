@@ -21,8 +21,8 @@ import com.google.android.material.snackbar.Snackbar
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings.installPackage_dsa
 import ru.morozovit.ultimatesecurity.Settings.update_dsa
-import ru.morozovit.ultimatesecurity.services.UpdateChecker.Companion.checkForUpdates
 import ru.morozovit.ultimatesecurity.databinding.HomeBinding
+import ru.morozovit.ultimatesecurity.services.UpdateChecker.Companion.checkForUpdates
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -109,12 +109,8 @@ class HomeFragment : Fragment() {
             progress.progress = 0
             if (!installPackage_dsa) {
                 MaterialAlertDialogBuilder(requireActivity())
-                    .setTitle("Install package")
-                    .setMessage(
-                        "The new version is ready to be installed. Install?\n" +
-                                "Please note that you will need to grant the \"Install unknown apps\" " +
-                                "permission to this app in order to continue."
-                    )
+                    .setTitle(R.string.install_package)
+                    .setMessage(R.string.install_package_d)
                     .setPositiveButton(R.string.install) { _, _ ->
                         val install = Intent(Intent.ACTION_INSTALL_PACKAGE)
                         install.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
