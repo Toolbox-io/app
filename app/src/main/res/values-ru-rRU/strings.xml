@@ -103,4 +103,17 @@
     <string name="tiles">Плитки</string>
     <string name="shortcuts">Ярлыки</string>
     <string name="sleep">Спящий режим</string>
+    <string name="failed_to_launch_files">Не удалось запустить \"Файлы\". Приложение может не существовать на устройстве.</string>
+    <string name="files">Файлы</string>
+    <string name="ht_add_sc">Как добавить ярлык?</string>
+    <string name="asas">Как ярлык</string>
+    <string name="asasa">Как отдельное приложение</string>
+    <string name="continue1">Продолжить</string>
+    <string name="rc">Запомнить выбор</string>
+    <string name="smthwentwrong">Что-то пошло не так. Выберите вариант и попробуйте еще раз.</string>
+    <string name="fsh">Иконка \"Файлы\" была создана. Вы всегда можете отключить ее нажатием \"Удалить иконку\" на ярлыке в приложении.</string>
+    <string name="cr">Ваш выбор сохранен. Если вы захотить изменить его, зажмите \"Добавить\".</string>
+    <string name="ri">Удалить иконку</string>
+    <string name="ir">Иконка удалена. Чтобы добавить ее снова, нажмите \"Добавить\" и выберите \"Как отдельное приложение\".</string>
+    <string name="tiles_beta">Плитки (Бета)</string>
 </resources>

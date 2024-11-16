@@ -5,12 +5,10 @@ import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.material.materialswitch.MaterialSwitch
+import android.widget.CompoundButton
 
 @SuppressLint("ClickableViewAccessibility")
-fun makeSwitchCard(card: ViewGroup, switch: MaterialSwitch) {
-    // val switch = card.getChildAt(0) as MaterialSwitch
-
+fun makeSwitchCard(card: ViewGroup, switch: CompoundButton) {
     var switchOnTouch: ((View, MotionEvent) -> Boolean)? = null
     val switchCardOnTouch: (View, MotionEvent) -> Boolean = { _: View, event: MotionEvent ->
         if (event.action == MotionEvent.ACTION_DOWN || event.action == MotionEvent.ACTION_UP) {

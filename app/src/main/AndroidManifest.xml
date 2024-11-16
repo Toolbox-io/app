@@ -93,6 +93,22 @@
             android:name="ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoService"
             android:exported="false"
             android:foregroundServiceType="camera" />
+        <activity
+            android:name=".ui.customization.shortcuts.FilesShortcut"
+            android:theme="@style/Theme.SplashScreen.Files" />
+        <activity
+            android:name=".ui.customization.shortcuts.FilesActivity"
+            android:exported="true"
+            android:theme="@style/Theme.SplashScreen.Files"
+            android:icon="@mipmap/files_icon"
+            android:label="@string/files"
+            android:excludeFromRecents="true"
+            android:taskAffinity="ru.morozovit.ultimatesecurity.ui.customization.shortcuts.FilesActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <receiver
             android:name=".services.UpdateChecker$Companion$Receiver"

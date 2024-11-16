@@ -37,7 +37,7 @@
         <menu android:checkableBehavior="single">
             <item
                 android:id="@+id/nav_tiles"
-                android:title="@string/tiles"
+                android:title="@string/tiles_beta"
                 android:icon="@drawable/tiles"
                 android:checkable="true" />
             <item

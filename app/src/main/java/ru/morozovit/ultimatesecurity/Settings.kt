@@ -17,6 +17,7 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.NOTHING_SELEC
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
 import ru.morozovit.ultimatesecurity.services.Accessibility
 import ru.morozovit.ultimatesecurity.services.tiles.SleepTile
+import ru.morozovit.ultimatesecurity.ui.customization.shortcuts.FilesActivity
 
 object Settings {
     private lateinit var sharedPref: SharedPreferences
@@ -299,9 +300,29 @@ object Settings {
                     putBoolean("sleep", value)
                     apply()
                 }
+            }
+    }
+
+    object Shortcuts: SettingsObj {
+        private var init = false
+
+        override fun init() {
+            if (!init) {
+                sharedPref = App.context.getSharedPreferences("shortcuts", Context.MODE_PRIVATE)
+                init = true
+            }
+        }
+
+        var files
+            get() = sharedPref.getBoolean("files", false)
+            set(value) {
+                with(sharedPref.edit()) {
+                    putBoolean("files", value)
+                    apply()
+                }
                 with (App.context) {
                     packageManager.setComponentEnabledSetting(
-                        ComponentName(this, SleepTile::class.java),
+                        ComponentName(this, FilesActivity::class.java),
                         if (value)
                             COMPONENT_ENABLED_STATE_ENABLED
                         else
@@ -315,5 +336,15 @@ object Settings {
                     } catch (_: Exception) {}
                 }
             }
+
+        var files_choice
+            get() = sharedPref.getInt("files_choice", -1)
+            set(value) {
+                with(sharedPref.edit()) {
+                    putInt("files_choice", value)
+                    apply()
+                }
+            }
     }
+
 }

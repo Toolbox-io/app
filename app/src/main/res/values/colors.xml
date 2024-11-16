@@ -5,4 +5,6 @@
     <color name="androidPrimaryDark">#80cbc4</color>
     <color name="androidPrimary">@color/androidPrimaryLight</color>
     <color name="white">#fff</color>
+    <color name="filesIconBg">#ff4688f2</color>
+    <color name="filesBg">#FDFDFD</color>
 </resources>

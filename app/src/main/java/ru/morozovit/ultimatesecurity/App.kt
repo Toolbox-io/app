@@ -3,6 +3,7 @@ package ru.morozovit.ultimatesecurity
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
+import ru.morozovit.ultimatesecurity.Settings.Shortcuts.files
 
 
 class App : Application() {
@@ -18,5 +19,6 @@ class App : Application() {
         super.onCreate()
         mContext = applicationContext
         Settings.init()
+        if (!files) files = false
     }
 }

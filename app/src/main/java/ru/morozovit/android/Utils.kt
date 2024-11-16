@@ -1,7 +1,8 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "NOTHING_TO_INLINE")
 package ru.morozovit.android
 
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_MAIN
@@ -13,16 +14,22 @@ import android.service.quicksettings.Tile
 import android.text.Editable
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.MarginLayoutParams
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import android.view.ViewTreeObserver.OnPreDrawListener
 import android.view.animation.AnimationUtils.loadAnimation
 import android.widget.EditText
 import androidx.annotation.AnimRes
 import androidx.annotation.StringRes
+import androidx.core.view.updateLayoutParams
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlin.reflect.KClass
 
-val screenWidth: Int get() = Resources.getSystem().displayMetrics.widthPixels
-val screenHeight: Int get() = Resources.getSystem().displayMetrics.heightPixels
+val screenWidth: Int inline get() = Resources.getSystem().displayMetrics.widthPixels
+val screenHeight: Int inline get() = Resources.getSystem().displayMetrics.heightPixels
 
 fun appName(context: Context, packageName: String): String? {
     try {
@@ -53,12 +60,12 @@ fun Context.fileExists(contentUri: Uri): Boolean {
     }
 }
 
-fun Context.fileExists(contentUri: String) = fileExists(Uri.parse(contentUri))
+inline fun Context.fileExists(contentUri: String) = fileExists(Uri.parse(contentUri))
 
-fun Fragment.homeScreen() = requireActivity().homeScreen()
+inline fun Fragment.homeScreen() = requireActivity().homeScreen()
 
-fun Editable?.toInt() = toString().toInt()
-fun EditText.toInt() = text.toInt()
+inline fun Editable?.toInt() = toString().toInt()
+inline fun EditText.toInt() = text.toInt()
 
 val View.screenX: Int get() {
     val arr = intArrayOf(0, 0)
@@ -90,28 +97,146 @@ fun Activity.setWindowFlag(bits: Int, on: Boolean) {
     win.attributes = winParams
 }
 
-fun async(exec: () -> Unit) = Thread(exec).apply {
-    start()
-}
+fun async(exec: () -> Unit) = Thread(exec).apply {start()}
 
-fun MaterialAlertDialogBuilder.setNeutralButton(text: CharSequence)
+inline fun MaterialAlertDialogBuilder.setNeutralButton(text: CharSequence)
     = setNeutralButton(text, null)
-fun MaterialAlertDialogBuilder.setNeutralButton(@StringRes textRes: Int)
+inline fun MaterialAlertDialogBuilder.setNeutralButton(@StringRes textRes: Int)
     = setNeutralButton(textRes, null)
 
-fun MaterialAlertDialogBuilder.setNegativeButton(text: CharSequence)
+inline fun MaterialAlertDialogBuilder.setNegativeButton(text: CharSequence)
         = setNegativeButton(text, null)
-fun MaterialAlertDialogBuilder.setNegativeButton(@StringRes textRes: Int)
+inline fun MaterialAlertDialogBuilder.setNegativeButton(@StringRes textRes: Int)
         = setNegativeButton(textRes, null)
 
-fun MaterialAlertDialogBuilder.setPositiveButton(text: CharSequence)
+inline fun MaterialAlertDialogBuilder.setPositiveButton(text: CharSequence)
         = setPositiveButton(text, null)
-fun MaterialAlertDialogBuilder.setPositiveButton(@StringRes textRes: Int)
+inline fun MaterialAlertDialogBuilder.setPositiveButton(@StringRes textRes: Int)
         = setPositiveButton(textRes, null)
 
-fun View.startAnimation(@AnimRes animRes: Int) = startAnimation(loadAnimation(context, animRes))
+inline fun View.startAnimation(@AnimRes animRes: Int) = startAnimation(loadAnimation(context, animRes))
 
 inline fun Tile.configure(apply: Tile.() -> Unit) {
     apply.invoke(this)
     updateTile()
 }
+
+fun View.createBlankClone(
+    includeMargins: Boolean = true,
+    fixedWidth: Boolean = false
+): View {
+    val v = View(context)
+
+
+    var width = width
+    var height = height
+
+    fun setParams() {
+        if (layoutParams is MarginLayoutParams && includeMargins) {
+            val p = layoutParams as MarginLayoutParams
+            width += p.leftMargin + p.rightMargin
+            height += p.topMargin + p.bottomMargin
+        }
+        if (!fixedWidth) {
+            if (layoutParams.width == MATCH_PARENT) {
+                width = MATCH_PARENT
+            }
+            if (layoutParams.height == MATCH_PARENT) {
+                height = MATCH_PARENT
+            }
+        }
+    }
+
+    if (layoutParams == null)
+        addOneTimeOnGlobalLayoutListener(::setParams)
+    else
+        setParams()
+
+    v.addOneTimeOnGlobalLayoutListener {
+        updateLayoutParams {
+            this.width = width
+            this.height = height
+        }
+    }
+    return v
+}
+
+inline fun View.addOneTimeOnGlobalLayoutListener(crossinline listener: () -> Unit) {
+    viewTreeObserver.addOnGlobalLayoutListener(object: OnGlobalLayoutListener {
+        override fun onGlobalLayout() {
+            listener()
+            viewTreeObserver.removeOnGlobalLayoutListener(this)
+        }
+    })
+}
+
+inline fun View.addOneTimeOnPreDrawListener(crossinline listener: () -> Boolean) {
+    viewTreeObserver.addOnPreDrawListener(object: OnPreDrawListener {
+        override fun onPreDraw(): Boolean {
+            viewTreeObserver.removeOnPreDrawListener(this)
+            return listener()
+        }
+    })
+}
+
+inline val View.parentViewGroup get() = parent as ViewGroup
+
+inline fun View.removeSelf() = parentViewGroup.removeView(this)
+inline val View.pos get() = parentViewGroup.indexOfChild(this)
+
+fun Context.launchFiles(): Boolean {
+    val primaryStorageUri = Uri.parse(
+        "content://com.android.externalstorage.documents/root/primary"
+    )
+    fun launchIntent(intent: Intent): Boolean {
+        try {
+            startActivity(intent)
+            return true
+        } catch (th: Throwable) {
+            return false
+        }
+    }
+    fun launchIntentWithComponent(action: String, componentName: ComponentName? = null):
+            Boolean {
+        val intent = Intent(action, primaryStorageUri)
+        if (componentName != null) {
+            intent.setComponent(componentName)
+        }
+        return launchIntent(intent)
+    }
+    fun intent1() = launchIntentWithComponent(
+        Intent.ACTION_VIEW,
+        ComponentName(
+            "com.google.android.documentsui",
+            "com.android.documentsui.files.FilesActivity"
+        )
+    )
+    fun intent2() = launchIntentWithComponent(
+        Intent.ACTION_VIEW,
+        ComponentName(
+            "com.android.documentsui",
+            "com.android.documentsui.files.FilesActivity"
+        )
+    )
+    fun intent3() = launchIntentWithComponent(
+        Intent.ACTION_VIEW,
+        ComponentName(
+            "com.android.documentsui",
+            "com.android.documentsui.FilesActivity"
+        )
+    )
+    fun intent4() = launchIntentWithComponent(Intent.ACTION_VIEW)
+    fun intent5() = launchIntentWithComponent("android.provider.action.BROWSE")
+    fun intent6() = launchIntentWithComponent("android.provider.action.BROWSE_DOCUMENT_ROOT")
+
+    return intent1() || intent2() || intent3() || intent4() || intent5() || intent6()
+}
+inline fun Fragment.launchFiles() = requireActivity().launchFiles()
+
+inline fun Fragment.getSystemService(name: String): Any? = requireActivity().getSystemService(name)
+inline fun <T> Fragment.getSystemService(cls: Class<T>): T? = requireActivity().getSystemService(cls)
+
+inline fun <T: Any> Context.getSystemService(cls: KClass<T>): T? = getSystemService(cls.java)
+inline fun <T: Any> Fragment.getSystemService(cls: KClass<T>): T? = requireActivity().getSystemService(cls)
+
+inline val Fragment.supportFragmentManager get() = requireActivity().supportFragmentManager

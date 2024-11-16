@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<!--suppress DeprecatedClassUsageInspection -->
+<GridLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:padding="10dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="10dp"
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <com.google.android.material.card.MaterialCardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
@@ -14,35 +15,48 @@
             android:padding="10dp"
             android:orientation="vertical"
             android:gravity="center_horizontal">
+
             <androidx.cardview.widget.CardView
+                android:id="@+id/shortcuts_files_card"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                app:cardCornerRadius="30dp"
-                android:shape="ring"
-                android:id="@+id/shortcuts_files_card"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:shape="ring"
+                app:cardCornerRadius="30dp"
+                tools:ignore="SpeakableTextPresentCheck">
+
                 <ImageView
+                    android:id="@+id/shortcuts_files"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:importantForAccessibility="no"
-                    android:src="@drawable/app_icon"
-                    android:scaleType="centerCrop"
-                    android:id="@+id/shortcuts_files"
                     android:clickable="true"
-                    android:focusable="true" />
+                    android:focusable="true"
+                    android:importantForAccessibility="no"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/app_icon"
+                    tools:ignore="ImageContrastCheck" />
             </androidx.cardview.widget.CardView>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:text="Files"
-                android:layout_marginTop="5dp" />
+                android:layout_marginTop="5dp"
+                android:id="@+id/shortcuts_files_label" />
             <Button
                 style="@style/Widget.Material3.Button.TextButton.Icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/add"
-                app:icon="@drawable/add" />
+                app:icon="@drawable/add"
+                android:id="@+id/shortcuts_files_add" />
+            <Button
+                style="@style/Widget.Material3.Button.TextButton.Icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ri"
+                app:icon="@drawable/delete"
+                android:id="@+id/shortcuts_files_ri" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </GridLayout>

@@ -108,4 +108,20 @@
     <string name="tiles">Tiles</string>
     <string name="shortcuts">Shortcuts</string>
     <string name="sleep">Sleep</string>
+    <string name="failed_to_launch_files">Failed to launch the Files app. It may not exist on your device.</string>
+    <string name="files">Files</string>
+    <string name="ht_add_sc">How to add the shortcut?</string>
+    <string name="asas">As a shortcut</string>
+    <string name="asasa">As a separate app</string>
+    <string name="continue1">Continue</string>
+    <string name="rc">Remember your choice</string>
+    <string name="smthwentwrong">Something went wrong. Select an option and try again.</string>
+    <string name="fsh">
+        A \"Files\" icon was created in the launcher. You can always disable it by pressing
+        "Remove icon" on the shortcut in the app.
+    </string>
+    <string name="cr">Your choice was remembered. If you want to change it, long press \"Add\".</string>
+    <string name="ri">Remove icon</string>
+    <string name="ir">The icon was removed. To add it again, press \"Add\" and choose \"As a separate app\".</string>
+    <string name="tiles_beta">Tiles (Beta)</string>
 </resources>
