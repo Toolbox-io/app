@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import androidx.navigation.NavController
@@ -38,15 +37,15 @@ class MainActivity : BaseActivity(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
         // Start update checker
         try {
             UpdateChecker.schedule(this)
         } catch (e: Exception) {
             Log.e("MainActivity", "${e::class.qualifiedName}: ${e.message}")
         }
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // Navigation
         setSupportActionBar(binding.toolbar)
@@ -73,16 +72,27 @@ class MainActivity : BaseActivity(
 
         // Notifications
         if (Build.VERSION.SDK_INT >= 33) {
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                Snackbar.make(binding.rootView, R.string.grant_notification, Snackbar.LENGTH_LONG)
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                Snackbar.make(
+                    binding.rootView,
+                    R.string.grant_notification,
+                    Snackbar.LENGTH_LONG
+                )
                     .setAction(R.string.grant) {
-                        ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 101);
+                        requestPermissions(
+                            arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                            101
+                        )
                     }
                     .show()
             }
         }
 
-        startEnterAnimation(binding.root)
+        if (!pendingAuth) startEnterAnimation(binding.root)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -143,7 +153,7 @@ class MainActivity : BaseActivity(
 
     override fun onResume() {
         super.onResume()
-        updateLock()
+        if (!pendingAuth) updateLock()
     }
 
     fun updateLock(

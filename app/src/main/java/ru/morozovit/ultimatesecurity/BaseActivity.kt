@@ -20,7 +20,8 @@ import ru.morozovit.ultimatesecurity.App.Companion.authenticated
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
 import ru.morozovit.ultimatesecurity.ui.AuthActivity
-import ru.morozovit.ultimatesecurity.ui.AuthActivity.Companion.started
+import ru.morozovit.ultimatesecurity.ui.MainActivity
+import ru.morozovit.utils.ExceptionParser.Companion.eToString
 import java.lang.Thread.sleep
 
 @Suppress("unused")
@@ -56,7 +57,9 @@ abstract class BaseActivity(
                 field = value
             }
 
-        private inline fun startAuth(apply: Intent.() -> Unit) {
+        private const val TAG = "BaseActivity"
+
+        private inline fun startAuth(apply: Intent.() -> Unit = {}) {
             currentActivity!!.startActivity(
                 Intent(currentActivity!!, AuthActivity::class.java)
                     .apply {
@@ -67,11 +70,10 @@ abstract class BaseActivity(
             )
         }
 
-        private fun startAuth() = startAuth {}
-
-        fun scheduleAuth(noAnim: Boolean = true) {
+        fun scheduleAuth(noAnim: Boolean = true, setPendingAuth: Boolean = false) {
             with(currentActivity!!) {
                 Log.d("Auth", "Scheduling auth")
+                if (setPendingAuth) currentActivity!!.pendingAuth = true
                 if (hasWindowFocus() || isSplashScreenVisible) {
                     Log.d("Auth", "Authenticating now.")
                     if (!noAnim) {
@@ -90,6 +92,7 @@ abstract class BaseActivity(
     }
 
     protected var savedInstanceState: Bundle? = null
+    protected var pendingAuth = false
 
     @AnimRes
     private var transitionEnter = 0
@@ -137,7 +140,7 @@ abstract class BaseActivity(
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         currentActivity = this
-        preSplashScreen()
+        preSplashScreen(!(!(authEnabled && globalPassword != "" && globalPasswordEnabled) || this !is MainActivity))
         if (savedInstanceStateEnabled) {
             super.onCreate(savedInstanceState)
         } else {
@@ -145,27 +148,27 @@ abstract class BaseActivity(
             super.onCreate(null)
         }
         if (authEnabled && globalPassword != "" && globalPasswordEnabled) {
-            window.decorView.viewTreeObserver.addOnPreDrawListener(
-                object: OnPreDrawListener {
-                    override fun onPreDraw(): Boolean {
-                        if (started) {
-                            window.decorView.viewTreeObserver.removeOnPreDrawListener(this)
-                            return true
-                        }
-                        return false
-                    }
-                }
-            )
-            auth(false)
+//            window.decorView.viewTreeObserver.addOnPreDrawListener(
+//                object: OnPreDrawListener {
+//                    override fun onPreDraw(): Boolean {
+//                        if (started) {
+//                            window.decorView.viewTreeObserver.removeOnPreDrawListener(this)
+//                            return true
+//                        }
+//                        return false
+//                    }
+//                }
+//            )
+            auth(noAnim = false, setPendingAuth = true)
         }
         this.savedInstanceState = savedInstanceState
     }
 
-    protected fun auth(noAnim: Boolean = true) {
+    protected fun auth(noAnim: Boolean = true, setPendingAuth: Boolean = false) {
         if (currentActivity?.authEnabled == true && globalPassword != "" && !authenticated &&
             globalPasswordEnabled) {
             authenticated = false
-            scheduleAuth(noAnim)
+            scheduleAuth(noAnim, setPendingAuth)
         }
     }
 
@@ -238,10 +241,29 @@ abstract class BaseActivity(
 
     open fun overridePendingTransition() = overridePendingTransition(0, 0)
 
-    private fun preSplashScreen() {
+    private fun preSplashScreen(setTheme: Boolean = false) {
+        Log.d(TAG, "Initializing splash screen, splashScreenDisplayed = $splashScreenDisplayed")
+        if (setTheme) {
+            val typedValue = TypedValue()
+            if (theme.resolveAttribute(androidx.core.splashscreen.R.attr.postSplashScreenTheme,
+                    typedValue, true)) {
+                val themeId = typedValue.resourceId
+                if (themeId != 0) {
+                    setTheme(themeId)
+                    Log.d(TAG, "Theme set successfully")
+                }
+            }
+            Log.wtf(TAG, "Error setting theme. Attribute androidx.core.splashscreen.R.attr" +
+                    ".postSplashScreenTheme wasn't resolved.")
+            return
+        }
+
         if (!splashScreenDisplayed) {
+            Log.d(TAG, "Trying to initialize")
             try {
                 val splashScreen = installSplashScreen()
+
+                Log.d(TAG, "Splash screen not intitialized.")
                 splashScreen.setOnExitAnimationListener { splashScreenView ->
                     isSplashScreenVisible = false
                     splashScreenDisplayed = true
@@ -251,18 +273,27 @@ abstract class BaseActivity(
                         .alpha(0f)
                         .setDuration(250)
                         .withEndAction(splashScreenView::remove)
+                        .start()
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to init splash screen.\n${eToString(e)}")
             }
         } else {
+            Log.d(
+                TAG,
+                "Splash screen is already initialized, setting theme to postSplashScreenTheme"
+            )
             val typedValue = TypedValue()
             if (theme.resolveAttribute(androidx.core.splashscreen.R.attr.postSplashScreenTheme,
                 typedValue, true)) {
                 val themeId = typedValue.resourceId
                 if (themeId != 0) {
                     setTheme(themeId)
+                    Log.d(TAG, "Theme set successfully")
                 }
             }
+            Log.wtf(TAG, "Error setting theme. Attribute androidx.core.splashscreen.R.attr" +
+                    ".postSplashScreenTheme wasn't resolved.")
         }
     }
 
@@ -299,7 +330,7 @@ abstract class BaseActivity(
             authScheduled = false
             startAuth()
         }
-        Log.d("BaseActivity", "Focus changed, hasFocus = $hasFocus")
+        Log.d(TAG, "Focus changed, hasFocus = $hasFocus")
     }
 
     protected open fun startEnterAnimation(root: View) {

@@ -251,7 +251,7 @@ class AuthActivity: BaseActivity(false) {
                 ?.start()
         }
 
-        startEnterAnimation(binding.root)
+        if (!isSetOrConfirm) startEnterAnimation(binding.root)
     }
 
     @Suppress("OVERRIDE_DEPRECATION")
