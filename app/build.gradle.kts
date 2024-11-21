@@ -11,8 +11,8 @@ android {
         applicationId = "ru.morozovit.ultimatesecurity"
         minSdk = 24
         targetSdk = 35
-        versionCode = 23
-        versionName = "1.7.2"
+        versionCode = 24
+        versionName = "1.7.3"
     }
 
     buildTypes {
