@@ -20,6 +20,7 @@ import ru.morozovit.ultimatesecurity.App.Companion.authenticated
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
 import ru.morozovit.ultimatesecurity.ui.AuthActivity
+import ru.morozovit.ultimatesecurity.ui.AuthActivity.Companion.started
 import ru.morozovit.ultimatesecurity.ui.MainActivity
 import ru.morozovit.utils.ExceptionParser.Companion.eToString
 import java.lang.Thread.sleep
@@ -262,6 +263,13 @@ abstract class BaseActivity(
                             isSplashScreenVisible = false
                         }
                         .start()
+                }
+                splashScreen.setKeepOnScreenCondition {
+                    if (authEnabled && globalPassword != "" && globalPasswordEnabled) {
+                        started
+                    } else {
+                        false
+                    }
                 }
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to init splash screen.\n${eToString(e)}")
