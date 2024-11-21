@@ -177,4 +177,11 @@ class MainActivity : BaseActivity(
         }
         interactionDetector()
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        authenticated = false
+        splashScreenDisplayed = false
+        isSplashScreenVisible = true
+    }
 }

@@ -45,10 +45,11 @@ abstract class BaseActivity(
         private var currentActivity: BaseActivity? = null
         private var authScheduled = false
         protected var authScheduled2 = false
-        private var splashScreenDisplayed = false
+
+        var splashScreenDisplayed = false
+
         private var splashScreenCounter = 0
-        @JvmStatic
-        protected var isSplashScreenVisible = true
+        var isSplashScreenVisible = true
             set(value) {
                 if (authScheduled2 && !value) {
                     authScheduled2 = false
@@ -238,6 +239,8 @@ abstract class BaseActivity(
             super.finishAfterTransition()
         }
     }
+
+    open fun finishAfterSceneTransition() = super.finishAfterTransition()
 
     open fun finishAfterTransitionReverse() = finishAfterTransition(transitionEnter, transitionExit)
 

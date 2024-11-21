@@ -40,6 +40,7 @@
     <style name="Theme.UltimateSecurity.ImageViewer" parent="Theme.UltimateSecurity.Night.NoActionBar">
         <item name="android:windowSharedElementEnterTransition">@transition/img</item>
         <item name="android:windowSharedElementExitTransition">@transition/img</item>
+        <item name="android:statusBarColor">?attr/colorSurface</item>
     </style>
 
     <style name="Theme.UltimateSecurity.MainActivity" parent="Theme.UltimateSecurity.NoActionBar">

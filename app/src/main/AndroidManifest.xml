@@ -103,7 +103,8 @@
             android:icon="@mipmap/files_icon"
             android:label="@string/files"
             android:excludeFromRecents="true"
-            android:taskAffinity="ru.morozovit.ultimatesecurity.ui.customization.shortcuts.FilesActivity">
+            android:taskAffinity="ru.morozovit.ultimatesecurity.ui.customization.shortcuts.FilesActivity"
+            android:enabled="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

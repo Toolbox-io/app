@@ -37,15 +37,13 @@ class IntruderPhotoActivity: BaseActivity(false) {
             true
         }
         data = null
-        binding.upActionsIpVTb.setNavigationOnClickListener {
-            onBackPressed()
-        }
+        binding.upActionsIpVTb.setNavigationOnClickListener { onBackPressed() }
     }
 
     @Suppress("OVERRIDE_DEPRECATION")
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
         setResult(RESULT_OK)
-        finishAfterTransition()
+        finishAfterSceneTransition()
     }
 }
