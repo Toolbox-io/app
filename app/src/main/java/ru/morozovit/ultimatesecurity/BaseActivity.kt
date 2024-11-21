@@ -45,6 +45,7 @@ abstract class BaseActivity(
         private var authScheduled = false
         protected var authScheduled2 = false
         private var splashScreenDisplayed = false
+        private var splashScreenCounter = 0
         @JvmStatic
         protected var isSplashScreenVisible = true
             set(value) {
@@ -242,37 +243,24 @@ abstract class BaseActivity(
     open fun overridePendingTransition() = overridePendingTransition(0, 0)
 
     private fun preSplashScreen(setTheme: Boolean = false) {
-        Log.d(TAG, "Initializing splash screen, splashScreenDisplayed = $splashScreenDisplayed")
-        if (setTheme) {
-            val typedValue = TypedValue()
-            if (theme.resolveAttribute(androidx.core.splashscreen.R.attr.postSplashScreenTheme,
-                    typedValue, true)) {
-                val themeId = typedValue.resourceId
-                if (themeId != 0) {
-                    setTheme(themeId)
-                    Log.d(TAG, "Theme set successfully")
-                }
-            }
-            Log.wtf(TAG, "Error setting theme. Attribute androidx.core.splashscreen.R.attr" +
-                    ".postSplashScreenTheme wasn't resolved.")
-            return
-        }
-
-        if (!splashScreenDisplayed) {
+        if (!splashScreenDisplayed && !setTheme) {
             Log.d(TAG, "Trying to initialize")
             try {
                 val splashScreen = installSplashScreen()
 
                 Log.d(TAG, "Splash screen not intitialized.")
                 splashScreen.setOnExitAnimationListener { splashScreenView ->
-                    isSplashScreenVisible = false
+                    splashScreenCounter++
                     splashScreenDisplayed = true
                     splashScreenView.view.animate()
                         .scaleX(3f)
                         .scaleY(3f)
                         .alpha(0f)
                         .setDuration(250)
-                        .withEndAction(splashScreenView::remove)
+                        .withEndAction {
+                            splashScreenView.remove()
+                            isSplashScreenVisible = false
+                        }
                         .start()
                 }
             } catch (e: Exception) {
@@ -291,9 +279,12 @@ abstract class BaseActivity(
                     setTheme(themeId)
                     Log.d(TAG, "Theme set successfully")
                 }
+            } else {
+                Log.wtf(
+                    TAG, "Error setting theme. Attribute androidx.core.splashscreen.R.attr" +
+                            ".postSplashScreenTheme wasn't resolved."
+                )
             }
-            Log.wtf(TAG, "Error setting theme. Attribute androidx.core.splashscreen.R.attr" +
-                    ".postSplashScreenTheme wasn't resolved.")
         }
     }
 

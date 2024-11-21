@@ -11,6 +11,7 @@ import android.view.ViewTreeObserver
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.ActivityResult
+import androidx.core.view.postDelayed
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
 import ru.morozovit.android.homeScreen
@@ -59,10 +60,11 @@ class AuthActivity: BaseActivity(false) {
             finish()
             return
         }
-        if (setStarted) started = true
 
         if (!isSetOrConfirm && !isSplashScreenVisible)
             overridePendingTransition(R.anim.alpha_up, R.anim.scale_up)
+        else if (isSplashScreenVisible)
+            overridePendingTransition()
 
         if (isSplashScreenVisible) overridePendingTransition()
 
@@ -252,6 +254,9 @@ class AuthActivity: BaseActivity(false) {
         }
 
         if (!isSetOrConfirm) startEnterAnimation(binding.root)
+        binding.root.postDelayed(250) {
+            if (setStarted) started = true
+        }
     }
 
     @Suppress("OVERRIDE_DEPRECATION")

@@ -1,11 +1,19 @@
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+
 package ru.morozovit.utils
 
 import java.io.PrintWriter
 import java.io.StringWriter
 
+typealias ExcParser = ExceptionParser
+typealias EParser = ExceptionParser
+
 class ExceptionParser(val exception: Throwable) {
     companion object {
         fun eToString(e: Throwable) = "${ExceptionParser(e)}"
+
+        @JvmStatic
+        infix fun string(e: Throwable) = eToString(e)
     }
 
     val message get() = exception.message ?: ""
@@ -56,4 +64,9 @@ class ExceptionParser(val exception: Throwable) {
         result = 31 * result + (causeParser?.hashCode() ?: 0)
         return result
     }
+
+    fun thr(): Nothing = throw exception
 }
+
+fun Exception.asString() = "${EParser(this)}"
+fun Exception.asStr() = asString()

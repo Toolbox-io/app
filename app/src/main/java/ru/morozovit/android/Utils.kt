@@ -20,8 +20,10 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.ViewTreeObserver.OnPreDrawListener
 import android.view.animation.AnimationUtils.loadAnimation
 import android.widget.EditText
+import androidx.activity.result.ActivityResult
 import androidx.annotation.AnimRes
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.updateLayoutParams
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
@@ -240,3 +242,8 @@ inline fun <T: Any> Context.getSystemService(cls: KClass<T>): T? = getSystemServ
 inline fun <T: Any> Fragment.getSystemService(cls: KClass<T>): T? = requireActivity().getSystemService(cls)
 
 inline val Fragment.supportFragmentManager get() = requireActivity().supportFragmentManager
+
+typealias ActivityLauncher = BetterActivityResult<Intent, ActivityResult>
+typealias ActivityResultLauncher = ActivityLauncher
+
+val AppCompatActivity.activityResultLauncher get() = BetterActivityResult.registerActivityForResult(this)

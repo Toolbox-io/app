@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.ViewTreeObserver
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import androidx.navigation.NavController
@@ -25,6 +26,7 @@ import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
 import ru.morozovit.ultimatesecurity.databinding.ActivityMainBinding
 import ru.morozovit.ultimatesecurity.services.UpdateChecker
+import ru.morozovit.ultimatesecurity.ui.AuthActivity.Companion.started
 
 class MainActivity : BaseActivity(
     backButtonBehavior = Companion.BackButtonBehavior.DEFAULT,
@@ -46,6 +48,17 @@ class MainActivity : BaseActivity(
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        if (pendingAuth) {
+            binding.root.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    if (started) {
+                        binding.root.viewTreeObserver.removeOnPreDrawListener(this)
+                    }
+                    return false
+                }
+            })
+        }
 
         // Navigation
         setSupportActionBar(binding.toolbar)

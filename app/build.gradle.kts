@@ -10,12 +10,9 @@ android {
     defaultConfig {
         applicationId = "ru.morozovit.ultimatesecurity"
         minSdk = 24
-        //noinspection OldTargetApi
         targetSdk = 35
         versionCode = 23
         versionName = "1.7.2"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -53,5 +50,4 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.gson)
     implementation(libs.androidx.exifinterface)
-    testImplementation(libs.junit)
 }
