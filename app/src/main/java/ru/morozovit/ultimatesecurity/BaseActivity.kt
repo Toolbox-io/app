@@ -241,9 +241,7 @@ abstract class BaseActivity(
     }
 
     open fun finishAfterSceneTransition() = super.finishAfterTransition()
-
     open fun finishAfterTransitionReverse() = finishAfterTransition(transitionEnter, transitionExit)
-
     open fun overridePendingTransition() = overridePendingTransition(0, 0)
 
     private fun preSplashScreen(setTheme: Boolean = false) {

@@ -4,21 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
     app:startDestination="@+id/nav_home">
+    <!-- Main -->
     <fragment
         android:id="@+id/nav_home"
         android:name="ru.morozovit.ultimatesecurity.ui.main.HomeFragment"
         android:label="@string/home"
         tools:layout="@layout/home" />
-    <fragment
-        android:id="@+id/nav_applocker"
-        android:name="ru.morozovit.ultimatesecurity.ui.protection.applocker.ApplockerFragment"
-        android:label="@string/applocker"
-        tools:layout="@layout/applocker" />
-    <fragment
-        android:id="@+id/nav_unlock_protection"
-        android:name="ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.UnlockProtectionFragment"
-        android:label="@string/unlock_protection"
-        tools:layout="@layout/unlock_protection" />
     <fragment
         android:id="@+id/nav_settings"
         android:name="ru.morozovit.ultimatesecurity.ui.main.SettingsFragment"
@@ -29,6 +20,20 @@
         android:label="@string/website"
         app:action="android.intent.action.VIEW"
         app:data="https://denis0001-dev.github.io/AIP-Website" />
+
+    <!-- Security -->
+    <fragment
+        android:id="@+id/nav_applocker"
+        android:name="ru.morozovit.ultimatesecurity.ui.protection.applocker.ApplockerFragment"
+        android:label="@string/applocker"
+        tools:layout="@layout/applocker" />
+    <fragment
+        android:id="@+id/nav_unlock_protection"
+        android:name="ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.UnlockProtectionFragment"
+        android:label="@string/unlock_protection"
+        tools:layout="@layout/unlock_protection" />
+
+    <!-- Customization -->
     <fragment
         android:id="@+id/nav_tiles"
         android:label="@string/tiles"
@@ -40,4 +45,11 @@
         android:label="@string/shortcuts"
         android:name="ru.morozovit.ultimatesecurity.ui.customization.shortcuts.ShortcutsFragment"
         tools:layout="@layout/shortcuts" />
+
+    <!-- Tools -->
+    <fragment
+        android:id="@+id/nav_flasher"
+        android:label="@string/flasher"
+        android:name="ru.morozovit.ultimatesecurity.ui.tools.FlasherFragment"
+        tools:layout="@layout/flasher" />
 </navigation>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="5dp"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="?attr/selectableItemBackground">
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/flasher_device_rb" />
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="@string/usb_device"
+        android:src="@drawable/usb_device" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Kingston DataTraveler 2.0"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:id="@+id/flasher_device_name" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            tools:text="/dev/bus/usb/1001"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?android:attr/textColorSecondary"
+            android:id="@+id/flasher_device_path" />
+    </LinearLayout>
+</LinearLayout>

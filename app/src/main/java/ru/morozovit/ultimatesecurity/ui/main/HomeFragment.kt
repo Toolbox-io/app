@@ -141,7 +141,7 @@ class HomeFragment : Fragment() {
 
     @SuppressLint("StaticFieldLeak")
     inner class UpdateChecker: AsyncTask<Any, Unit, Unit>() {
-        override fun doInBackground(vararg args: Any? /* binding: HomeBinding, context: Activity */) {
+        override fun doInBackground(vararg args: Any /* binding: HomeBinding, context: Activity */) {
             val binding: HomeBinding = args[0] as HomeBinding
             val context: Activity = args[1] as Activity
 

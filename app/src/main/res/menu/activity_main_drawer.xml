@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view"
     android:checkableBehavior="single">
@@ -13,6 +14,10 @@
         android:icon="@drawable/settings"
         android:title="@string/settings"
         android:checkable="true" />
+    <item
+        android:id="@+id/nav_website"
+        android:icon="@drawable/internet"
+        android:title="@string/website" />
 
     <item
         android:id="@+id/security_items"
@@ -31,7 +36,8 @@
                 android:checkable="true" />
         </menu>
     </item>
-    <item android:id="@+id/customization_items"
+    <item
+        android:id="@+id/customization_items"
         android:title="@string/customization"
         android:checkableBehavior="single">
         <menu android:checkableBehavior="single">
@@ -44,6 +50,19 @@
                 android:id="@+id/nav_shortcuts"
                 android:title="@string/shortcuts"
                 android:icon="@drawable/shortcut"
+                android:checkable="true" />
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/tools_items"
+        android:title="@string/tools"
+        android:checkableBehavior="single">
+        <menu android:checkableBehavior="single">
+            <item
+                android:id="@+id/nav_flasher"
+                android:title="@string/flasher"
+                android:icon="@drawable/usb"
                 android:checkable="true" />
         </menu>
     </item>

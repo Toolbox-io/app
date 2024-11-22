@@ -118,4 +118,13 @@
     <string name="tiles_beta">Плитки (Бета)</string>
     <string name="install_package">Установить пакет</string>
     <string name="install_package_d">Новая версия готова к установке. Установить?\nВам будет необходимо предоставить разрешение "Установка из неизвестных источников", чтобы продолжить.</string>
+    <string name="tools">Инструменты</string>
+    <string name="flasher">Запись USB</string>
+    <string name="select_device">Выберите устройство</string>
+    <string name="select_device_d">Выберите устройство, которое будет использоваться для того, чтобы записать ваш образ</string>
+    <string name="usb_device">USB-устройство</string>
+    <string name="choose_image">Выберите образ</string>
+    <string name="choose_image_d">Выберите образ, который будет записан на устройство из файловой системы</string>
+    <string name="choose">Выбрать</string>
+    <string name="start">Начать</string>
 </resources>

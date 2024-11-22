@@ -62,24 +62,23 @@ class MainActivity : BaseActivity(
 
         // Navigation
         setSupportActionBar(binding.toolbar)
-        val drawerLayout = binding.drawerLayout
-        val navView = binding.navView
         navController = findNavController(R.id.nav_host_fragment_content_main)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_home,
-                R.id.nav_applocker,
-                R.id.nav_unlock_protection,
                 R.id.nav_settings,
                 R.id.nav_website,
+                R.id.nav_unlock_protection,
+                R.id.nav_applocker,
                 R.id.nav_tiles,
-                R.id.nav_shortcuts
-            ), drawerLayout
+                R.id.nav_shortcuts,
+                R.id.nav_flasher
+            ), binding.drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
+        binding.navView.setupWithNavController(navController)
 
         navController.navigate(intent.getIntExtra("nav", R.id.nav_home))
 
@@ -160,9 +159,9 @@ class MainActivity : BaseActivity(
         }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
+    override fun onSupportNavigateUp() =
+        navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+
 
     override fun onResume() {
         super.onResume()
