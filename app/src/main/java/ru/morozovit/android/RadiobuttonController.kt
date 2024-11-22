@@ -2,6 +2,7 @@ package ru.morozovit.android
 
 import android.widget.RadioButton
 
+@Suppress("MemberVisibilityCanBePrivate", "unused")
 class RadioButtonController(private val radioButtons: MutableList<RadioButton> = mutableListOf()) {
     private fun check(index: Int) {
         if (index in radioButtons.indices) {
