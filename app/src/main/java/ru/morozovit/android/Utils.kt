@@ -9,7 +9,10 @@ import android.content.Intent.ACTION_MAIN
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.hardware.usb.UsbEndpoint
+import android.hardware.usb.UsbInterface
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.service.quicksettings.Tile
 import android.text.Editable
 import android.view.View
@@ -28,7 +31,9 @@ import androidx.core.view.updateLayoutParams
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.util.regex.Pattern
 import kotlin.reflect.KClass
+
 
 val screenWidth: Int inline get() = Resources.getSystem().displayMetrics.widthPixels
 val screenHeight: Int inline get() = Resources.getSystem().displayMetrics.heightPixels
@@ -247,3 +252,55 @@ typealias ActivityLauncher = BetterActivityResult<Intent, ActivityResult>
 typealias ActivityResultLauncher = ActivityLauncher
 
 val AppCompatActivity.activityResultLauncher get() = BetterActivityResult.registerActivityForResult(this)
+
+
+
+fun getOpenDocumentIntent(vararg fileTypes: String) =
+    Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+        addCategory(Intent.CATEGORY_OPENABLE)
+        if (fileTypes.size == 1) {
+            type = fileTypes[0]
+        } else {
+            type = "*/*"
+            putExtra(Intent.EXTRA_MIME_TYPES, fileTypes)
+        }
+    }
+
+fun Context.getFileName(uri: Uri): String {
+    if (uri.scheme == "content") {
+        contentResolver.query(
+            uri,
+            null,
+            null,
+            null,
+            null
+        )!!.use { cursor ->
+            if (cursor.moveToFirst()) {
+                return cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
+            }
+        }
+    } else {
+        throw UnsupportedOperationException("Cannot process non-\"content://\" URIs")
+    }
+    return uri.lastPathSegment.let { name ->
+        name!!
+        val matcher = Pattern.compile("\\w+:(.*/)*(.*)").matcher(name)
+        if (matcher.find()) {
+            matcher.group(2)
+        } else {
+            name
+        }
+    }
+}
+
+inline fun Fragment.getFileName(uri: Uri) = requireActivity().getFileName(uri)
+
+val UsbInterface.endpointList: List<UsbEndpoint> get() {
+    val list = mutableListOf<UsbEndpoint>()
+    for (i in 0 until endpointCount) {
+        list.add(getEndpoint(i))
+    }
+    return list.toList()
+}
+
+fun Int.toDp(resources: Resources) = this * resources.displayMetrics.density

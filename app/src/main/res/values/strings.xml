@@ -135,4 +135,15 @@
     <string name="choose_image_d">Choose an image to flash to the selected device from your file system</string>
     <string name="choose">Choose</string>
     <string name="start">Start</string>
+    <string name="flash_error">Can\'t flash</string>
+    <string name="flash_error_d">The image cannot be flashed because of the following reason:</string>
+    <string name="no_image_chosen">No image was chosen.</string>
+    <string name="no_device_selected">No device was selected.</string>
+    <string name="file_bigger_than_device">The image is bigger than the target device.</string>
+    <string name="unknown_error">Unknown error. Try again, and if you get this again, post an issue on GitHub.</string>
+    <string name="file_bigger_than_device_0b">The image is bigger than the target device. The device is 0 B, so it may be a malfunction.</string>
+    <string name="apkextractor">APK extractor</string>
+    <string name="search_for_apps">Search for apps</string>
+    <string name="system">System apps</string>
+    <string name="user">User apps</string>
 </resources>

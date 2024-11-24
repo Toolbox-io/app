@@ -50,4 +50,5 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.gson)
     implementation(libs.androidx.exifinterface)
+    implementation(libs.core)
 }

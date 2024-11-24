@@ -63,6 +63,12 @@
                 android:id="@+id/nav_flasher"
                 android:title="@string/flasher"
                 android:icon="@drawable/usb"
+                android:checkable="false"
+                android:enabled="false" />
+            <item
+                android:id="@+id/nav_apkextractor"
+                android:title="@string/apkextractor"
+                android:icon="@drawable/apk"
                 android:checkable="true" />
         </menu>
     </item>

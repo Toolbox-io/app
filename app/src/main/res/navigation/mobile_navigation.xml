@@ -39,7 +39,6 @@
         android:label="@string/tiles"
         android:name="ru.morozovit.ultimatesecurity.ui.customization.TilesFragment"
         tools:layout="@layout/tiles" />
-
     <fragment
         android:id="@+id/nav_shortcuts"
         android:label="@string/shortcuts"
@@ -52,4 +51,9 @@
         android:label="@string/flasher"
         android:name="ru.morozovit.ultimatesecurity.ui.tools.FlasherFragment"
         tools:layout="@layout/flasher" />
+    <fragment
+        android:id="@+id/nav_apkextractor"
+        android:label="@string/apkextractor"
+        android:name="ru.morozovit.ultimatesecurity.ui.tools.ApkExtractorFragment"
+        tools:layout="@layout/apk_extractor" />
 </navigation>

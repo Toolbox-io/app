@@ -74,7 +74,8 @@ class MainActivity : BaseActivity(
                 R.id.nav_applocker,
                 R.id.nav_tiles,
                 R.id.nav_shortcuts,
-                R.id.nav_flasher
+                R.id.nav_flasher,
+                R.id.nav_apkextractor
             ), binding.drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
