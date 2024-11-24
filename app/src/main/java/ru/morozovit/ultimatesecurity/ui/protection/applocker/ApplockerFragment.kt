@@ -18,14 +18,14 @@ import com.google.android.material.snackbar.Snackbar
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.homeScreen
 import ru.morozovit.android.ui.makeSwitchCard
-import ru.morozovit.ultimatesecurity.services.Accessibility
-import ru.morozovit.ultimatesecurity.services.Accessibility.Companion.waitingForAccessibility
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.Applocker.getUnlockModeDescription
 import ru.morozovit.ultimatesecurity.Settings.Applocker.unlockMode
 import ru.morozovit.ultimatesecurity.Settings.accessibility
 import ru.morozovit.ultimatesecurity.databinding.ApplockerBinding
+import ru.morozovit.ultimatesecurity.services.Accessibility
+import ru.morozovit.ultimatesecurity.services.Accessibility.Companion.waitingForAccessibility
 import java.lang.Thread.sleep
 
 
@@ -46,7 +46,6 @@ class ApplockerFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // TODO fix android 11 bug with accesibility service
         activityLauncher = BetterActivityResult.registerActivityForResult(this)
         with(binding) {
             makeSwitchCard(applockerSwitchCard, applockerSwitch)
