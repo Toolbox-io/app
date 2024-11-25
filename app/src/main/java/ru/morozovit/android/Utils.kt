@@ -15,16 +15,19 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import android.service.quicksettings.Tile
 import android.text.Editable
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.ViewTreeObserver.OnPreDrawListener
+import android.view.Window
 import android.view.animation.AnimationUtils.loadAnimation
 import android.widget.EditText
 import androidx.activity.result.ActivityResult
 import androidx.annotation.AnimRes
+import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.updateLayoutParams
@@ -304,3 +307,20 @@ val UsbInterface.endpointList: List<UsbEndpoint> get() {
 }
 
 fun Int.toDp(resources: Resources) = this * resources.displayMetrics.density
+
+val Fragment.window: Window? get() = requireActivity().window
+
+fun Activity.resolveAttr(@AttrRes attr: Int): Int? {
+    val typedValue = TypedValue()
+    if (theme.resolveAttribute(attr,
+            typedValue, true)) {
+        val resId = typedValue.resourceId
+        return if (resId != 0) resId else null
+    } else {
+        return null
+    }
+}
+
+fun Fragment.resolveAttr(@AttrRes attr: Int) = requireActivity().resolveAttr(attr)
+
+val Fragment.packageManager: PackageManager get() = requireActivity().packageManager

@@ -7,12 +7,13 @@
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="fontFamily">@font/rethink_sans</item>
         <item name="android:windowTranslucentStatus">false</item>
+
     </style>
 
     <style name="Theme.UltimateSecurity.SplashScreen" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#FCF5FD</item>
         <item name="windowSplashScreenAnimatedIcon">@mipmap/app_icon_round</item>
         <item name="android:windowSplashScreenBackground">#FCF5FD</item>
-        <item name="postSplashScreenTheme">@style/Theme.UltimateSecurity.NoActionBar</item>
+        <item name="postSplashScreenTheme">@style/Theme.UltimateSecurity.MainActivity</item>
     </style>
 </resources>
