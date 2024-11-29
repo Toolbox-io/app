@@ -103,6 +103,9 @@ abstract class BaseActivity(
     private var transitionExit = 0
     private var transitionCalled = false
 
+    var isActive = false
+        private set
+
     protected fun interactionDetector() {
         if (globalPassword != "" && globalPasswordEnabled) {
             interactionDetectorExecutor.execute {
@@ -180,12 +183,14 @@ abstract class BaseActivity(
         super.onResume()
         currentActivity = this
         interactionDetector()
+        isActive = true
     }
 
     @CallSuper
     override fun onPause() {
         super.onPause()
         interactionDetector()
+        isActive = false
     }
 
     @CallSuper
@@ -334,7 +339,7 @@ abstract class BaseActivity(
     }
 
     protected open fun startEnterAnimation(root: View) {
-        if (!intent.getBooleanExtra("noAnim", false)/* && Build.VERSION.SDK_INT >= 31* */) {
+        if (!intent.getBooleanExtra("noAnim", false)/* && Build.VERSION.SDK_INT >= 31* */ && !splashScreenDisplayed) {
             root.viewTreeObserver.addOnPreDrawListener(object: OnPreDrawListener {
                 override fun onPreDraw(): Boolean {
                     root.apply {

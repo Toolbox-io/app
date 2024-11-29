@@ -96,6 +96,15 @@ object Settings {
             }
         }
 
+    var allowBiometric
+        get() = sharedPref.getBoolean("allowBiometric", false)
+        set(value) {
+            with(sharedPref.edit()) {
+                putBoolean("allowBiometric", value)
+                apply()
+            }
+        }
+
     object Applocker: SettingsObj {
         private lateinit var sharedPref: SharedPreferences
         private var init = false

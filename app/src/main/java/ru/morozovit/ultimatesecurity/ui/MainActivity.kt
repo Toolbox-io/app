@@ -1,6 +1,9 @@
 package ru.morozovit.ultimatesecurity.ui
 
+import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -15,9 +18,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import ru.morozovit.android.setNegativeButton
+import ru.morozovit.android.alertDialog
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
@@ -35,6 +37,7 @@ class MainActivity : BaseActivity(
     private lateinit var navController: NavController
 
     private lateinit var binding: ActivityMainBinding
+    private var prevConfig: Configuration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +51,8 @@ class MainActivity : BaseActivity(
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        prevConfig = resources.configuration
 
         if (pendingAuth) {
             binding.root.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
@@ -132,19 +137,19 @@ class MainActivity : BaseActivity(
 
     override fun finish() {
         if (!exitDsa) {
-            MaterialAlertDialogBuilder(this)
-                .setMessage(R.string.exit)
-                .setNeutralButton(R.string.dsa) { _, _ ->
+            alertDialog {
+                message(R.string.exit)
+                neutralButton(R.string.dsa) {
                     exitDsa = true
                     super.finish()
                     authenticated = false
                 }
-                .setNegativeButton(R.string.no)
-                .setPositiveButton(R.string.yes) { _, _ ->
+                negativeButton(R.string.no)
+                positiveButton(R.string.yes) {
                     super.finish()
                     authenticated = false
                 }
-                .show()
+            }
         } else {
             super.finish()
             authenticated = false
@@ -183,5 +188,29 @@ class MainActivity : BaseActivity(
         authenticated = false
         splashScreenDisplayed = false
         isSplashScreenVisible = true
+    }
+
+    @SuppressLint("ChromeOsOnConfigurationChanged")
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (
+            (
+                (
+                    prevConfig!!.screenWidthDp < 800 && newConfig.screenWidthDp >= 800
+                ) || (
+                    prevConfig!!.screenWidthDp >= 800 && newConfig.screenWidthDp < 800
+                )
+            ) && isActive
+        ) {
+            Intent(this, MainActivity::class.java).apply {
+                if (navController.currentDestination != null) {
+                    putExtra("nav", navController.currentDestination!!.id)
+                }
+                overridePendingTransition()
+                startActivity(this)
+                finish()
+            }
+        }
+        prevConfig = newConfig
     }
 }

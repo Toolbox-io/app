@@ -15,9 +15,11 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.snackbar.Snackbar
+import ru.morozovit.android.alertDialog
+import ru.morozovit.android.canRequestPackageInstallsOrFalse
+import ru.morozovit.android.packageManager
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings.installPackage_dsa
 import ru.morozovit.ultimatesecurity.Settings.update_dsa
@@ -33,6 +35,8 @@ import java.net.URL
 
 class HomeFragment : Fragment() {
     private lateinit var binding: HomeBinding
+    private val progressBar: LinearProgressIndicator by lazy { requireActivity().findViewById(R.id
+        .progress) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -100,33 +104,16 @@ class HomeFragment : Fragment() {
 
         override fun onProgressUpdate(vararg progress: String) {
             // setting progress percentage
-            requireActivity().findViewById<LinearProgressIndicator>(R.id.progress).setProgress(progress[0].toInt())
+            progressBar.progress = progress[0].toInt()
         }
 
         override fun onPostExecute(result: Unit?) {
-            val progress = requireActivity().findViewById<LinearProgressIndicator>(R.id.progress)
-            progress.visibility = GONE
-            progress.progress = 0
-            if (!installPackage_dsa) {
-                MaterialAlertDialogBuilder(requireActivity())
-                    .setTitle(R.string.install_package)
-                    .setMessage(R.string.install_package_d)
-                    .setPositiveButton(R.string.install) { _, _ ->
-                        val install = Intent(Intent.ACTION_INSTALL_PACKAGE)
-                        install.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        install.data = FileProvider.getUriForFile(
-                            requireContext(),
-                            requireContext().applicationContext.packageName + ".provider",
-                            file
-                        )
-                        startActivity(install)
-                    }
-                    .setNegativeButton(R.string.cancel, null)
-                    .setNeutralButton(R.string.dsa) { _, _ ->
-                        installPackage_dsa = true
-                    }
-                    .show()
-            } else {
+            progressBar.apply {
+                visibility = GONE
+                progress = 0
+            }
+
+            fun install() {
                 val install = Intent(Intent.ACTION_INSTALL_PACKAGE)
                 install.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                 install.data = FileProvider.getUriForFile(
@@ -135,6 +122,21 @@ class HomeFragment : Fragment() {
                     file
                 )
                 startActivity(install)
+            }
+
+            if (installPackage_dsa || packageManager.canRequestPackageInstallsOrFalse()) {
+                install()
+            } else {
+                alertDialog {
+                    title(R.string.install_package)
+                    message(R.string.install_package_d)
+                    positiveButton(R.string.install, ::install)
+                    negativeButton(R.string.cancel)
+                    neutralButton(R.string.dsa) {
+                        installPackage_dsa = true
+                        install()
+                    }
+                }
             }
         }
     }

@@ -12,6 +12,7 @@ import android.content.res.Resources
 import android.hardware.usb.UsbEndpoint
 import android.hardware.usb.UsbInterface
 import android.net.Uri
+import android.os.Build
 import android.provider.OpenableColumns
 import android.service.quicksettings.Tile
 import android.text.Editable
@@ -30,9 +31,13 @@ import androidx.annotation.AnimRes
 import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
 import androidx.core.view.updateLayoutParams
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
@@ -324,3 +329,171 @@ fun Activity.resolveAttr(@AttrRes attr: Int): Int? {
 fun Fragment.resolveAttr(@AttrRes attr: Int) = requireActivity().resolveAttr(attr)
 
 val Fragment.packageManager: PackageManager get() = requireActivity().packageManager
+
+fun PackageManager.canRequestPackageInstallsOrFalse()
+= if (Build.VERSION.SDK_INT >= 26) {
+    canRequestPackageInstalls()
+} else {
+    false
+}
+
+@Suppress("UNUSED_PARAMETER")
+class QuickAlertDialogBuilder(context: Context): MaterialAlertDialogBuilder(context) {
+    fun title(title: CharSequence): QuickAlertDialogBuilder {
+        setTitle(title)
+        return this
+    }
+    fun title(@StringRes titleRes: Int): QuickAlertDialogBuilder {
+        setTitle(titleRes)
+        return this
+    }
+
+    fun message(message: CharSequence): QuickAlertDialogBuilder {
+        setMessage(message)
+        return this
+    }
+    fun message(@StringRes messageRes: Int): QuickAlertDialogBuilder {
+        setMessage(messageRes)
+        return this
+    }
+
+    fun body(body: CharSequence) = message(body)
+    fun body(@StringRes bodyRes: Int) = message(bodyRes)
+
+    inline fun positiveButton(
+        text: CharSequence,
+        crossinline listener: () -> Unit
+    ) : QuickAlertDialogBuilder {
+        setPositiveButton(text) { _, _ -> listener() }
+        return this
+    }
+    inline fun positiveButton(@StringRes textRes: Int, crossinline listener: () -> Unit): QuickAlertDialogBuilder {
+        setPositiveButton(textRes) { _, _ -> listener() }
+        return this
+    }
+    inline fun positiveButton(text: CharSequence, listener: Nothing? = null): QuickAlertDialogBuilder {
+        setPositiveButton(text, null)
+        return this
+    }
+    inline fun positiveButton(@StringRes text: Int, listener: Nothing? = null): QuickAlertDialogBuilder {
+        setPositiveButton(text, null)
+        return this
+    }
+
+    inline fun negativeButton(text: CharSequence, crossinline listener: () -> Unit): QuickAlertDialogBuilder {
+        setNegativeButton(text) { _, _ -> listener() }
+        return this
+    }
+    inline fun negativeButton(@StringRes textRes: Int, crossinline listener: () -> Unit): QuickAlertDialogBuilder {
+        setNegativeButton(textRes) { _, _ -> listener() }
+        return this
+    }
+    inline fun negativeButton(text: CharSequence, listener: Nothing? = null): QuickAlertDialogBuilder {
+        setNegativeButton(text, null)
+        return this
+    }
+    inline fun negativeButton(@StringRes text: Int, listener: Nothing? = null): QuickAlertDialogBuilder {
+        setNegativeButton(text, null)
+        return this
+    }
+
+    inline fun neutralButton(text: CharSequence, crossinline listener: () -> Unit): QuickAlertDialogBuilder {
+        setNeutralButton(text) { _, _ -> listener() }
+        return this
+    }
+    inline fun neutralButton(@StringRes textRes: Int, crossinline listener: () -> Unit): QuickAlertDialogBuilder {
+        setNeutralButton(textRes) { _, _ -> listener() }
+        return this
+    }
+    inline fun neutralButton(text: CharSequence, listener: Nothing? = null): QuickAlertDialogBuilder {
+        setNeutralButton(text, null)
+        return this
+    }
+    inline fun neutralButton(@StringRes text: Int, listener: Nothing? = null): QuickAlertDialogBuilder {
+        setNeutralButton(text, null)
+        return this
+    }
+
+    inline fun onCancel(crossinline listener: () -> Unit): QuickAlertDialogBuilder {
+        setOnCancelListener { listener() }
+        return this
+    }
+
+    inline fun cancelable(value: Boolean): QuickAlertDialogBuilder {
+        setCancelable(value)
+        return this
+    }
+}
+
+inline fun Activity.alertDialog(crossinline config: QuickAlertDialogBuilder.() -> Unit) {
+    val builder = QuickAlertDialogBuilder(this)
+    config(builder)
+    builder.show()
+}
+
+inline fun Fragment.alertDialog(crossinline config: QuickAlertDialogBuilder.() -> Unit)
+    = requireActivity().alertDialog(config)
+
+class AuthenticationConfig {
+    var success: ((BiometricPrompt.AuthenticationResult) -> Unit)? = null
+    var fail: (() -> Unit)? = null
+    var error: ((Int, String) -> Unit)? = null
+
+    fun success(block: (BiometricPrompt.AuthenticationResult) -> Unit) {
+        success = block
+    }
+
+    fun fail(block: () -> Unit) {
+        fail = block
+    }
+
+    fun error(block: (Int, String) -> Unit) {
+        error = block
+    }
+
+    lateinit var title: String
+    var subtitle: String? = null
+    lateinit var negativeButtonText: String
+}
+
+inline fun FragmentActivity.requestAuthentication(crossinline callback: AuthenticationConfig.() -> Unit): BiometricPrompt {
+    val config = AuthenticationConfig()
+    callback(config)
+    try {
+        config.title
+        config.negativeButtonText
+    } catch (e: UninitializedPropertyAccessException) {
+        throw IllegalStateException("Required fields haven't been set")
+    }
+    val executor = ContextCompat.getMainExecutor(this)
+    val biometricPrompt = BiometricPrompt(
+        this,
+        executor,
+        object: BiometricPrompt.AuthenticationCallback() {
+            override fun onAuthenticationFailed() {
+                super.onAuthenticationFailed()
+                config.fail?.invoke()
+            }
+
+            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                super.onAuthenticationSucceeded(result)
+                config.success?.invoke(result)
+            }
+
+            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                super.onAuthenticationError(errorCode, errString)
+                config.error?.invoke(errorCode, "$errString")
+            }
+        }
+    )
+
+    val promptInfo = BiometricPrompt.PromptInfo.Builder().apply {
+        setTitle(config.title)
+        setSubtitle(config.subtitle)
+        setNegativeButtonText(config.negativeButtonText)
+        setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+        setConfirmationRequired(false)
+    }.build()
+    biometricPrompt.authenticate(promptInfo)
+    return biometricPrompt
+}

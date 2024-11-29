@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import ru.morozovit.android.BetterActivityResult
+import ru.morozovit.android.alertDialog
 import ru.morozovit.android.homeScreen
 import ru.morozovit.android.ui.makeSwitchCard
 import ru.morozovit.ultimatesecurity.R
@@ -58,18 +59,17 @@ class ApplockerFragment : Fragment() {
                         checkListener = false
                         v.isChecked = false
                         checkListener = true
-                        MaterialAlertDialogBuilder(requireActivity())
-                            .setTitle(R.string.permissions_required)
-                            .setMessage(R.string.al_permissions)
-                            .setNegativeButton(R.string.cancel, null)
-                            .setPositiveButton(R.string.ok) { d, _ ->
-                                d.dismiss()
+                        alertDialog {
+                            title(R.string.permissions_required)
+                            message(R.string.al_permissions)
+                            negativeButton(R.string.cancel)
+                            positiveButton(R.string.ok) {
                                 val intent = Intent(ACTION_ACCESSIBILITY_SETTINGS)
                                 intent.flags = FLAG_ACTIVITY_NEW_TASK
                                 waitingForAccessibility = true
                                 startActivity(intent)
                             }
-                            .show()
+                        }
                     } else {
                         var error = false
                         try {

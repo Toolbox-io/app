@@ -12,11 +12,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResult
 import androidx.fragment.app.Fragment
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import ru.morozovit.android.BetterActivityResult
+import ru.morozovit.android.alertDialog
 import ru.morozovit.android.ui.makeSwitchCard
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
+import ru.morozovit.ultimatesecurity.Settings.allowBiometric
 import ru.morozovit.ultimatesecurity.Settings.deleteGlobalPasswordDsa
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
@@ -56,18 +57,15 @@ class SettingsFragment : Fragment() {
             if (listener) {
                 if (isChecked) {
                     v.isChecked = false
-                    val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
+                    activityLauncher.launch(Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
                         putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponentName)
-                        putExtra(
-                            DevicePolicyManager.EXTRA_ADD_EXPLANATION, """
+                        putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, """
                         This permission is needed for the following features:
                         - Protect this app from being removed by an intruder
                         - Detect failed unlock attempts to take the required actions
                         This app NEVER uses this permission for anything not listed above.
-                        """.trimIndent()
-                        )
-                    }
-                    activityLauncher.launch(intent) { result ->
+                        """.trimIndent())
+                    }) { result ->
                         listener = false
                         v.isChecked = result.resultCode == RESULT_OK
                         listener = true
@@ -80,21 +78,21 @@ class SettingsFragment : Fragment() {
         }
 
         binding.sDelete.setOnClickListener {
-            MaterialAlertDialogBuilder(requireActivity())
-                .setTitle(R.string.delete_app)
-                .setMessage(R.string.delete_app_d)
-                .setNeutralButton(R.string.cancel, null)
-                .setPositiveButton(R.string.yes) { _, _ ->
+            alertDialog {
+                title(R.string.delete_app)
+                message(R.string.delete_app_d)
+                neutralButton(R.string.cancel)
+                positiveButton(R.string.yes) {
                     binding.sI1Sw.isChecked = false
-                    val intent = Intent(
+                    startActivity(Intent(
                         Intent.ACTION_DELETE, Uri.fromParts(
                             "package",
-                            requireActivity().packageName, null
+                            requireActivity().packageName,
+                            null
                         )
-                    )
-                    startActivity(intent)
+                    ))
                 }
-                .show()
+            }
         }
 
         var listener2 = true
@@ -133,36 +131,55 @@ class SettingsFragment : Fragment() {
                         listener2 = false
                         v.isChecked = true
                         listener2 = true
-                        MaterialAlertDialogBuilder(requireActivity())
-                            .setTitle(R.string.dpw)
-                            .setMessage(R.string.dpw_d)
-                            .setNegativeButton(R.string.no) { _, _ ->
+                        alertDialog {
+                            title(R.string.dpw)
+                            message(R.string.dpw_d)
+                            negativeButton(R.string.no) {
                                 listener2 = false
                                 v.isChecked = false
                                 listener2 = true
+                                binding.sI4Sw.isEnabled =
+                                    globalPassword != "" && globalPasswordEnabled
                             }
-                            .setNeutralButton(R.string.dsa) { _, _ ->
+                            neutralButton(R.string.dsa) {
                                 listener2 = false
                                 v.isChecked = false
                                 listener2 = true
                                 deleteGlobalPasswordDsa = true
+                                binding.sI4Sw.isEnabled =
+                                    globalPassword != "" && globalPasswordEnabled
                             }
-                            .setPositiveButton(R.string.yes) { _, _ ->
+                            positiveButton(R.string.yes) {
                                 listener2 = false
                                 v.isChecked = false
                                 listener2 = true
                                 globalPassword = ""
+                                binding.sI4Sw.isEnabled =
+                                    globalPassword != "" && globalPasswordEnabled
                             }
-                            .show()
+                        }
                         return@pw
                     }
                 }
             }
             globalPasswordEnabled = isChecked
             (requireActivity() as MainActivity).updateLock()
+            binding.sI4Sw.isEnabled = globalPassword != "" && globalPasswordEnabled
         }
 
         binding.sI3Hc.setOnClickListener(setPassword)
+
+        makeSwitchCard(binding.sAllowbiometric, binding.sI4Sw)
+        binding.sI4Sw.isChecked = allowBiometric
+        binding.sI4Sw.isEnabled = globalPassword != "" && globalPasswordEnabled
+        binding.sI4Sw.setOnCheckedChangeListener { _, isChecked ->
+            allowBiometric = isChecked
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        binding.sI4Sw.isEnabled = globalPassword != "" && globalPasswordEnabled
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

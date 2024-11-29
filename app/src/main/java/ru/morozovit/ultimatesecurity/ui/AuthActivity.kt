@@ -1,9 +1,12 @@
 package ru.morozovit.ultimatesecurity.ui
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
+import android.view.KeyEvent
 import android.view.View
 import android.view.View.VISIBLE
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -14,10 +17,13 @@ import androidx.activity.result.ActivityResult
 import androidx.core.view.postDelayed
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
+import ru.morozovit.android.addOneTimeOnPreDrawListener
 import ru.morozovit.android.homeScreen
+import ru.morozovit.android.requestAuthentication
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
+import ru.morozovit.ultimatesecurity.Settings.allowBiometric
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.databinding.AuthActivityBinding
 
@@ -54,12 +60,16 @@ class AuthActivity: BaseActivity(false) {
 
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
 
+    private lateinit var launchingIntent: Intent
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if ((globalPassword == "" || authenticated) && !isSetOrConfirm) {
             finish()
             return
         }
+
+        launchingIntent = intent
 
         if (!isSetOrConfirm && !isSplashScreenVisible)
             overridePendingTransition(R.anim.alpha_up, R.anim.scale_up)
@@ -236,6 +246,7 @@ class AuthActivity: BaseActivity(false) {
         binding.auth7.setOnClickListener(listener)
         binding.auth8.setOnClickListener(listener)
         binding.auth9.setOnClickListener(listener)
+        binding.auth0.setOnClickListener(listener)
 
         binding.authClear.setOnClickListener(clear)
 
@@ -257,6 +268,21 @@ class AuthActivity: BaseActivity(false) {
         binding.root.postDelayed(250) {
             if (setStarted) started = true
         }
+
+        if (allowBiometric) {
+            window.decorView.addOneTimeOnPreDrawListener {
+                Log.d("Auth", "Requesting biometrical auth")
+                requestAuthentication {
+                    title = "Biometrical authentication"
+                    negativeButtonText = "Use password"
+                    success {
+                        authenticated = true
+                        finishAfterTransition(R.anim.scale_down, R.anim.alpha_down)
+                    }
+                }
+                true
+            }
+        }
     }
 
     @Suppress("OVERRIDE_DEPRECATION")
@@ -273,8 +299,31 @@ class AuthActivity: BaseActivity(false) {
         mode = MODE_NONE
     }
 
+    @SuppressLint("ChromeOsOnConfigurationChanged")
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        if (!isSetOrConfirm) recreate()
+        startActivity(launchingIntent)
+        overridePendingTransition()
+        finish()
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode in KeyEvent.KEYCODE_0..KeyEvent.KEYCODE_9) {
+            when (keyCode - KeyEvent.KEYCODE_0) {
+                0 -> binding.auth0.performClick()
+                1 -> binding.auth1.performClick()
+                2 -> binding.auth2.performClick()
+                3 -> binding.auth3.performClick()
+                4 -> binding.auth4.performClick()
+                5 -> binding.auth5.performClick()
+                6 -> binding.auth6.performClick()
+                7 -> binding.auth7.performClick()
+                8 -> binding.auth8.performClick()
+                9 -> binding.auth9.performClick()
+            }
+        } else if (keyCode == KeyEvent.KEYCODE_DEL) {
+            binding.authErase.performClick()
+        }
+        return false
     }
 }

@@ -1,5 +1,6 @@
 package ru.morozovit.ultimatesecurity.ui.tools
 
+import android.animation.ValueAnimator
 import android.content.pm.PackageInfo
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,6 +18,8 @@ import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.facebook.shimmer.ShimmerFrameLayout
+import ru.morozovit.android.async
 import ru.morozovit.android.packageManager
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.databinding.ApkExtractorBinding
@@ -24,6 +27,8 @@ import ru.morozovit.ultimatesecurity.databinding.ApkExtractorBinding
 class ApkExtractorFragment: Fragment() {
     private lateinit var binding: ApkExtractorBinding
     private lateinit var backCb: OnBackPressedCallback
+
+    private var filtersOpened = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,9 +59,56 @@ class ApkExtractorFragment: Fragment() {
             }
         }
         // TODO search implementation
-        val appList = packageManager.getInstalledPackages(0).toMutableList()
-        binding.apkextractorApps.layoutManager = LinearLayoutManager(requireActivity())
-        binding.apkextractorApps.adapter = AppAdapter(appList)
+        async {
+            val appList = packageManager.getInstalledPackages(0).toMutableList()
+            binding.root.post {
+                binding.apkextractorApps.layoutManager = LinearLayoutManager(requireActivity())
+                binding.apkextractorApps.adapter = AppAdapter(appList)
+            }
+        }
+
+        binding.apkextractorFilters.setOnClickListener {
+            filtersOpened = !filtersOpened
+            if (filtersOpened) {
+                binding.apkextractorFiltersOpenclose
+                    .animate()
+                    .rotation(180f)
+
+                binding.apkextractorFiltersContainer.apply {
+                    measure(
+                        View.MeasureSpec.makeMeasureSpec(
+                            width,
+                            View.MeasureSpec.EXACTLY
+                        ),
+                        View.MeasureSpec.makeMeasureSpec(
+                            0,
+                            View.MeasureSpec.UNSPECIFIED
+                        )
+                    )
+                    ValueAnimator.ofInt(0, measuredHeight).apply {
+                        addUpdateListener { animation ->
+                            updateLayoutParams {
+                                height = animation.animatedValue as Int
+                            }
+                        }
+                        start()
+                    }
+                }
+            } else {
+                binding.apkextractorFiltersOpenclose
+                    .animate()
+                    .rotation(0f)
+
+                ValueAnimator.ofInt(binding.apkextractorFiltersContainer.height, 0).apply {
+                    addUpdateListener { animation ->
+                        binding.apkextractorFiltersContainer.updateLayoutParams {
+                            height = animation.animatedValue as Int
+                        }
+                    }
+                    start()
+                }
+            }
+        }
     }
 
     inner class AppAdapter(private val appList: MutableList<PackageInfo>) :
@@ -67,16 +119,24 @@ class ApkExtractorFragment: Fragment() {
             private val appPackage: TextView = itemView.findViewById(R.id.appPackage)
 
             fun bind(packageInfo: PackageInfo) {
-                val icon = packageInfo.applicationInfo!!.loadIcon(packageManager)
-                val label = packageInfo.applicationInfo!!.loadLabel(packageManager).toString()
-                val packageName = packageInfo.packageName
+                (itemView as ShimmerFrameLayout).startShimmerAnimation()
+                async {
+                    val icon = packageInfo.applicationInfo!!.loadIcon(packageManager)
+                    val label = packageInfo.applicationInfo!!.loadLabel(packageManager).toString()
+                    val packageName = packageInfo.packageName
+                    itemView.post {
+                        appIcon.setImageDrawable(icon)
+                        appName.text = label
+                        appPackage.text = packageName
 
-                appIcon.setImageDrawable(icon)
-                appName.text = label
-                appPackage.text = packageName
-
-                itemView.setOnClickListener {
-                    // TODO Open app info
+                        itemView.setOnClickListener {
+                            // TODO Open app info
+                        }
+                        (itemView as ShimmerFrameLayout).stopShimmerAnimation()
+                        appIcon.background = null
+                        appName.background = null
+                        appPackage.background = null
+                    }
                 }
             }
         }

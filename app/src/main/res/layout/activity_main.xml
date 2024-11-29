@@ -18,32 +18,30 @@
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
             android:id="@+id/rootView">
-
-            <com.google.android.material.appbar.AppBarLayout
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <com.google.android.material.appbar.MaterialToolbar
-                    android:id="@+id/toolbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    app:popupTheme="@style/Theme.UltimateSecurity.PopupOverlay" />
-
-            </com.google.android.material.appbar.AppBarLayout>
+                android:layout_height="?attr/actionBarSize"
+                app:popupTheme="@style/Theme.UltimateSecurity.PopupOverlay"
+                tools:title="Home"
+                tools:menu="@menu/main"
+                app:layout_insetEdge="top" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+                app:layout_anchor="@id/toolbar"
+                app:layout_anchorGravity="top|end"
+                app:layout_dodgeInsetEdges="top">
                 <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/progress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:layout_constraintTop_toTopOf="parent"
+                    android:visibility="gone"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    tools:visibility="visible"
-                    android:visibility="gone"
-                    android:id="@+id/progress" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:visibility="visible" />
                 <ru.morozovit.android.ui.RoundedCornerLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

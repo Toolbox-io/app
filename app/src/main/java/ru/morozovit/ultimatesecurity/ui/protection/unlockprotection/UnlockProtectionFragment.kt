@@ -14,6 +14,7 @@ import androidx.activity.result.ActivityResult
 import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import ru.morozovit.android.BetterActivityResult
+import ru.morozovit.android.alertDialog
 import ru.morozovit.android.ui.makeSwitchCard
 import ru.morozovit.ultimatesecurity.services.DeviceAdmin
 import ru.morozovit.ultimatesecurity.R
@@ -66,12 +67,11 @@ class UnlockProtectionFragment : Fragment() {
                     checkListener = false
                     v.isChecked = false
                     checkListener = true
-                    MaterialAlertDialogBuilder(requireActivity())
-                        .setTitle(R.string.permissions_required)
-                        .setMessage(R.string.up_permissions)
-                        .setNegativeButton(R.string.cancel, null)
-                        .setPositiveButton(R.string.ok) { d, _ ->
-                            d.dismiss()
+                    alertDialog {
+                        title(R.string.permissions_required)
+                        message(R.string.up_permissions)
+                        negativeButton(R.string.cancel)
+                        positiveButton(R.string.ok) {
                             val intent =
                                 Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
                                     putExtra(
@@ -80,11 +80,11 @@ class UnlockProtectionFragment : Fragment() {
                                     )
                                     putExtra(
                                         DevicePolicyManager.EXTRA_ADD_EXPLANATION, """
-                            This permission is needed for the following features:
-                            - Protect this app from being removed by an intruder
-                            - Detect failed unlock attempts to take the required actions
-                            This app NEVER uses this permission for anything not listed above.
-                            """.trimIndent()
+                        This permission is needed for the following features:
+                        - Protect this app from being removed by an intruder
+                        - Detect failed unlock attempts to take the required actions
+                        This app NEVER uses this permission for anything not listed above.
+                        """.trimIndent()
                                     )
                                 }
                             activityLauncher.launch(intent) { result ->
@@ -94,7 +94,7 @@ class UnlockProtectionFragment : Fragment() {
                                 enabled = true
                             }
                         }
-                        .show()
+                    }
                 } else {
                     enabled = false
                 }

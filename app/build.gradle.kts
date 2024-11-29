@@ -12,7 +12,7 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 26
-        versionName = "1.7.5"
+        versionName = "1.7.4"
     }
 
     buildTypes {
@@ -51,4 +51,8 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.androidx.exifinterface)
     implementation(libs.core)
+    implementation(libs.shimmer)
+    implementation(libs.androidx.biometric.v110)
+    implementation(libs.biometric)
+    implementation(kotlin("reflect"))
 }

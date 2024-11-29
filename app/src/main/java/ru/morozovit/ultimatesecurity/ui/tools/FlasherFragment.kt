@@ -32,6 +32,7 @@ import me.jahnen.libaums.core.UsbMassStorageDevice
 import ru.morozovit.android.ActivityLauncher
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
 import ru.morozovit.android.RadioButtonController
+import ru.morozovit.android.alertDialog
 import ru.morozovit.android.getFileName
 import ru.morozovit.android.getOpenDocumentIntent
 import ru.morozovit.android.getSystemService
@@ -92,11 +93,17 @@ class FlasherFragment: Fragment() {
         binding.flasherStart.setOnClickListener {
             val result = checkStartConditions()
             if (result != SUCCESS) {
-                MaterialAlertDialogBuilder(requireActivity())
-                    .setTitle(R.string.flash_error)
-                    .setMessage("${resources.getString(R.string.flash_error_d)}\n${decodeReason(result)}")
-                    .setPositiveButton(R.string.ok, null)
-                    .show()
+                alertDialog {
+                    title(R.string.flash_error)
+                    message(
+                        "${resources.getString(R.string.flash_error_d)}\n${
+                            decodeReason(
+                                result
+                            )
+                        }"
+                    )
+                    positiveButton(R.string.ok)
+                }
             } else {
                 val dev = devices[controller.checkedIndex].data.usbDevice
                 val permissionIntent =
@@ -207,17 +214,17 @@ class FlasherFragment: Fragment() {
                                                     Log.wtf("Flasher", "Usb interface not found!")
                                                 }
                                             } else {
-                                                MaterialAlertDialogBuilder(requireActivity())
-                                                    .setTitle(R.string.flash_error)
-                                                    .setMessage(
+                                                alertDialog {
+                                                    title(R.string.flash_error)
+                                                    message(
                                                         "${resources.getString(R.string.flash_error_d)}\n${
                                                             decodeReason(
                                                                 result
                                                             )
                                                         }"
                                                     )
-                                                    .setPositiveButton(R.string.ok, null)
-                                                    .show()
+                                                    positiveButton(R.string.ok)
+                                                }
                                             }
                                         }
                                     } else {
