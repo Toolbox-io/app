@@ -138,4 +138,18 @@
     <string name="search_for_apps">Поиск приложений</string>
     <string name="system">Системные</string>
     <string name="user">Пользовательские</string>
+    <string name="filters">Фильтры</string>
+    <string name="app_groups">Группы приложений</string>
+    <string name="sorting_order">Порядок сортировки</string>
+    <string name="alphabetically">По алфавиту</string>
+    <string name="recently_used">По последнему использованию</string>
+    <string name="normal">Нормальный</string>
+    <string name="reverse">В обратную сторону</string>
+    <string name="install_source">Источник</string>
+    <string name="other">Другой</string>
+    <string name="allow_biometric">Разрешить разблокировку по биометрии</string>
+    <string name="allow_biometric_d">Разрежить разблокировку этого приложения с помощью отпечатка пальца или лица.</string>
+    <string name="biometric">Разблокировка по биометрии</string>
+    <string name="dont_show_in_recents">Не показывать в \"Недавних\"</string>
+    <string name="dont_show_in_recents_d">Не показывать содержимое приложения в меню \"Недавние\" для защиты конфединциальности.</string>
 </resources>
