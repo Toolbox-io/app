@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package ru.morozovit.ultimatesecurity
 
 import android.content.Intent
@@ -9,6 +11,7 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewTreeObserver.OnPreDrawListener
+import android.view.WindowManager.LayoutParams.FLAG_SECURE
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.annotation.AnimRes
 import androidx.annotation.CallSuper
@@ -17,6 +20,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import ru.morozovit.android.NoParallelExecutor
 import ru.morozovit.android.homeScreen
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
+import ru.morozovit.ultimatesecurity.Settings.dontShowInRecents
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
 import ru.morozovit.ultimatesecurity.ui.AuthActivity
@@ -43,7 +47,6 @@ abstract class BaseActivity(
         private var interacted = false
         private val interactionDetectorExecutor = NoParallelExecutor()
         private var currentActivity: BaseActivity? = null
-        private var authScheduled = false
         protected var authScheduled2 = false
 
         var splashScreenDisplayed = false
@@ -327,16 +330,41 @@ abstract class BaseActivity(
         super.onRestoreInstanceState(savedInstanceState)
     }
 
+    private val views: MutableList<Pair<View, Int>> = mutableListOf()
+
     @CallSuper
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        if (authScheduled && hasFocus) {
+        if (authScheduled2 && hasFocus) {
             Log.d("Auth", "Running scheduled auth")
-            authScheduled = false
+            authScheduled2 = false
             startAuth()
         }
         Log.d(TAG, "Focus changed, hasFocus = $hasFocus")
+        if (dontShowInRecents) {
+            isSecure = !hasFocus
+        }
+//        if (hasFocus) {
+//            for (view in views) {
+//                view.first.visibility = view.second
+//            }
+//        } else {
+//            for (view in (window.decorView as ViewGroup)) {
+//                views.add(Pair(view, view.visibility))
+//                view.visibility = INVISIBLE
+//            }
+//        }
     }
+
+    open var isSecure
+        get() = window.attributes.flags and FLAG_SECURE != 0
+        set(value) {
+            if (value) {
+                window.addFlags(FLAG_SECURE)
+            } else {
+                window.clearFlags(FLAG_SECURE)
+            }
+        }
 
     protected open fun startEnterAnimation(root: View) {
         if (!intent.getBooleanExtra("noAnim", false)/* && Build.VERSION.SDK_INT >= 31* */ && !splashScreenDisplayed) {

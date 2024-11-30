@@ -159,4 +159,7 @@
     <string name="other">Other</string>
     <string name="allow_biometric">Allow biometric authentication</string>
     <string name="allow_biometric_d">Allow unlocking this app with a fingerprint or your face.</string>
+    <string name="biometric">Biometrical authentication</string>
+    <string name="dont_show_in_recents">Don\'t show in recents</string>
+    <string name="dont_show_in_recents_d">Don\'t show the contents of this app in the \"Recents\" menu to keep your privacy.</string>
 </resources>

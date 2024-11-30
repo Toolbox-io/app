@@ -1,7 +1,5 @@
 package ru.morozovit.ultimatesecurity.ui
 
-import android.annotation.SuppressLint
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
@@ -32,6 +30,7 @@ import ru.morozovit.ultimatesecurity.ui.AuthActivity.Companion.started
 
 class MainActivity : BaseActivity(
     backButtonBehavior = Companion.BackButtonBehavior.DEFAULT,
+    savedInstanceStateEnabled = true
 ) {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
@@ -185,32 +184,10 @@ class MainActivity : BaseActivity(
 
     override fun onDestroy() {
         super.onDestroy()
-        authenticated = false
-        splashScreenDisplayed = false
-        isSplashScreenVisible = true
-    }
-
-    @SuppressLint("ChromeOsOnConfigurationChanged")
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        if (
-            (
-                (
-                    prevConfig!!.screenWidthDp < 800 && newConfig.screenWidthDp >= 800
-                ) || (
-                    prevConfig!!.screenWidthDp >= 800 && newConfig.screenWidthDp < 800
-                )
-            ) && isActive
-        ) {
-            Intent(this, MainActivity::class.java).apply {
-                if (navController.currentDestination != null) {
-                    putExtra("nav", navController.currentDestination!!.id)
-                }
-                overridePendingTransition()
-                startActivity(this)
-                finish()
-            }
+        if (!isChangingConfigurations) {
+            authenticated = false
+            splashScreenDisplayed = false
+            isSplashScreenVisible = true
         }
-        prevConfig = newConfig
     }
 }

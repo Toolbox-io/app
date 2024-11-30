@@ -105,6 +105,15 @@ object Settings {
             }
         }
 
+    var dontShowInRecents
+        get() = sharedPref.getBoolean("dontShowInRecents", false)
+        set(value) {
+            with(sharedPref.edit()) {
+                putBoolean("dontShowInRecents", value)
+                apply()
+            }
+        }
+
     object Applocker: SettingsObj {
         private lateinit var sharedPref: SharedPreferences
         private var init = false

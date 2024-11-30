@@ -25,33 +25,40 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="30dp"
-            android:contentDescription="@string/locked"
-            android:src="@drawable/lock"
-            android:transitionName="lock" />
-        <TextView
-            android:id="@+id/auth_label"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:text="@string/enter_password"
-            android:textSize="26sp" />
-        <LinearLayout
-            android:id="@+id/auth_password"
-            android:layout_width="wrap_content"
-            android:layout_height="30sp"
-            android:layout_marginBottom="10dp"
-            android:animateLayoutChanges="true"
-            android:orientation="horizontal" />
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginEnd="50dp">
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginBottom="30dp"
+                android:contentDescription="@string/locked"
+                android:src="@drawable/lock"
+                android:transitionName="lock" />
+            <TextView
+                android:id="@+id/auth_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="@string/enter_password"
+                android:textSize="26sp" />
+            <LinearLayout
+                android:id="@+id/auth_password"
+                android:layout_width="wrap_content"
+                android:layout_height="30sp"
+                android:layout_marginBottom="10dp"
+                android:animateLayoutChanges="true"
+                android:orientation="horizontal" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"

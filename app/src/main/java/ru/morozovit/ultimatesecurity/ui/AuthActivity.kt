@@ -14,6 +14,8 @@ import android.view.ViewTreeObserver
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.ActivityResult
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
 import androidx.core.view.postDelayed
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
@@ -64,6 +66,7 @@ class AuthActivity: BaseActivity(false) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        isSecure = true
         if ((globalPassword == "" || authenticated) && !isSetOrConfirm) {
             finish()
             return
@@ -73,8 +76,6 @@ class AuthActivity: BaseActivity(false) {
 
         if (!isSetOrConfirm && !isSplashScreenVisible)
             overridePendingTransition(R.anim.alpha_up, R.anim.scale_up)
-        else if (isSplashScreenVisible)
-            overridePendingTransition()
 
         if (isSplashScreenVisible) overridePendingTransition()
 
@@ -105,7 +106,7 @@ class AuthActivity: BaseActivity(false) {
             binding.authNav.setNavigationOnClickListener {onBackPressed()}
         }
 
-        val clear = { _: View ->
+        fun clear() {
             for (symbol in symbols) {
                 symbol.key
                     .animate()
@@ -179,7 +180,7 @@ class AuthActivity: BaseActivity(false) {
                                 finish()
                             }
                         }
-                        clear(binding.authClear)
+                        clear()
                     } else if (
                         mode == MODE_CONFIRM &&
                         password == enteredPassword
@@ -224,7 +225,7 @@ class AuthActivity: BaseActivity(false) {
                                                                             .translationX(10f)
                                                                             .setDuration(duration)
                                                                             .withEndAction {
-                                                                                clear(binding.authClear)
+                                                                                clear()
                                                                             }
                                                                     }
                                                             }
@@ -248,8 +249,6 @@ class AuthActivity: BaseActivity(false) {
         binding.auth9.setOnClickListener(listener)
         binding.auth0.setOnClickListener(listener)
 
-        binding.authClear.setOnClickListener(clear)
-
         binding.authErase.setOnClickListener {
             val key = symbols.entries.lastOrNull()?.key
             key
@@ -269,8 +268,8 @@ class AuthActivity: BaseActivity(false) {
             if (setStarted) started = true
         }
 
-        if (allowBiometric) {
-            window.decorView.addOneTimeOnPreDrawListener {
+        fun requestAuth() {
+            if (allowBiometric) {
                 Log.d("Auth", "Requesting biometrical auth")
                 requestAuthentication {
                     title = "Biometrical authentication"
@@ -280,9 +279,22 @@ class AuthActivity: BaseActivity(false) {
                         finishAfterTransition(R.anim.scale_down, R.anim.alpha_down)
                     }
                 }
+            }
+        }
+
+        if (allowBiometric) {
+            window.decorView.addOneTimeOnPreDrawListener {
+                requestAuth()
                 true
             }
         }
+
+        binding.authFingerprint.isEnabled =
+            BiometricManager.from(this).canAuthenticate(
+                BiometricManager.Authenticators.BIOMETRIC_STRONG
+            ) == BIOMETRIC_SUCCESS && allowBiometric
+
+        binding.authFingerprint.setOnClickListener { requestAuth() }
     }
 
     @Suppress("OVERRIDE_DEPRECATION")
@@ -297,6 +309,11 @@ class AuthActivity: BaseActivity(false) {
     override fun finish() {
         super.finish()
         mode = MODE_NONE
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        isSecure = false
     }
 
     @SuppressLint("ChromeOsOnConfigurationChanged")

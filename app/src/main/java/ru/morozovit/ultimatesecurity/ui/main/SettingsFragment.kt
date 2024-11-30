@@ -11,6 +11,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResult
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
 import androidx.fragment.app.Fragment
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.alertDialog
@@ -19,6 +21,7 @@ import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.allowBiometric
 import ru.morozovit.ultimatesecurity.Settings.deleteGlobalPasswordDsa
+import ru.morozovit.ultimatesecurity.Settings.dontShowInRecents
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
 import ru.morozovit.ultimatesecurity.databinding.SettingsBinding
@@ -171,9 +174,20 @@ class SettingsFragment : Fragment() {
 
         makeSwitchCard(binding.sAllowbiometric, binding.sI4Sw)
         binding.sI4Sw.isChecked = allowBiometric
-        binding.sI4Sw.isEnabled = globalPassword != "" && globalPasswordEnabled
+        binding.sI4Sw.isEnabled =
+            globalPassword != "" &&
+            globalPasswordEnabled &&
+            BiometricManager.from(requireActivity()).canAuthenticate(
+                BiometricManager.Authenticators.BIOMETRIC_STRONG
+            ) == BIOMETRIC_SUCCESS
         binding.sI4Sw.setOnCheckedChangeListener { _, isChecked ->
             allowBiometric = isChecked
+        }
+
+        makeSwitchCard(binding.sDontshowinrecents, binding.sI5Sw)
+        binding.sI5Sw.isChecked = dontShowInRecents
+        binding.sI5Sw.setOnCheckedChangeListener { _, isChecked ->
+            dontShowInRecents = isChecked
         }
     }
 

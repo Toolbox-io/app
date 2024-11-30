@@ -42,7 +42,7 @@
             android:name=".ui.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.UltimateSecurity.SplashScreen"
-            android:configChanges="orientation|keyboardHidden|screenSize">
+            android:configChanges="keyboardHidden|navigation|keyboard">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
