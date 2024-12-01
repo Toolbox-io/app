@@ -38,6 +38,8 @@ import androidx.core.view.updateLayoutParams
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
@@ -496,4 +498,21 @@ inline fun FragmentActivity.requestAuthentication(crossinline callback: Authenti
     }.build()
     biometricPrompt.authenticate(promptInfo)
     return biometricPrompt
+}
+
+inline fun <T> applyAll(vararg items: T, callback: T.(Int) -> Unit) {
+    items.forEach {
+        it.apply {
+            callback(this, items.indexOf(it))
+        }
+    }
+}
+
+inline fun BottomSheetBehavior<*>.addBottomSheetCallback(crossinline callback: (Int) -> Unit) {
+    addBottomSheetCallback(object: BottomSheetCallback() {
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            callback(newState)
+        }
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+    })
 }

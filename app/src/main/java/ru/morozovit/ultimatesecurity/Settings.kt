@@ -9,6 +9,7 @@ import android.content.pm.PackageManager.DONT_KILL_APP
 import android.content.res.Resources
 import android.os.Build
 import android.service.quicksettings.Tile.STATE_UNAVAILABLE
+import org.jasypt.util.password.StrongPasswordEncryptor
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_APP_INFO
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_CLOSE
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_OPEN_APP_AGAIN
@@ -18,6 +19,7 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
 import ru.morozovit.ultimatesecurity.services.Accessibility
 import ru.morozovit.ultimatesecurity.services.tiles.SleepTile
 import ru.morozovit.ultimatesecurity.ui.customization.shortcuts.FilesActivity
+import kotlin.random.Random
 
 object Settings {
     private lateinit var sharedPref: SharedPreferences
@@ -31,6 +33,7 @@ object Settings {
         if (!init) {
             sharedPref = App.context.getSharedPreferences("main", Context.MODE_PRIVATE)
             // Init sub-objects
+            Keys.init()
             Applocker.init()
             UnlockProtection.init()
             Tiles.init()
@@ -113,6 +116,77 @@ object Settings {
                 apply()
             }
         }
+
+    object Keys: SettingsObj {
+        private lateinit var sharedPref: SharedPreferences
+        private var init = false
+
+        override fun init() {
+            if (!init) {
+                sharedPref = App.context.getSharedPreferences("keys", Context.MODE_PRIVATE)
+                init = true
+            }
+        }
+
+        private fun generateKey() = Random.nextBytes(Random.nextInt(1, 1024)).joinToString()
+
+        var applockerRandomKey: String
+            get() {
+                var result = Settings.sharedPref.getString("applockerRandomKey", null)
+                if (result == null) {
+                    result = generateKey()
+                    applockerRandomKey = result
+                }
+                return result
+            }
+            set(value) {
+                with(Settings.sharedPref.edit()) {
+                    putString("applockerRandomKey", value)
+                    apply()
+                }
+            }
+
+        var authRandomKey: String
+            get() {
+                var result = Settings.sharedPref.getString("authlockerRandomKey", null)
+                if (result == null) {
+                    result = generateKey()
+                    authRandomKey = result
+                }
+                return result
+            }
+            set(value) {
+                with(Settings.sharedPref.edit()) {
+                    putString("authRandomKey", value)
+                    apply()
+                }
+            }
+
+        var applockerEncryptedPassoword
+            get() = Settings.sharedPref.getString("applockerEncryptedPassoword", "")!!
+            set(value) {
+                with(Settings.sharedPref.edit()) {
+                    putString("applockerEncryptedPassoword", value)
+                    apply()
+                }
+            }
+
+        private val encryptor = StrongPasswordEncryptor()
+
+        fun encrypt(key: String, value: String): String {
+            return encryptor.encryptPassword(value)
+        }
+
+        fun setApplockerPassword(value: String) {
+            applockerEncryptedPassoword =
+                if (value.isEmpty()) ""
+                else encrypt(applockerRandomKey, value)
+        }
+
+        fun checkApplockerPassword(value: String) {
+
+        }
+    }
 
     object Applocker: SettingsObj {
         private lateinit var sharedPref: SharedPreferences
@@ -364,5 +438,4 @@ object Settings {
                 }
             }
     }
-
 }

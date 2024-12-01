@@ -55,4 +55,5 @@ dependencies {
     implementation(libs.androidx.biometric.v110)
     implementation(libs.biometric)
     implementation(kotlin("reflect"))
+    implementation(libs.jasypt)
 }

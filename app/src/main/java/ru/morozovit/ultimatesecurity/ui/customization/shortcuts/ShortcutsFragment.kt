@@ -25,11 +25,8 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetBehavior.SAVE_ALL
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
+import ru.morozovit.android.BottomSheet
 import ru.morozovit.android.getSystemService
 import ru.morozovit.android.launchFiles
 import ru.morozovit.android.supportFragmentManager
@@ -47,7 +44,7 @@ class ShortcutsFragment: Fragment() {
     }
     private lateinit var binding: ShortcutsBinding
 
-    class FilesShortcutBottomSheet: BottomSheetDialogFragment() {
+    class FilesShortcutBottomSheet: BottomSheet() {
         private lateinit var binding: FilesShortcutBinding
         private var callback: ((Int) -> Unit)? = null
 
@@ -69,8 +66,7 @@ class ShortcutsFragment: Fragment() {
 
         override fun onCreateView(
             inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+            container: ViewGroup
         ): View {
             binding = FilesShortcutBinding.inflate(inflater, container, false)
             return binding.root
@@ -79,15 +75,7 @@ class ShortcutsFragment: Fragment() {
         @SuppressLint("ClickableViewAccessibility")
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-
-            val behavior = (dialog as BottomSheetDialog).behavior
-            behavior.state = BottomSheetBehavior.STATE_EXPANDED
-            behavior.isFitToContents = true
-            behavior.saveFlags = SAVE_ALL
-            val behavior1 = BottomSheetBehavior.from(binding.shortcutsFilesBs)
-            behavior1.state = BottomSheetBehavior.STATE_EXPANDED
-            behavior1.isFitToContents = true
-            behavior1.saveFlags = SAVE_ALL
+            configure(binding.shortcutsFilesBs)
 
             val rb = arrayOf(
                 RadiobuttonData(binding.shortcutsFilesBsO1, binding.shortcutsFilesBsO1R),

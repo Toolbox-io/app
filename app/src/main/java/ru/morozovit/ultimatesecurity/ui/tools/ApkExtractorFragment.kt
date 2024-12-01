@@ -19,10 +19,12 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.shimmer.ShimmerFrameLayout
+import ru.morozovit.android.BottomSheet
 import ru.morozovit.android.async
 import ru.morozovit.android.packageManager
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.databinding.ApkExtractorBinding
+import ru.morozovit.ultimatesecurity.databinding.AppInfoBinding
 
 class ApkExtractorFragment: Fragment() {
     private lateinit var binding: ApkExtractorBinding
@@ -117,6 +119,24 @@ class ApkExtractorFragment: Fragment() {
             private val appIcon: ImageView = itemView.findViewById(R.id.appIcon)
             private val appName: TextView = itemView.findViewById(R.id.appName)
             private val appPackage: TextView = itemView.findViewById(R.id.appPackage)
+
+            inner class AppBottomSheet: BottomSheet() {
+                private lateinit var binding: AppInfoBinding
+
+                override fun onCreateView(
+                    inflater: LayoutInflater,
+                    container: ViewGroup
+                ): View {
+                    binding = AppInfoBinding.inflate(inflater, container, false)
+                    return binding.root
+                }
+
+                override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+                    super.onViewCreated(view, savedInstanceState)
+                    // TODO Show app info
+                    //      Give the ability to extract APK
+                }
+            }
 
             fun bind(packageInfo: PackageInfo) {
                 (itemView as ShimmerFrameLayout).startShimmerAnimation()
