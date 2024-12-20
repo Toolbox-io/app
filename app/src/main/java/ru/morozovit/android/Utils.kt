@@ -33,6 +33,15 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.TextUnit
+import androidx.constraintlayout.compose.ConstrainScope
+import androidx.constraintlayout.compose.ConstrainedLayoutReference
+import androidx.constraintlayout.compose.ConstraintLayoutBaseScope
+import androidx.constraintlayout.compose.HorizontalAnchorable
+import androidx.constraintlayout.compose.VerticalAnchorable
 import androidx.core.content.ContextCompat
 import androidx.core.view.updateLayoutParams
 import androidx.documentfile.provider.DocumentFile
@@ -516,3 +525,24 @@ inline fun BottomSheetBehavior<*>.addBottomSheetCallback(crossinline callback: (
         override fun onSlide(bottomSheet: View, slideOffset: Float) {}
     })
 }
+
+@Composable
+inline fun TextUnit.toDp() = with(LocalDensity.current) {
+    toDp()
+}
+
+val ConstrainScope.left get() = absoluteLeft
+val ConstrainScope.right get() = absoluteRight
+
+val ConstrainedLayoutReference.left get() = absoluteLeft
+val ConstrainedLayoutReference.right get() = absoluteRight
+
+inline infix fun HorizontalAnchorable.link(
+    anchor: ConstraintLayoutBaseScope.HorizontalAnchor
+) = linkTo(anchor)
+
+inline infix fun VerticalAnchorable.link(
+    anchor: ConstraintLayoutBaseScope.VerticalAnchor
+) = linkTo(anchor)
+
+inline operator fun Modifier.plus(other: Modifier) = then(other)

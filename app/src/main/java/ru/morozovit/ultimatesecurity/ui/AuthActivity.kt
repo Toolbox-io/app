@@ -29,7 +29,6 @@ import ru.morozovit.ultimatesecurity.Settings.allowBiometric
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.databinding.AuthActivityBinding
 
-
 class AuthActivity: BaseActivity(false) {
     companion object {
         private const val PASSWORD_DOT = "●"

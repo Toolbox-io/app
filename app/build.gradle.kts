@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.compose)
+    id("com.google.android.gms.oss-licenses-plugin")
 }
 
 android {
@@ -35,6 +37,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        compose = true
     }
 }
 
@@ -56,4 +59,16 @@ dependencies {
     implementation(libs.biometric)
     implementation(kotlin("reflect"))
     implementation(libs.jasypt)
+    // compose
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.ui.tooling.preview)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.adaptive)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.constraintlayout.compose)
+
+    implementation(libs.play.services.oss.licenses)
 }

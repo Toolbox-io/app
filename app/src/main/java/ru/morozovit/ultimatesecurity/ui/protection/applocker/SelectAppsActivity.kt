@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
-import ru.morozovit.ultimatesecurity.Settings
+import ru.morozovit.ultimatesecurity.Settings.Applocker.apps
 import ru.morozovit.ultimatesecurity.databinding.SelectAppsBinding
 import kotlin.collections.set
 
@@ -52,8 +52,17 @@ class SelectAppsActivity: BaseActivity() {
             val selectedApps = adapter.selectedApps.toMutableMap()
 
             for (app in selectedApps) {
-                (binding.selappsRv.findViewHolderForAdapterPosition(app.key) // TODO fix error
-                        as AppAdapter.AppViewHolder).appCheckbox.isChecked = false
+                try {
+                    (binding.selappsRv.findViewHolderForAdapterPosition(app.key) // TODO fix error
+                            as AppAdapter.AppViewHolder).appCheckbox.isChecked = false
+                } catch (e: NullPointerException) {
+                    apps = apps.let {
+                        val set = it.toMutableSet()
+                        set.remove(app.value.packageName)
+                        set.toSet()
+                    }
+                    binding.selappsRv.adapter = AppAdapter(appList)
+                }
             }
             true
         }
@@ -61,18 +70,27 @@ class SelectAppsActivity: BaseActivity() {
             val adapter = binding.selappsRv.adapter as AppAdapter
 
             for (i in 0 until adapter.itemCount) {
-                val vh = binding.selappsRv.findViewHolderForAdapterPosition(i) as AppAdapter.AppViewHolder // TODO fix error
-                if (!vh.appCheckbox.isChecked)
-                    vh.appCheckbox.isChecked = true
+                try {
+                    val vh =
+                        binding.selappsRv.findViewHolderForAdapterPosition(i) as AppAdapter.AppViewHolder // TODO fix error
+                    if (!vh.appCheckbox.isChecked) vh.appCheckbox.isChecked = true
+                } catch (e: NullPointerException) {
+                    val set = apps.toMutableSet()
+                    for (app in appList) {
+                        set.add(app.packageName)
+                    }
+                    apps = set.toSet()
+                    binding.selappsRv.adapter = AppAdapter(appList)
+                    break
+                }
             }
             true
         }
-
     }
 
     private fun saveChoice() {
         @Suppress("UNCHECKED_CAST")
-        Settings.Applocker.apps = (binding.selappsRv.adapter as AppAdapter).selectedAppsSet as Set<String>
+        apps = (binding.selappsRv.adapter as AppAdapter).selectedAppsSet as Set<String>
     }
 
     inner class AppAdapter(private val appList: MutableList<PackageInfo>) :
@@ -91,7 +109,7 @@ class SelectAppsActivity: BaseActivity() {
         }
 
         init {
-            val selectedAppList = Settings.Applocker.apps
+            val selectedAppList = apps
             for (item in appList) {
                 if (selectedAppList.contains(item.packageName)) {
                     selectedApps[appList.indexOf(item)] = AppEntry(

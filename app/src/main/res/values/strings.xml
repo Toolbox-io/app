@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name" translatable="false">AIP++</string>
+    <string name="app_name" translatable="false">Toolbox.io</string>
     <string name="nav_header_desc">securing your device</string>
 
     <string name="home">Home</string>
@@ -8,7 +8,7 @@
     <string name="applocker_enable">Enable</string>
     <string name="permissions_required">Permissions required</string>
     <string name="grant">Grant</string>
-    <string name="accessibility_service_label" tools:keep="@string/accessibility_service_label" translatable="false">Anti-Intruder Protection++</string>
+    <string name="accessibility_service_label" translatable="false">@string/app_name</string>
     <string name="accessibility_service_description">This service is used for:\n<ul>\n<li>AppLocker</li>\n</ul>\nThis service NEVER collects your data to hack you, etc.\nIt is used ONLY for the provided functions above.</string>
     <string name="appinfo">App info</string>
     <string name="closeapp">Close app</string>

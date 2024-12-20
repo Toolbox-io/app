@@ -97,6 +97,7 @@ abstract class BaseActivity(
         }
     }
 
+    private var finishAfterTransitionCalled = false
     protected var savedInstanceState: Bundle? = null
     protected var pendingAuth = false
 
@@ -149,6 +150,7 @@ abstract class BaseActivity(
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         currentActivity = this
+//        overridePendingTransition(R.anim.slide_left, R.anim.scale_down_translate)
         preSplashScreen(!(!(authEnabled && globalPassword != "" && globalPasswordEnabled) || this !is MainActivity))
         if (savedInstanceStateEnabled) {
             super.onCreate(savedInstanceState)
@@ -203,7 +205,7 @@ abstract class BaseActivity(
     }
 
     @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
-    override fun overridePendingTransition(enterAnim: Int, exitAnim: Int) {
+    override fun overridePendingTransition(@AnimRes enterAnim: Int, @AnimRes exitAnim: Int) {
         if (Build.VERSION.SDK_INT >= 34) {
             overrideActivityTransition(
                 OVERRIDE_TRANSITION_OPEN,
@@ -238,6 +240,7 @@ abstract class BaseActivity(
     }
 
     open fun finishAfterTransition(@AnimRes enterAnim: Int, @AnimRes exitAnim: Int) {
+        finishAfterTransitionCalled = true
         if (transitionCalled) {
             transitionCalled = false
             finish()
@@ -388,4 +391,11 @@ abstract class BaseActivity(
             })
         }
     }
+
+//    override fun finish() {
+//        if (!finishAfterTransitionCalled) {
+//            finishAfterTransition(R.anim.scale_up_translate, R.anim.slide_right)
+//        }
+//        super.finish()
+//    }
 }
