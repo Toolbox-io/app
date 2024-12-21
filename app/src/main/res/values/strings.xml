@@ -162,4 +162,6 @@
     <string name="biometric">Biometrical authentication</string>
     <string name="dont_show_in_recents">Don\'t show in recents</string>
     <string name="dont_show_in_recents_d">Don\'t show the contents of this app in the \"Recents\" menu to keep your privacy.</string>
+    <string name="show_pw">Show password</string>
+    <string name="hide_pw">Hide password</string>
 </resources>

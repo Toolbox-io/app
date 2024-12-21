@@ -36,6 +36,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.TextUnit
 import androidx.constraintlayout.compose.ConstrainScope
 import androidx.constraintlayout.compose.ConstrainedLayoutReference
@@ -546,3 +547,23 @@ inline infix fun VerticalAnchorable.link(
 ) = linkTo(anchor)
 
 inline operator fun Modifier.plus(other: Modifier) = then(other)
+
+data class PreviewUtils(
+    val valueOrFalse: (() -> Boolean) -> Boolean,
+    val runOrNoop: (() -> Unit) -> Unit,
+    val isPreview: Boolean
+)
+
+@Composable
+inline fun previewUtils(): PreviewUtils {
+    val isPreview = LocalInspectionMode.current
+    return PreviewUtils(
+        valueOrFalse = { value ->
+            if (isPreview) false else value()
+        },
+        runOrNoop = { block ->
+            if (!isPreview) block()
+        },
+        isPreview = isPreview
+    )
+}
