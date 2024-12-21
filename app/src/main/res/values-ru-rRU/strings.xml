@@ -152,4 +152,6 @@
     <string name="biometric">Разблокировка по биометрии</string>
     <string name="dont_show_in_recents">Не показывать в \"Недавних\"</string>
     <string name="dont_show_in_recents_d">Не показывать содержимое приложения в меню \"Недавние\" для защиты конфединциальности.</string>
+    <string name="show_pw">Показать пароль</string>
+    <string name="hide_pw">Скрыть пароль</string>
 </resources>
