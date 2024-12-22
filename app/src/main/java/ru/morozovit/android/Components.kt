@@ -9,22 +9,40 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.cardColors
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintLayoutScope
 import androidx.constraintlayout.compose.Dimension
+import ru.morozovit.ultimatesecurity.R
 
 @Composable
 fun ListItem(
@@ -261,4 +279,64 @@ fun SwitchCard(
             }
         }
     }
+}
+
+@Composable
+inline fun SecureTextField(
+    value: String,
+    noinline onValueChange: (String) -> Unit,
+    passwordHidden: Boolean,
+    noinline visibilityOnClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    textStyle: TextStyle = LocalTextStyle.current,
+    noinline label: @Composable (() -> Unit)? = null,
+    noinline leadingIcon: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    interactionSource: MutableInteractionSource? = null,
+    shape: Shape = TextFieldDefaults.shape,
+    colors: TextFieldColors = TextFieldDefaults.colors()
+) {
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        visualTransformation =
+        if (!passwordHidden)
+            VisualTransformation.None
+        else
+            PasswordVisualTransformation(),
+        label = label,
+        trailingIcon = {
+            IconButton(
+                onClick = visibilityOnClick
+            ) {
+                val visibilityIcon =
+                    if (passwordHidden) Icons.Filled.Visibility else
+                        Icons.Filled.VisibilityOff
+                // Provide localized description for accessibility services
+                val description =
+                    if (passwordHidden)
+                        stringResource(R.string.show_pw)
+                    else
+                        stringResource(R.string.hide_pw)
+                Icon(imageVector = visibilityIcon, contentDescription = description)
+            }
+        },
+        modifier = modifier,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Password,
+            autoCorrectEnabled = false
+        ),
+        maxLines = 1,
+        singleLine = true,
+        enabled = enabled,
+        textStyle = textStyle,
+        leadingIcon = leadingIcon,
+        isError = isError,
+        keyboardActions = keyboardActions,
+        interactionSource = interactionSource,
+        shape = shape,
+        colors = colors
+    )
 }

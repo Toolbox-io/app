@@ -164,4 +164,5 @@
     <string name="dont_show_in_recents_d">Don\'t show the contents of this app in the \"Recents\" menu to keep your privacy.</string>
     <string name="show_pw">Show password</string>
     <string name="hide_pw">Hide password</string>
+    <string name="old_password_cannot_be_empty">Old password cannot be empty</string>
 </resources>

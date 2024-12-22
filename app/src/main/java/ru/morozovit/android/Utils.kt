@@ -33,9 +33,20 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.TextUnit
 import androidx.constraintlayout.compose.ConstrainScope
@@ -528,9 +539,7 @@ inline fun BottomSheetBehavior<*>.addBottomSheetCallback(crossinline callback: (
 }
 
 @Composable
-inline fun TextUnit.toDp() = with(LocalDensity.current) {
-    toDp()
-}
+inline fun TextUnit.toDp() = with(LocalDensity.current) { toDp() }
 
 val ConstrainScope.left get() = absoluteLeft
 val ConstrainScope.right get() = absoluteRight
@@ -551,7 +560,8 @@ inline operator fun Modifier.plus(other: Modifier) = then(other)
 data class PreviewUtils(
     val valueOrFalse: (() -> Boolean) -> Boolean,
     val runOrNoop: (() -> Unit) -> Unit,
-    val isPreview: Boolean
+    val isPreview: Boolean,
+    val valueOrTrue: (() -> Boolean) -> Boolean
 )
 
 @Composable
@@ -564,6 +574,34 @@ inline fun previewUtils(): PreviewUtils {
         runOrNoop = { block ->
             if (!isPreview) block()
         },
-        isPreview = isPreview
+        isPreview = isPreview,
+        valueOrTrue = { value ->
+            if (isPreview) true else value()
+        },
     )
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+fun Modifier.clearFocusOnKeyboardDismiss() = composed {
+    var isFocused by remember { mutableStateOf(false) }
+    var keyboardAppearedSinceLastFocused by remember { mutableStateOf(false) }
+    if (isFocused) {
+        val imeIsVisible = WindowInsets.isImeVisible
+        val focusManager = LocalFocusManager.current
+        LaunchedEffect(imeIsVisible) {
+            if (imeIsVisible) {
+                keyboardAppearedSinceLastFocused = true
+            } else if (keyboardAppearedSinceLastFocused) {
+                focusManager.clearFocus()
+            }
+        }
+    }
+    onFocusEvent {
+        if (isFocused != it.isFocused) {
+            isFocused = it.isFocused
+            if (isFocused) {
+                keyboardAppearedSinceLastFocused = false
+            }
+        }
+    }
 }
