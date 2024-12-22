@@ -54,7 +54,8 @@ fun ListItem(
     trailingContent: (@Composable ConstraintLayoutScope.() -> Unit)? = null,
     divider: Boolean = false,
     onClick: (() -> Unit)? = null,
-    bodyOnClick: (() -> Unit)? = null
+    bodyOnClick: (() -> Unit)? = null,
+    bottomContent: (@Composable ConstraintLayoutScope.() -> Unit)? = null
 ) {
     ConstraintLayout(
         modifier = Modifier.let {
@@ -65,13 +66,13 @@ fun ListItem(
             mod + modifier
         }
     ) {
-        val (leading, listItem, trailing, div) = createRefs()
+        val (leading, listItem, trailing, div, btm) = createRefs()
         if (leadingContent != null) {
             ConstraintLayout(
                 modifier = Modifier
                     .constrainAs(leading) {
                         top link
-                                if (divider) div.top
+                                if (bottomContent != null) btm.top
                                 else parent.bottom
                         bottom link parent.bottom
                         left link parent.left
@@ -89,7 +90,7 @@ fun ListItem(
                     var mod = it.constrainAs(listItem) {
                         top link parent.top
                         bottom link
-                                if (divider) div.top
+                                if (bottomContent != null) btm.top
                                 else parent.bottom
 
                         left link
@@ -112,13 +113,28 @@ fun ListItem(
                     .constrainAs(trailing) {
                         top link parent.top
                         bottom link
-                                if (divider) div.top
+                                if (bottomContent != null) btm.top
                                 else parent.bottom
                         right link parent.right
                         left link listItem.right
                     }
                     .padding(end = 16.dp),
                 content = trailingContent
+            )
+        }
+        if (bottomContent != null) {
+            ConstraintLayout(
+                modifier = Modifier
+                    .constrainAs(btm) {
+                        bottom link
+                                if (divider) div.top
+                                else parent.bottom
+                        left link parent.left
+                        right link parent.right
+                        width = Dimension.fillToConstraints
+                    }
+                    .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+                content = bottomContent
             )
         }
         if (divider) {

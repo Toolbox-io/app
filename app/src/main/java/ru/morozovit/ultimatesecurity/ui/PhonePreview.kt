@@ -11,7 +11,8 @@ import androidx.compose.ui.tooling.preview.Wallpapers
     showSystemUi = true,
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_NO or Configuration.UI_MODE_TYPE_NORMAL,
-    wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE
+    wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE,
+    apiLevel = 34
 )
 @Preview(
     name = "Dark mode",
@@ -19,7 +20,8 @@ import androidx.compose.ui.tooling.preview.Wallpapers
     showSystemUi = true,
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL,
-    wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE
+    wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE,
+    apiLevel = 34
 )
 @Target(AnnotationTarget.FUNCTION)
 annotation class PhonePreview

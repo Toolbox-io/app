@@ -15,6 +15,8 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,7 +58,7 @@ class SettingsFragment : Fragment() {
     fun SettingsScreen() {
         val (valueOrFalse, runOrNoop) = previewUtils()
         AppTheme {
-            Column {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
                 var allowBiometricSwitchEnabled by remember {
                     mutableStateOf(
                         valueOrFalse {

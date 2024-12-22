@@ -8,6 +8,7 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.View
+import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.ViewTreeObserver
@@ -266,34 +267,37 @@ class AuthActivity: BaseActivity(false) {
         binding.root.postDelayed(250) {
             if (setStarted) started = true
         }
-
-        fun requestAuth() {
-            if (allowBiometric) {
-                Log.d("Auth", "Requesting biometrical auth")
-                requestAuthentication {
-                    title = "Biometrical authentication"
-                    negativeButtonText = "Use password"
-                    success {
-                        authenticated = true
-                        finishAfterTransition(R.anim.scale_down, R.anim.alpha_down)
+        if (!isSetOrConfirm) {
+            fun requestAuth() {
+                if (allowBiometric) {
+                    Log.d("Auth", "Requesting biometrical auth")
+                    requestAuthentication {
+                        title = "Biometrical authentication"
+                        negativeButtonText = "Use password"
+                        success {
+                            authenticated = true
+                            finishAfterTransition(R.anim.scale_down, R.anim.alpha_down)
+                        }
                     }
                 }
             }
-        }
 
-        if (allowBiometric) {
-            window.decorView.addOneTimeOnPreDrawListener {
-                requestAuth()
-                true
+            if (allowBiometric) {
+                window.decorView.addOneTimeOnPreDrawListener {
+                    requestAuth()
+                    true
+                }
             }
+
+            binding.authFingerprint.isEnabled =
+                BiometricManager.from(this).canAuthenticate(
+                    BiometricManager.Authenticators.BIOMETRIC_STRONG
+                ) == BIOMETRIC_SUCCESS && allowBiometric
+
+            binding.authFingerprint.setOnClickListener { requestAuth() }
+        } else {
+            binding.authFingerprint.visibility = INVISIBLE
         }
-
-        binding.authFingerprint.isEnabled =
-            BiometricManager.from(this).canAuthenticate(
-                BiometricManager.Authenticators.BIOMETRIC_STRONG
-            ) == BIOMETRIC_SUCCESS && allowBiometric
-
-        binding.authFingerprint.setOnClickListener { requestAuth() }
     }
 
     @Suppress("OVERRIDE_DEPRECATION")
