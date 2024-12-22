@@ -326,7 +326,7 @@ class ApplockerFragment : Fragment() {
                             valueOrFalse { accessibility }
                         )
                     }
-                    val error_disabling_service = stringResource(R.string.error_disabling_service)
+                    val errorDisablingService = stringResource(R.string.error_disabling_service)
                     val settings = stringResource(R.string.settings)
                     val mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@{
                         if (!isPreview) {
@@ -362,7 +362,7 @@ class ApplockerFragment : Fragment() {
                                     scope.launch {
                                         val result = snackbarHostState
                                             .showSnackbar(
-                                                message = error_disabling_service,
+                                                message = errorDisablingService,
                                                 actionLabel = settings,
                                                 duration = SnackbarDuration.Short
                                             )
