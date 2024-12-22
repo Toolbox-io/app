@@ -7,10 +7,8 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.ActivityResult
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.fragment.app.Fragment
 import kotlinx.coroutines.launch
-import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.ListItem
 import ru.morozovit.android.SecureTextField
 import ru.morozovit.android.SwitchCard
@@ -75,12 +72,7 @@ import ru.morozovit.ultimatesecurity.ui.AppTheme
 import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import java.lang.Thread.sleep
 
-
 class ApplockerFragment : Fragment() {
-//    private lateinit var binding: ApplockerBinding
-    private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
-//    private var checkListener = true
-
     private var resumeHandler: (() -> Unit)? = null
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -227,6 +219,7 @@ class ApplockerFragment : Fragment() {
                     )
                 }
                 var openUnlockMethodDialog by remember { mutableStateOf(false) }
+
                 if (openUnlockMethodDialog) {
                     fun onDismissRequest() {
                         openUnlockMethodDialog = false
@@ -441,29 +434,6 @@ class ApplockerFragment : Fragment() {
                         headline = stringResource(R.string.setpassword),
                         supportingText = stringResource(R.string.setpassword_d),
                         onClick = {
-//                        runOrNoop {
-//                            val intent = Intent(
-//                                requireActivity(),
-//                                PasswordInputActivity::class.java
-//                            )
-//                            val b = Bundle()
-//                            b.putBoolean("setPassword", true)
-//                            intent.putExtras(b)
-//                            activityLauncher.launch(intent) { result ->
-//                                if (result.resultCode == RESULT_OK) {
-//                                    try {
-//                                        Settings.Applocker.password =
-//                                            result.data?.extras?.getString("password")!!
-//                                    } catch (e: NullPointerException) {
-//                                        Toast.makeText(
-//                                            requireActivity(),
-//                                            R.string.failed_setting_password,
-//                                            Toast.LENGTH_LONG
-//                                        ).show()
-//                                    }
-//                                }
-//                            }
-//                        }
                             openSetPasswordDialog = true
                         },
                         divider = true
@@ -473,16 +443,6 @@ class ApplockerFragment : Fragment() {
                         headline = stringResource(R.string.unlockmethod),
                         supportingText = unlockMethodText,
                         onClick = {
-//                        runOrNoop {
-//                            activityLauncher.launch(
-//                                Intent(
-//                                    requireActivity(),
-//                                    UnlockModeActivity::class.java
-//                                )
-//                            ) {
-//                                unlockMethodText = getUnlockModeDescription(unlockMode, resources)
-//                            }
-//                        }
                             openUnlockMethodDialog = true
                         },
                         divider = true
@@ -496,25 +456,12 @@ class ApplockerFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ) = ComposeView(requireActivity())
-
-    @SuppressLint("ClickableViewAccessibility")
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        activityLauncher = BetterActivityResult.registerActivityForResult(this)
-        (view as ComposeView).setContent {
-            ApplockerScreen()
-        }
+    ) = ComposeView(requireActivity()).apply {
+        setContent { ApplockerScreen() }
     }
 
     override fun onResume() {
         super.onResume()
         resumeHandler?.invoke()
-//        if (accessibility && waitingForAccessibility) {
-//            checkListener = false
-//            binding.applockerSwitch.isChecked = true
-//            checkListener = true
-//            waitingForAccessibility = false
-//        }
     }
 }
