@@ -35,10 +35,11 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import ru.morozovit.android.JobIdManager
 import ru.morozovit.android.NoParallelExecutor
-import ru.morozovit.ultimatesecurity.App
-import ru.morozovit.ultimatesecurity.ui.MainActivity
-import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.android.SimpleAsyncTask
+import ru.morozovit.ultimatesecurity.App
+import ru.morozovit.ultimatesecurity.R
+import ru.morozovit.ultimatesecurity.ui.MainActivity
+import ru.morozovit.utils.EParser
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -219,6 +220,7 @@ class UpdateChecker: JobService() {
                         asset
                     )
                 } catch (e: Exception) {
+                    Log.d("UpdateChecker", "Error. \n${EParser(e)}")
                     return null
                 } finally {
                     request.disconnect()
