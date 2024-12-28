@@ -165,4 +165,6 @@
     <string name="show_pw">Show password</string>
     <string name="hide_pw">Hide password</string>
     <string name="old_password_cannot_be_empty">Old password cannot be empty</string>
+    <string name="menu">Menu</string>
+    <string name="app_desc">your All-in-One Toolbox</string>
 </resources>

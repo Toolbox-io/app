@@ -5,19 +5,86 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
 import android.view.ViewTreeObserver
+import androidx.activity.enableEdgeToEdge
+import androidx.annotation.StringDef
+import androidx.annotation.StringRes
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Shortcut
+import androidx.compose.material.icons.filled.Android
+import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.PhonelinkLock
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.PermanentDrawerSheet
+import androidx.compose.material3.PermanentNavigationDrawer
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidViewBinding
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.core.content.ContextCompat
-import androidx.core.view.get
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import ru.morozovit.android.ActivityLauncher
+import ru.morozovit.android.Website
+import ru.morozovit.android.WidthSizeClass
 import ru.morozovit.android.alertDialog
+import ru.morozovit.android.compareTo
+import ru.morozovit.android.left
+import ru.morozovit.android.link
+import ru.morozovit.android.right
+import ru.morozovit.android.unsupported
+import ru.morozovit.android.widthSizeClass
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
@@ -25,8 +92,15 @@ import ru.morozovit.ultimatesecurity.Settings.exitDsa
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
 import ru.morozovit.ultimatesecurity.databinding.ActivityMainBinding
+import ru.morozovit.ultimatesecurity.databinding.ShortcutsFragmentBinding
 import ru.morozovit.ultimatesecurity.services.UpdateChecker
 import ru.morozovit.ultimatesecurity.ui.AuthActivity.Companion.started
+import ru.morozovit.ultimatesecurity.ui.customization.TilesScreen
+import ru.morozovit.ultimatesecurity.ui.main.HomeScreen
+import ru.morozovit.ultimatesecurity.ui.main.SettingsScreen
+import ru.morozovit.ultimatesecurity.ui.protection.applocker.ApplockerScreen
+import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.UnlockProtectionScreen
+import ru.morozovit.ultimatesecurity.ui.tools.APKExtractorScreen
 
 class MainActivity : BaseActivity(
     backButtonBehavior = Companion.BackButtonBehavior.DEFAULT,
@@ -38,8 +112,320 @@ class MainActivity : BaseActivity(
     private lateinit var binding: ActivityMainBinding
     private var prevConfig: Configuration? = null
 
+    lateinit var activityLauncher: ActivityLauncher
+
+    val resumeHandlers = mutableListOf<() -> Unit>()
+
+    private var isLockVisible by mutableStateOf(false)
+
+    @Retention(AnnotationRetention.SOURCE)
+    @StringDef(
+        Screen.HOME,
+        Screen.SETTINGS,
+        Screen.WEBSITE,
+
+        Screen.APP_LOCKER,
+        Screen.UNLOCK_PROTECTION,
+
+        Screen.TILES,
+        Screen.SHORTCUTS,
+
+        Screen.APK_EXTRACTOR
+    )
+    @Target(AnnotationTarget.TYPE, AnnotationTarget.VALUE_PARAMETER)
+    private annotation class ScreenName
+
+    sealed class BaseScreen
+
+    @Serializable sealed class Screen(
+        val name: String,
+        @StringRes val label: Int,
+        @Transient val icon: ImageVector = unsupported
+    ): BaseScreen() {
+        companion object {
+            operator fun get(name: @ScreenName String) = when (name) {
+                HOME -> Home
+                SETTINGS -> Settings
+                WEBSITE -> Website
+                APP_LOCKER -> AppLocker
+                UNLOCK_PROTECTION -> UnlockProtection
+                TILES -> Tiles
+                SHORTCUTS -> Shortcuts
+                APK_EXTRACTOR -> APKExtractor
+                else -> {
+                    Log.e("MainActivity", "Unknown screen index: $name")
+                    null
+                }
+            }
+
+            const val HOME = "home"
+            const val SETTINGS = "settings"
+            const val WEBSITE = "website"
+
+            const val APP_LOCKER = "appLocker"
+            const val UNLOCK_PROTECTION = "unlockProtection"
+
+            const val TILES = "tiles"
+            const val SHORTCUTS = "shortcuts"
+
+            const val APK_EXTRACTOR = "apkExtractor"
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return other is Screen && label == other.label
+        }
+
+        override fun hashCode(): Int {
+            return label.hashCode()
+        }
+
+        class Label(@StringRes val label: Int): BaseScreen()
+
+        @Serializable data object Home: Screen(HOME, R.string.home, Icons.Filled.Home)
+        @Serializable data object Settings: Screen(SETTINGS, R.string.settings, Icons.Filled.Settings)
+        @Serializable data object Website: Screen(WEBSITE, R.string.website, Icons.Outlined.Website)
+
+        @Serializable data object AppLocker: Screen(APP_LOCKER, R.string.applocker, Icons.Outlined.PhonelinkLock)
+        @Serializable data object UnlockProtection: Screen(UNLOCK_PROTECTION, R.string.unlock_protection, Icons.Filled.Lock)
+
+        @Serializable data object Tiles: Screen(TILES, R.string.tiles, Icons.Filled.Apps)
+        @Serializable data object Shortcuts: Screen(SHORTCUTS, R.string.shortcuts, Icons.AutoMirrored.Filled.Shortcut)
+
+        @Serializable data object APKExtractor: Screen(APK_EXTRACTOR, R.string.apkextractor, Icons.Filled.Android)
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    @PhonePreview
+    fun MainScreen() {
+        AppTheme(consumeWindowInsets = true) {
+            val drawerState = rememberDrawerState(DrawerValue.Closed)
+            val scope = rememberCoroutineScope()
+            var selectedItem by rememberSaveable { mutableStateOf(Screen.HOME) }
+            val navController = rememberNavController()
+
+            val currentEntry = navController.currentBackStackEntryAsState()
+
+            LaunchedEffect(Unit) {
+                snapshotFlow { currentEntry.value }.collect {
+                    runCatching {
+                        selectedItem = it!!.destination.route!!
+                    }
+                }
+            }
+
+            val isScreenBig = currentWindowAdaptiveInfo().widthSizeClass >= WidthSizeClass.MEDIUM
+
+            val drawerContent: @Composable ColumnScope.() -> Unit = {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    ConstraintLayout(
+                        Modifier
+                            .padding(12.dp)
+                            .fillMaxWidth()
+                    ) {
+                        val (icon, title, subtitle) = createRefs()
+                        Image(
+                            painter = painterResource(R.drawable.app_icon),
+                            contentDescription = stringResource(R.string.app_name),
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(30.dp))
+                                .constrainAs(icon) {
+                                    top link parent.top
+                                    left link parent.left
+                                }
+                        )
+                        Text(
+                            text = stringResource(R.string.app_name),
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier
+                                .constrainAs(title) {
+                                    top link parent.top
+                                    right link parent.right
+                                    left link icon.right
+                                    width = Dimension.fillToConstraints
+                                }
+                                .padding(start = 12.dp)
+                        )
+                        Text(
+                            text = stringResource(R.string.app_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier
+                                .constrainAs(subtitle) {
+                                    top link title.bottom
+                                    right link parent.right
+                                    left link icon.right
+                                    width = Dimension.fillToConstraints
+                                }
+                                .padding(start = 12.dp)
+                        )
+                    }
+                    val items = listOf(
+                        Screen.Home,
+                        Screen.Settings,
+                        Screen.Website,
+                        Screen.Label(R.string.security),
+                        Screen.AppLocker,
+                        Screen.UnlockProtection,
+                        Screen.Label(R.string.customization),
+                        Screen.Tiles,
+                        Screen.Shortcuts,
+                        Screen.Label(R.string.tools),
+                        Screen.APKExtractor
+                    )
+                    items.forEach { item ->
+                        when (item) {
+                            is Screen -> NavigationDrawerItem(
+                                icon = { Icon(item.icon, contentDescription = null) },
+                                label = { Text(stringResource(item.label)) },
+                                selected = item == Screen[selectedItem],
+                                onClick = {
+                                    scope.launch { drawerState.close() }
+                                    if (Screen[selectedItem] != item) {
+                                        selectedItem = item.name
+                                        navController.navigate(item.name)
+                                    }
+                                },
+                                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                            )
+                            is Screen.Label -> {
+                                Text(
+                                    text = stringResource(item.label),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(top = 12.dp, bottom = 12.dp, start = 28.dp, end = 36.dp)
+                                )
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                }
+            }
+
+            val content = @Composable {
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = {
+                                val titleRes = Screen[selectedItem]?.label
+                                val title = if (titleRes != null) {
+                                    stringResource(titleRes)
+                                } else {
+                                    ""
+                                }
+                                Text(title)
+                            },
+                            navigationIcon = {
+                                if (!isScreenBig) {
+                                    IconButton(
+                                        onClick = {
+                                            scope.launch {
+                                                drawerState.open()
+                                            }
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Menu,
+                                            contentDescription = stringResource(R.string.menu)
+                                        )
+                                    }
+                                }
+                            },
+                            actions = {
+                                if (isLockVisible) {
+                                    IconButton(
+                                        onClick = {
+                                            authenticated = false
+                                            auth()
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Lock,
+                                            contentDescription = "Localized description"
+                                        )
+                                    }
+                                }
+                            }
+                        )
+                    },
+                ) { innerPadding ->
+                    val start by remember { mutableStateOf(selectedItem) }
+                    NavHost(
+                        navController = navController,
+                        startDestination = start,
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
+                        composable(route = "home") { HomeScreen() }
+                        composable(route = "settings") { SettingsScreen() }
+                        composable(route = "website") {
+                            // TODO website link
+                        }
+
+                        composable(route = "appLocker") { ApplockerScreen() }
+                        composable(route = "unlockProtection") { UnlockProtectionScreen() }
+
+                        composable(route = "tiles") {
+                            TilesScreen()
+                        }
+                        composable(route = "shortcuts") {
+                            AndroidViewBinding(ShortcutsFragmentBinding::inflate)
+                        }
+
+                        composable(route = "apkExtractor") { APKExtractorScreen() }
+                    }
+                }
+            }
+
+            if (isScreenBig) {
+                PermanentNavigationDrawer(
+                    drawerContent = {
+                        PermanentDrawerSheet(
+                            drawerContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            content = drawerContent,
+                            drawerShape = RoundedCornerShape(0.dp, 20.dp, 20.dp, 0.dp),
+                            modifier = Modifier.widthIn(
+                                max =
+                                    if (
+                                        currentWindowAdaptiveInfo()
+                                            .widthSizeClass == WidthSizeClass.EXPANDED
+                                    ) 360.dp else 300.dp
+                            )
+                        )
+                    },
+                    content = content
+                )
+            } else {
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet(
+                            drawerContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            drawerState = drawerState,
+                            modifier = Modifier.widthIn(max = 300.dp),
+                            content = drawerContent
+                        )
+                    },
+                    content = content
+                )
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        activityLauncher = ActivityLauncher.registerActivityForResult(this)
+        updateLock()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            enableEdgeToEdge()
+            window.isNavigationBarContrastEnforced = false
+        }
+
+        val content = ComposeView(this).apply {
+            setContent {
+                MainScreen()
+            }
+        }
+        setContentView(content)
 
         // Start update checker
         try {
@@ -48,16 +434,13 @@ class MainActivity : BaseActivity(
             Log.e("MainActivity", "${e::class.qualifiedName}: ${e.message}")
         }
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
         prevConfig = resources.configuration
 
         if (pendingAuth) {
-            binding.root.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+            content.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
                 override fun onPreDraw(): Boolean {
                     if (started) {
-                        binding.root.viewTreeObserver.removeOnPreDrawListener(this)
+                        content.viewTreeObserver.removeOnPreDrawListener(this)
                     }
                     return false
                 }
@@ -65,29 +448,29 @@ class MainActivity : BaseActivity(
         }
 
         // Navigation
-        setSupportActionBar(binding.toolbar)
-        navController = findNavController(R.id.nav_host_fragment_content_main)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.nav_home,
-                R.id.nav_settings,
-                R.id.nav_website,
-                R.id.nav_unlock_protection,
-                R.id.nav_applocker,
-                R.id.nav_tiles,
-                R.id.nav_shortcuts,
-                R.id.nav_flasher,
-                R.id.nav_apkextractor
-            ), binding.drawerLayout
-        )
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        binding.navView.setupWithNavController(navController)
-
-        navController.navigate(intent.getIntExtra("nav", R.id.nav_home))
-
-        // Notifications
+//        setSupportActionBar(binding.toolbar)
+//        navController = findNavController(R.id.nav_host_fragment_content_main)
+//        // Passing each menu ID as a set of Ids because each
+//        // menu should be considered as top level destinations.
+//        appBarConfiguration = AppBarConfiguration(
+//            setOf(
+//                R.id.nav_home,
+//                R.id.nav_settings,
+//                R.id.nav_website,
+//                R.id.nav_unlock_protection,
+//                R.id.nav_applocker,
+//                R.id.nav_tiles,
+//                R.id.nav_shortcuts,
+//                R.id.nav_flasher,
+//                R.id.nav_apkextractor
+//            ), binding.drawerLayout
+//        )
+//        setupActionBarWithNavController(navController, appBarConfiguration)
+//        binding.navView.setupWithNavController(navController)
+//
+//        navController.navigate(intent.getIntExtra("nav", R.id.nav_home))
+//
+//        // Notifications
         if (Build.VERSION.SDK_INT >= 33) {
             if (ContextCompat.checkSelfPermission(
                     this,
@@ -95,7 +478,7 @@ class MainActivity : BaseActivity(
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
                 Snackbar.make(
-                    binding.rootView,
+                    content,
                     R.string.grant_notification,
                     Snackbar.LENGTH_LONG
                 )
@@ -109,33 +492,12 @@ class MainActivity : BaseActivity(
             }
         }
 
-        if (!pendingAuth) startEnterAnimation(binding.root)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.main, menu)
-        updateLock()
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.lock -> {
-                authenticated = false
-                auth()
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        updateLock(menu)
-        return true
+        if (!pendingAuth) startEnterAnimation(content)
     }
 
     override fun finish() {
         if (!exitDsa) {
+            // TODO rewrite in Jetpack Compose
             alertDialog {
                 message(R.string.exit)
                 neutralButton(R.string.dsa) {
@@ -155,30 +517,26 @@ class MainActivity : BaseActivity(
         }
     }
 
-    @Suppress("OVERRIDE_DEPRECATION")
-    override fun onBackPressed() {
-        if (binding.navView.menu[0].isChecked) {
-            finish()
-        } else {
-            super.onBackPressed()
-        }
-    }
-
-    override fun onSupportNavigateUp() =
-        navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-
+//    @Suppress("OVERRIDE_DEPRECATION")
+//    override fun onBackPressed() {
+//        if (binding.navView.menu[0].isChecked) {
+//            finish()
+//        } else {
+//            super.onBackPressed()
+//        }
+//    }
 
     override fun onResume() {
         super.onResume()
         if (!pendingAuth) updateLock()
+        for (handler in resumeHandlers) {
+            handler()
+        }
     }
 
-    fun updateLock(
-        menu: Menu = binding.toolbar.menu
-    ) {
-        menu.findItem(R.id.lock)?.apply {
-            isVisible = globalPassword != "" && globalPasswordEnabled
-        }
+
+    fun updateLock() {
+        isLockVisible = globalPassword != "" && globalPasswordEnabled
         interactionDetector()
     }
 

@@ -37,6 +37,7 @@ import ru.morozovit.ultimatesecurity.databinding.FilesShortcutBinding
 import ru.morozovit.ultimatesecurity.databinding.ShortcutsBinding
 import ru.morozovit.ultimatesecurity.ui.customization.shortcuts.ShortcutsFragment.FilesShortcutBottomSheet.Companion.FILES_ICON_CREATED
 
+// TODO rewrite in Jetpack Compose
 class ShortcutsFragment: Fragment() {
     companion object {
         @Suppress("unused")
@@ -66,7 +67,7 @@ class ShortcutsFragment: Fragment() {
 
         override fun onCreateView(
             inflater: LayoutInflater,
-            container: ViewGroup
+            container: ViewGroup?
         ): View {
             binding = FilesShortcutBinding.inflate(inflater, container, false)
             return binding.root

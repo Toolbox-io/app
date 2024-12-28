@@ -8,6 +8,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -16,9 +17,13 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.cardColors
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -355,4 +360,39 @@ inline fun SecureTextField(
         shape = shape,
         colors = colors
     )
+}
+
+@Composable
+inline fun ToggleIconButton(
+    checked: Boolean,
+    crossinline onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    shape: Shape = IconButtonDefaults.filledShape,
+    checkedColors: IconButtonColors = IconButtonDefaults.filledIconButtonColors(),
+    uncheckedColors: IconButtonColors = IconButtonDefaults.filledTonalIconButtonColors(),
+    interactionSource: MutableInteractionSource? = null,
+    noinline content: @Composable () -> Unit
+) {
+    if (checked) {
+        FilledIconButton(
+            onClick = { onCheckedChange(false) },
+            modifier = Modifier.size(60.dp, 60.dp) + modifier,
+            enabled = enabled,
+            shape = shape,
+            colors = checkedColors,
+            interactionSource = interactionSource,
+            content = content
+        )
+    } else {
+        FilledTonalIconButton(
+            onClick = { onCheckedChange(true) },
+            modifier = Modifier.size(60.dp, 60.dp) + modifier,
+            enabled = enabled,
+            shape = shape,
+            colors = uncheckedColors,
+            interactionSource = interactionSource,
+            content = content
+        )
+    }
 }

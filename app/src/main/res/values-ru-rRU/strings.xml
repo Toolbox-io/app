@@ -155,4 +155,6 @@
     <string name="show_pw">Показать пароль</string>
     <string name="hide_pw">Скрыть пароль</string>
     <string name="old_password_cannot_be_empty">Старый пароль не может быть пустым</string>
+    <string name="menu">Меню</string>
+    <string name="app_desc">ваш набор инструментов \"все-в-одном\"</string>
 </resources>

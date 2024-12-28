@@ -36,7 +36,9 @@ import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,6 +61,9 @@ import androidx.core.view.updateLayoutParams
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.window.core.layout.WindowHeightSizeClass
+import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -605,3 +610,38 @@ fun Modifier.clearFocusOnKeyboardDismiss() = composed {
         }
     }
 }
+
+val unsupported: Nothing
+    get() = throw UnsupportedOperationException()
+
+val WindowWidthSizeClass.rawValue: Int get() =
+    when (this) {
+        WindowWidthSizeClass.COMPACT -> 0
+        WindowWidthSizeClass.MEDIUM -> 1
+        WindowWidthSizeClass.EXPANDED -> 2
+        else -> throw IllegalArgumentException("Unsupported WindowWidthSizeClass: $this")
+    }
+
+val WindowHeightSizeClass.rawValue: Int get() =
+    when (this) {
+        WindowHeightSizeClass.COMPACT -> 0
+        WindowHeightSizeClass.MEDIUM -> 1
+        WindowHeightSizeClass.EXPANDED -> 2
+        else -> throw IllegalArgumentException("Unsupported WindowHeightSizeClass: $this")
+    }
+
+operator fun WindowWidthSizeClass.compareTo(other: WindowWidthSizeClass) = this.rawValue.compareTo(other.rawValue)
+operator fun WindowHeightSizeClass.compareTo(other: WindowHeightSizeClass) = this.rawValue.compareTo(other.rawValue)
+
+val WindowSizeClass.width get() = windowWidthSizeClass
+val WindowSizeClass.height get() = windowHeightSizeClass
+
+val WindowAdaptiveInfo.widthSizeClass get() = windowSizeClass.width
+val WindowAdaptiveInfo.heightSizeClass get() = windowSizeClass.height
+
+typealias WidthSizeClass = WindowWidthSizeClass
+typealias HeightSizeClass = WindowHeightSizeClass
+typealias SizeClass = WindowSizeClass
+
+@Composable
+operator fun <T> CompositionLocal<T>.invoke() = current

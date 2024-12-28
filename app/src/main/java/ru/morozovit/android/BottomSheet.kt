@@ -14,9 +14,9 @@ abstract class BottomSheet: BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return onCreateView(inflater, container!!)
+        return onCreateView(inflater, container)
     }
-    abstract fun onCreateView(inflater: LayoutInflater, container: ViewGroup): View
+    abstract fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View
 
     final override fun getDialog() = super.getDialog() as BottomSheetDialog
 
@@ -29,7 +29,9 @@ abstract class BottomSheet: BottomSheetDialogFragment() {
             saveFlags = BottomSheetBehavior.SAVE_ALL
         }
         behavior1.addBottomSheetCallback {
-            behavior.state = it
+            runCatching {
+                behavior.state = it
+            }
         }
     }
 

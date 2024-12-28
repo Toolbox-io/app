@@ -27,7 +27,6 @@ import android.widget.TextView
 import androidx.core.view.setMargins
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import me.jahnen.libaums.core.UsbMassStorageDevice
 import ru.morozovit.android.ActivityLauncher
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
@@ -43,7 +42,8 @@ import java.io.IOException
 import java.util.Arrays.copyOfRange
 import kotlin.math.min
 
-
+// TODO finish
+// TODO rewrite in Jetpack Compose
 class FlasherFragment: Fragment() {
     @Suppress("MemberVisibilityCanBePrivate")
     companion object {
