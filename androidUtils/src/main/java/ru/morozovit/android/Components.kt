@@ -2,22 +2,35 @@
 
 package ru.morozovit.android
 
+import android.widget.ImageView
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonElevation
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.cardColors
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -28,6 +41,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
@@ -36,7 +50,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.asAndroidColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -44,10 +62,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintLayoutScope
 import androidx.constraintlayout.compose.Dimension
-import ru.morozovit.ultimatesecurity.R
 
 @Composable
 fun ListItem(
@@ -395,4 +413,183 @@ inline fun ToggleIconButton(
             content = content
         )
     }
+}
+
+@Composable
+inline fun Mipmap(
+    @DrawableRes id: Int,
+    contentDescription: String?,
+    modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.Fit,
+    alpha: Float = DefaultAlpha,
+    colorFilter: ColorFilter? = null
+) {
+    val update: (ImageView) -> Unit = {
+        it.setImageResource(id)
+        it.contentDescription = contentDescription
+        it.alpha = alpha
+        it.colorFilter = colorFilter?.asAndroidColorFilter()
+        it.scaleType = contentScale.asAndroidScaleType()
+    }
+
+    AndroidView(
+        modifier = modifier,
+        factory = {
+            ImageView(it).apply {
+                update(this)
+            }
+        },
+        update = update
+    )
+}
+
+@Composable
+inline fun ElevatedButton(
+    noinline onClick: () -> Unit,
+    crossinline icon: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    shape: Shape = ButtonDefaults.elevatedShape,
+    colors: ButtonColors = ButtonDefaults.elevatedButtonColors(),
+    elevation: ButtonElevation? = ButtonDefaults.elevatedButtonElevation(),
+    border: BorderStroke? = null,
+    contentPadding: PaddingValues = ButtonDefaults.ButtonWithIconContentPadding,
+    interactionSource: MutableInteractionSource? = null,
+    crossinline content: @Composable RowScope.() -> Unit
+) {
+    ElevatedButton(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        shape = shape,
+        colors = colors,
+        elevation = elevation,
+        border = border,
+        contentPadding = contentPadding,
+        interactionSource = interactionSource
+    ) {
+        Box(
+            modifier = Modifier.size(18.dp)
+        ) {
+            icon()
+        }
+        Spacer(Modifier.width(8.dp))
+        content()
+    }
+}
+
+@Composable
+inline fun Button(
+    noinline onClick: () -> Unit,
+    crossinline icon: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    shape: Shape = ButtonDefaults.shape,
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
+    elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
+    border: BorderStroke? = null,
+    contentPadding: PaddingValues = ButtonDefaults.ButtonWithIconContentPadding,
+    interactionSource: MutableInteractionSource? = null,
+    crossinline content: @Composable RowScope.() -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        shape = shape,
+        colors = colors,
+        elevation = elevation,
+        border = border,
+        contentPadding = contentPadding,
+        interactionSource = interactionSource
+    ) {
+        Box(
+            modifier = Modifier.size(18.dp)
+        ) {
+            icon()
+        }
+        Spacer(Modifier.width(8.dp))
+        content()
+    }
+}
+
+@Composable
+inline fun FilledTonalButton(
+    noinline onClick: () -> Unit,
+    crossinline icon: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    shape: Shape = ButtonDefaults.filledTonalShape,
+    colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(),
+    elevation: ButtonElevation? = ButtonDefaults.filledTonalButtonElevation(),
+    border: BorderStroke? = null,
+    contentPadding: PaddingValues = ButtonDefaults.ButtonWithIconContentPadding,
+    interactionSource: MutableInteractionSource? = null,
+    crossinline content: @Composable RowScope.() -> Unit
+) {
+    FilledTonalButton(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        shape = shape,
+        colors = colors,
+        elevation = elevation,
+        border = border,
+        contentPadding = contentPadding,
+        interactionSource = interactionSource
+    ) {
+        Box(
+            modifier = Modifier.size(18.dp)
+        ) {
+            icon()
+        }
+        Spacer(Modifier.width(8.dp))
+        content()
+    }
+}
+
+@Composable
+inline fun TextButton(
+    noinline onClick: () -> Unit,
+    crossinline icon: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    shape: Shape = ButtonDefaults.textShape,
+    colors: ButtonColors = ButtonDefaults.textButtonColors(),
+    elevation: ButtonElevation? = null,
+    border: BorderStroke? = null,
+    contentPadding: PaddingValues = ButtonDefaults.TextButtonWithIconContentPadding,
+    interactionSource: MutableInteractionSource? = null,
+    crossinline content: @Composable RowScope.() -> Unit
+) {
+    TextButton(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        shape = shape,
+        colors = colors,
+        elevation = elevation,
+        border = border,
+        contentPadding = contentPadding,
+        interactionSource = interactionSource
+    ) {
+        Box(
+            modifier = Modifier.size(18.dp)
+        ) {
+            icon()
+        }
+        Spacer(Modifier.width(8.dp))
+        content()
+    }
+}
+
+class RadioButtonControllerScope @PublishedApi internal constructor() {
+
+}
+
+@Composable
+inline fun RadioButtonController(
+    content: @Composable RadioButtonControllerScope.() -> Unit
+) {
+    content(RadioButtonControllerScope())
 }

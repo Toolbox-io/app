@@ -18,7 +18,7 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.apps
 import ru.morozovit.ultimatesecurity.databinding.SelectAppsBinding
 import kotlin.collections.set
 
-
+// TODO rewrite in Jetpack Compose
 class SelectAppsActivity: BaseActivity() {
     private lateinit var binding: SelectAppsBinding
 

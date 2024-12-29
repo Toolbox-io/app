@@ -1,5 +1,11 @@
 @file:Suppress("UnstableApiUsage")
 
+include(":utils")
+
+
+include(":androidUtils")
+
+
 pluginManagement {
     repositories {
         google {

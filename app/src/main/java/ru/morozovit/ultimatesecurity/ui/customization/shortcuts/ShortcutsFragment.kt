@@ -7,7 +7,6 @@ import android.content.Intent.ACTION_MAIN
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
-import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -23,19 +22,173 @@ import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
 import ru.morozovit.android.BottomSheet
+import ru.morozovit.android.Mipmap
+import ru.morozovit.android.TextButton
 import ru.morozovit.android.getSystemService
+import ru.morozovit.android.invoke
 import ru.morozovit.android.launchFiles
+import ru.morozovit.android.previewUtils
 import ru.morozovit.android.supportFragmentManager
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings.Shortcuts.files
 import ru.morozovit.ultimatesecurity.Settings.Shortcuts.files_choice
 import ru.morozovit.ultimatesecurity.databinding.FilesShortcutBinding
 import ru.morozovit.ultimatesecurity.databinding.ShortcutsBinding
+import ru.morozovit.ultimatesecurity.ui.AppThemeIfNessecary
+import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import ru.morozovit.ultimatesecurity.ui.customization.shortcuts.ShortcutsFragment.FilesShortcutBottomSheet.Companion.FILES_ICON_CREATED
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@Composable
+@PhonePreview
+fun ShortcutsScreen() {
+    AppThemeIfNessecary {
+        val (_, runOrNoop, _, valueOrTrue) = previewUtils()
+        val context = LocalContext()
+        val scope = rememberCoroutineScope()
+
+        var removeIconVisible by remember {
+            mutableStateOf(valueOrTrue { files })
+        }
+
+        val sheetState = rememberModalBottomSheetState()
+        var showFilesBottomSheet by remember {
+            mutableStateOf(valueOrTrue { false })
+        }
+
+        fun hideFilesBottomSheet() {
+            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                if (!sheetState.isVisible) {
+                    showFilesBottomSheet = false
+                }
+            }
+        }
+
+        if (showFilesBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showFilesBottomSheet = false
+                },
+                sheetState = sheetState
+            ) {
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.ht_add_sc),
+                        fontSize = 26.sp
+                    )
+
+                    // TODO finish
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column {
+                            RadioButton(
+                                selected = true,
+                                onClick = {  }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        FlowRow(Modifier.padding(10.dp)) {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Box(Modifier.padding(bottom = 5.dp)) {
+                        Mipmap(
+                            id = R.mipmap.files_icon,
+                            contentDescription = stringResource(R.string.files),
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(50))
+                                .size(60.dp)
+                        )
+                    }
+                    Text(stringResource(R.string.files))
+
+                    TextButton(
+                        onClick = { showFilesBottomSheet = true },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Filled.Add,
+                                contentDescription = stringResource(R.string.add)
+                            )
+                        }
+                    ) {
+                        Text(stringResource(R.string.add))
+                    }
+
+                    AnimatedVisibility(visible = removeIconVisible) {
+                        TextButton(
+                            onClick = {
+                                runOrNoop {
+                                    files = false
+                                    Toast.makeText(context, R.string.ir, LENGTH_SHORT).show()
+                                }
+                                removeIconVisible = false
+                            },
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Filled.Delete,
+                                    contentDescription = stringResource(R.string.ri)
+                                )
+                            }
+                        ) {
+                            Text(stringResource(R.string.ri))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 // TODO rewrite in Jetpack Compose
 class ShortcutsFragment: Fragment() {
@@ -151,7 +304,7 @@ class ShortcutsFragment: Fragment() {
                             )
                                 .setShortLabel(context.resources.getString(R.string.files))
                                 .setLongLabel(context.resources.getString(R.string.files))
-                                .setIcon(Icon.createWithResource(context, R.mipmap.files_icon))
+                                .setIcon(android.graphics.drawable.Icon.createWithResource(context, R.mipmap.files_icon))
                                 .setIntent(Intent(context, FilesShortcut::class.java).apply {
                                     action = ACTION_MAIN
                                 })

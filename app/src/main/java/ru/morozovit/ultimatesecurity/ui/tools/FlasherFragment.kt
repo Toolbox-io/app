@@ -37,7 +37,6 @@ import ru.morozovit.android.getOpenDocumentIntent
 import ru.morozovit.android.getSystemService
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.databinding.FlasherBinding
-import ru.morozovit.utils.EParser
 import java.io.IOException
 import java.util.Arrays.copyOfRange
 import kotlin.math.min
@@ -231,7 +230,7 @@ class FlasherFragment: Fragment() {
                                         Log.w("Flasher", "permission denied for device $device")
                                     }
                                 } catch (e: Exception) {
-                                    Log.e("Flasher", "Error while flashing: ${EParser(e)}")
+                                    Log.e("Flasher", "Error while flashing: ${ru.morozovit.utils.EParser(e)}")
                                 }
                             }
                         }

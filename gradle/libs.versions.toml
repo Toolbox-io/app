@@ -1,8 +1,7 @@
 [versions]
 activityCompose = "1.9.3"
 agp = "8.5.2"
-biometric = "1.1.0"
-biometricVersion = "1.4.0-alpha02"
+biometric = "1.4.0-alpha02"
 composeBom = "2024.12.01"
 constraintlayoutCompose = "1.1.0"
 core = "0.10.0"
@@ -27,12 +26,11 @@ shimmer = "0.1.0"
 materialCompose = "1.3.1"
 material-extended = "1.7.6"
 uiViewbinding = "1.7.6"
+jetbrainsKotlinJvm = "2.1.0"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-adaptive = { module = "androidx.compose.material3.adaptive:adaptive" }
-#noinspection SimilarGradleDependency
-androidx-biometric-v110 = { module = "androidx.biometric:biometric", version.ref = "biometric" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,8 +41,7 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
-#noinspection SimilarGradleDependency
-biometric = { module = "androidx.biometric:biometric", version.ref = "biometricVersion" }
+biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
 core = { module = "me.jahnen.libaums:core", version.ref = "core" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
@@ -66,3 +63,5 @@ androidx-ui-viewbinding = { group = "androidx.compose.ui", name = "ui-viewbindin
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }

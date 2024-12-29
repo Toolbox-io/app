@@ -39,7 +39,6 @@ import ru.morozovit.android.SimpleAsyncTask
 import ru.morozovit.ultimatesecurity.App
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.ui.MainActivity
-import ru.morozovit.utils.EParser
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -220,7 +219,7 @@ class UpdateChecker: JobService() {
                         asset
                     )
                 } catch (e: Exception) {
-                    Log.d("UpdateChecker", "Error. \n${EParser(e)}")
+                    Log.d("UpdateChecker", "Error. \n${ru.morozovit.utils.EParser(e)}")
                     return null
                 } finally {
                     request.disconnect()

@@ -38,13 +38,11 @@ import ru.morozovit.android.previewUtils
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
-import ru.morozovit.ultimatesecurity.databinding.UpActionsBinding
 import ru.morozovit.ultimatesecurity.ui.AppTheme
 import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoSettingsActivity
 
 class ActionsActivity: BaseActivity() {
-    private lateinit var binding: UpActionsBinding
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
 
     @OptIn(ExperimentalMaterial3Api::class)

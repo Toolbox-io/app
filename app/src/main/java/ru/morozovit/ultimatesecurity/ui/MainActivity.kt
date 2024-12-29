@@ -61,16 +61,13 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.core.content.ContextCompat
-import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.ui.AppBarConfiguration
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -91,11 +88,10 @@ import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings.exitDsa
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
-import ru.morozovit.ultimatesecurity.databinding.ActivityMainBinding
-import ru.morozovit.ultimatesecurity.databinding.ShortcutsFragmentBinding
 import ru.morozovit.ultimatesecurity.services.UpdateChecker
 import ru.morozovit.ultimatesecurity.ui.AuthActivity.Companion.started
 import ru.morozovit.ultimatesecurity.ui.customization.TilesScreen
+import ru.morozovit.ultimatesecurity.ui.customization.shortcuts.ShortcutsScreen
 import ru.morozovit.ultimatesecurity.ui.main.HomeScreen
 import ru.morozovit.ultimatesecurity.ui.main.SettingsScreen
 import ru.morozovit.ultimatesecurity.ui.protection.applocker.ApplockerScreen
@@ -106,10 +102,6 @@ class MainActivity : BaseActivity(
     backButtonBehavior = Companion.BackButtonBehavior.DEFAULT,
     savedInstanceStateEnabled = true
 ) {
-    private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var navController: NavController
-
-    private lateinit var binding: ActivityMainBinding
     private var prevConfig: Configuration? = null
 
     lateinit var activityLauncher: ActivityLauncher
@@ -367,7 +359,7 @@ class MainActivity : BaseActivity(
                             TilesScreen()
                         }
                         composable(route = "shortcuts") {
-                            AndroidViewBinding(ShortcutsFragmentBinding::inflate)
+                            ShortcutsScreen()
                         }
 
                         composable(route = "apkExtractor") { APKExtractorScreen() }

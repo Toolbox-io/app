@@ -8,6 +8,9 @@ import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.databinding.IntruderPhotoActivityBinding
 import java.io.File
 
+// TODO rewrite in Jetpack Compose
+//      merge with IntruderPhotoSettingsActivity
+//      remove
 class IntruderPhotoActivity: BaseActivity(false) {
     private lateinit var binding: IntruderPhotoActivityBinding
 

@@ -14,7 +14,7 @@
         <com.google.android.material.bottomsheet.BottomSheetDragHandleView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/shortcuts_files_bs_handle"/>
+            android:id="@+id/shortcuts_files_bs_handle" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

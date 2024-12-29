@@ -26,6 +26,7 @@ import android.view.ViewTreeObserver.OnPreDrawListener
 import android.view.Window
 import android.view.animation.AnimationUtils.loadAnimation
 import android.widget.EditText
+import android.widget.ImageView.ScaleType
 import androidx.activity.result.ActivityResult
 import androidx.annotation.AnimRes
 import androidx.annotation.AttrRes
@@ -47,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -646,3 +648,14 @@ typealias SizeClass = WindowSizeClass
 @Composable
 operator fun <T> CompositionLocal<T>.invoke() = current
 
+fun ContentScale.asAndroidScaleType(): ScaleType? {
+    return when (this) {
+        ContentScale.Fit -> ScaleType.FIT_CENTER
+        ContentScale.Crop -> ScaleType.CENTER_CROP
+        ContentScale.FillWidth,
+        ContentScale.FillHeight,
+        ContentScale.FillBounds -> ScaleType.FIT_XY
+        ContentScale.Inside -> ScaleType.CENTER_INSIDE
+        else -> null
+    }
+}

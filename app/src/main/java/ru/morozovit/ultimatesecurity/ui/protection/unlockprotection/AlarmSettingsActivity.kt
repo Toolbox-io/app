@@ -23,6 +23,7 @@ import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.customAla
 import ru.morozovit.ultimatesecurity.databinding.AlarmSettingsBinding
 import java.io.File
 
+// TODO rewrite in Jetpack Compose
 class AlarmSettingsActivity: BaseActivity() {
     private lateinit var binding: AlarmSettingsBinding
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>

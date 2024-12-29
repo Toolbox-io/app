@@ -10,7 +10,7 @@ import android.view.MotionEvent
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.annotation.MainThread
 import com.google.android.material.button.MaterialButton
-import ru.morozovit.ultimatesecurity.R
+import ru.morozovit.android.R
 
 class MaterialToggleIconButton @JvmOverloads constructor(
     context: Context,

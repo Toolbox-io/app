@@ -4,7 +4,6 @@ import android.content.res.Configuration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.Wallpapers
 
-@Retention(AnnotationRetention.SOURCE)
 @Preview(
     name = "Light mode",
     device = "id:pixel_8_pro",
@@ -23,5 +22,6 @@ import androidx.compose.ui.tooling.preview.Wallpapers
     wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE,
     apiLevel = 34
 )
+@Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.FUNCTION)
 annotation class PhonePreview

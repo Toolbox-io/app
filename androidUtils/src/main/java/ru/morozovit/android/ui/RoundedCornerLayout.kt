@@ -9,7 +9,7 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.UiThread
 import androidx.core.content.res.getDimensionPixelSizeOrThrow
-import ru.morozovit.ultimatesecurity.R
+import ru.morozovit.android.R
 
 
 @Suppress("MemberVisibilityCanBePrivate")

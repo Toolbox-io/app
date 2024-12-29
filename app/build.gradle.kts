@@ -56,7 +56,6 @@ dependencies {
     implementation(libs.androidx.exifinterface)
     implementation(libs.core)
     implementation(libs.shimmer)
-    implementation(libs.androidx.biometric.v110)
     implementation(libs.biometric)
     implementation(kotlin("reflect"))
     implementation(libs.jasypt)
@@ -76,4 +75,7 @@ dependencies {
     implementation(libs.play.services.oss.licenses)
 
     implementation(libs.kotlinx.serialization.json)
+
+    implementation(project(":androidUtils"))
+    implementation(project(":utils"))
 }

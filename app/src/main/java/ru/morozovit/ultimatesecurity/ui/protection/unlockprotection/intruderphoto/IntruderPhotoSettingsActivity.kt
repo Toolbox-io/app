@@ -34,6 +34,7 @@ import ru.morozovit.ultimatesecurity.databinding.IntruderphotoBinding
 import java.io.File
 import java.util.Date
 
+// TODO rewrite in Jetpack Compose
 class IntruderPhotoSettingsActivity: BaseActivity(false) {
     private lateinit var binding: IntruderPhotoSettingsBinding
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
