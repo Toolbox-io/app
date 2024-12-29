@@ -544,7 +544,7 @@ inline fun BottomSheetBehavior<*>.addBottomSheetCallback(crossinline callback: (
 }
 
 @Composable
-inline fun TextUnit.toDp() = with(LocalDensity.current) { toDp() }
+inline fun TextUnit.toDp() = with(LocalDensity()) { toDp() }
 
 val ConstrainScope.left get() = absoluteLeft
 val ConstrainScope.right get() = absoluteRight
@@ -571,7 +571,7 @@ data class PreviewUtils(
 
 @Composable
 inline fun previewUtils(): PreviewUtils {
-    val isPreview = LocalInspectionMode.current
+    val isPreview = LocalInspectionMode()
     return PreviewUtils(
         valueOrFalse = { value ->
             if (isPreview) false else value()
@@ -592,7 +592,7 @@ fun Modifier.clearFocusOnKeyboardDismiss() = composed {
     var keyboardAppearedSinceLastFocused by remember { mutableStateOf(false) }
     if (isFocused) {
         val imeIsVisible = WindowInsets.isImeVisible
-        val focusManager = LocalFocusManager.current
+        val focusManager = LocalFocusManager()
         LaunchedEffect(imeIsVisible) {
             if (imeIsVisible) {
                 keyboardAppearedSinceLastFocused = true
@@ -645,3 +645,4 @@ typealias SizeClass = WindowSizeClass
 
 @Composable
 operator fun <T> CompositionLocal<T>.invoke() = current
+

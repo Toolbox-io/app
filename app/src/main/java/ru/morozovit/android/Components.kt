@@ -171,7 +171,7 @@ inline fun SwitchListItem(
     ListItem(
         modifier = Modifier.clickable(
             interactionSource = interactionSource,
-            indication = LocalIndication.current,
+            indication = LocalIndication(),
             onClick = listItemOnClick
         ) + modifier,
         headline = headline,
@@ -261,7 +261,7 @@ fun SwitchCard(
         Box(
             Modifier.clickable(
                 interactionSource = interactionSource,
-                indication = LocalIndication.current,
+                indication = LocalIndication(),
                 onClick = cardOnClick
             )
         ) {
@@ -310,7 +310,7 @@ inline fun SecureTextField(
     noinline visibilityOnClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    textStyle: TextStyle = LocalTextStyle.current,
+    textStyle: TextStyle = LocalTextStyle(),
     noinline label: @Composable (() -> Unit)? = null,
     noinline leadingIcon: @Composable (() -> Unit)? = null,
     isError: Boolean = false,

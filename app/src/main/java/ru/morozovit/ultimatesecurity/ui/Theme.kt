@@ -20,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import ru.morozovit.android.invoke
+import ru.morozovit.android.previewUtils
 
 interface WindowInsetsScope {
     val systemBarInsets: WindowInsets
@@ -39,7 +41,7 @@ inline fun AppTheme(
 ) {
     val colorScheme = when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
+            val context = LocalContext()
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
         darkTheme -> darkColorScheme()
@@ -51,15 +53,15 @@ inline fun AppTheme(
     ) {
         val insets = WindowInsets(
             WindowInsets.systemBars.getLeft(
-                LocalDensity.current,
-                LocalLayoutDirection.current
+                LocalDensity(),
+                LocalLayoutDirection()
             ),
-            WindowInsets.systemBars.getTop(LocalDensity.current),
+            WindowInsets.systemBars.getTop(LocalDensity()),
             WindowInsets.systemBars.getRight(
-                LocalDensity.current,
-                LocalLayoutDirection.current
+                LocalDensity(),
+                LocalLayoutDirection()
             ),
-            WindowInsets.systemBars.getBottom(LocalDensity.current)
+            WindowInsets.systemBars.getBottom(LocalDensity())
         )
 
         Surface(
@@ -74,10 +76,10 @@ inline fun AppTheme(
                 mod
             }
         ) {
-            val topInset = insets.getTop(LocalDensity.current)
-            val bottomInset = insets.getBottom(LocalDensity.current)
-            val leftInset = insets.getLeft(LocalDensity.current, LocalLayoutDirection.current)
-            val rightInset = insets.getRight(LocalDensity.current, LocalLayoutDirection.current)
+            val topInset = insets.getTop(LocalDensity())
+            val bottomInset = insets.getBottom(LocalDensity())
+            val leftInset = insets.getLeft(LocalDensity(), LocalLayoutDirection())
+            val rightInset = insets.getRight(LocalDensity(), LocalLayoutDirection())
 
             content(object: WindowInsetsScope {
                 override val systemBarInsets: WindowInsets
@@ -93,6 +95,15 @@ inline fun AppTheme(
                 override val rightInset: Int
                     get() = rightInset
             })
+        }
+    }
+}
+
+@Composable
+inline fun AppThemeIfNessecary(crossinline content: @Composable () -> Unit) {
+    if (previewUtils().isPreview) {
+        AppTheme {
+            content()
         }
     }
 }

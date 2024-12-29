@@ -34,7 +34,7 @@
                     android:focusable="true"
                     android:importantForAccessibility="no"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/app_icon"
+                    tools:src="@mipmap/files_icon"
                     tools:ignore="ImageContrastCheck" />
             </androidx.cardview.widget.CardView>
             <TextView

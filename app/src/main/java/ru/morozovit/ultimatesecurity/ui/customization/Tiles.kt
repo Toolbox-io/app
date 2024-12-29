@@ -31,81 +31,84 @@ import ru.morozovit.android.previewUtils
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings.Tiles.sleep
 import ru.morozovit.ultimatesecurity.services.tiles.SleepTile
+import ru.morozovit.ultimatesecurity.ui.AppThemeIfNessecary
 import ru.morozovit.ultimatesecurity.ui.PhonePreview
 
 @OptIn(ExperimentalLayoutApi::class)
 @PhonePreview
 @Composable
 fun TilesScreen() {
-    val (_, _, _, valueOrTrue) = previewUtils()
+    AppThemeIfNessecary {
+        val (_, _, _, valueOrTrue) = previewUtils()
 
-    FlowRow(
-        Modifier
-            .verticalScroll(rememberScrollState())
-            .padding(10.dp)
-            .fillMaxWidth()
-    ) {
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer
-            )
+        FlowRow(
+            Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(10.dp)
+                .fillMaxWidth()
         ) {
-            Column(
-                modifier = Modifier.padding(10.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                )
             ) {
-                var checked by remember {
-                    mutableStateOf(
-                        valueOrTrue {
-                            SleepTile.instance?.enabled ?: true
-                        }
-                    )
-                }
-                var enabled by remember {
-                    mutableStateOf(
-                        valueOrTrue { sleep }
-                    )
-                }
-
-                Box(
-                    Modifier
-                        .padding(bottom = 10.dp)
-                        .onFocusChanged {
-                            checked = valueOrTrue {
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    var checked by remember {
+                        mutableStateOf(
+                            valueOrTrue {
                                 SleepTile.instance?.enabled ?: true
                             }
-                        }
-                ) {
-                    ToggleIconButton(
-                        checked = checked,
-                        onCheckedChange = {  },
-                        enabled = enabled
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Bedtime,
-                            contentDescription = stringResource(R.string.sleep),
-//                        modifier = Modifier.size(20.dp)
                         )
                     }
-                }
+                    var enabled by remember {
+                        mutableStateOf(
+                            valueOrTrue { sleep }
+                        )
+                    }
 
-                Text(stringResource(R.string.sleep))
+                    Box(
+                        Modifier
+                            .padding(bottom = 10.dp)
+                            .onFocusChanged {
+                                checked = valueOrTrue {
+                                    SleepTile.instance?.enabled ?: true
+                                }
+                            }
+                    ) {
+                        ToggleIconButton(
+                            checked = checked,
+                            onCheckedChange = { },
+                            enabled = enabled
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Bedtime,
+                                contentDescription = stringResource(R.string.sleep),
+//                        modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
 
-                var switchChecked by remember {
-                    mutableStateOf(
-                        valueOrTrue { sleep }
+                    Text(stringResource(R.string.sleep))
+
+                    var switchChecked by remember {
+                        mutableStateOf(
+                            valueOrTrue { sleep }
+                        )
+                    }
+
+                    Switch(
+                        checked = switchChecked,
+                        onCheckedChange = {
+                            switchChecked = it
+                            sleep = it
+                            checked = true
+                            enabled = it
+                        }
                     )
                 }
-
-                Switch(
-                    checked = switchChecked,
-                    onCheckedChange = {
-                        switchChecked = it
-                        sleep = it
-                        checked = true
-                        enabled = it
-                    }
-                )
             }
         }
     }
