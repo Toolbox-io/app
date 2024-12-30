@@ -10,17 +10,20 @@ import android.os.Build
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,6 +34,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import ru.morozovit.android.ListItem
 import ru.morozovit.android.SeparatedSwitchListItem
 import ru.morozovit.android.SwitchListItem
@@ -55,6 +60,7 @@ import ru.morozovit.ultimatesecurity.ui.Theme
 import ru.morozovit.ultimatesecurity.ui.dynamicThemeEnabled
 import ru.morozovit.ultimatesecurity.ui.theme
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 @PhonePreview
 fun SettingsScreen() {
@@ -306,32 +312,38 @@ fun SettingsScreen() {
                 headline = stringResource(R.string.theme),
                 divider = true,
                 bottomContent = {
-                    var selectedIndex by remember { mutableIntStateOf(0) }
-                    val options = listOf(
-                        stringResource(R.string.as_system),
-                        stringResource(R.string.light),
-                        stringResource(R.string.dark)
-                    )
-                    SingleChoiceSegmentedButtonRow {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        var selectedIndex by remember { mutableIntStateOf(0) }
+                        val options = listOf(
+                            stringResource(R.string.as_system),
+                            stringResource(R.string.light),
+                            stringResource(R.string.dark)
+                        )
                         options.forEachIndexed { index, label ->
-                            SegmentedButton(
-                                shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                            FilterChip(
                                 onClick = {
                                     selectedIndex = index
                                     appTheme = Theme.entries[index]
                                     theme = Theme.entries[index]
                                 },
                                 selected = index == selectedIndex,
-                                icon = {
+                                leadingIcon = {
+                                    if (index == 0) {
+                                        Spacer(Modifier.width(16.dp))
+                                    }
                                     when (index) {
                                         0 -> Icon(Icons.Filled.Settings, null)
                                         1 -> Icon(Icons.Filled.LightMode, null)
                                         2 -> Icon(Icons.Filled.DarkMode, null)
                                     }
+                                },
+                                label = {
+                                    Text(
+                                        text = label,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
                                 }
-                            ) {
-                                Text(label)
-                            }
+                            )
                         }
                     }
                 }
