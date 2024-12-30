@@ -6,14 +6,25 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -29,25 +40,37 @@ import ru.morozovit.android.previewUtils
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.allowBiometric
+import ru.morozovit.ultimatesecurity.Settings.appTheme
 import ru.morozovit.ultimatesecurity.Settings.deleteGlobalPasswordDsa
 import ru.morozovit.ultimatesecurity.Settings.dontShowInRecents
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
+import ru.morozovit.ultimatesecurity.Settings.materialYouEnabled
 import ru.morozovit.ultimatesecurity.services.DeviceAdmin
 import ru.morozovit.ultimatesecurity.ui.AppTheme
 import ru.morozovit.ultimatesecurity.ui.AuthActivity
 import ru.morozovit.ultimatesecurity.ui.MainActivity
 import ru.morozovit.ultimatesecurity.ui.PhonePreview
+import ru.morozovit.ultimatesecurity.ui.Theme
+import ru.morozovit.ultimatesecurity.ui.dynamicThemeEnabled
+import ru.morozovit.ultimatesecurity.ui.theme
 
 @Composable
 @PhonePreview
 fun SettingsScreen() {
     val (valueOrFalse, runOrNoop) = previewUtils()
 
-    val context = LocalContext() as MainActivity
-    val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-    val adminComponentName = ComponentName(context, DeviceAdmin::class.java)
-    val activityLauncher = context.activityLauncher
+    val c = LocalContext()
+    val context by lazy { c as MainActivity }
+    val dpm by lazy {
+        context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+    }
+    val adminComponentName by lazy {
+        ComponentName(context, DeviceAdmin::class.java)
+    }
+    val activityLauncher by lazy {
+        context.activityLauncher
+    }
     AppTheme {
         Column(Modifier.verticalScroll(rememberScrollState())) {
             var allowBiometricSwitchEnabled by remember {
@@ -247,6 +270,71 @@ fun SettingsScreen() {
                     dontShowInRecentsOnCheckedChanged(!dontShowInRecentsSwitch)
                 },
                 divider = true
+            )
+
+            runOrNoop {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
+                    materialYouEnabled = false
+            }
+
+            var materialYouSwitch by remember {
+                mutableStateOf(
+                    valueOrFalse {
+                        materialYouEnabled
+                    }
+                )
+            }
+            val materialYouOnCheckedChanged: (Boolean) -> Unit = {
+                materialYouSwitch = it
+                runOrNoop {
+                    materialYouEnabled = it
+                    dynamicThemeEnabled = it
+                }
+            }
+
+            SwitchListItem(
+                headline = stringResource(R.string.materialYou),
+                supportingText = stringResource(R.string.materialYou_d),
+                enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+                checked = materialYouSwitch,
+                onCheckedChange = materialYouOnCheckedChanged,
+                listItemOnClick = { materialYouOnCheckedChanged(!materialYouSwitch) },
+                divider = true
+            )
+
+            ListItem(
+                headline = stringResource(R.string.theme),
+                divider = true,
+                bottomContent = {
+                    var selectedIndex by remember { mutableIntStateOf(0) }
+                    val options = listOf(
+                        stringResource(R.string.as_system),
+                        stringResource(R.string.light),
+                        stringResource(R.string.dark)
+                    )
+                    SingleChoiceSegmentedButtonRow {
+                        options.forEachIndexed { index, label ->
+                            SegmentedButton(
+                                shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                                onClick = {
+                                    selectedIndex = index
+                                    appTheme = Theme.entries[index]
+                                    theme = Theme.entries[index]
+                                },
+                                selected = index == selectedIndex,
+                                icon = {
+                                    when (index) {
+                                        0 -> Icon(Icons.Filled.Settings, null)
+                                        1 -> Icon(Icons.Filled.LightMode, null)
+                                        2 -> Icon(Icons.Filled.DarkMode, null)
+                                    }
+                                }
+                            ) {
+                                Text(label)
+                            }
+                        }
+                    }
+                }
             )
         }
     }

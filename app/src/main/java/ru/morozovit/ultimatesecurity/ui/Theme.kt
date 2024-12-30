@@ -1,6 +1,7 @@
 package ru.morozovit.ultimatesecurity.ui
 
 import android.os.Build
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -16,6 +17,9 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -23,6 +27,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import ru.morozovit.android.invoke
 import ru.morozovit.android.previewUtils
+import ru.morozovit.ultimatesecurity.Settings
+import ru.morozovit.ultimatesecurity.Settings.materialYouEnabled
 
 val appLightColorScheme by lazy {
     lightColorScheme(
@@ -104,6 +110,18 @@ val appDarkColorScheme by lazy {
     )
 }
 
+enum class Theme {
+    AsSystem,
+    Light,
+    Dark
+}
+
+var dynamicThemeEnabled by mutableStateOf(
+    runCatching { materialYouEnabled }.getOrNull() ?: false
+)
+var theme by mutableStateOf(
+    runCatching { Settings.appTheme }.getOrNull() ?: Theme.AsSystem
+)
 
 interface WindowInsetsScope {
     val systemBarInsets: WindowInsets
@@ -115,20 +133,100 @@ interface WindowInsetsScope {
     val rightInset: Int
 }
 
+@Suppress("AnimateAsStateLabel")
 @Composable
 inline fun AppTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    _darkTheme: Boolean = isSystemInDarkTheme(),
     consumeWindowInsets: Boolean = false,
     crossinline content: @Composable WindowInsetsScope.() -> Unit
 ) {
-    val colorScheme = when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+    val darkTheme = when (theme) {
+        Theme.AsSystem -> _darkTheme
+        Theme.Light -> false
+        Theme.Dark -> true
+    }
+    var colorScheme = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && dynamicThemeEnabled -> {
             val context = LocalContext()
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
         darkTheme -> appDarkColorScheme
         else -> appLightColorScheme
     }
+
+    val primary by animateColorAsState(colorScheme.primary)
+    val onPrimary by animateColorAsState(colorScheme.onPrimary)
+    val primaryContainer by animateColorAsState(colorScheme.primaryContainer)
+    val onPrimaryContainer by animateColorAsState(colorScheme.onPrimaryContainer)
+    val secondary by animateColorAsState(colorScheme.secondary)
+    val onSecondary by animateColorAsState(colorScheme.onSecondary)
+    val secondaryContainer by animateColorAsState(colorScheme.secondaryContainer)
+    val onSecondaryContainer by animateColorAsState(colorScheme.onSecondaryContainer)
+    val tertiary by animateColorAsState(colorScheme.tertiary)
+    val onTertiary by animateColorAsState(colorScheme.onTertiary)
+    val tertiaryContainer by animateColorAsState(colorScheme.tertiaryContainer)
+    val onTertiaryContainer by animateColorAsState(colorScheme.onTertiaryContainer)
+    val error by animateColorAsState(colorScheme.error)
+    val onError by animateColorAsState(colorScheme.onError)
+    val errorContainer by animateColorAsState(colorScheme.errorContainer)
+    val onErrorContainer by animateColorAsState(colorScheme.onErrorContainer)
+    val background by animateColorAsState(colorScheme.background)
+    val onBackground by animateColorAsState(colorScheme.onBackground)
+    val surface by animateColorAsState(colorScheme.surface)
+    val onSurface by animateColorAsState(colorScheme.onSurface)
+    val surfaceVariant by animateColorAsState(colorScheme.surfaceVariant)
+    val onSurfaceVariant by animateColorAsState(colorScheme.onSurfaceVariant)
+    val outline by animateColorAsState(colorScheme.outline)
+    val outlineVariant by animateColorAsState(colorScheme.outlineVariant)
+    val scrim by animateColorAsState(colorScheme.scrim)
+    val inverseSurface by animateColorAsState(colorScheme.inverseSurface)
+    val inverseOnSurface by animateColorAsState(colorScheme.inverseOnSurface)
+    val inversePrimary by animateColorAsState(colorScheme.inversePrimary)
+    val surfaceDim by animateColorAsState(colorScheme.surfaceDim)
+    val surfaceBright by animateColorAsState(colorScheme.surfaceBright)
+    val surfaceContainerLowest by animateColorAsState(colorScheme.surfaceContainerLowest)
+    val surfaceContainerLow by animateColorAsState(colorScheme.surfaceContainerLow)
+    val surfaceContainer by animateColorAsState(colorScheme.surfaceContainer)
+    val surfaceContainerHigh by animateColorAsState(colorScheme.surfaceContainerHigh)
+    val surfaceContainerHighest by animateColorAsState(colorScheme.surfaceContainerHighest)
+
+    colorScheme = colorScheme.copy(
+        primary = primary,
+        onPrimary = onPrimary,
+        primaryContainer = primaryContainer,
+        onPrimaryContainer = onPrimaryContainer,
+        secondary = secondary,
+        onSecondary = onSecondary,
+        secondaryContainer = secondaryContainer,
+        onSecondaryContainer = onSecondaryContainer,
+        tertiary = tertiary,
+        onTertiary = onTertiary,
+        tertiaryContainer = tertiaryContainer,
+        onTertiaryContainer = onTertiaryContainer,
+        error = error,
+        onError = onError,
+        errorContainer = errorContainer,
+        onErrorContainer = onErrorContainer,
+        background = background,
+        onBackground = onBackground,
+        surface = surface,
+        onSurface = onSurface,
+        surfaceVariant = surfaceVariant,
+        onSurfaceVariant = onSurfaceVariant,
+        outline = outline,
+        outlineVariant = outlineVariant,
+        scrim = scrim,
+        inverseSurface = inverseSurface,
+        inverseOnSurface = inverseOnSurface,
+        inversePrimary = inversePrimary,
+        surfaceDim = surfaceDim,
+        surfaceBright = surfaceBright,
+        surfaceContainerLowest = surfaceContainerLowest,
+        surfaceContainerLow = surfaceContainerLow,
+        surfaceContainer = surfaceContainer,
+        surfaceContainerHigh = surfaceContainerHigh,
+        surfaceContainerHighest = surfaceContainerHighest
+    )
 
     MaterialTheme(
         colorScheme = colorScheme,
@@ -163,20 +261,16 @@ inline fun AppTheme(
             val leftInset = insets.getLeft(LocalDensity(), LocalLayoutDirection())
             val rightInset = insets.getRight(LocalDensity(), LocalLayoutDirection())
 
-            content(object: WindowInsetsScope {
-                override val systemBarInsets: WindowInsets
-                    get() = insets
-                override val isWindowInsetsConsumed: Boolean
-                    get() = consumeWindowInsets
-                override val topInset: Int
-                    get() = topInset
-                override val bottomInset: Int
-                    get() = bottomInset
-                override val leftInset: Int
-                    get() = leftInset
-                override val rightInset: Int
-                    get() = rightInset
-            })
+            content(
+                object: WindowInsetsScope {
+                    override val systemBarInsets: WindowInsets get() = insets
+                    override val isWindowInsetsConsumed: Boolean get() = consumeWindowInsets
+                    override val topInset: Int get() = topInset
+                    override val bottomInset: Int get() = bottomInset
+                    override val leftInset: Int get() = leftInset
+                    override val rightInset: Int get() = rightInset
+                }
+            )
         }
     }
 }

@@ -157,4 +157,10 @@
     <string name="old_password_cannot_be_empty">Старый пароль не может быть пустым</string>
     <string name="menu">Меню</string>
     <string name="app_desc">ваш набор инструментов \"все-в-одном\"</string>
+    <string name="materialYou">Использовать тему Material You</string>
+    <string name="materialYou_d">Использовать динамическую тему, основанную на ваших обоях. Работает только на Android 12 или выше.</string>
+    <string name="theme">Тема</string>
+    <string name="as_system">Как в системе</string>
+    <string name="light">Светлая</string>
+    <string name="dark">Тёмная</string>
 </resources>

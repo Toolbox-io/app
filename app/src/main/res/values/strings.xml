@@ -167,4 +167,10 @@
     <string name="old_password_cannot_be_empty">Old password cannot be empty</string>
     <string name="menu">Menu</string>
     <string name="app_desc">your All-in-One Toolbox</string>
+    <string name="materialYou">Enable Material You theming</string>
+    <string name="materialYou_d">Enable the dynamic theme based on your wallpaper. Works only on Android 12 or higher.</string>
+    <string name="theme">Theme</string>
+    <string name="as_system">As system</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
 </resources>

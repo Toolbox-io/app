@@ -18,6 +18,7 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.NOTHING_SELEC
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
 import ru.morozovit.ultimatesecurity.services.Accessibility
 import ru.morozovit.ultimatesecurity.services.tiles.SleepTile
+import ru.morozovit.ultimatesecurity.ui.Theme
 import ru.morozovit.ultimatesecurity.ui.customization.shortcuts.FilesActivity
 import kotlin.random.Random
 
@@ -113,6 +114,24 @@ object Settings {
         set(value) {
             with(sharedPref.edit()) {
                 putBoolean("dontShowInRecents", value)
+                apply()
+            }
+        }
+
+    var materialYouEnabled
+        get() = sharedPref.getBoolean("materialYouEnabled", Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+        set(value) {
+            with(sharedPref.edit()) {
+                putBoolean("materialYouEnabled", value)
+                apply()
+            }
+        }
+
+    var appTheme: Theme
+        get() = Theme.entries[sharedPref.getInt("appTheme", Theme.AsSystem.ordinal)]
+        set(value) {
+            with(sharedPref.edit()) {
+                putInt("appTheme", value.ordinal)
                 apply()
             }
         }

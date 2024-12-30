@@ -187,11 +187,11 @@ inline fun SwitchListItem(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     ListItem(
-        modifier = Modifier.clickable(
+        modifier = if (enabled) Modifier.clickable(
             interactionSource = interactionSource,
             indication = LocalIndication(),
             onClick = listItemOnClick
-        ) + modifier,
+        ) + modifier else modifier,
         headline = headline,
         supportingText = supportingText,
         leadingContent = leadingContent,
