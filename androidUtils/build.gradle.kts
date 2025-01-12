@@ -43,5 +43,5 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.adaptive)
-
+    implementation(libs.androidx.navigation.compose)
 }

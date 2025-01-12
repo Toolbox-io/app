@@ -71,15 +71,6 @@ object Settings {
             }
         }
 
-    var exitDsa
-        get() = sharedPref.getBoolean("exitDsa", false)
-        set(value) {
-            with(sharedPref.edit()) {
-                putBoolean("exitDsa", value)
-                apply()
-            }
-        }
-
     val accessibility get() = Accessibility.instance != null
 
     var globalPassword

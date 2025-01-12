@@ -10,24 +10,31 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonElevation
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.cardColors
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxColors
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
@@ -47,7 +54,10 @@ import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -56,6 +66,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asAndroidColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -162,7 +173,6 @@ fun ListItem(
         }
         if (divider) {
             HorizontalDivider(
-//                thickness = 0.5.dp,
                 modifier = Modifier.constrainAs(div) {
                     bottom link parent.bottom
                     left link parent.left
@@ -592,4 +602,112 @@ inline fun RadioButtonController(
     content: @Composable RadioButtonControllerScope.() -> Unit
 ) {
     content(RadioButtonControllerScope())
+}
+
+@Composable
+inline fun CheckboxWithText(
+    checked: Boolean,
+    crossinline onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: CheckboxColors = CheckboxDefaults.colors(),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp),
+    content: @Composable () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            +
+                if (enabled)
+                    Modifier.toggleable(
+                        value = checked,
+                        onValueChange = { onCheckedChange(!checked) },
+                        role = Role.Checkbox
+                    )
+                else Modifier
+            +
+            Modifier.padding(contentPadding)
+            + modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Checkbox(
+            checked = checked,
+            onCheckedChange = null,
+            enabled = enabled,
+            colors = colors,
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        content()
+    }
+}
+
+@Composable
+inline fun SimpleAlertDialog(
+    open: Boolean,
+    crossinline onDismissRequest: () -> Unit,
+    crossinline onPositiveButtonClick: (() -> Unit) = {},
+    crossinline onNeutralButtonClick: (() -> Unit) = {},
+    positiveButtonText: String? = null,
+    negativeButtonText: String? = null,
+    title: String,
+    body: String? = null,
+    dsaString: String? = null,
+    crossinline onDsa: (() -> Unit) = {},
+    noinline icon: @Composable (() -> Unit) = {},
+) {
+    if (open) {
+        var dsaChecked by remember { mutableStateOf(false) }
+
+        AlertDialog(
+            icon = icon,
+            title = {
+                Text(text = title)
+            },
+            text =
+            if (body != null || dsaString != null) {
+                {
+                    if (body != null) {
+                        Text(text = body)
+                    }
+                    if (dsaString != null) {
+                        CheckboxWithText(
+                            checked = dsaChecked,
+                            onCheckedChange = { dsaChecked = it },
+                            contentPadding = PaddingValues(top = 10.dp)
+                        ) {
+                            Text(text = dsaString)
+                        }
+                    }
+                }
+            } else null,
+            onDismissRequest = { onDismissRequest() },
+            confirmButton = {
+                if (!positiveButtonText.isNullOrBlank()) {
+                    TextButton(
+                        onClick = {
+                            onPositiveButtonClick()
+                            if (dsaChecked) onDsa()
+                            onDismissRequest()
+                        }
+                    ) {
+                        Text(positiveButtonText)
+                    }
+                }
+            },
+            dismissButton = if (!negativeButtonText.isNullOrBlank()) {
+                {
+                    TextButton(
+                        onClick = {
+                            onNeutralButtonClick()
+                            if (dsaChecked) onDsa()
+                            onDismissRequest()
+                        }
+                    ) {
+                        Text(negativeButtonText)
+                    }
+                }
+            } else null
+        )
+    }
 }

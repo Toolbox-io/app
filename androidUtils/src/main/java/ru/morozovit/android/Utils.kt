@@ -63,6 +63,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.navigation.NavController
 import androidx.window.core.layout.WindowHeightSizeClass
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
@@ -659,3 +660,19 @@ fun ContentScale.asAndroidScaleType(): ScaleType? {
         else -> null
     }
 }
+
+fun Context.openUrl(url: String) {
+    startActivity(
+        Intent(Intent.ACTION_VIEW, Uri.parse(
+            url.let {
+                var th = it
+                if (!th.startsWith("http://") && !th.startsWith("https://")) {
+                    th = "https://$th"
+                }
+                th
+            }
+        ))
+    )
+}
+
+val NavController.isBackStackEmpty get() = currentBackStackEntry != null

@@ -6,4 +6,10 @@
         <item name="windowSplashScreenAnimatedIcon">@drawable/app_icon_adapted</item>
         <item name="postSplashScreenTheme">@style/Theme.UltimateSecurity.MainActivity</item>
     </style>
+
+    <style name="Theme.UltimateSecurity.NoDynamicColor" parent="Theme.UltimateSecurity.Night.NoDynamicColor" />
+    <style name="Theme.UltimateSecurity.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Night.NoDynamicColor">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
 </resources>

@@ -3,6 +3,7 @@
 package ru.morozovit.ultimatesecurity
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -20,12 +21,15 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import ru.morozovit.android.NoParallelExecutor
 import ru.morozovit.android.homeScreen
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
+import ru.morozovit.ultimatesecurity.Settings.appTheme
 import ru.morozovit.ultimatesecurity.Settings.dontShowInRecents
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
+import ru.morozovit.ultimatesecurity.Settings.materialYouEnabled
 import ru.morozovit.ultimatesecurity.ui.AuthActivity
 import ru.morozovit.ultimatesecurity.ui.AuthActivity.Companion.started
 import ru.morozovit.ultimatesecurity.ui.MainActivity
+import ru.morozovit.ultimatesecurity.ui.Theme
 import ru.morozovit.utils.ExceptionParser.Companion.eToString
 import java.lang.Thread.sleep
 
@@ -35,6 +39,7 @@ abstract class BaseActivity(
     protected var authEnabled: Boolean = true,
     private val savedInstanceStateEnabled: Boolean = false,
     private var backButtonBehavior: BackButtonBehavior = BackButtonBehavior.FINISH,
+    private val configTheme: Boolean = true
 ): AppCompatActivity() {
     companion object {
         enum class BackButtonBehavior {
@@ -173,6 +178,7 @@ abstract class BaseActivity(
             auth(noAnim = false, setPendingAuth = true)
         }
         this.savedInstanceState = savedInstanceState
+        if (configTheme) configureTheme()
     }
 
     protected fun auth(noAnim: Boolean = true, setPendingAuth: Boolean = false) {
@@ -389,6 +395,38 @@ abstract class BaseActivity(
                     return true
                 }
             })
+        }
+    }
+
+    val isDarkTheme get() =
+        resources.configuration.uiMode and
+        Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+
+    fun configureTheme() {
+        if (materialYouEnabled) {
+            when (appTheme) {
+                Theme.AsSystem -> {
+                    setTheme(R.style.Theme_UltimateSecurity_NoActionBar)
+                }
+                Theme.Light -> {
+                    setTheme(R.style.Theme_UltimateSecurity_Light_NoActionBar)
+                }
+                Theme.Dark -> {
+                    setTheme(R.style.Theme_UltimateSecurity_Night_NoActionBar)
+                }
+            }
+        } else {
+            when (appTheme) {
+                Theme.AsSystem -> {
+                    setTheme(R.style.Theme_UltimateSecurity_NoActionBar_NoDynamicColor)
+                }
+                Theme.Light -> {
+                    setTheme(R.style.Theme_UltimateSecurity_Light_NoActionBar_NoDynamicColor)
+                }
+                Theme.Dark -> {
+                    setTheme(R.style.Theme_UltimateSecurity_Night_NoActionBar_NoDynamicColor)
+                }
+            }
         }
     }
 

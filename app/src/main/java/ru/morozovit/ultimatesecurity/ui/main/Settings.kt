@@ -295,6 +295,7 @@ fun SettingsScreen() {
                 runOrNoop {
                     materialYouEnabled = it
                     dynamicThemeEnabled = it
+                    context.configureTheme()
                 }
             }
 
@@ -313,7 +314,7 @@ fun SettingsScreen() {
                 divider = true,
                 bottomContent = {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        var selectedIndex by remember { mutableIntStateOf(0) }
+                        var selectedIndex by remember { mutableIntStateOf(appTheme.ordinal) }
                         val options = listOf(
                             stringResource(R.string.as_system),
                             stringResource(R.string.light),
@@ -325,6 +326,7 @@ fun SettingsScreen() {
                                     selectedIndex = index
                                     appTheme = Theme.entries[index]
                                     theme = Theme.entries[index]
+                                    context.configureTheme()
                                 },
                                 selected = index == selectedIndex,
                                 leadingIcon = {

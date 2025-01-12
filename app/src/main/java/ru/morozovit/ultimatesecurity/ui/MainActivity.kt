@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.ViewTreeObserver
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.StringDef
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -44,6 +43,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowSize
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -75,17 +75,16 @@ import kotlinx.serialization.Transient
 import ru.morozovit.android.ActivityLauncher
 import ru.morozovit.android.Website
 import ru.morozovit.android.WidthSizeClass
-import ru.morozovit.android.alertDialog
 import ru.morozovit.android.compareTo
 import ru.morozovit.android.left
 import ru.morozovit.android.link
+import ru.morozovit.android.openUrl
 import ru.morozovit.android.right
 import ru.morozovit.android.unsupported
 import ru.morozovit.android.widthSizeClass
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
-import ru.morozovit.ultimatesecurity.Settings.exitDsa
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
 import ru.morozovit.ultimatesecurity.services.UpdateChecker
@@ -110,23 +109,6 @@ class MainActivity : BaseActivity(
 
     private var isLockVisible by mutableStateOf(false)
 
-    @Retention(AnnotationRetention.SOURCE)
-    @StringDef(
-        Screen.HOME,
-        Screen.SETTINGS,
-        Screen.WEBSITE,
-
-        Screen.APP_LOCKER,
-        Screen.UNLOCK_PROTECTION,
-
-        Screen.TILES,
-        Screen.SHORTCUTS,
-
-        Screen.APK_EXTRACTOR
-    )
-    @Target(AnnotationTarget.TYPE, AnnotationTarget.VALUE_PARAMETER)
-    private annotation class ScreenName
-
     sealed class BaseScreen
 
     @Serializable sealed class Screen(
@@ -135,7 +117,7 @@ class MainActivity : BaseActivity(
         @Transient val icon: ImageVector = unsupported
     ): BaseScreen() {
         companion object {
-            operator fun get(name: @ScreenName String) = when (name) {
+            operator fun get(name: String) = when (name) {
                 HOME -> Home
                 SETTINGS -> Settings
                 WEBSITE -> Website
@@ -163,13 +145,9 @@ class MainActivity : BaseActivity(
             const val APK_EXTRACTOR = "apkExtractor"
         }
 
-        override fun equals(other: Any?): Boolean {
-            return other is Screen && label == other.label
-        }
+        override fun equals(other: Any?) = other is Screen && label == other.label
 
-        override fun hashCode(): Int {
-            return label.hashCode()
-        }
+        override fun hashCode() = label.hashCode()
 
         class Label(@StringRes val label: Int): BaseScreen()
 
@@ -271,10 +249,14 @@ class MainActivity : BaseActivity(
                                 label = { Text(stringResource(item.label)) },
                                 selected = item == Screen[selectedItem],
                                 onClick = {
-                                    scope.launch { drawerState.close() }
-                                    if (Screen[selectedItem] != item) {
-                                        selectedItem = item.name
-                                        navController.navigate(item.name)
+                                    if (item == Screen.Website) {
+                                        openUrl("toolbox-io.ru")
+                                    } else {
+                                        scope.launch { drawerState.close() }
+                                        if (Screen[selectedItem] != item) {
+                                            selectedItem = item.name
+                                            navController.navigate(item.name)
+                                        }
                                     }
                                 },
                                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -348,19 +330,12 @@ class MainActivity : BaseActivity(
                     ) {
                         composable(route = "home") { HomeScreen() }
                         composable(route = "settings") { SettingsScreen() }
-                        composable(route = "website") {
-                            // TODO website link
-                        }
 
                         composable(route = "appLocker") { ApplockerScreen() }
                         composable(route = "unlockProtection") { UnlockProtectionScreen() }
 
-                        composable(route = "tiles") {
-                            TilesScreen()
-                        }
-                        composable(route = "shortcuts") {
-                            ShortcutsScreen()
-                        }
+                        composable(route = "tiles") { TilesScreen() }
+                        composable(route = "shortcuts") { ShortcutsScreen() }
 
                         composable(route = "apkExtractor") { APKExtractorScreen() }
                     }
@@ -374,13 +349,7 @@ class MainActivity : BaseActivity(
                             drawerContainerColor = MaterialTheme.colorScheme.surfaceContainer,
                             content = drawerContent,
                             drawerShape = RoundedCornerShape(0.dp, 20.dp, 20.dp, 0.dp),
-                            modifier = Modifier.widthIn(
-                                max =
-                                    if (
-                                        currentWindowAdaptiveInfo()
-                                            .widthSizeClass == WidthSizeClass.EXPANDED
-                                    ) 360.dp else 300.dp
-                            )
+                            modifier = Modifier.widthIn(max = 360.dp)
                         )
                     },
                     content = content
@@ -392,7 +361,9 @@ class MainActivity : BaseActivity(
                         ModalDrawerSheet(
                             drawerContainerColor = MaterialTheme.colorScheme.surfaceContainer,
                             drawerState = drawerState,
-                            modifier = Modifier.widthIn(max = 300.dp),
+                            modifier = Modifier.widthIn(
+                                max = if (currentWindowSize().width > 370) 360.dp else 300.dp
+                            ),
                             content = drawerContent
                         )
                     },
@@ -439,30 +410,6 @@ class MainActivity : BaseActivity(
             })
         }
 
-        // Navigation
-//        setSupportActionBar(binding.toolbar)
-//        navController = findNavController(R.id.nav_host_fragment_content_main)
-//        // Passing each menu ID as a set of Ids because each
-//        // menu should be considered as top level destinations.
-//        appBarConfiguration = AppBarConfiguration(
-//            setOf(
-//                R.id.nav_home,
-//                R.id.nav_settings,
-//                R.id.nav_website,
-//                R.id.nav_unlock_protection,
-//                R.id.nav_applocker,
-//                R.id.nav_tiles,
-//                R.id.nav_shortcuts,
-//                R.id.nav_flasher,
-//                R.id.nav_apkextractor
-//            ), binding.drawerLayout
-//        )
-//        setupActionBarWithNavController(navController, appBarConfiguration)
-//        binding.navView.setupWithNavController(navController)
-//
-//        navController.navigate(intent.getIntExtra("nav", R.id.nav_home))
-//
-//        // Notifications
         if (Build.VERSION.SDK_INT >= 33) {
             if (ContextCompat.checkSelfPermission(
                     this,
@@ -488,35 +435,9 @@ class MainActivity : BaseActivity(
     }
 
     override fun finish() {
-        if (!exitDsa) {
-            // TODO rewrite in Jetpack Compose
-            alertDialog {
-                message(R.string.exit)
-                neutralButton(R.string.dsa) {
-                    exitDsa = true
-                    super.finish()
-                    authenticated = false
-                }
-                negativeButton(R.string.no)
-                positiveButton(R.string.yes) {
-                    super.finish()
-                    authenticated = false
-                }
-            }
-        } else {
-            super.finish()
-            authenticated = false
-        }
+        super.finish()
+        authenticated = false
     }
-
-//    @Suppress("OVERRIDE_DEPRECATION")
-//    override fun onBackPressed() {
-//        if (binding.navView.menu[0].isChecked) {
-//            finish()
-//        } else {
-//            super.onBackPressed()
-//        }
-//    }
 
     override fun onResume() {
         super.onResume()

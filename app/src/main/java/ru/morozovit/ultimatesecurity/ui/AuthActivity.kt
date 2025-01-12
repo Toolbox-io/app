@@ -20,6 +20,7 @@ import androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
 import androidx.core.view.postDelayed
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
+import ru.morozovit.android.addOneTimeOnGlobalLayoutListener
 import ru.morozovit.android.addOneTimeOnPreDrawListener
 import ru.morozovit.android.homeScreen
 import ru.morozovit.android.requestAuthentication
@@ -287,6 +288,10 @@ class AuthActivity: BaseActivity(false) {
                     requestAuth()
                     true
                 }
+            }
+
+            window.decorView.addOneTimeOnGlobalLayoutListener {
+                configureTheme()
             }
 
             binding.authFingerprint.isEnabled =

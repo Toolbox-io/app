@@ -1,14 +1,24 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="Theme.UltimateSecurity" parent="Theme.Material3.DayNight">
+    <style name="Theme.UltimateSecurity" parent="Theme.Material3.DynamicColors.DayNight">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="fontFamily">@font/rethink_sans</item>
         <item name="android:windowEnterAnimation">@anim/slide_left</item>
         <item name="android:windowExitAnimation">@anim/scale_down_translate</item>
+    </style>
+
+    <style name="Theme.UltimateSecurity.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.UltimateSecurity.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoDynamicColor" />
+    <style name="Theme.UltimateSecurity.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoDynamicColor">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="Theme.UltimateSecurity.SplashScreen" parent="Theme.SplashScreen">
@@ -21,23 +31,117 @@
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    <style name="Theme.UltimateSecurity.Night" parent="Theme.Material3.DynamicColors.Dark">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowTranslucentStatus">false</item>
     </style>
-
-    <style name="Theme.UltimateSecurity.Night" parent="Theme.Material3.Dark" />
-
     <style name="Theme.UltimateSecurity.Night.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+    <style name="Theme.UltimateSecurity.Night.NoDynamicColor" parent="Theme.Material3.Dark">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowTranslucentStatus">false</item>
 
-    <style name="Widget.Material3.NavigationView.NoSeparators"
-        parent="Theme.UltimateSecurity">
-        <item name="android:listDivider">@android:color/transparent</item>
-        <item name="android:dividerHeight">0dp</item>
+        <item name="colorPrimary">#FFFBBA73</item>
+        <item name="colorOnPrimary">#FF492900</item>
+        <item name="colorPrimaryContainer">#FF683D00</item>
+        <item name="colorOnPrimaryContainer">#FFFFDCBC</item>
+        <item name="colorSecondary">#FFE0C1A3</item>
+        <item name="colorOnSecondary">#FF402D17</item>
+        <item name="colorSecondaryContainer">#FF58432C</item>
+        <item name="colorOnSecondaryContainer">#FFFEDDBE</item>
+        <item name="colorTertiary">#FFBECC9C</item>
+        <item name="colorOnTertiary">#FF293411</item>
+        <item name="colorTertiaryContainer">#FF3F4B26</item>
+        <item name="colorOnTertiaryContainer">#FFDAE9B6</item>
+        <item name="colorError">#FFFFB4AB</item>
+        <item name="colorOnError">#FF690005</item>
+        <item name="colorErrorContainer">#FF93000A</item>
+        <item name="colorOnErrorContainer">#FFFFDAD6</item>
+        <item name="android:colorBackground">#FF19120C</item>
+        <item name="colorOnBackground">#FFEEE0D5</item>
+        <item name="colorSurface">#FF19120C</item>
+        <item name="colorOnSurface">#FFEEE0D5</item>
+        <item name="colorSurfaceVariant">#FF50453A</item>
+        <item name="colorOnSurfaceVariant">#FFD5C4B5</item>
+        <item name="colorOutline">#FF9D8E81</item>
+        <item name="colorOutlineVariant">#FF50453A</item>
+        <!--
+        <item name="colorScrim">#FF000000</item>
+        <item name="colorInverseSurface">#FFEEE0D5</item>
+        <item name="colorInverseOnSurface">#FF372F28</item>
+        <item name="colorInversePrimary">#FF845416</item>
+        -->
+        <item name="colorSurfaceDim">#FF19120C</item>
+        <item name="colorSurfaceBright">#FF403830</item>
+        <item name="colorSurfaceContainerLowest">#FF130D07</item>
+        <item name="colorSurfaceContainerLow">#FF211A14</item>
+        <item name="colorSurfaceContainer">#FF251E17</item>
+        <item name="colorSurfaceContainerHigh">#FF302921</item>
+        <item name="colorSurfaceContainerHighest">#FF3B332C</item>
     </style>
+    <style name="Theme.UltimateSecurity.Night.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Night.NoDynamicColor" />
+
+    <style name="Theme.UltimateSecurity.Light" parent="Theme.Material3.DynamicColors.Light">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowTranslucentStatus">false</item>
+    </style>
+    <style name="Theme.UltimateSecurity.Light.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.UltimateSecurity.Light.NoDynamicColor" parent="Theme.Material3.Light">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowTranslucentStatus">false</item>
+
+        <item name="colorPrimary">#FF845416</item>
+        <item name="colorOnPrimary">#FFFFFFFF</item>
+        <item name="colorPrimaryContainer">#FFFFDCBC</item>
+        <item name="colorOnPrimaryContainer">#FF2C1700</item>
+        <item name="colorSecondary">#FF725A42</item>
+        <item name="colorOnSecondary">#FFFFFFFF</item>
+        <item name="colorSecondaryContainer">#FFFEDDBE</item>
+        <item name="colorOnSecondaryContainer">#FF291805</item>
+        <item name="colorTertiary">#FF56633B</item>
+        <item name="colorOnTertiary">#FFFFFFFF</item>
+        <item name="colorTertiaryContainer">#FFDAE9B6</item>
+        <item name="colorOnTertiaryContainer">#FF151F01</item>
+        <item name="colorError">#FFBA1A1A</item>
+        <item name="colorOnError">#FFFFFFFF</item>
+        <item name="colorErrorContainer">#FFFFDAD6</item>
+        <item name="colorOnErrorContainer">#FF410002</item>
+        <item name="android:colorBackground">#FFFFF8F4</item>
+        <item name="colorOnBackground">#FF211A14</item>
+        <item name="colorSurface">#FFFFF8F4</item>
+        <item name="colorOnSurface">#FF211A14</item>
+        <item name="colorSurfaceVariant">#FFF1DFD0</item>
+        <item name="colorOnSurfaceVariant">#FF50453A</item>
+        <item name="colorOutline">#FF827568</item>
+        <item name="colorOutlineVariant">#FFD5C4B5</item>
+        <!--
+        <item name="colorScrim">#FF000000</item>
+        <item name="colorInverseSurface">#FF372F28</item>
+        <item name="colorInverseOnSurface">#FFFDEEE3</item>
+        <item name="colorInversePrimary">#FFFBBA73</item>
+        -->
+        <item name="colorSurfaceDim">#FFE6D8CC</item>
+        <item name="colorSurfaceBright">#FFFFF8F4</item>
+        <item name="colorSurfaceContainerLowest">#FFFFFFFF</item>
+        <item name="colorSurfaceContainerLow">#FFFFF1E7</item>
+        <item name="colorSurfaceContainer">#FFFAEBE0</item>
+        <item name="colorSurfaceContainerHigh">#FFF4E6DA</item>
+        <item name="colorSurfaceContainerHighest">#FFEEE0D5</item>
+    </style>
+    <style name="Theme.UltimateSecurity.Light.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoDynamicColor" />
 
     <style name="Theme.UltimateSecurity.ImageViewer" parent="Theme.UltimateSecurity.Night.NoActionBar">
         <item name="android:windowSharedElementEnterTransition">@transition/img</item>
@@ -45,10 +149,7 @@
         <item name="android:statusBarColor">?attr/colorSurface</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.MainActivity" parent="Theme.UltimateSecurity.NoActionBar">
-        <item name="android:windowSharedElementEnterTransition">@transition/img</item>
-        <item name="android:windowSharedElementExitTransition">@transition/img</item>
-    </style>
+    <style name="Theme.UltimateSecurity.MainActivity" parent="Theme.UltimateSecurity.NoActionBar" />
 
     <style name="Theme.UltimateSecurity.FakeCrash" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
@@ -61,9 +162,6 @@
         <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
         <item name="android:windowFullscreen">true</item>
     </style>
-
-
-    <style name="Theme.UltimateSecurity.PopupOverlay" parent="ThemeOverlay.Material3.Light" />
 
     <style name="Widget.Material3.Button.IconButton.Filled.Red">
         <item name="colorPrimary">#FF4F4F</item>
