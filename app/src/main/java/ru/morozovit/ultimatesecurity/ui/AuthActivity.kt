@@ -185,6 +185,8 @@ class AuthActivity: BaseActivity(false) {
                 }
             }
 
+            // TODO adapt to landscape orientation
+
             Scaffold(
                 topBar = {
                     if (valueOrFalse { isSetOrConfirm }) {

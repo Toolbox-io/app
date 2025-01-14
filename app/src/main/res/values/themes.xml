@@ -49,6 +49,9 @@
         <item name="windowNoTitle">true</item>
     </style>
     <style name="Theme.UltimateSecurity.Night.NoDynamicColor" parent="Theme.Material3.Dark">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+
         <item name="colorPrimary">#FFFBBA73</item>
         <item name="colorOnPrimary">#FF492900</item>
         <item name="colorPrimaryContainer">#FF683D00</item>
@@ -105,6 +108,9 @@
         <item name="windowNoTitle">true</item>
     </style>
     <style name="Theme.UltimateSecurity.Light.NoDynamicColor" parent="Theme.Material3.Light">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+
         <item name="colorPrimary">#FF845416</item>
         <item name="colorOnPrimary">#FFFFFFFF</item>
         <item name="colorPrimaryContainer">#FFFFDCBC</item>
@@ -166,11 +172,6 @@
         <item name="windowActionBar">false</item>
         <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
         <item name="android:windowFullscreen">true</item>
-    </style>
-
-    <style name="Widget.Material3.Button.IconButton.Filled.Red">
-        <item name="colorPrimary">#FF4F4F</item>
-        <item name="colorOnPrimary">#ffffff</item>
     </style>
 
     <style name="Widget.Material3.Button.IconButton.Filled.Toggleable.Active"

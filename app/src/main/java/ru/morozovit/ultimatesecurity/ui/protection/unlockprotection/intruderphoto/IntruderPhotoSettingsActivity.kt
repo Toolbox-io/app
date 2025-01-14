@@ -63,7 +63,7 @@ class IntruderPhotoSettingsActivity: BaseActivity(false) {
 
 
     inner class IntruderPhotoViewHolder(
-        val binding: IntruderphotoBinding
+        private val binding: IntruderphotoBinding
     ): RecyclerView.ViewHolder(binding.root) {
         private lateinit var data: IntruderPhoto
 

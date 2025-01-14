@@ -42,7 +42,7 @@ import java.util.Arrays.copyOfRange
 import kotlin.math.min
 
 // TODO finish
-// TODO rewrite in Jetpack Compose
+//      rewrite in Jetpack Compose
 class FlasherFragment: Fragment() {
     @Suppress("MemberVisibilityCanBePrivate")
     companion object {

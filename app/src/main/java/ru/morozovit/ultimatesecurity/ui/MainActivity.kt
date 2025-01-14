@@ -43,7 +43,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.adaptive.currentWindowSize
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -58,6 +57,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -97,6 +97,7 @@ import ru.morozovit.ultimatesecurity.ui.main.SettingsScreen
 import ru.morozovit.ultimatesecurity.ui.protection.applocker.ApplockerScreen
 import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.UnlockProtectionScreen
 import ru.morozovit.ultimatesecurity.ui.tools.APKExtractorScreen
+import kotlin.math.min
 
 class MainActivity : BaseActivity(
     backButtonBehavior = Companion.BackButtonBehavior.DEFAULT,
@@ -363,12 +364,13 @@ class MainActivity : BaseActivity(
                 ModalNavigationDrawer(
                     drawerState = drawerState,
                     drawerContent = {
+                        val max0 = min(300.0, LocalConfiguration.current.screenWidthDp * 0.9)
+                        val max = if (max0 > 360) 360.0 else max0
+
                         ModalDrawerSheet(
                             drawerContainerColor = MaterialTheme.colorScheme.surfaceContainer,
                             drawerState = drawerState,
-                            modifier = Modifier.widthIn(
-                                max = if (currentWindowSize().width > 370) 360.dp else 300.dp
-                            ),
+                            modifier = Modifier.widthIn(max = max.dp),
                             content = drawerContent
                         )
                     },

@@ -1,4 +1,4 @@
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "unused", "unused", "unused", "unused", "unused")
 
 package ru.morozovit.android
 
@@ -593,9 +593,7 @@ inline fun TextButton(
     }
 }
 
-class RadioButtonControllerScope @PublishedApi internal constructor() {
-
-}
+class RadioButtonControllerScope @PublishedApi internal constructor()
 
 @Composable
 inline fun RadioButtonController(

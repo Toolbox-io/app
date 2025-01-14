@@ -4,7 +4,7 @@ import android.widget.RadioButton
 
 typealias OnSelectListener = ((rb: RadioButton, index: Int) -> Unit)?
 
-@Suppress("MemberVisibilityCanBePrivate", "unused")
+@Suppress("MemberVisibilityCanBePrivate")
 class RadioButtonController(private val radioButtons: MutableList<RadioButton> = mutableListOf()) {
     private var listener: OnSelectListener = null
     private fun check(index: Int) {

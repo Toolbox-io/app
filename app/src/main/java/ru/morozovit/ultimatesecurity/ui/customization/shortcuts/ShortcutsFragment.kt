@@ -193,7 +193,6 @@ fun ShortcutsScreen() {
 // TODO rewrite in Jetpack Compose
 class ShortcutsFragment: Fragment() {
     companion object {
-        @Suppress("unused")
         const val FILES_SHORTCUT = "files-shortcut"
     }
     private lateinit var binding: ShortcutsBinding

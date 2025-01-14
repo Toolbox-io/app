@@ -6,6 +6,4 @@
     <color name="androidPrimary">@color/androidPrimaryLight</color>
     <color name="white">#fff</color>
     <color name="filesIconBg">#ff4688f2</color>
-    <color name="filesBg">#FDFDFD</color>
-    <color name="colorGrey">#969696</color>
 </resources>

@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_keeps_stopping">В приложении %1$s снова произошел сбой</string>
-    <string name="nav_header_desc">защищает ваше устройство</string>
     <string name="home">Главная</string>
     <string name="applocker">Блокировка приложений</string>
     <string name="settings">Настройки</string>
-    <string name="applocker_enable">Включить</string>
     <string name="permissions_required">Необходимы разрешения</string>
     <string name="grant">Предоставить</string>
     <string name="accessibility_service_description">Этот сервис используется для Блокировки приложений.</string>
@@ -33,7 +31,6 @@
     <string name="new_password">Новый пароль</string>
     <string name="confirm_password">Подтвердите</string>
     <string name="passwords_dont_match">Пароли не совпадают</string>
-    <string name="failed_setting_password">"Не удалось установить пароль, повторите попытку "</string>
     <string name="setpassword_d">Установить пароль, который будет использован для разблокировки приложений</string>
     <string name="unlockmethod">Способ разброкировки</string>
     <string name="lp_ai">Долго нажать \"О приложении\"</string>
@@ -44,7 +41,6 @@
     <string name="download">Скачать</string>
     <string name="dsa">Больше не показывать</string>
     <string name="update_version">Версия %1$s</string>
-    <string name="failed_to_check_for_updates">Не удалось проверить обновления</string>
     <string name="install">Установить</string>
     <string name="devadmin">Администратор устройства</string>
     <string name="devadmin_d">Установить это приложение как администратор устройства, чтобы предотвратить удаление и улучшить защиту</string>
@@ -59,7 +55,6 @@
     <string name="lp_oaa">Долго нажать \"Открыть приложение снова\"</string>
     <string name="p_oaa">Нажать \"Открыть приложение снова\"</string>
     <string name="unlock_protection">Блокировка экрана</string>
-    <string name="unlock_protection_enable">Включить</string>
     <string name="unlock_attempts">Попытки разблокировки</string>
     <string name="unlock_attempts_d">Число неудачных попыток разблокировки, необходимое для запуска действий</string>
     <string name="actions">Действия</string>
@@ -89,7 +84,6 @@
     <string name="nothing">Ура, мошенников нет!</string>
     <string name="camrestriction">Не рекомендуется выбирать оба варианта из-за странных ограничений Android, которые могут вызвать неожиданное поведение и сбои.</string>
     <string name="erase">Erase</string>
-    <string name="lock">Заблокировать</string>
     <string name="locked">Заблокированно</string>
     <string name="lockapp">Блокировка</string>
     <string name="lockapp_d">Заблокировать это приложение PIN-кодом.</string>
@@ -97,7 +91,6 @@
     <string name="dpw">Удалить пароль?</string>
     <string name="dpw_d">Вы моете удалить пароль, который установлен сейчас после его отключения.</string>
     <string name="no">Нет</string>
-    <string name="exit">Выйти?</string>
     <string name="security">Защита</string>
     <string name="customization">Персонализация</string>
     <string name="tiles">Плитки</string>
@@ -163,4 +156,5 @@
     <string name="as_system">Как в системе</string>
     <string name="light">Светлая</string>
     <string name="dark">Тёмная</string>
+    <string name="back">Назад</string>
 </resources>

@@ -64,11 +64,6 @@
             android:theme="@style/Theme.UltimateSecurity.FakeCrash"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode" />
         <activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.applocker.UnlockModeActivity"
-            android:excludeFromRecents="true"
-            android:theme="@style/Theme.UltimateSecurity.FakeCrash"
-            android:configChanges="orientation|keyboardHidden|screenSize" />
-        <activity
             android:name="ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.ActionsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
