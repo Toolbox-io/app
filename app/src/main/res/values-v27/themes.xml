@@ -3,12 +3,11 @@
     <style name="Theme.UltimateSecurity" parent="Theme.Material3.DynamicColors.DayNight">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
-        <item name="android:windowLightNavigationBar">?attr/isLightTheme</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowTranslucentStatus">false</item>
-        <item name="fontFamily">@font/rethink_sans</item>
         <item name="android:windowEnterAnimation">@anim/slide_left</item>
         <item name="android:windowExitAnimation">@anim/scale_down_translate</item>
+        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+        <item name="android:windowLightNavigationBar">?attr/isLightTheme</item>
     </style>
 </resources>

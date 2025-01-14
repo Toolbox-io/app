@@ -5,9 +5,9 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowTranslucentStatus">false</item>
-        <item name="fontFamily">@font/rethink_sans</item>
         <item name="android:windowEnterAnimation">@anim/slide_left</item>
         <item name="android:windowExitAnimation">@anim/scale_down_translate</item>
+        <!-- <item name="android:windowLightNavigationBar">?attr/isLightTheme</item> | api 27 -->
     </style>
 
     <style name="Theme.UltimateSecurity.NoActionBar">
@@ -16,7 +16,7 @@
     </style>
 
     <style name="Theme.UltimateSecurity.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoDynamicColor" />
-    <style name="Theme.UltimateSecurity.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoDynamicColor">
+    <style name="Theme.UltimateSecurity.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoActionBar.NoDynamicColor">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
@@ -24,6 +24,7 @@
     <style name="Theme.UltimateSecurity.SplashScreen" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#FCF5FD</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/app_icon_adapted</item>
+        <!-- <item name="android:windowSplashScreenBackground">#FCF5FD / #141218</item> | api 31 -->
         <item name="postSplashScreenTheme">@style/Theme.UltimateSecurity.MainActivity</item>
     </style>
 
@@ -36,17 +37,18 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
+
+    <!--
+    working properly in auth activity
+    working bad in main activity
+    -->
     <style name="Theme.UltimateSecurity.Night.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
     <style name="Theme.UltimateSecurity.Night.NoDynamicColor" parent="Theme.Material3.Dark">
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:windowTranslucentStatus">false</item>
-
         <item name="colorPrimary">#FFFBBA73</item>
         <item name="colorOnPrimary">#FF492900</item>
         <item name="colorPrimaryContainer">#FF683D00</item>
@@ -85,24 +87,24 @@
         <item name="colorSurfaceContainerHigh">#FF302921</item>
         <item name="colorSurfaceContainerHighest">#FF3B332C</item>
     </style>
-    <style name="Theme.UltimateSecurity.Night.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Night.NoDynamicColor" />
+
+    <style name="Theme.UltimateSecurity.Night.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Night.NoDynamicColor">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
 
     <style name="Theme.UltimateSecurity.Light" parent="Theme.Material3.DynamicColors.Light">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
     <style name="Theme.UltimateSecurity.Light.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
     <style name="Theme.UltimateSecurity.Light.NoDynamicColor" parent="Theme.Material3.Light">
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:windowTranslucentStatus">false</item>
-
         <item name="colorPrimary">#FF845416</item>
         <item name="colorOnPrimary">#FFFFFFFF</item>
         <item name="colorPrimaryContainer">#FFFFDCBC</item>
@@ -141,7 +143,10 @@
         <item name="colorSurfaceContainerHigh">#FFF4E6DA</item>
         <item name="colorSurfaceContainerHighest">#FFEEE0D5</item>
     </style>
-    <style name="Theme.UltimateSecurity.Light.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoDynamicColor" />
+    <style name="Theme.UltimateSecurity.Light.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoDynamicColor">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
 
     <style name="Theme.UltimateSecurity.ImageViewer" parent="Theme.UltimateSecurity.Night.NoActionBar">
         <item name="android:windowSharedElementEnterTransition">@transition/img</item>

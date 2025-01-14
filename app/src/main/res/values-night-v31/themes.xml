@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <style name="Theme.UltimateSecurity.SplashScreen" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#141218</item>
         <item name="windowSplashScreenAnimatedIcon">@mipmap/app_icon_round</item>

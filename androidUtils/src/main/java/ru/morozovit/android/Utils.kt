@@ -44,11 +44,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -676,3 +681,22 @@ fun Context.openUrl(url: String) {
 }
 
 val NavController.isBackStackEmpty get() = currentBackStackEntry != null
+
+@Composable
+fun <T: Any> rememberMutableStateListOf(vararg elements: T): SnapshotStateList<T> {
+    return rememberSaveable(saver = snapshotStateListSaver()) {
+        elements.toList().toMutableStateList()
+    }
+}
+
+private fun <T : Any> snapshotStateListSaver() = listSaver<SnapshotStateList<T>, T>(
+    save = { stateList -> stateList.toList() },
+    restore = { it.toMutableStateList() },
+)
+
+inline fun Activity.ComposeView(crossinline init: @Composable () -> Unit) =
+    ComposeView(this).apply {
+        setContent {
+            init()
+        }
+    }

@@ -281,6 +281,8 @@ abstract class BaseActivity(
                             isSplashScreenVisible = false
                         }
                         .start()
+
+                    if (configTheme) configureTheme()
                 }
                 splashScreen.setKeepOnScreenCondition {
                     if (authEnabled && globalPassword != "" && globalPasswordEnabled) {
@@ -298,8 +300,13 @@ abstract class BaseActivity(
                 "Splash screen is already initialized, setting theme to postSplashScreenTheme"
             )
             val typedValue = TypedValue()
-            if (theme.resolveAttribute(androidx.core.splashscreen.R.attr.postSplashScreenTheme,
-                typedValue, true)) {
+            if (
+                theme.resolveAttribute(
+                    androidx.core.splashscreen.R.attr.postSplashScreenTheme,
+                    typedValue,
+                    true
+                )
+            ) {
                 val themeId = typedValue.resourceId
                 if (themeId != 0) {
                     setTheme(themeId)
@@ -368,11 +375,8 @@ abstract class BaseActivity(
     open var isSecure
         get() = window.attributes.flags and FLAG_SECURE != 0
         set(value) {
-            if (value) {
-                window.addFlags(FLAG_SECURE)
-            } else {
-                window.clearFlags(FLAG_SECURE)
-            }
+            if (value) window.addFlags(FLAG_SECURE)
+            else window.clearFlags(FLAG_SECURE)
         }
 
     protected open fun startEnterAnimation(root: View) {

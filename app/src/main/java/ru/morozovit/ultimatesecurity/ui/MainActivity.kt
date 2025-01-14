@@ -60,6 +60,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -286,7 +287,11 @@ class MainActivity : BaseActivity(
                                 } else {
                                     ""
                                 }
-                                Text(title)
+                                Text(
+                                    text = title,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             },
                             navigationIcon = {
                                 if (!isScreenBig) {

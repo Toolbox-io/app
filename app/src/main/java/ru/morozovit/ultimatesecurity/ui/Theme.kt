@@ -1,5 +1,6 @@
 package ru.morozovit.ultimatesecurity.ui
 
+import android.app.Activity
 import android.os.Build
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -25,6 +26,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import ru.morozovit.android.invoke
 import ru.morozovit.android.previewUtils
 import ru.morozovit.ultimatesecurity.Settings
@@ -140,6 +143,8 @@ inline fun AppTheme(
     consumeWindowInsets: Boolean = false,
     crossinline content: @Composable WindowInsetsScope.() -> Unit
 ) {
+    val (_, _, isPreview) = previewUtils()
+
     val darkTheme = when (theme) {
         Theme.AsSystem -> _darkTheme
         Theme.Light -> false
@@ -227,6 +232,13 @@ inline fun AppTheme(
         surfaceContainerHigh = surfaceContainerHigh,
         surfaceContainerHighest = surfaceContainerHighest
     )
+
+    if (!isPreview) {
+        WindowCompat.getInsetsController(
+            (LocalContext.current as Activity).window,
+            LocalView.current
+        ).isAppearanceLightStatusBars = !darkTheme
+    }
 
     MaterialTheme(
         colorScheme = colorScheme,

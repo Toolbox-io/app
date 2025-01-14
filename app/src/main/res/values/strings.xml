@@ -173,4 +173,6 @@
     <string name="as_system">As system</string>
     <string name="light">Light</string>
     <string name="dark">Dark</string>
+    <string name="empty" />
+    <string name="back">Back</string>
 </resources>
