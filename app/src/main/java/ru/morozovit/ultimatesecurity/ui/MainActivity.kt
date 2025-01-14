@@ -24,6 +24,7 @@ import androidx.compose.material.icons.automirrored.filled.Shortcut
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
@@ -90,8 +91,17 @@ import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
 import ru.morozovit.ultimatesecurity.services.UpdateChecker
 import ru.morozovit.ultimatesecurity.ui.AuthActivity.Companion.started
+import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.ABOUT
+import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.APK_EXTRACTOR
+import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.APP_LOCKER
+import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.HOME
+import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.SETTINGS
+import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.SHORTCUTS
+import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.TILES
+import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.UNLOCK_PROTECTION
 import ru.morozovit.ultimatesecurity.ui.customization.TilesScreen
 import ru.morozovit.ultimatesecurity.ui.customization.shortcuts.ShortcutsScreen
+import ru.morozovit.ultimatesecurity.ui.main.AboutScreen
 import ru.morozovit.ultimatesecurity.ui.main.HomeScreen
 import ru.morozovit.ultimatesecurity.ui.main.SettingsScreen
 import ru.morozovit.ultimatesecurity.ui.protection.applocker.ApplockerScreen
@@ -113,6 +123,43 @@ class MainActivity : BaseActivity(
 
     sealed class BaseScreen
 
+    /**
+     * To add a screen:
+     * 1. Create a constant holding the internal string name of the screen.
+     *    ```
+     *    const val SCREEN = "screen"
+     *    ```
+     * 2. Create a `data object` holding the screen data.
+     *    ```
+     *    @Serializable data object Screen: Screen(
+     *         SCREEN,
+     *         R.string.screen,
+     *         Icons.Filled.Android
+     *    )
+     *    ```
+     * 3. Add `CONSTANT -> ScreenObject` to the `when` branches in the [get()][Screen.get] method.
+     *    Replace the placeholder names with the actual values.
+     *    ```
+     *    operator fun get(name: String) = when (name) {
+     *        // ...
+     *        SCREEN -> Screen
+     *        // ...
+     *    }
+     *    ```
+     * 4. Add a `@`[Composable] to the navigation graph with
+     *    route set to the constant
+     *    ```
+     *    composable(route = SCREEN) { Screen() }
+     *    ```
+     * 5. Add your `data object` to the `items` list.
+     *    ```
+     *    val items = listOf(
+     *        // ...
+     *        Screen.Screen
+     *        // ...
+     *    )
+     *    ```
+     */
     @Serializable sealed class Screen(
         val name: String,
         @StringRes val label: Int,
@@ -123,6 +170,7 @@ class MainActivity : BaseActivity(
                 HOME -> Home
                 SETTINGS -> Settings
                 WEBSITE -> Website
+                ABOUT -> About
                 APP_LOCKER -> AppLocker
                 UNLOCK_PROTECTION -> UnlockProtection
                 TILES -> Tiles
@@ -137,6 +185,7 @@ class MainActivity : BaseActivity(
             const val HOME = "home"
             const val SETTINGS = "settings"
             const val WEBSITE = "website"
+            const val ABOUT = "about"
 
             const val APP_LOCKER = "appLocker"
             const val UNLOCK_PROTECTION = "unlockProtection"
@@ -156,6 +205,7 @@ class MainActivity : BaseActivity(
         @Serializable data object Home: Screen(HOME, R.string.home, Icons.Filled.Home)
         @Serializable data object Settings: Screen(SETTINGS, R.string.settings, Icons.Filled.Settings)
         @Serializable data object Website: Screen(WEBSITE, R.string.website, Icons.Outlined.Website)
+        @Serializable data object About: Screen(ABOUT, R.string.about, Icons.Filled.Info)
 
         @Serializable data object AppLocker: Screen(APP_LOCKER, R.string.applocker, Icons.Outlined.PhonelinkLock)
         @Serializable data object UnlockProtection: Screen(UNLOCK_PROTECTION, R.string.unlock_protection, Icons.Filled.Lock)
@@ -173,7 +223,7 @@ class MainActivity : BaseActivity(
         AppTheme(consumeWindowInsets = true) {
             val drawerState = rememberDrawerState(DrawerValue.Closed)
             val scope = rememberCoroutineScope()
-            var selectedItem by rememberSaveable { mutableStateOf(Screen.HOME) }
+            var selectedItem by rememberSaveable { mutableStateOf(HOME) }
             val navController = rememberNavController()
 
             val currentEntry = navController.currentBackStackEntryAsState()
@@ -235,6 +285,7 @@ class MainActivity : BaseActivity(
                         Screen.Home,
                         Screen.Settings,
                         Screen.Website,
+                        Screen.About,
                         Screen.Label(R.string.security),
                         Screen.AppLocker,
                         Screen.UnlockProtection,
@@ -334,16 +385,17 @@ class MainActivity : BaseActivity(
                         startDestination = start,
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        composable(route = "home") { HomeScreen() }
-                        composable(route = "settings") { SettingsScreen() }
+                        composable(route = HOME) { HomeScreen() }
+                        composable(route = SETTINGS) { SettingsScreen() }
+                        composable(route = ABOUT) { AboutScreen() }
 
-                        composable(route = "appLocker") { ApplockerScreen() }
-                        composable(route = "unlockProtection") { UnlockProtectionScreen() }
+                        composable(route = APP_LOCKER) { ApplockerScreen() }
+                        composable(route = UNLOCK_PROTECTION) { UnlockProtectionScreen() }
 
-                        composable(route = "tiles") { TilesScreen() }
-                        composable(route = "shortcuts") { ShortcutsScreen() }
+                        composable(route = TILES) { TilesScreen() }
+                        composable(route = SHORTCUTS) { ShortcutsScreen() }
 
-                        composable(route = "apkExtractor") { APKExtractorScreen() }
+                        composable(route = APK_EXTRACTOR) { APKExtractorScreen() }
                     }
                 }
             }
@@ -423,6 +475,7 @@ class MainActivity : BaseActivity(
                     android.Manifest.permission.POST_NOTIFICATIONS
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
+                // TODO rewrite in Jetpack Compose
                 Snackbar.make(
                     content,
                     R.string.grant_notification,

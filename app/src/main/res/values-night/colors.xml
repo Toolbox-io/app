@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="androidPrimary">@color/androidPrimaryDark</color>
-    <color name="filesBg">#1E1F22</color>
-    <color name="colorGrey">#434343</color>
 </resources>
