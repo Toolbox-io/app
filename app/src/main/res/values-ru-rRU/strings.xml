@@ -157,4 +157,8 @@
     <string name="light">Светлая</string>
     <string name="dark">Тёмная</string>
     <string name="back">Назад</string>
+    <string name="about">О программе</string>
+    <string name="app_desc_l">Приложение с множеством полезных функций для вашего устройства, таких как защита, кастомизация и инструменты.</string>
+    <string name="osl">Лицензии открытого кода</string>
+    <string name="report_error">Сообщить о проблеме</string>
 </resources>

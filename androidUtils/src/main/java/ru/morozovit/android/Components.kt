@@ -54,10 +54,12 @@ import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -77,6 +79,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintLayoutScope
 import androidx.constraintlayout.compose.Dimension
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 @Composable
 fun ListItem(
@@ -593,11 +598,93 @@ inline fun TextButton(
     }
 }
 
-class RadioButtonControllerScope @PublishedApi internal constructor()
+class RadioButtonControllerScope<T> @PublishedApi internal constructor() {
+    private val radioButtons = mutableMapOf<T, MutableState<Boolean>>()
+
+    private fun processCheckedChange(id: T) {
+        val toModify = mutableListOf<T>()
+
+        radioButtons.forEach { (i) ->
+            if (i != id) {
+                toModify.add(i)
+            }
+        }
+
+        toModify.forEach { i ->
+            radioButtons[i]!!.value = false
+        }
+    }
+
+    fun addRadioButton(id: T, checked: MutableState<Boolean>, coroutineScope: CoroutineScope) {
+        radioButtons[id] = checked
+        coroutineScope.launch {
+            snapshotFlow { checked.value }.collect {
+                if (it) {
+                    processCheckedChange(id)
+                }
+            }
+        }
+    }
+
+    fun addRadioButtons(
+        vararg radioButtons: Pair<T, MutableState<Boolean>>,
+        coroutineScope: CoroutineScope
+    ) =
+        radioButtons.forEach { (id, checked) ->
+            addRadioButton(id, checked, coroutineScope)
+        }
+
+    fun removeRadioButton(id: T) = radioButtons.remove(id)
+
+    fun isChecked(id: T) = radioButtons[id]!!.value
+    val checkedItem: T?
+        get() = radioButtons.firstNotNullOfOrNull { if (it.value.value) it.key else null }
+
+    fun clearCheckedItems() = radioButtons.values.forEach { it.value = false }
+
+    data class Id internal constructor(private val bytes: ByteArray) {
+        internal constructor(): this(bytes = Random.Default.nextBytes(4))
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as Id
+
+            return bytes.contentEquals(other.bytes)
+        }
+
+        override fun hashCode(): Int {
+            return bytes.contentHashCode()
+        }
+    }
+
+    class Ids internal constructor() {
+        operator fun component1() = Id()
+        operator fun component2() = Id()
+        operator fun component3() = Id()
+        operator fun component4() = Id()
+        operator fun component5() = Id()
+        operator fun component6() = Id()
+        operator fun component7() = Id()
+        operator fun component8() = Id()
+        operator fun component9() = Id()
+        operator fun component10() = Id()
+        operator fun component11() = Id()
+        operator fun component12() = Id()
+        operator fun component13() = Id()
+        operator fun component14() = Id()
+        operator fun component15() = Id()
+        operator fun component16() = Id()
+    }
+
+    fun createId() = Id()
+    fun createIds() = Ids()
+}
 
 @Composable
-inline fun RadioButtonController(
-    content: @Composable RadioButtonControllerScope.() -> Unit
+inline fun <T> RadioButtonController(
+    content: @Composable RadioButtonControllerScope<T>.() -> Unit
 ) {
     content(RadioButtonControllerScope())
 }

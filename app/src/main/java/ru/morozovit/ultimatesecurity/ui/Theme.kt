@@ -4,13 +4,15 @@ import android.app.Activity
 import android.os.Build
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.safeContent
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
@@ -29,6 +31,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import ru.morozovit.android.invoke
+import ru.morozovit.android.plus
 import ru.morozovit.android.previewUtils
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.materialYouEnabled
@@ -127,8 +130,12 @@ var theme by mutableStateOf(
 )
 
 interface WindowInsetsScope {
-    val systemBarInsets: WindowInsets
+    val safeDrawingInsets: WindowInsets
     val isWindowInsetsConsumed: Boolean
+    val isTopInsetConsumed: Boolean
+    val isBottomInsetConsumed: Boolean
+    val isLeftInsetConsumed: Boolean
+    val isRightInsetConsumed: Boolean
 
     val topInset: Int
     val bottomInset: Int
@@ -138,10 +145,13 @@ interface WindowInsetsScope {
 
 @Suppress("AnimateAsStateLabel")
 @Composable
-inline fun AppTheme(
+fun AppTheme(
     _darkTheme: Boolean = isSystemInDarkTheme(),
-    consumeWindowInsets: Boolean = false,
-    crossinline content: @Composable WindowInsetsScope.() -> Unit
+    consumeTopInsets: Boolean = false,
+    consumeBottomInsets: Boolean = false,
+    consumeLeftInsets: Boolean = false,
+    consumeRightInsets: Boolean = false,
+    content: @Composable WindowInsetsScope.() -> Unit
 ) {
     val (_, _, isPreview) = previewUtils()
 
@@ -235,8 +245,8 @@ inline fun AppTheme(
 
     if (!isPreview) {
         WindowCompat.getInsetsController(
-            (LocalContext.current as Activity).window,
-            LocalView.current
+            (LocalContext() as Activity).window,
+            LocalView()
         ).isAppearanceLightStatusBars = !darkTheme
     }
 
@@ -244,56 +254,92 @@ inline fun AppTheme(
         colorScheme = colorScheme,
     ) {
         val insets = WindowInsets(
-            WindowInsets.systemBars.getLeft(
+            WindowInsets.safeDrawing.getLeft(
                 LocalDensity(),
                 LocalLayoutDirection()
             ),
-            WindowInsets.systemBars.getTop(LocalDensity()),
-            WindowInsets.systemBars.getRight(
+            WindowInsets.safeDrawing.getTop(LocalDensity()),
+            WindowInsets.safeDrawing.getRight(
                 LocalDensity(),
                 LocalLayoutDirection()
             ),
-            WindowInsets.systemBars.getBottom(LocalDensity())
+            WindowInsets.safeDrawing.getBottom(LocalDensity())
         )
 
-        Surface(
-            contentColor = colorScheme.onSurface,
-            modifier = Modifier.let {
-                val mod = it.fillMaxSize()
-                if (consumeWindowInsets) {
-                    mod.consumeWindowInsets(
-                        WindowInsets.navigationBars.only(WindowInsetsSides.Vertical)
-                    )
-                }
-                mod
-            }
-        ) {
-            val topInset = insets.getTop(LocalDensity())
-            val bottomInset = insets.getBottom(LocalDensity())
-            val leftInset = insets.getLeft(LocalDensity(), LocalLayoutDirection())
-            val rightInset = insets.getRight(LocalDensity(), LocalLayoutDirection())
+        WindowInsetsHandler(!consumeLeftInsets, !consumeRightInsets) {
+            Surface(
+                contentColor = colorScheme.onSurface,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .let {
+                        var mod = it
+                        if (consumeTopInsets) {
+                            mod += Modifier.consumeWindowInsets(WindowInsets.safeContent.only(WindowInsetsSides.Top))
+                        }
+                        if (consumeBottomInsets) {
+                            mod += Modifier.consumeWindowInsets(WindowInsets.safeContent.only(WindowInsetsSides.Bottom))
+                        }
+                        if (!consumeLeftInsets) {
+                            mod += Modifier.consumeWindowInsets(WindowInsets.safeContent.only(WindowInsetsSides.Left))
+                        }
+                        if (!consumeRightInsets) {
+                            mod += Modifier.consumeWindowInsets(WindowInsets.safeContent.only(WindowInsetsSides.Right))
+                        }
+                        mod
+                    }
+            ) {
+                val topInset = insets.getTop(LocalDensity())
+                val bottomInset = insets.getBottom(LocalDensity())
+                val leftInset = insets.getLeft(LocalDensity(), LocalLayoutDirection())
+                val rightInset = insets.getRight(LocalDensity(), LocalLayoutDirection())
 
-            content(
-                object: WindowInsetsScope {
-                    override val systemBarInsets: WindowInsets get() = insets
-                    override val isWindowInsetsConsumed: Boolean get() = consumeWindowInsets
-                    override val topInset: Int get() = topInset
-                    override val bottomInset: Int get() = bottomInset
-                    override val leftInset: Int get() = leftInset
-                    override val rightInset: Int get() = rightInset
-                }
-            )
+                content(
+                    object : WindowInsetsScope {
+                        override val safeDrawingInsets: WindowInsets get() = insets
+                        override val isTopInsetConsumed: Boolean get() = consumeTopInsets
+                        override val isBottomInsetConsumed: Boolean get() = consumeBottomInsets
+                        override val isLeftInsetConsumed: Boolean get() = consumeLeftInsets
+                        override val isRightInsetConsumed: Boolean get() = consumeRightInsets
+                        override val isWindowInsetsConsumed
+                            get() =
+                                consumeTopInsets &&
+                                        consumeBottomInsets &&
+                                        consumeLeftInsets &&
+                                        consumeRightInsets
+                        override val topInset: Int get() = topInset
+                        override val bottomInset: Int get() = bottomInset
+                        override val leftInset: Int get() = leftInset
+                        override val rightInset: Int get() = rightInset
+                    }
+                )
+            }
         }
     }
 }
 
 @Composable
-inline fun AppThemeIfNessecary(crossinline content: @Composable () -> Unit) {
-    if (previewUtils().isPreview) {
-        AppTheme {
-            content()
+inline fun WindowInsetsHandler(
+    handleLeft: Boolean = true,
+    handleRight: Boolean = true,
+    content: @Composable () -> Unit
+) {
+    Box(
+        Modifier.let {
+            if (handleLeft || handleRight) {
+                it.windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(
+                        when {
+                            handleLeft && !handleRight -> WindowInsetsSides.Left
+                            !handleLeft -> WindowInsetsSides.Right
+                            else -> WindowInsetsSides.Left + WindowInsetsSides.Right
+                        }
+                    )
+                )
+            } else {
+                it
+            }
         }
-    } else {
+    ) {
         content()
     }
 }

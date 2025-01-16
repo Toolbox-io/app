@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -38,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ru.morozovit.android.ListItem
 import ru.morozovit.android.SeparatedSwitchListItem
+import ru.morozovit.android.SimpleAlertDialog
 import ru.morozovit.android.SwitchListItem
 import ru.morozovit.android.alertDialog
 import ru.morozovit.android.invoke
@@ -52,11 +54,11 @@ import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
 import ru.morozovit.ultimatesecurity.Settings.materialYouEnabled
 import ru.morozovit.ultimatesecurity.services.DeviceAdmin
-import ru.morozovit.ultimatesecurity.ui.AppTheme
 import ru.morozovit.ultimatesecurity.ui.AuthActivity
 import ru.morozovit.ultimatesecurity.ui.MainActivity
 import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import ru.morozovit.ultimatesecurity.ui.Theme
+import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 import ru.morozovit.ultimatesecurity.ui.dynamicThemeEnabled
 import ru.morozovit.ultimatesecurity.ui.theme
 
@@ -77,8 +79,28 @@ fun SettingsScreen() {
     val activityLauncher by lazy {
         context.activityLauncher
     }
-    AppTheme {
-        Column(Modifier.verticalScroll(rememberScrollState())) {
+
+    var deleteAppDialogOpen by remember { mutableStateOf(false) }
+
+    SimpleAlertDialog(
+        open = deleteAppDialogOpen,
+        onDismissRequest = { deleteAppDialogOpen = false },
+        icon = {
+            Icon(
+                imageVector = Icons.Filled.Warning,
+                contentDescription = stringResource(R.string.delete_app)
+            )
+        },
+        title = stringResource(R.string.delete_app),
+        body = stringResource(R.string.delete_app_d),
+        // TODO finish
+    )
+
+    WindowInsetsHandler {
+        Column(
+            Modifier
+                .verticalScroll(rememberScrollState())
+        ) {
             var allowBiometricSwitchEnabled by remember {
                 mutableStateOf(
                     valueOrFalse {

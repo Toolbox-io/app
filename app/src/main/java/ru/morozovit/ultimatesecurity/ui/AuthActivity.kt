@@ -2,15 +2,16 @@ package ru.morozovit.ultimatesecurity.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.compose.BackHandler
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -24,10 +25,12 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -44,6 +47,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -59,11 +63,13 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.postDelayed
+import com.skydoves.cloudy.cloudy
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.morozovit.android.BetterActivityResult
@@ -71,6 +77,7 @@ import ru.morozovit.android.BetterActivityResult.registerActivityForResult
 import ru.morozovit.android.ComposeView
 import ru.morozovit.android.addOneTimeOnPreDrawListener
 import ru.morozovit.android.homeScreen
+import ru.morozovit.android.invoke
 import ru.morozovit.android.previewUtils
 import ru.morozovit.android.requestAuthentication
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
@@ -79,6 +86,7 @@ import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings.allowBiometric
 import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.utils.EParser
+import kotlin.math.roundToInt
 
 class AuthActivity: BaseActivity(false) {
     companion object {
@@ -106,6 +114,8 @@ class AuthActivity: BaseActivity(false) {
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
     private lateinit var launchingIntent: Intent
 
+    private var blur = mutableStateOf(false)
+
     @Composable
     @PhonePreview
     fun AuthScreenPreview() {
@@ -121,7 +131,7 @@ class AuthActivity: BaseActivity(false) {
         operator fun component1() = symbol
         operator fun component2() = visible
 
-        override fun toString() = "$symbol"
+        override fun toString() = "PasswordEntry(symbol = $symbol, visible = $visible)"
     }
 
     private class Handlers {
@@ -177,13 +187,10 @@ class AuthActivity: BaseActivity(false) {
             val handlers = remember { Handlers() }
             val (valueOrFalse) = previewUtils()
 
-            BackHandler {
-                if (mode == MODE_ENTER) {
-                    homeScreen()
-                } else {
-                    finish()
-                }
-            }
+            val blurRadius by animateFloatAsState(
+                targetValue = if (blur.value) 30f else 0f,
+                animationSpec = tween(durationMillis = 500)
+            )
 
             // TODO adapt to landscape orientation
 
@@ -205,82 +212,100 @@ class AuthActivity: BaseActivity(false) {
                         )
                     }
                 },
-                modifier = Modifier.onKeyEvent {
-                    if (
-                        it.type == KeyEventType.KeyUp
-                    ) {
-                        try {
-                            handlers[it.key]()
-                            return@onKeyEvent true
-                        } catch (e: Exception) {
-                            Log.d("Auth", it.key.toString())
-                            Log.e("Auth", "${EParser(e)}")
+                modifier = Modifier
+                    .onKeyEvent {
+                        if (
+                            it.type == KeyEventType.KeyUp
+                        ) {
+                            try {
+                                handlers[it.key]()
+                                return@onKeyEvent true
+                            } catch (e: Exception) {
+                                Log.d("Auth", it.key.toString())
+                                Log.e("Auth", "${EParser(e)}")
+                            }
                         }
+                        false
                     }
-                    false
-                }
+                    .cloudy(
+                        enabled = blurRadius != 0f,
+                        radius = blurRadius.roundToInt(),
+                    )
             ) {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    val content = @Composable {
                         val coroutineScope = rememberCoroutineScope()
 
                         val symbols = remember { mutableStateListOf<PasswordEntry>() }
 
-                        Icon(
-                            imageVector = Icons.Filled.Lock,
-                            contentDescription = stringResource(R.string.locked),
-                            modifier = Modifier.size(50.dp)
-                        )
-                        Text(
-                            text = stringResource(
-                                when (mode) {
-                                    MODE_ENTER -> R.string.enter_password
-                                    MODE_SET ->
-                                        if (
-                                            valueOrFalse {
-                                                globalPassword == ""
-                                            }
-                                        ) R.string.setpassword
-                                        else R.string.change_password
-
-                                    MODE_ENTER_OLD_PW -> R.string.enter_old_password
-                                    MODE_CONFIRM -> R.string.confirm_password
-                                    else -> R.string.empty
-                                }
-                            ),
-                            fontSize = 25.sp,
-                            modifier = Modifier.padding(top = 20.dp)
-                        )
-
                         var offsetSet by remember { mutableIntStateOf(0) }
-
                         val offset by animateIntOffsetAsState(
                             targetValue = IntOffset(offsetSet, 0),
                             animationSpec = tween(durationMillis = 70),
                             label = "wrong"
                         )
+                        var triggerVisibility by remember { mutableStateOf(false) }
 
-                        Row(
-                            modifier = Modifier
-                                .animateContentSize()
-                                .padding(top = 10.dp, bottom = 20.dp)
-                                .offset { offset },
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            symbols.forEach { symbol ->
-                                AnimatedVisibility(
-                                    visible = symbol.visible,
-                                    enter = scaleIn() + fadeIn(),
-                                    exit = scaleOut() + fadeOut()
-                                ) {
-                                    Text(
-                                        text = PASSWORD_DOT,
-                                        fontSize = 30.sp
-                                    )
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(
+                                imageVector = Icons.Filled.Lock,
+                                contentDescription = stringResource(R.string.locked),
+                                modifier = Modifier.size(50.dp)
+                            )
+                            Text(
+                                text = stringResource(
+                                    when (mode) {
+                                        MODE_ENTER -> R.string.enter_password
+                                        MODE_SET ->
+                                            if (
+                                                valueOrFalse {
+                                                    globalPassword == ""
+                                                }
+                                            ) R.string.setpassword
+                                            else R.string.change_password
+
+                                        MODE_ENTER_OLD_PW -> R.string.enter_old_password
+                                        MODE_CONFIRM -> R.string.confirm_password
+                                        else -> R.string.empty
+                                    }
+                                ),
+                                fontSize = 25.sp,
+                                modifier = Modifier.padding(top = 20.dp)
+                            )
+
+                            Row(
+                                modifier = Modifier
+                                    .animateContentSize()
+                                    .padding(top = 10.dp, bottom = 20.dp)
+                                    .offset { offset },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Spacer(Modifier.width(20.dp))
+
+                                SideEffect {
+                                    if (triggerVisibility) {
+                                        triggerVisibility = false
+                                        symbols.last().visible = true
+                                    }
                                 }
+
+                                symbols.forEach { symbol ->
+                                    AnimatedVisibility(
+                                        visible = symbol.visible,
+                                        enter = scaleIn() + fadeIn(),
+                                        exit = scaleOut() + fadeOut()
+                                    ) {
+                                        Text(
+                                            text = PASSWORD_DOT,
+                                            fontSize = 30.sp
+                                        )
+                                    }
+                                }
+
+                                Spacer(Modifier.width(20.dp))
                             }
                         }
 
@@ -368,7 +393,7 @@ class AuthActivity: BaseActivity(false) {
                                     onClick = {
                                         val entry = PasswordEntry(number, false)
                                         symbols += entry
-                                        symbols.last().visible = true
+                                        triggerVisibility = true
                                         if (symbols.size == MAX_PASSWORD_LENGTH) processPassword()
                                     }.also { handlers.addNumberHandler(number, it) },
                                     modifier = Modifier.size(75.dp),
@@ -386,6 +411,7 @@ class AuthActivity: BaseActivity(false) {
                             }
 
                             var resetCount by remember { mutableIntStateOf(0) }
+                            val lock = Any()
 
                             FilledIconButton(
                                 shape = CircleShape,
@@ -397,13 +423,38 @@ class AuthActivity: BaseActivity(false) {
                                 onClick = {
                                     coroutineScope.launch {
                                         try {
-                                            resetCount++
-                                            val reset = resetCount
-                                            symbols[symbols.lastIndex - reset + 1].visible = false
+                                            val reset: Int
+                                            synchronized(lock) {
+                                                resetCount++
+                                                reset = resetCount
+                                                symbols[symbols.lastIndex - reset + 1].visible = false
+                                            }
                                             delay(500)
-                                            symbols.removeAt(symbols.lastIndex - reset + 1)
+                                            synchronized(lock) {
+                                                symbols.removeAt(symbols.lastIndex - reset + 1)
+                                            }
                                         } catch (e: Exception) {
                                             Log.e("Auth", "${EParser(e)}")
+                                            Log.d("Auth", "$symbols")
+                                            delay(250)
+                                            val toRemove = mutableListOf<PasswordEntry>()
+
+                                            var vis = true
+                                            @Suppress("NAME_SHADOWING")
+                                            for (it in symbols) {
+                                                if (!it.visible) {
+                                                    toRemove += it
+                                                } else {
+                                                    vis = false
+                                                    break
+                                                }
+                                            }
+
+                                            if (vis) {
+                                                toRemove.forEach {
+                                                    symbols.remove(it)
+                                                }
+                                            }
                                         } finally {
                                             resetCount--
                                         }
@@ -442,6 +493,21 @@ class AuthActivity: BaseActivity(false) {
                             }
                         }
                     }
+
+                    val config = LocalConfiguration()
+
+                    if (
+                        config.orientation == Configuration.ORIENTATION_LANDSCAPE &&
+                        config.screenWidthDp < 600
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            content()
+                        }
+                    } else {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            content()
+                        }
+                    }
                 }
             }
         }
@@ -450,12 +516,17 @@ class AuthActivity: BaseActivity(false) {
     private fun requestAuth() {
         if (allowBiometric) {
             Log.d("Auth", "Requesting biometrical auth")
+            blur.value = true
             requestAuthentication {
                 title = "Biometrical authentication"
                 negativeButtonText = "Use password"
                 success {
                     authenticated = true
                     finishAfterTransition(R.anim.scale_down, R.anim.alpha_down)
+                }
+
+                always {
+                    blur.value = false
                 }
             }
         }
@@ -496,6 +567,16 @@ class AuthActivity: BaseActivity(false) {
                 requestAuth()
                 true
             }
+        }
+    }
+
+    @SuppressLint("MissingSuperCall")
+    @Suppress("OVERRIDE_DEPRECATION")
+    override fun onBackPressed() {
+        if (mode == MODE_ENTER) {
+            homeScreen()
+        } else {
+            finish()
         }
     }
 

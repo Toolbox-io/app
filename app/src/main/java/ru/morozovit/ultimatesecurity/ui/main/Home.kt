@@ -47,9 +47,9 @@ import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings.installPackage_dsa
 import ru.morozovit.ultimatesecurity.Settings.update_dsa
 import ru.morozovit.ultimatesecurity.services.UpdateChecker.Companion.checkForUpdates
-import ru.morozovit.ultimatesecurity.ui.AppTheme
 import ru.morozovit.ultimatesecurity.ui.MainActivity
 import ru.morozovit.ultimatesecurity.ui.PhonePreview
+import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -60,7 +60,7 @@ import java.net.URL
 @Composable
 @PhonePreview
 fun HomeScreen() {
-    AppTheme {
+    WindowInsetsHandler {
         Box {
             var isDownloading by rememberSaveable { mutableStateOf(false) }
             var downloadProgress by rememberSaveable { mutableFloatStateOf(0f) }
@@ -138,7 +138,7 @@ fun HomeScreen() {
                                         body = info.description
                                         downloadOnClick = {
                                             isDownloading = true
-                                            async download@ {
+                                            async download@{
                                                 val file: File
                                                 var count: Int
                                                 try {

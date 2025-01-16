@@ -23,13 +23,21 @@ import android.widget.RadioButton
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -44,6 +52,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,8 +61,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
@@ -62,10 +75,12 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import ru.morozovit.android.BottomSheet
 import ru.morozovit.android.Mipmap
+import ru.morozovit.android.RadioButtonController
 import ru.morozovit.android.TextButton
 import ru.morozovit.android.getSystemService
 import ru.morozovit.android.invoke
 import ru.morozovit.android.launchFiles
+import ru.morozovit.android.plus
 import ru.morozovit.android.previewUtils
 import ru.morozovit.android.supportFragmentManager
 import ru.morozovit.ultimatesecurity.R
@@ -73,115 +88,184 @@ import ru.morozovit.ultimatesecurity.Settings.Shortcuts.files
 import ru.morozovit.ultimatesecurity.Settings.Shortcuts.files_choice
 import ru.morozovit.ultimatesecurity.databinding.FilesShortcutBinding
 import ru.morozovit.ultimatesecurity.databinding.ShortcutsBinding
-import ru.morozovit.ultimatesecurity.ui.AppThemeIfNessecary
+import ru.morozovit.ultimatesecurity.ui.AppTheme
 import ru.morozovit.ultimatesecurity.ui.PhonePreview
+import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 import ru.morozovit.ultimatesecurity.ui.customization.shortcuts.ShortcutsFragment.FilesShortcutBottomSheet.Companion.FILES_ICON_CREATED
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 @PhonePreview
 fun ShortcutsScreen() {
-    AppThemeIfNessecary {
-        val (_, runOrNoop, _, valueOrTrue) = previewUtils()
-        val context = LocalContext()
-        val scope = rememberCoroutineScope()
+    AppTheme {
+        WindowInsetsHandler {
+            val (_, runOrNoop, _, valueOrTrue) = previewUtils()
+            val context = LocalContext()
+            val scope = rememberCoroutineScope()
 
-        var removeIconVisible by remember {
-            mutableStateOf(valueOrTrue { files })
-        }
-
-        val sheetState = rememberModalBottomSheetState()
-        var showFilesBottomSheet by remember {
-            mutableStateOf(valueOrTrue { false })
-        }
-
-        fun hideFilesBottomSheet() {
-            scope.launch { sheetState.hide() }.invokeOnCompletion {
-                if (!sheetState.isVisible) {
-                    showFilesBottomSheet = false
-                }
+            var removeIconVisible by remember {
+                mutableStateOf(valueOrTrue { files })
             }
-        }
 
-        if (showFilesBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = {
-                    showFilesBottomSheet = false
-                },
-                sheetState = sheetState
-            ) {
-                Column(
-                    modifier = Modifier.padding(10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = stringResource(R.string.ht_add_sc),
-                        fontSize = 26.sp
-                    )
+            val sheetState = rememberModalBottomSheetState()
+            var showFilesBottomSheet by remember {
+                mutableStateOf(valueOrTrue { false })
+            }
 
-                    // TODO finish
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column {
-                            RadioButton(
-                                selected = true,
-                                onClick = {  }
-                            )
-                        }
+            fun hideFilesBottomSheet() {
+                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                    if (!sheetState.isVisible) {
+                        showFilesBottomSheet = false
                     }
                 }
             }
-        }
 
-        FlowRow(Modifier.padding(10.dp)) {
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+            if (showFilesBottomSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = {
+                        showFilesBottomSheet = false
+                    },
+                    sheetState = sheetState
                 ) {
-                    Box(Modifier.padding(bottom = 5.dp)) {
-                        Mipmap(
-                            id = R.mipmap.files_icon,
-                            contentDescription = stringResource(R.string.files),
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(50))
-                                .size(60.dp)
-                        )
-                    }
-                    Text(stringResource(R.string.files))
-
-                    TextButton(
-                        onClick = { showFilesBottomSheet = true },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Filled.Add,
-                                contentDescription = stringResource(R.string.add)
-                            )
-                        }
+                    Column(
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(stringResource(R.string.add))
-                    }
+                        Text(
+                            text = stringResource(R.string.ht_add_sc),
+                            fontSize = 26.sp,
+                            textAlign = TextAlign.Center
+                        )
 
-                    AnimatedVisibility(visible = removeIconVisible) {
-                        TextButton(
-                            onClick = {
-                                runOrNoop {
-                                    files = false
-                                    Toast.makeText(context, R.string.ir, LENGTH_SHORT).show()
+                        // TODO finish
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(20.dp)
+                        ) {
+                            RadioButtonController {
+                                val (asShortcut, asApp) = createIds()
+
+                                val asShortcutChecked = remember { mutableStateOf(false) }
+                                val asAppChecked = remember { mutableStateOf(true) }
+
+                                @Composable
+                                fun Option(
+                                    selected: MutableState<Boolean>,
+                                    onClick: () -> Unit = { selected.value = true },
+                                    painter: Painter,
+                                    contentDescription: String,
+                                    modifier: Modifier = Modifier
+                                ) {
+                                    Column(
+                                        horizontalAlignment = Alignment.Start
+                                    ) {
+                                        RadioButton(
+                                            selected = selected.value,
+                                            onClick = onClick
+                                        )
+                                        Box(
+                                            Modifier
+                                                .background(
+                                                    if (isSystemInDarkTheme())
+                                                        Color(0xFF1D1B20)
+                                                    else
+                                                        Color(0xFFF7F2F9)
+                                                )
+                                                .border(
+                                                    width = 1.dp,
+                                                    color = MaterialTheme.colorScheme.outline,
+                                                    shape = RoundedCornerShape(20.dp)
+                                                )
+                                                .padding(10.dp)
+                                        ) {
+                                            Image(
+                                                painter = painter,
+                                                contentDescription = contentDescription,
+                                                modifier = Modifier
+                                                    .width(81.dp)
+                                                    .height(110.dp)
+                                                        + modifier
+                                            )
+                                        }
+                                    }
                                 }
-                                removeIconVisible = false
-                            },
+
+                                Option(
+                                    selected = asShortcutChecked,
+                                    painter = painterResource(R.drawable.files_shortcut1),
+                                    contentDescription = stringResource(R.string.asas),
+                                )
+
+                                Option(
+                                    selected = asAppChecked,
+                                    painter = painterResource(R.drawable.files_shortcut2),
+                                    contentDescription = stringResource(R.string.asasa),
+                                )
+
+                                addRadioButtons(
+                                    asShortcut to asShortcutChecked,
+                                    asApp to asAppChecked,
+                                    coroutineScope = rememberCoroutineScope()
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            FlowRow(Modifier.padding(10.dp)) {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Box(Modifier.padding(bottom = 5.dp)) {
+                            Mipmap(
+                                id = R.mipmap.files_icon,
+                                contentDescription = stringResource(R.string.files),
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(50))
+                                    .size(60.dp)
+                            )
+                        }
+                        Text(stringResource(R.string.files))
+
+                        TextButton(
+                            onClick = { showFilesBottomSheet = true },
                             icon = {
                                 Icon(
-                                    imageVector = Icons.Filled.Delete,
-                                    contentDescription = stringResource(R.string.ri)
+                                    imageVector = Icons.Filled.Add,
+                                    contentDescription = stringResource(R.string.add)
                                 )
                             }
                         ) {
-                            Text(stringResource(R.string.ri))
+                            Text(stringResource(R.string.add))
+                        }
+
+                        AnimatedVisibility(visible = removeIconVisible) {
+                            TextButton(
+                                onClick = {
+                                    runOrNoop {
+                                        files = false
+                                        Toast.makeText(context, R.string.ir, LENGTH_SHORT).show()
+                                    }
+                                    removeIconVisible = false
+                                },
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Filled.Delete,
+                                        contentDescription = stringResource(R.string.ri)
+                                    )
+                                }
+                            ) {
+                                Text(stringResource(R.string.ri))
+                            }
                         }
                     }
                 }

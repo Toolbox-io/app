@@ -8,14 +8,19 @@ import android.util.Log
 import android.view.ViewTreeObserver
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -55,11 +60,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -75,12 +78,11 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import ru.morozovit.android.ActivityLauncher
-import ru.morozovit.android.Website
 import ru.morozovit.android.WidthSizeClass
 import ru.morozovit.android.compareTo
+import ru.morozovit.android.invoke
 import ru.morozovit.android.left
 import ru.morozovit.android.link
-import ru.morozovit.android.openUrl
 import ru.morozovit.android.right
 import ru.morozovit.android.unsupported
 import ru.morozovit.android.widthSizeClass
@@ -107,7 +109,6 @@ import ru.morozovit.ultimatesecurity.ui.main.SettingsScreen
 import ru.morozovit.ultimatesecurity.ui.protection.applocker.ApplockerScreen
 import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.UnlockProtectionScreen
 import ru.morozovit.ultimatesecurity.ui.tools.APKExtractorScreen
-import kotlin.math.min
 
 class MainActivity : BaseActivity(
     backButtonBehavior = Companion.BackButtonBehavior.DEFAULT,
@@ -161,15 +162,14 @@ class MainActivity : BaseActivity(
      *    ```
      */
     @Serializable sealed class Screen(
-        val name: String,
-        @StringRes val label: Int,
+        val internalName: String,
+        @StringRes val displayName: Int,
         @Transient val icon: ImageVector = unsupported
     ): BaseScreen() {
         companion object {
             operator fun get(name: String) = when (name) {
                 HOME -> Home
                 SETTINGS -> Settings
-                WEBSITE -> Website
                 ABOUT -> About
                 APP_LOCKER -> AppLocker
                 UNLOCK_PROTECTION -> UnlockProtection
@@ -184,7 +184,6 @@ class MainActivity : BaseActivity(
 
             const val HOME = "home"
             const val SETTINGS = "settings"
-            const val WEBSITE = "website"
             const val ABOUT = "about"
 
             const val APP_LOCKER = "appLocker"
@@ -196,15 +195,14 @@ class MainActivity : BaseActivity(
             const val APK_EXTRACTOR = "apkExtractor"
         }
 
-        override fun equals(other: Any?) = other is Screen && label == other.label
+        override fun equals(other: Any?) = other is Screen && displayName == other.displayName
 
-        override fun hashCode() = label.hashCode()
+        override fun hashCode() = displayName.hashCode()
 
         class Label(@StringRes val label: Int): BaseScreen()
 
         @Serializable data object Home: Screen(HOME, R.string.home, Icons.Filled.Home)
         @Serializable data object Settings: Screen(SETTINGS, R.string.settings, Icons.Filled.Settings)
-        @Serializable data object Website: Screen(WEBSITE, R.string.website, Icons.Outlined.Website)
         @Serializable data object About: Screen(ABOUT, R.string.about, Icons.Filled.Info)
 
         @Serializable data object AppLocker: Screen(APP_LOCKER, R.string.applocker, Icons.Outlined.PhonelinkLock)
@@ -220,7 +218,7 @@ class MainActivity : BaseActivity(
     @Composable
     @PhonePreview
     fun MainScreen() {
-        AppTheme(consumeWindowInsets = true) {
+        AppTheme(consumeLeftInsets = true, consumeRightInsets = true) {
             val drawerState = rememberDrawerState(DrawerValue.Closed)
             val scope = rememberCoroutineScope()
             var selectedItem by rememberSaveable { mutableStateOf(HOME) }
@@ -239,22 +237,27 @@ class MainActivity : BaseActivity(
             val isScreenBig = currentWindowAdaptiveInfo().widthSizeClass >= WidthSizeClass.MEDIUM
 
             val drawerContent: @Composable ColumnScope.() -> Unit = {
-                Column(Modifier.verticalScroll(rememberScrollState())) {
+                Column(Modifier
+                    .verticalScroll(rememberScrollState())
+                    .windowInsetsPadding(
+                        WindowInsets.safeDrawing.only(
+                            WindowInsetsSides.Top +
+                                    WindowInsetsSides.Bottom +
+                                    WindowInsetsSides.Left
+                        )
+                    )
+                ) {
                     ConstraintLayout(
                         Modifier
                             .padding(12.dp)
                             .fillMaxWidth()
                     ) {
                         val (icon, title, subtitle) = createRefs()
-                        Image(
-                            painter = painterResource(R.drawable.app_icon),
-                            contentDescription = stringResource(R.string.app_name),
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(30.dp))
-                                .constrainAs(icon) {
-                                    top link parent.top
-                                    left link parent.left
-                                }
+                        AppIcon(
+                            Modifier.constrainAs(icon) {
+                                top link parent.top
+                                left link parent.left
+                            }
                         )
                         Text(
                             text = stringResource(R.string.app_name),
@@ -284,7 +287,6 @@ class MainActivity : BaseActivity(
                     val items = listOf(
                         Screen.Home,
                         Screen.Settings,
-                        Screen.Website,
                         Screen.About,
                         Screen.Label(R.string.security),
                         Screen.AppLocker,
@@ -299,17 +301,13 @@ class MainActivity : BaseActivity(
                         when (item) {
                             is Screen -> NavigationDrawerItem(
                                 icon = { Icon(item.icon, contentDescription = null) },
-                                label = { Text(stringResource(item.label)) },
+                                label = { Text(stringResource(item.displayName)) },
                                 selected = item == Screen[selectedItem],
                                 onClick = {
-                                    if (item == Screen.Website) {
-                                        openUrl("toolbox-io.ru")
-                                    } else {
-                                        scope.launch { drawerState.close() }
-                                        if (Screen[selectedItem] != item) {
-                                            selectedItem = item.name
-                                            navController.navigate(item.name)
-                                        }
+                                    scope.launch { drawerState.close() }
+                                    if (Screen[selectedItem] != item) {
+                                        selectedItem = item.internalName
+                                        navController.navigate(item.internalName)
                                     }
                                 },
                                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -333,7 +331,7 @@ class MainActivity : BaseActivity(
                     topBar = {
                         TopAppBar(
                             title = {
-                                val titleRes = Screen[selectedItem]?.label
+                                val titleRes = Screen[selectedItem]?.displayName
                                 val title = if (titleRes != null) {
                                     stringResource(titleRes)
                                 } else {
@@ -375,7 +373,9 @@ class MainActivity : BaseActivity(
                                         )
                                     }
                                 }
-                            }
+                            },
+                            modifier = Modifier
+                                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Right))
                         )
                     },
                 ) { innerPadding ->
@@ -383,7 +383,9 @@ class MainActivity : BaseActivity(
                     NavHost(
                         navController = navController,
                         startDestination = start,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Left))
                     ) {
                         composable(route = HOME) { HomeScreen() }
                         composable(route = SETTINGS) { SettingsScreen() }
@@ -416,8 +418,12 @@ class MainActivity : BaseActivity(
                 ModalNavigationDrawer(
                     drawerState = drawerState,
                     drawerContent = {
-                        val max0 = min(300.0, LocalConfiguration.current.screenWidthDp * 0.9)
-                        val max = if (max0 > 360) 360.0 else max0
+                        val max0 = LocalConfiguration().screenWidthDp * 0.9
+                        val max = when {
+                            max0 > 360.0 -> 360.0
+                            max0 < 300.0 -> 300.0
+                            else -> max0
+                        }
 
                         ModalDrawerSheet(
                             drawerContainerColor = MaterialTheme.colorScheme.surfaceContainer,

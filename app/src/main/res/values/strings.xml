@@ -168,4 +168,7 @@
     <string name="empty" translatable="false" />
     <string name="back">Back</string>
     <string name="about">About app</string>
+    <string name="app_desc_l">An app with a lot of useful features for your device, such as security, customization and tools.</string>
+    <string name="osl">Open source licenses</string>
+    <string name="report_error">Report a problem</string>
 </resources>

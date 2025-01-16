@@ -39,11 +39,13 @@ android {
     buildFeatures {
         viewBinding = true
         compose = true
+        buildConfig = true
     }
 }
 
 dependencies {
     implementation(libs.androidx.core.ktx)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
@@ -59,6 +61,7 @@ dependencies {
     implementation(libs.biometric)
     implementation(kotlin("reflect"))
     implementation(libs.jasypt)
+    implementation(libs.cloudy)
     // compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)
@@ -73,8 +76,6 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     implementation(libs.play.services.oss.licenses)
-
-    implementation(libs.kotlinx.serialization.json)
 
     implementation(project(":androidUtils"))
     implementation(project(":utils"))

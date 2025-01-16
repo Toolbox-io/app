@@ -2,6 +2,7 @@
 activityCompose = "1.9.3"
 agp = "8.5.2"
 biometric = "1.4.0-alpha02"
+cloudy = "0.2.4"
 composeBom = "2024.12.01"
 constraintlayoutCompose = "1.1.0"
 core = "0.10.0"
@@ -27,6 +28,7 @@ materialCompose = "1.3.1"
 material-extended = "1.7.6"
 uiViewbinding = "1.7.6"
 jetbrainsKotlinJvm = "2.1.0"
+xblurCompose = "[latest_version]"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -42,6 +44,7 @@ androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
+cloudy = { module = "com.github.skydoves:cloudy", version.ref = "cloudy" }
 core = { module = "me.jahnen.libaums:core", version.ref = "core" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
@@ -58,6 +61,7 @@ oss-licenses-plugin = { module = "com.google.android.gms:oss-licenses-plugin", v
 play-services-oss-licenses = { module = "com.google.android.gms:play-services-oss-licenses", version.ref = "playServicesOssLicenses" }
 shimmer = { module = "com.facebook.shimmer:shimmer", version.ref = "shimmer" }
 androidx-ui-viewbinding = { group = "androidx.compose.ui", name = "ui-viewbinding", version.ref = "uiViewbinding" }
+xblur-compose = { module = "com.github.x3rocode:xblur-compose", version.ref = "xblurCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

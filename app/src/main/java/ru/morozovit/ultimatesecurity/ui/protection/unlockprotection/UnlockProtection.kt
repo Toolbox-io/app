@@ -36,14 +36,14 @@ import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.enabled
 import ru.morozovit.ultimatesecurity.services.DeviceAdmin
-import ru.morozovit.ultimatesecurity.ui.AppTheme
 import ru.morozovit.ultimatesecurity.ui.MainActivity
 import ru.morozovit.ultimatesecurity.ui.PhonePreview
+import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 
 @Composable
 @PhonePreview
 fun UnlockProtectionScreen() {
-    AppTheme {
+    WindowInsetsHandler {
         Column(Modifier.verticalScroll(rememberScrollState())) {
             val (valueOrFalse, runOrNoop, isPreview) = previewUtils()
             val context = LocalContext() as MainActivity

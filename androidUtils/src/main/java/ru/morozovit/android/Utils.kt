@@ -474,17 +474,22 @@ class AuthenticationConfig {
     var success: ((BiometricPrompt.AuthenticationResult) -> Unit)? = null
     var fail: (() -> Unit)? = null
     var error: ((Int, String) -> Unit)? = null
+    var always: (() -> Unit)? = null
 
     fun success(block: (BiometricPrompt.AuthenticationResult) -> Unit) {
         success = block
     }
 
-    fun fail(block: () -> Unit) {
+    inline fun fail(noinline block: () -> Unit) {
         fail = block
     }
 
-    fun error(block: (Int, String) -> Unit) {
+    inline fun error(noinline block: (Int, String) -> Unit) {
         error = block
+    }
+
+    inline fun always(noinline block: () -> Unit) {
+        always = block
     }
 
     lateinit var title: String
@@ -509,16 +514,19 @@ inline fun FragmentActivity.requestAuthentication(crossinline callback: Authenti
             override fun onAuthenticationFailed() {
                 super.onAuthenticationFailed()
                 config.fail?.invoke()
+                config.always?.invoke()
             }
 
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 super.onAuthenticationSucceeded(result)
                 config.success?.invoke(result)
+                config.always?.invoke()
             }
 
             override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                 super.onAuthenticationError(errorCode, errString)
                 config.error?.invoke(errorCode, "$errString")
+                config.always?.invoke()
             }
         }
     )

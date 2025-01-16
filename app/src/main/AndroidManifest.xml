@@ -106,6 +106,13 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"
+            android:theme="@style/Theme.UltimateSecurity.Licenses" />
+        <activity
+            android:name="com.google.android.gms.oss.licenses.OssLicensesActivity"
+            android:theme="@style/Theme.UltimateSecurity.Licenses" />
+
         <receiver
             android:name=".services.UpdateChecker$Companion$Receiver"
             android:exported="false">

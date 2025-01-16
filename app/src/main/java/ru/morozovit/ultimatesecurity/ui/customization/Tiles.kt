@@ -31,14 +31,14 @@ import ru.morozovit.android.previewUtils
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings.Tiles.sleep
 import ru.morozovit.ultimatesecurity.services.tiles.SleepTile
-import ru.morozovit.ultimatesecurity.ui.AppThemeIfNessecary
 import ru.morozovit.ultimatesecurity.ui.PhonePreview
+import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 
 @OptIn(ExperimentalLayoutApi::class)
 @PhonePreview
 @Composable
 fun TilesScreen() {
-    AppThemeIfNessecary {
+    WindowInsetsHandler {
         val (_, _, _, valueOrTrue) = previewUtils()
 
         FlowRow(

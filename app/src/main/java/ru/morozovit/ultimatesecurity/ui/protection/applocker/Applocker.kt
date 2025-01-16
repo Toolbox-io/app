@@ -71,13 +71,14 @@ import ru.morozovit.ultimatesecurity.services.Accessibility.Companion.waitingFor
 import ru.morozovit.ultimatesecurity.ui.AppTheme
 import ru.morozovit.ultimatesecurity.ui.MainActivity
 import ru.morozovit.ultimatesecurity.ui.PhonePreview
+import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 import java.lang.Thread.sleep
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 @PhonePreview
 fun ApplockerScreen() {
-    AppTheme {
+    WindowInsetsHandler {
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
         Scaffold(
