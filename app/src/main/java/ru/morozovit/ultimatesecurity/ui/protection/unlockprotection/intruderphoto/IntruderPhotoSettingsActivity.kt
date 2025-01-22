@@ -171,7 +171,7 @@ class IntruderPhotoSettingsActivity: BaseActivity(false) {
         setContentView(binding.root)
 
         binding.upActionsIpTb.setNavigationOnClickListener {
-            onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
         }
 
         // Main switch
@@ -621,13 +621,6 @@ class IntruderPhotoSettingsActivity: BaseActivity(false) {
             }
             checkListener = true
         }
-    }
-
-    @Suppress("OVERRIDE_DEPRECATION")
-    @SuppressLint("MissingSuperCall")
-    override fun onBackPressed() {
-        setResult(if (binding.upActionsIpSwitch.isChecked) 1 else 2)
-        finish()
     }
 
     override fun onResume() {

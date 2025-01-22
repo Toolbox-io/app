@@ -38,10 +38,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -66,6 +69,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -74,6 +78,7 @@ import androidx.fragment.app.FragmentManager
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import ru.morozovit.android.BottomSheet
+import ru.morozovit.android.CheckboxWithText
 import ru.morozovit.android.Mipmap
 import ru.morozovit.android.RadioButtonController
 import ru.morozovit.android.TextButton
@@ -91,6 +96,7 @@ import ru.morozovit.ultimatesecurity.databinding.ShortcutsBinding
 import ru.morozovit.ultimatesecurity.ui.AppTheme
 import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
+import ru.morozovit.ultimatesecurity.ui.customization.shortcuts.ShortcutsFragment.Companion.FILES_SHORTCUT
 import ru.morozovit.ultimatesecurity.ui.customization.shortcuts.ShortcutsFragment.FilesShortcutBottomSheet.Companion.FILES_ICON_CREATED
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
@@ -139,13 +145,13 @@ fun ShortcutsScreen() {
                             textAlign = TextAlign.Center
                         )
 
-                        // TODO finish
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(20.dp)
-                        ) {
-                            RadioButtonController {
-                                val (asShortcut, asApp) = createIds()
+                        RadioButtonController<Int> {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(20.dp),
+                                modifier = Modifier.selectableGroup()
+                            ) {
+                                val (asShortcut, asApp) = createIntIds()
 
                                 val asShortcutChecked = remember { mutableStateOf(false) }
                                 val asAppChecked = remember { mutableStateOf(true) }
@@ -155,15 +161,20 @@ fun ShortcutsScreen() {
                                     selected: MutableState<Boolean>,
                                     onClick: () -> Unit = { selected.value = true },
                                     painter: Painter,
-                                    contentDescription: String,
+                                    text: String,
                                     modifier: Modifier = Modifier
                                 ) {
                                     Column(
-                                        horizontalAlignment = Alignment.Start
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier.selectable(
+                                            selected = selected.value,
+                                            onClick = onClick,
+                                            role = Role.RadioButton
+                                        )
                                     ) {
                                         RadioButton(
                                             selected = selected.value,
-                                            onClick = onClick
+                                            onClick = null
                                         )
                                         Box(
                                             Modifier
@@ -179,29 +190,34 @@ fun ShortcutsScreen() {
                                                     shape = RoundedCornerShape(20.dp)
                                                 )
                                                 .padding(10.dp)
+                                                .padding(top = 10.dp)
                                         ) {
                                             Image(
                                                 painter = painter,
-                                                contentDescription = contentDescription,
+                                                contentDescription = text,
                                                 modifier = Modifier
                                                     .width(81.dp)
                                                     .height(110.dp)
                                                         + modifier
                                             )
                                         }
+                                        Text(
+                                            text = text,
+                                            modifier = Modifier.padding(top = 10.dp)
+                                        )
                                     }
                                 }
 
                                 Option(
                                     selected = asShortcutChecked,
                                     painter = painterResource(R.drawable.files_shortcut1),
-                                    contentDescription = stringResource(R.string.asas),
+                                    text = stringResource(R.string.asas)
                                 )
 
                                 Option(
                                     selected = asAppChecked,
                                     painter = painterResource(R.drawable.files_shortcut2),
-                                    contentDescription = stringResource(R.string.asasa),
+                                    text = stringResource(R.string.asasa)
                                 )
 
                                 addRadioButtons(
@@ -209,6 +225,63 @@ fun ShortcutsScreen() {
                                     asApp to asAppChecked,
                                     coroutineScope = rememberCoroutineScope()
                                 )
+                            }
+
+                            var rememberChoice by remember { mutableStateOf(false) }
+
+                            CheckboxWithText(
+                                checked = rememberChoice,
+                                onCheckedChange = { rememberChoice = !rememberChoice }
+                            ) {
+                                Text(stringResource(R.string.rc))
+                            }
+
+                            Button(
+                                onClick = {
+                                    if (checkedItem != null) {
+                                        when (checkedItem) {
+                                            0 -> {
+                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                                    val shortcutManager = context.getSystemService(ShortcutManager::class)!!
+                                                    if (shortcutManager.isRequestPinShortcutSupported) {
+                                                        val shortcutInfo = ShortcutInfo.Builder(
+                                                            context, FILES_SHORTCUT
+                                                        )
+                                                            .setShortLabel(context.resources.getString(R.string.files))
+                                                            .setLongLabel(context.resources.getString(R.string.files))
+                                                            .setIcon(android.graphics.drawable.Icon.createWithResource(context, R.mipmap.files_icon))
+                                                            .setIntent(Intent(context, FilesShortcut::class.java).apply {
+                                                                action = ACTION_MAIN
+                                                            })
+                                                            .build()
+                                                        shortcutManager.requestPinShortcut(shortcutInfo, null)
+                                                    }
+                                                }
+                                            }
+
+                                            1 -> {
+                                                files = true
+                                                Toast.makeText(context, R.string.fsh, LENGTH_SHORT)
+                                                    .show()
+                                                removeIconVisible = true
+                                            }
+
+                                            else -> {
+                                                Toast.makeText(context, R.string.smthwentwrong, LENGTH_SHORT)
+                                                    .show()
+                                            }
+                                        }
+                                        hideFilesBottomSheet()
+                                        if (rememberChoice) {
+                                            files_choice = checkedItem!!
+                                        }
+                                    } else {
+                                        Toast.makeText(context, R.string.smthwentwrong, LENGTH_SHORT)
+                                            .show()
+                                    }
+                                }
+                            ) {
+                                Text(stringResource(R.string.continue1))
                             }
                         }
                     }

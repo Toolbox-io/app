@@ -66,7 +66,7 @@ class ActionsActivity: BaseActivity() {
                             )
                         },
                         navigationIcon = {
-                            IconButton(onClick = ::onBackPressed) {
+                            IconButton(onClick = onBackPressedDispatcher::onBackPressed) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = "Localized description"
@@ -112,7 +112,7 @@ class ActionsActivity: BaseActivity() {
                                         AlarmSettingsActivity::class.java
                                     )
                                 ) {
-                                    alarmOnCheckedChange(it.resultCode == 1)
+                                    alarm = Settings.UnlockProtection.Actions.alarm
                                 }
                             }
                         },
@@ -145,7 +145,7 @@ class ActionsActivity: BaseActivity() {
                                     IntruderPhotoSettingsActivity::class.java
                                 )
                             ) {
-                                intruderPhotoOnCheckedChange(it.resultCode == 1)
+                                intruderPhoto = Settings.UnlockProtection.Actions.intruderPhoto
                             }
                         },
                         divider = true

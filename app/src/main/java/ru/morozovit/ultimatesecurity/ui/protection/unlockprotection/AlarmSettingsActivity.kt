@@ -37,7 +37,7 @@ class AlarmSettingsActivity: BaseActivity() {
 
         makeSwitchCard(binding.upActionsAlarmSwitchCard, binding.upActionsAlarmSwitch)
         binding.upActionsAlarmTb.setNavigationOnClickListener {
-            onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
         }
         binding.upActionsAlarmSwitch.isChecked = Settings.UnlockProtection.Actions.alarm
         binding.upActionsAlarmSwitch.setOnCheckedChangeListener { _, isChecked ->
@@ -157,6 +157,7 @@ class AlarmSettingsActivity: BaseActivity() {
     @SuppressLint("MissingSuperCall")
     @Suppress("OVERRIDE_DEPRECATION")
     override fun onBackPressed() {
+        // TODO predictive back
         setResult(if (binding.upActionsAlarmSwitch.isChecked) 1 else 2)
         finish()
     }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@android:color/transparent" android:width="108dp" android:height="108dp" />
+
+    <item
+        android:width="66dp"
+        android:height="66dp"
+        android:gravity="center"
+        android:left="0.5dp"
+        android:bottom="0.5dp"
+        android:drawable="@drawable/app_icon_2_monochrome_raw" />
+</layer-list>

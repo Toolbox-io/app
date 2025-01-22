@@ -1,49 +1,9 @@
 package ru.morozovit.ultimatesecurity.ui.tools
 
-import android.annotation.SuppressLint
-import android.app.Activity
-import android.app.PendingIntent
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.graphics.Color
-import android.hardware.usb.UsbConstants
-import android.hardware.usb.UsbDevice
-import android.hardware.usb.UsbEndpoint
-import android.hardware.usb.UsbInterface
-import android.hardware.usb.UsbManager
-import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.View.VISIBLE
-import android.view.ViewGroup
-import android.view.ViewGroup.MarginLayoutParams
-import android.widget.RadioButton
-import android.widget.TextView
-import androidx.core.view.setMargins
-import androidx.core.view.updateLayoutParams
-import androidx.fragment.app.Fragment
-import me.jahnen.libaums.core.UsbMassStorageDevice
-import ru.morozovit.android.ActivityLauncher
-import ru.morozovit.android.BetterActivityResult.registerActivityForResult
-import ru.morozovit.android.RadioButtonController
-import ru.morozovit.android.alertDialog
-import ru.morozovit.android.getFileName
-import ru.morozovit.android.getOpenDocumentIntent
-import ru.morozovit.android.getSystemService
-import ru.morozovit.ultimatesecurity.R
-import ru.morozovit.ultimatesecurity.databinding.FlasherBinding
-import java.io.IOException
-import java.util.Arrays.copyOfRange
-import kotlin.math.min
-
 // TODO finish
 //      rewrite in Jetpack Compose
-class FlasherFragment: Fragment() {
+
+/* class FlasherFragment: Fragment() {
     @Suppress("MemberVisibilityCanBePrivate")
     companion object {
         const val BYTE = 1L
@@ -397,4 +357,4 @@ class FlasherFragment: Fragment() {
 
         return storageDevices.toTypedArray()
     }
-}
+} */

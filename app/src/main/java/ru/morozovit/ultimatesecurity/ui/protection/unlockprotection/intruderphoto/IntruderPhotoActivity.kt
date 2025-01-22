@@ -40,7 +40,7 @@ class IntruderPhotoActivity: BaseActivity(false) {
             true
         }
         data = null
-        binding.upActionsIpVTb.setNavigationOnClickListener { onBackPressed() }
+        binding.upActionsIpVTb.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
     }
 
     @Suppress("OVERRIDE_DEPRECATION")

@@ -222,7 +222,7 @@ object Settings {
         var apps: Set<String>
             get() = sharedPref.getStringSet("selectedApps", setOf())!!
             set(value) {
-                if (value.isNotEmpty()) with(sharedPref.edit()) {
+                with(sharedPref.edit()) {
                     putStringSet("selectedApps", value)
                     apply()
                 }

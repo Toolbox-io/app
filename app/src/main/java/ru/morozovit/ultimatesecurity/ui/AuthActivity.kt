@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
 import androidx.biometric.BiometricManager
@@ -99,6 +100,8 @@ class AuthActivity: BaseActivity(false) {
         const val MODE_ENTER_OLD_PW = 3
 
         var started = false
+
+        /*var uses = 0*/
     }
 
     private var mode
@@ -192,6 +195,8 @@ class AuthActivity: BaseActivity(false) {
                 animationSpec = tween(durationMillis = 500)
             )
 
+            if (!isSetOrConfirm) BackHandler(onBack = ::homeScreen)
+
             // TODO adapt to landscape orientation
 
             Scaffold(
@@ -201,7 +206,7 @@ class AuthActivity: BaseActivity(false) {
                             title = {},
                             navigationIcon = {
                                 IconButton(
-                                    onClick = { onBackPressed() }
+                                    onClick = { onBackPressedDispatcher.onBackPressed() }
                                 ) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -329,7 +334,17 @@ class AuthActivity: BaseActivity(false) {
                             }
                             if (password == globalPassword && !isSetOrConfirm) {
                                 authenticated = true
-                                finishAfterTransition(R.anim.scale_down, R.anim.alpha_down)
+                                /*if (uses == 1) {
+                                    startActivity(
+                                        Intent(this@AuthActivity, MainActivity::class.java).apply {
+                                            putExtra("noAnim", true)
+                                            putExtra("anim", true)
+                                        }
+                                    )
+                                } else {*/
+                                    finishAfterTransition(R.anim.scale_down, R.anim.alpha_down)
+                                /*}*/
+                                /*pendingAuth = false*/
                             } else if (mode == MODE_ENTER_OLD_PW && password == globalPassword) {
                                 startActivity(Intent(this@AuthActivity, AuthActivity::class.java).apply {
                                     putExtra("mode", MODE_SET)
@@ -537,6 +552,7 @@ class AuthActivity: BaseActivity(false) {
         enableEdgeToEdge()
         isSecure = true
         launchingIntent = intent
+        /*uses++*/
         activityLauncher = registerActivityForResult(this)
 
         if ((globalPassword == "" || authenticated) && !isSetOrConfirm) {
@@ -564,19 +580,11 @@ class AuthActivity: BaseActivity(false) {
         }
         if (!isSetOrConfirm && allowBiometric) {
             window.decorView.addOneTimeOnPreDrawListener {
-                requestAuth()
+                view.postDelayed(1000) {
+                    requestAuth()
+                }
                 true
             }
-        }
-    }
-
-    @SuppressLint("MissingSuperCall")
-    @Suppress("OVERRIDE_DEPRECATION")
-    override fun onBackPressed() {
-        if (mode == MODE_ENTER) {
-            homeScreen()
-        } else {
-            finish()
         }
     }
 

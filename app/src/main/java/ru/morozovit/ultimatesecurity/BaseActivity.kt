@@ -2,6 +2,7 @@
 
 package ru.morozovit.ultimatesecurity
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
@@ -38,7 +39,7 @@ abstract class BaseActivity(
     @Suppress("MemberVisibilityCanBePrivate")
     protected var authEnabled: Boolean = true,
     private val savedInstanceStateEnabled: Boolean = false,
-    private var backButtonBehavior: BackButtonBehavior = BackButtonBehavior.FINISH,
+    private var backButtonBehavior: BackButtonBehavior = BackButtonBehavior.DEFAULT,
     private val configTheme: Boolean = true
 ): AppCompatActivity() {
     companion object {
@@ -212,9 +213,14 @@ abstract class BaseActivity(
 
     @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
     override fun overridePendingTransition(@AnimRes enterAnim: Int, @AnimRes exitAnim: Int) {
+        overridePendingTransition(0, enterAnim, exitAnim)
+    }
+
+    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+    override fun overridePendingTransition(overrideType: Int, @AnimRes enterAnim: Int, @AnimRes exitAnim: Int) {
         if (Build.VERSION.SDK_INT >= 34) {
             overrideActivityTransition(
-                OVERRIDE_TRANSITION_OPEN,
+                overrideType,
                 enterAnim,
                 exitAnim,
                 0
@@ -245,13 +251,13 @@ abstract class BaseActivity(
         }
     }
 
+    @SuppressLint("InlinedApi")
     open fun finishAfterTransition(@AnimRes enterAnim: Int, @AnimRes exitAnim: Int) {
         finishAfterTransitionCalled = true
         if (transitionCalled) {
             transitionCalled = false
             finish()
-            @Suppress("DEPRECATION")
-            super.overridePendingTransition(enterAnim, exitAnim)
+            overridePendingTransition(OVERRIDE_TRANSITION_CLOSE, enterAnim, exitAnim)
         } else {
             super.finishAfterTransition()
         }

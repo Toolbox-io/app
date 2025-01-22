@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -47,7 +48,7 @@ fun AboutScreen() {
                 .verticalScroll(rememberScrollState())
         ) {
             Box(Modifier.padding(top = 20.dp)) {
-                AppIcon()
+                AppIcon(modifier = Modifier.size(150.dp))
             }
             Text(
                 text = stringResource(R.string.app_name),

@@ -23,9 +23,9 @@
 
     <style name="Theme.UltimateSecurity.SplashScreen" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#FCF5FD</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/app_icon_adapted</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/app_icon_2</item>
         <!-- <item name="android:windowSplashScreenBackground">#FCF5FD / #141218</item> | api 31 -->
-        <item name="postSplashScreenTheme">@style/Theme.UltimateSecurity.MainActivity</item>
+        <item name="postSplashScreenTheme">@style/Theme.UltimateSecurity.NoActionBar</item>
     </style>
 
     <style name="Theme.SplashScreen.Files">
@@ -52,43 +52,37 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
 
-        <item name="colorPrimary">#FFFBBA73</item>
-        <item name="colorOnPrimary">#FF492900</item>
-        <item name="colorPrimaryContainer">#FF683D00</item>
-        <item name="colorOnPrimaryContainer">#FFFFDCBC</item>
-        <item name="colorSecondary">#FFE0C1A3</item>
-        <item name="colorOnSecondary">#FF402D17</item>
-        <item name="colorSecondaryContainer">#FF58432C</item>
-        <item name="colorOnSecondaryContainer">#FFFEDDBE</item>
-        <item name="colorTertiary">#FFBECC9C</item>
-        <item name="colorOnTertiary">#FF293411</item>
-        <item name="colorTertiaryContainer">#FF3F4B26</item>
-        <item name="colorOnTertiaryContainer">#FFDAE9B6</item>
+        <item name="colorPrimary">#FFA3D398</item>
+        <item name="colorOnPrimary">#FF0E380D</item>
+        <item name="colorPrimaryContainer">#FF265022</item>
+        <item name="colorOnPrimaryContainer">#FFBEF0B2</item>
+        <item name="colorSecondary">#FFBACCB2</item>
+        <item name="colorOnSecondary">#FF263422</item>
+        <item name="colorSecondaryContainer">#FF3C4B38</item>
+        <item name="colorOnSecondaryContainer">#FFD6E8CE</item>
+        <item name="colorTertiary">#FFA0CFD3</item>
+        <item name="colorOnTertiary">#FF00363A</item>
+        <item name="colorTertiaryContainer">#FF1E4D51</item>
+        <item name="colorOnTertiaryContainer">#FFBCEBEF</item>
         <item name="colorError">#FFFFB4AB</item>
         <item name="colorOnError">#FF690005</item>
         <item name="colorErrorContainer">#FF93000A</item>
         <item name="colorOnErrorContainer">#FFFFDAD6</item>
-        <item name="android:colorBackground">#FF19120C</item>
-        <item name="colorOnBackground">#FFEEE0D5</item>
-        <item name="colorSurface">#FF19120C</item>
-        <item name="colorOnSurface">#FFEEE0D5</item>
-        <item name="colorSurfaceVariant">#FF50453A</item>
-        <item name="colorOnSurfaceVariant">#FFD5C4B5</item>
-        <item name="colorOutline">#FF9D8E81</item>
-        <item name="colorOutlineVariant">#FF50453A</item>
-        <!--
-        <item name="colorScrim">#FF000000</item>
-        <item name="colorInverseSurface">#FFEEE0D5</item>
-        <item name="colorInverseOnSurface">#FF372F28</item>
-        <item name="colorInversePrimary">#FF845416</item>
-        -->
-        <item name="colorSurfaceDim">#FF19120C</item>
-        <item name="colorSurfaceBright">#FF403830</item>
-        <item name="colorSurfaceContainerLowest">#FF130D07</item>
-        <item name="colorSurfaceContainerLow">#FF211A14</item>
-        <item name="colorSurfaceContainer">#FF251E17</item>
-        <item name="colorSurfaceContainerHigh">#FF302921</item>
-        <item name="colorSurfaceContainerHighest">#FF3B332C</item>
+        <item name="android:colorBackground">#FF11140F</item>
+        <item name="colorOnBackground">#FFE0E4DA</item>
+        <item name="colorSurface">#FF11140F</item>
+        <item name="colorOnSurface">#FFE0E4DA</item>
+        <item name="colorSurfaceVariant">#FF42493F</item>
+        <item name="colorOnSurfaceVariant">#FFC2C8BC</item>
+        <item name="colorOutline">#FF8C9388</item>
+        <item name="colorOutlineVariant">#FF42493F</item>
+        <item name="colorSurfaceDim">#FF11140F</item>
+        <item name="colorSurfaceBright">#FF363A34</item>
+        <item name="colorSurfaceContainerLowest">#FF0B0F0A</item>
+        <item name="colorSurfaceContainerLow">#FF191D17</item>
+        <item name="colorSurfaceContainer">#FF1D211B</item>
+        <item name="colorSurfaceContainerHigh">#FF272B25</item>
+        <item name="colorSurfaceContainerHighest">#FF323630</item>
     </style>
 
     <style name="Theme.UltimateSecurity.Night.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Night.NoDynamicColor">
@@ -111,43 +105,37 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
 
-        <item name="colorPrimary">#FF845416</item>
+        <item name="colorPrimary">#FF3E6837</item>
         <item name="colorOnPrimary">#FFFFFFFF</item>
-        <item name="colorPrimaryContainer">#FFFFDCBC</item>
-        <item name="colorOnPrimaryContainer">#FF2C1700</item>
-        <item name="colorSecondary">#FF725A42</item>
+        <item name="colorPrimaryContainer">#FFBEF0B2</item>
+        <item name="colorOnPrimaryContainer">#FF002202</item>
+        <item name="colorSecondary">#FF53634E</item>
         <item name="colorOnSecondary">#FFFFFFFF</item>
-        <item name="colorSecondaryContainer">#FFFEDDBE</item>
-        <item name="colorOnSecondaryContainer">#FF291805</item>
-        <item name="colorTertiary">#FF56633B</item>
+        <item name="colorSecondaryContainer">#FFD6E8CE</item>
+        <item name="colorOnSecondaryContainer">#FF111F0F</item>
+        <item name="colorTertiary">#FF386569</item>
         <item name="colorOnTertiary">#FFFFFFFF</item>
-        <item name="colorTertiaryContainer">#FFDAE9B6</item>
-        <item name="colorOnTertiaryContainer">#FF151F01</item>
+        <item name="colorTertiaryContainer">#FFBCEBEF</item>
+        <item name="colorOnTertiaryContainer">#FF002022</item>
         <item name="colorError">#FFBA1A1A</item>
         <item name="colorOnError">#FFFFFFFF</item>
         <item name="colorErrorContainer">#FFFFDAD6</item>
         <item name="colorOnErrorContainer">#FF410002</item>
-        <item name="android:colorBackground">#FFFFF8F4</item>
-        <item name="colorOnBackground">#FF211A14</item>
-        <item name="colorSurface">#FFFFF8F4</item>
-        <item name="colorOnSurface">#FF211A14</item>
-        <item name="colorSurfaceVariant">#FFF1DFD0</item>
-        <item name="colorOnSurfaceVariant">#FF50453A</item>
-        <item name="colorOutline">#FF827568</item>
-        <item name="colorOutlineVariant">#FFD5C4B5</item>
-        <!--
-        <item name="colorScrim">#FF000000</item>
-        <item name="colorInverseSurface">#FF372F28</item>
-        <item name="colorInverseOnSurface">#FFFDEEE3</item>
-        <item name="colorInversePrimary">#FFFBBA73</item>
-        -->
-        <item name="colorSurfaceDim">#FFE6D8CC</item>
-        <item name="colorSurfaceBright">#FFFFF8F4</item>
+        <item name="android:colorBackground">#FFF7FBF1</item>
+        <item name="colorOnBackground">#FF191D17</item>
+        <item name="colorSurface">#FFF7FBF1</item>
+        <item name="colorOnSurface">#FF191D17</item>
+        <item name="colorSurfaceVariant">#FFDEE4D8</item>
+        <item name="colorOnSurfaceVariant">#FF42493F</item>
+        <item name="colorOutline">#FF73796E</item>
+        <item name="colorOutlineVariant">#FFC2C8BC</item>
+        <item name="colorSurfaceDim">#FFD8DBD2</item>
+        <item name="colorSurfaceBright">#FFF7FBF1</item>
         <item name="colorSurfaceContainerLowest">#FFFFFFFF</item>
-        <item name="colorSurfaceContainerLow">#FFFFF1E7</item>
-        <item name="colorSurfaceContainer">#FFFAEBE0</item>
-        <item name="colorSurfaceContainerHigh">#FFF4E6DA</item>
-        <item name="colorSurfaceContainerHighest">#FFEEE0D5</item>
+        <item name="colorSurfaceContainerLow">#FFF2F5EB</item>
+        <item name="colorSurfaceContainer">#FFECEFE6</item>
+        <item name="colorSurfaceContainerHigh">#FFE6E9E0</item>
+        <item name="colorSurfaceContainerHighest">#FFE0E4DA</item>
     </style>
     <style name="Theme.UltimateSecurity.Light.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoDynamicColor">
         <item name="windowActionBar">false</item>
@@ -160,9 +148,7 @@
         <item name="android:statusBarColor">?attr/colorSurface</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.MainActivity" parent="Theme.UltimateSecurity.NoActionBar" />
-
-    <style name="Theme.UltimateSecurity.FakeCrash" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.FakeCrash" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowContentOverlay">@null</item>

@@ -27,6 +27,7 @@ import android.view.Window
 import android.view.animation.AnimationUtils.loadAnimation
 import android.widget.EditText
 import android.widget.ImageView.ScaleType
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResult
 import androidx.annotation.AnimRes
 import androidx.annotation.AttrRes
@@ -514,7 +515,6 @@ inline fun FragmentActivity.requestAuthentication(crossinline callback: Authenti
             override fun onAuthenticationFailed() {
                 super.onAuthenticationFailed()
                 config.fail?.invoke()
-                config.always?.invoke()
             }
 
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
@@ -708,3 +708,31 @@ inline fun Activity.ComposeView(crossinline init: @Composable () -> Unit) =
             init()
         }
     }
+
+inline fun backCallback(enabled: Boolean = true, crossinline callback: OnBackPressedCallback.() -> Unit)
+    = object: OnBackPressedCallback(enabled) {
+        override fun handleOnBackPressed() {
+        callback(this)
+        }
+    }
+
+inline fun <F, S> Collection<F>.contentEquals(other: Collection<S>): Boolean {
+    if (size != other.size) return false
+    val list1 = toList()
+    val list2 = other.toList()
+
+    for (i in indices) {
+        if (list1[i] != list2[i]) return false
+    }
+    return true
+}
+
+inline fun <reified F, reified S : F> Collection<F>.contentEqualsIgnoringOrder(other: Collection<S>): Boolean {
+    if (F::class != S::class) return false
+
+    if (size != other.size) return false
+    val list1 = toMutableList()
+    val list2 = other.toMutableList()
+    list1.removeAll(list2)
+    return list1.size == 0
+}

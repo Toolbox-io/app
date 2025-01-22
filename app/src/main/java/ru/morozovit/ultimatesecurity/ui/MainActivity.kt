@@ -441,6 +441,10 @@ class MainActivity : BaseActivity(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        /*if (intent.getBooleanExtra("anim", false)) {
+            overridePendingTransition(R.anim.scale_down, R.anim.alpha_down)
+        }*/
+
         activityLauncher = ActivityLauncher.registerActivityForResult(this)
         updateLock()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -473,6 +477,7 @@ class MainActivity : BaseActivity(
                     return false
                 }
             })
+            /*finish()*/
         }
 
         if (Build.VERSION.SDK_INT >= 33) {
@@ -497,7 +502,7 @@ class MainActivity : BaseActivity(
             }
         }
 
-        if (!pendingAuth) startEnterAnimation(content)
+        if (!pendingAuth /*&& !intent.getBooleanExtra("noAnim", false)*/) startEnterAnimation(content)
     }
 
     override fun finish() {

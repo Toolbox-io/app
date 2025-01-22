@@ -58,6 +58,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -82,6 +83,7 @@ import androidx.constraintlayout.compose.Dimension
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.random.Random
+import kotlin.reflect.KClass
 
 @Composable
 fun ListItem(
@@ -110,14 +112,21 @@ fun ListItem(
             ConstraintLayout(
                 modifier = Modifier
                     .constrainAs(leading) {
-                        top link
-                                if (bottomContent != null) btm.top
-                                else parent.bottom
-                        bottom link parent.bottom
+                        top link parent.top
+                        bottom link
+                                when {
+                                    bottomContent != null -> btm.top
+                                    divider -> div.top
+                                    else -> parent.bottom
+                                }
                         left link parent.left
                         right link listItem.left
                     }
-                    .padding(end = 16.dp),
+                    .padding(
+                        start = 16.dp,
+                        top = 8.dp,
+                        bottom = 8.dp
+                    ),
                 content = leadingContent
             )
         }
@@ -152,12 +161,19 @@ fun ListItem(
                     .constrainAs(trailing) {
                         top link parent.top
                         bottom link
-                                if (bottomContent != null) btm.top
-                                else parent.bottom
+                                when {
+                                    bottomContent != null -> btm.top
+                                    divider -> div.top
+                                    else -> parent.bottom
+                                }
                         right link parent.right
                         left link listItem.right
                     }
-                    .padding(end = 16.dp),
+                    .padding(
+                        end = 16.dp,
+                        top = 8.dp,
+                        bottom = 8.dp
+                    ),
                 content = trailingContent
             )
         }
@@ -601,6 +617,8 @@ inline fun TextButton(
 class RadioButtonControllerScope<T> @PublishedApi internal constructor() {
     private val radioButtons = mutableMapOf<T, MutableState<Boolean>>()
 
+    val checkedItemAsState: MutableState<T?> = mutableStateOf(null)
+
     private fun processCheckedChange(id: T) {
         val toModify = mutableListOf<T>()
 
@@ -621,6 +639,7 @@ class RadioButtonControllerScope<T> @PublishedApi internal constructor() {
             snapshotFlow { checked.value }.collect {
                 if (it) {
                     processCheckedChange(id)
+                    checkedItemAsState.value = checkedItem
                 }
             }
         }
@@ -642,45 +661,94 @@ class RadioButtonControllerScope<T> @PublishedApi internal constructor() {
 
     fun clearCheckedItems() = radioButtons.values.forEach { it.value = false }
 
-    data class Id internal constructor(private val bytes: ByteArray) {
-        internal constructor(): this(bytes = Random.Default.nextBytes(4))
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as Id
-
-            return bytes.contentEquals(other.bytes)
-        }
-
-        override fun hashCode(): Int {
-            return bytes.contentHashCode()
-        }
+    companion object {
+        inline fun <reified IdT: Id<T>, T> Ids() = Ids(IdT::class)
     }
 
-    class Ids internal constructor() {
-        operator fun component1() = Id()
-        operator fun component2() = Id()
-        operator fun component3() = Id()
-        operator fun component4() = Id()
-        operator fun component5() = Id()
-        operator fun component6() = Id()
-        operator fun component7() = Id()
-        operator fun component8() = Id()
-        operator fun component9() = Id()
-        operator fun component10() = Id()
-        operator fun component11() = Id()
-        operator fun component12() = Id()
-        operator fun component13() = Id()
-        operator fun component14() = Id()
-        operator fun component15() = Id()
-        operator fun component16() = Id()
+    interface Id<T> {
+        val id: T
     }
 
-    fun createId() = Id()
-    fun createIds() = Ids()
+    class RandomIntId internal constructor(): Id<Int> {
+        override val id = Random.Default.nextInt()
+    }
+
+    class OrderedIntId internal constructor(override val id: Int): Id<Int>
+
+    open class Ids<IdT: Id<T>, T> @PublishedApi internal constructor(
+        val clazz: KClass<IdT>?
+    ) {
+        private val newId: () -> IdT = {
+            clazz!!.java.getConstructor().newInstance()
+        }
+
+        open operator fun component1() = newId()
+        open operator fun component2() = newId()
+        open operator fun component3() = newId()
+        open operator fun component4() = newId()
+        open operator fun component5() = newId()
+        open operator fun component6() = newId()
+        open operator fun component7() = newId()
+        open operator fun component8() = newId()
+        open operator fun component9() = newId()
+        open operator fun component10() = newId()
+        open operator fun component11() = newId()
+        open operator fun component12() = newId()
+        open operator fun component13() = newId()
+        open operator fun component14() = newId()
+        open operator fun component15() = newId()
+        open operator fun component16() = newId()
+    }
+
+    class OrderedIntIds internal constructor(): Ids<OrderedIntId, Int>(null) {
+        override fun component1() = OrderedIntId(0)
+        override fun component2() = OrderedIntId(1)
+        override fun component3() = OrderedIntId(2)
+        override fun component4() = OrderedIntId(3)
+        override fun component5() = OrderedIntId(4)
+        override fun component6() = OrderedIntId(5)
+        override fun component7() = OrderedIntId(6)
+        override fun component8() = OrderedIntId(7)
+        override fun component9() = OrderedIntId(8)
+        override fun component10() = OrderedIntId(9)
+        override fun component11() = OrderedIntId(10)
+        override fun component12() = OrderedIntId(11)
+        override fun component13() = OrderedIntId(12)
+        override fun component14() = OrderedIntId(13)
+        override fun component15() = OrderedIntId(14)
+        override fun component16() = OrderedIntId(15)
+    }
+
+    class Ints internal constructor() {
+        operator fun component1() = 0
+        operator fun component2() = 1
+        operator fun component3() = 2
+        operator fun component4() = 3
+        operator fun component5() = 4
+        operator fun component6() = 5
+        operator fun component7() = 6
+        operator fun component8() = 7
+        operator fun component9() = 8
+        operator fun component10() = 9
+        operator fun component11() = 10
+        operator fun component12() = 11
+        operator fun component13() = 12
+        operator fun component14() = 13
+        operator fun component15() = 14
+        operator fun component16() = 15
+    }
+
+    fun createRandomId() = RandomIntId()
+    fun createRandomIds() = Ids<RandomIntId, Int>()
+
+    fun createOrderedId(index: Int) = OrderedIntId(index)
+    fun createOrderedIds() = OrderedIntIds()
+
+    fun createIntIds() = Ints()
 }
+
+@Composable
+inline fun <T> rememberRadioButtonController() = rememberSaveable { RadioButtonControllerScope<T>() }
 
 @Composable
 inline fun <T> RadioButtonController(
@@ -732,7 +800,7 @@ inline fun SimpleAlertDialog(
     open: Boolean,
     crossinline onDismissRequest: () -> Unit,
     crossinline onPositiveButtonClick: (() -> Unit) = {},
-    crossinline onNeutralButtonClick: (() -> Unit) = {},
+    crossinline onNegativeButtonClick: (() -> Unit) = {},
     positiveButtonText: String? = null,
     negativeButtonText: String? = null,
     title: String,
@@ -784,7 +852,7 @@ inline fun SimpleAlertDialog(
                 {
                     TextButton(
                         onClick = {
-                            onNeutralButtonClick()
+                            onNegativeButtonClick()
                             if (dsaChecked) onDsa()
                             onDismissRequest()
                         }

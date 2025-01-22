@@ -2,180 +2,349 @@ package ru.morozovit.ultimatesecurity.ui.protection.applocker
 
 import android.annotation.SuppressLint
 import android.content.pm.PackageInfo
+import android.content.pm.PackageManager.GET_ACTIVITIES
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.activity.addCallback
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.RestartAlt
+import androidx.compose.material.icons.filled.SelectAll
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MediumTopAppBar
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateSetOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.core.graphics.drawable.toBitmap
+import kotlinx.coroutines.launch
+import ru.morozovit.android.ListItem
+import ru.morozovit.android.SimpleAlertDialog
+import ru.morozovit.android.backCallback
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
-import ru.morozovit.ultimatesecurity.Settings.Applocker.apps
-import ru.morozovit.ultimatesecurity.databinding.SelectAppsBinding
-import kotlin.collections.set
+import ru.morozovit.ultimatesecurity.Settings
+import ru.morozovit.ultimatesecurity.ui.AppTheme
 
-// TODO rewrite in Jetpack Compose
 class SelectAppsActivity: BaseActivity() {
-    private lateinit var binding: SelectAppsBinding
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun SelectAppsScreen() {
+        AppTheme {
+            val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+            val coroutineScope = rememberCoroutineScope()
+
+            val selectedApps = remember { mutableStateSetOf<String>() }
+            val apps = remember { mutableStateListOf<PackageInfo>() }
+
+            var unsavedChanges by remember { mutableStateOf(false) }
+
+            var exitConfirmationExpanded by remember { mutableStateOf(false) }
+            var resetConfirmationExpanded by remember { mutableStateOf(false) }
+
+            val backCallback = backCallback(false) {
+                exitConfirmationExpanded = true
+            }
+
+            onBackPressedDispatcher.addCallback(backCallback)
+
+            LaunchedEffect(Unit) {
+                snapshotFlow { unsavedChanges }.collect {
+                    backCallback.isEnabled = it
+                }
+            }
+
+            fun onExitConfirmDismiss() {
+                exitConfirmationExpanded = false
+            }
+
+            fun onResetConfirmDismiss() {
+                resetConfirmationExpanded = false
+            }
+
+            fun saveChangesAndFinish() {
+                Settings.Applocker.apps = selectedApps.toSet()
+                finish()
+            }
+
+            fun updateUnsavedChanges() {
+                unsavedChanges = selectedApps.toSet() != Settings.Applocker.apps.toSet()
+            }
+
+            fun discardChanges() {
+                coroutineScope.launch {
+                    selectedApps.clear()
+                    selectedApps.addAll(Settings.Applocker.apps)
+                    updateUnsavedChanges()
+                }
+            }
+
+            SimpleAlertDialog(
+                open = exitConfirmationExpanded,
+                onDismissRequest = ::onExitConfirmDismiss,
+                title = stringResource(R.string.are_you_sure),
+                body = stringResource(R.string.unsaved_changes),
+                onPositiveButtonClick = ::saveChangesAndFinish,
+                onNegativeButtonClick = ::finish,
+                positiveButtonText = stringResource(R.string.save),
+                negativeButtonText = stringResource(R.string.discard),
+                icon = {
+                    Icon(
+                        imageVector = Icons.Filled.Warning,
+                        contentDescription = stringResource(R.string.are_you_sure)
+                    )
+                }
+            )
+
+            SimpleAlertDialog(
+                open = resetConfirmationExpanded,
+                onDismissRequest = ::onResetConfirmDismiss,
+                title = stringResource(R.string.are_you_sure),
+                body = stringResource(R.string.discard_d),
+                onPositiveButtonClick = {
+                    discardChanges()
+                    onResetConfirmDismiss()
+                },
+                onNegativeButtonClick = ::onResetConfirmDismiss,
+                positiveButtonText = stringResource(R.string.yes),
+                negativeButtonText = stringResource(R.string.no),
+                icon = {
+                    Icon(
+                        imageVector = Icons.Filled.Warning,
+                        contentDescription = stringResource(R.string.are_you_sure)
+                    )
+                }
+            )
+
+            // TODO implement search
+            Scaffold(
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                topBar = {
+                    MediumTopAppBar(
+                        title = {
+                            Text(
+                                stringResource(R.string.select_apps),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = onBackPressedDispatcher::onBackPressed) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Localized description"
+                                )
+                            }
+                        },
+                        actions = {
+                            Box {
+                                var expanded by remember { mutableStateOf(false) }
+
+                                fun onDismissRequest() {
+                                    expanded = false
+                                }
+
+                                IconButton(onClick = {
+                                    expanded = true
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.MoreVert,
+                                        contentDescription = stringResource(R.string.more)
+                                    )
+                                }
+
+                                DropdownMenu(expanded = expanded, onDismissRequest = ::onDismissRequest) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.select_all)) },
+                                        onClick = {
+                                            coroutineScope.launch {
+                                                apps.forEach {
+                                                    selectedApps.add(it.packageName)
+                                                }
+                                                updateUnsavedChanges()
+                                            }
+                                            onDismissRequest()
+                                        },
+                                        leadingIcon = { Icon(Icons.Filled.SelectAll, contentDescription = null) }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.clear)) },
+                                        onClick = {
+                                            coroutineScope.launch {
+                                                selectedApps.clear()
+                                                updateUnsavedChanges()
+                                            }
+                                            onDismissRequest()
+                                        },
+                                        leadingIcon = { Icon(Icons.Filled.Clear, contentDescription = null) },
+                                        enabled = selectedApps.isNotEmpty()
+                                    )
+                                    HorizontalDivider()
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.discard_changes)) },
+                                        onClick = {
+                                            resetConfirmationExpanded = true
+                                            onDismissRequest()
+                                        },
+                                        leadingIcon = { Icon(Icons.Filled.RestartAlt, contentDescription = null) },
+                                        enabled = unsavedChanges
+                                    )
+                                }
+                            }
+                        },
+                        scrollBehavior = scrollBehavior
+                    )
+                },
+                floatingActionButton = {
+                    FloatingActionButton(
+                        onClick = ::saveChangesAndFinish,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = stringResource(R.string.done)
+                        )
+                    }
+                }
+            ) { innerPadding ->
+                LaunchedEffect(Unit) {
+                    coroutineScope.launch {
+                        val appsList = packageManager.getInstalledPackages(GET_ACTIVITIES).toMutableList()
+                        selectedApps.addAll(Settings.Applocker.apps)
+
+                        val sorted = appsList.sortedBy {
+                            it.applicationInfo?.loadLabel(packageManager).toString()
+                        }
+
+                        apps.addAll(sorted)
+
+                        val toRemove = mutableListOf<PackageInfo>()
+
+                        apps.forEach { app ->
+                            if (app.activities.let { it.isNullOrEmpty() }) {
+                                toRemove += app
+                            }
+                        }
+
+                        toRemove.forEach {
+                            apps.remove(it)
+                        }
+                    }
+                }
+
+                LazyColumn(
+                    contentPadding = innerPadding
+                ) {
+                    items(apps.size) {
+                        var appName by remember { mutableStateOf("") }
+                        var appPackage: String? by remember { mutableStateOf("") }
+                        var appIcon: ImageBitmap? by remember { mutableStateOf(null) }
+
+                        var compose by remember { mutableStateOf(true) }
+
+                        LaunchedEffect(apps[it]) {
+                            coroutineScope.launch {
+                                val info = apps[it].applicationInfo
+                                if (info != null) {
+                                    appName = info.loadLabel(packageManager).toString()
+                                    appPackage = if (appName != apps[it].packageName) {
+                                        apps[it].packageName
+                                    } else {
+                                        null
+                                    }
+                                    appIcon = info.loadIcon(packageManager).toBitmap().asImageBitmap()
+                                } else {
+                                    compose = false
+                                }
+                            }
+                        }
+
+                        if (compose) {
+                            fun onCheckedChange(it: Boolean) {
+                                if (it) {
+                                    selectedApps.add(appPackage ?: appName)
+                                } else {
+                                    selectedApps.remove(appPackage ?: appName)
+                                }
+                                coroutineScope.launch {
+                                    updateUnsavedChanges()
+                                }
+                            }
+
+                            ListItem(
+                                headline = appName,
+                                supportingText = appPackage,
+                                divider = true,
+                                leadingContent = {
+                                    if (appIcon != null) {
+                                        Image(
+                                            bitmap = appIcon!!,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(56.dp)
+                                                .clip(RoundedCornerShape(30.dp))
+                                        )
+                                    }
+                                },
+                                trailingContent = {
+                                    Checkbox(
+                                        checked = selectedApps.contains(appPackage ?: appName),
+                                        onCheckedChange = ::onCheckedChange
+                                    )
+                                },
+                                onClick = {
+                                    onCheckedChange(!selectedApps.contains(appPackage ?: appName))
+                                }
+                            )
+                        }
+                    }
+
+                }
+            }
+        }
+    }
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = SelectAppsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        
-        val appList = packageManager.getInstalledPackages(0).toMutableList()
-        binding.selappsRv.layoutManager = LinearLayoutManager(this)
-        binding.selappsRv.adapter = AppAdapter(appList)
+        enableEdgeToEdge()
 
-        val listener: (View?) -> Unit = {
-            saveChoice()
-            setResult(RESULT_OK)
-            finish()
+        setContent {
+            SelectAppsScreen()
         }
-
-        // Listeners are the same for the FAB and the back button
-        binding.selappsTb.setNavigationOnClickListener(listener)
-        binding.selappsFab.setOnClickListener(listener)
-        onBackPressedDispatcher.addCallback {
-            listener.invoke(null)
-        }
-
-        binding.selappsTb.subtitle = String.format(resources.getString(R.string.sel), 0)
-
-        binding.selappsTb.menu.findItem(R.id.selapps_clear).setOnMenuItemClickListener {
-            val adapter = binding.selappsRv.adapter as AppAdapter
-            val selectedApps = adapter.selectedApps.toMutableMap()
-
-            for (app in selectedApps) {
-                try {
-                    (binding.selappsRv.findViewHolderForAdapterPosition(app.key) // TODO fix error
-                            as AppAdapter.AppViewHolder).appCheckbox.isChecked = false
-                } catch (e: NullPointerException) {
-                    apps = apps.let {
-                        val set = it.toMutableSet()
-                        set.remove(app.value.packageName)
-                        set.toSet()
-                    }
-                    binding.selappsRv.adapter = AppAdapter(appList)
-                }
-            }
-            true
-        }
-        binding.selappsTb.menu.findItem(R.id.selapps_selall).setOnMenuItemClickListener {
-            val adapter = binding.selappsRv.adapter as AppAdapter
-
-            for (i in 0 until adapter.itemCount) {
-                try {
-                    val vh =
-                        binding.selappsRv.findViewHolderForAdapterPosition(i) as AppAdapter.AppViewHolder // TODO fix error
-                    if (!vh.appCheckbox.isChecked) vh.appCheckbox.isChecked = true
-                } catch (e: NullPointerException) {
-                    val set = apps.toMutableSet()
-                    for (app in appList) {
-                        set.add(app.packageName)
-                    }
-                    apps = set.toSet()
-                    binding.selappsRv.adapter = AppAdapter(appList)
-                    break
-                }
-            }
-            true
-        }
-    }
-
-    private fun saveChoice() {
-        @Suppress("UNCHECKED_CAST")
-        apps = (binding.selappsRv.adapter as AppAdapter).selectedAppsSet as Set<String>
-    }
-
-    inner class AppAdapter(private val appList: MutableList<PackageInfo>) :
-        RecyclerView.Adapter<AppAdapter.AppViewHolder>() {
-        private val mSelectedApps = mutableMapOf<Int, AppEntry>()
-
-        val selectedApps get() = mSelectedApps
-        val selectedAppsSet get(): Set<String?> {
-            val arr = arrayOfNulls<String>(selectedApps.size)
-            var i = 0
-            for (item in selectedApps) {
-                arr[i] = item.value.packageName
-                i++
-            }
-            return setOf(*arr)
-        }
-
-        init {
-            val selectedAppList = apps
-            for (item in appList) {
-                if (selectedAppList.contains(item.packageName)) {
-                    selectedApps[appList.indexOf(item)] = AppEntry(
-                        item.applicationInfo!!.loadLabel(packageManager).toString(),
-                        item.packageName,
-                    )
-                }
-            }
-        }
-
-        inner class AppViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
-            private val appIcon: ImageView = itemView.findViewById(R.id.appIcon)
-            private val appName: TextView = itemView.findViewById(R.id.appName)
-            private val appPackage: TextView = itemView.findViewById(R.id.appPackage)
-            val appCheckbox: CheckBox = itemView.findViewById(R.id.appCheckbox)
-
-            fun bind(packageInfo: PackageInfo, index: Int) {
-                val icon = packageInfo.applicationInfo!!.loadIcon(this@SelectAppsActivity.packageManager)
-                val label = packageInfo.applicationInfo!!.loadLabel(this@SelectAppsActivity.packageManager).toString()
-                val packageName = packageInfo.packageName
-
-                appIcon.setImageDrawable(icon)
-                appName.text = label
-                appPackage.text = packageName
-
-                appCheckbox.setOnCheckedChangeListener { _, isChecked ->
-                    if (isChecked) {
-                        selectedApps[index] = AppEntry(
-                            label,
-                            packageName,
-                        )
-                    } else {
-                        selectedApps.remove(index)
-                    }
-                    binding.selappsTb.subtitle = String.format(resources.getString(R.string.sel), selectedApps.size)
-                }
-
-                appCheckbox.isChecked = selectedApps.containsKey(index)
-
-                itemView.setOnClickListener {
-                    appCheckbox.isChecked = !appCheckbox.isChecked
-                }
-            }
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
-            val inflater = LayoutInflater.from(this@SelectAppsActivity)
-            val view = inflater.inflate(R.layout.app_item, parent, false)
-            return AppViewHolder(view)
-        }
-
-        override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
-            holder.bind(appList[position], position)
-        }
-
-        override fun getItemCount() = appList.size
-    }
-
-    data class AppEntry(
-        val name: CharSequence,
-        val packageName: String,
-    )
-
-
-    override fun onPause() {
-        super.onPause()
-        saveChoice()
     }
 }

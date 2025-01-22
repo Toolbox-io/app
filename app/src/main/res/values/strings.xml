@@ -171,4 +171,12 @@
     <string name="app_desc_l">An app with a lot of useful features for your device, such as security, customization and tools.</string>
     <string name="osl">Open source licenses</string>
     <string name="report_error">Report a problem</string>
+    <string name="more">More</string>
+    <string name="select_all">Select all</string>
+    <string name="discard_changes">Discard changes</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="unsaved_changes">You have unsaved changes. Do you want to discard them?\nYou can press Back to cancel exiting.</string>
+    <string name="save">Save</string>
+    <string name="discard">Discard</string>
+    <string name="discard_d">Do you want to discard the changes?</string>
 </resources>
