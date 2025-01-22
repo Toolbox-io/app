@@ -332,6 +332,7 @@ class AuthActivity: BaseActivity(false) {
                                 }
                                 string
                             }
+                            @SuppressLint("SuspiciousIndentation")
                             if (password == globalPassword && !isSetOrConfirm) {
                                 authenticated = true
                                 /*if (uses == 1) {

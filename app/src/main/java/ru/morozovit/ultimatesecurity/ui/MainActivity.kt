@@ -115,11 +115,8 @@ class MainActivity : BaseActivity(
     savedInstanceStateEnabled = true
 ) {
     private var prevConfig: Configuration? = null
-
     lateinit var activityLauncher: ActivityLauncher
-
     val resumeHandlers = mutableListOf<() -> Unit>()
-
     private var isLockVisible by mutableStateOf(false)
 
     sealed class BaseScreen
