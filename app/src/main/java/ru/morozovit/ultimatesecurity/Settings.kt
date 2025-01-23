@@ -1,15 +1,11 @@
 package ru.morozovit.ultimatesecurity
 
-import android.content.ComponentName
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-import android.content.pm.PackageManager.DONT_KILL_APP
 import android.content.res.Resources
 import android.os.Build
-import android.service.quicksettings.Tile.STATE_UNAVAILABLE
-import org.jasypt.util.password.StrongPasswordEncryptor
+import ru.morozovit.android.decrypt
+import ru.morozovit.android.encrypt
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_APP_INFO
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_CLOSE
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_OPEN_APP_AGAIN
@@ -17,9 +13,7 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_TI
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.NOTHING_SELECTED
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
 import ru.morozovit.ultimatesecurity.services.Accessibility
-import ru.morozovit.ultimatesecurity.services.tiles.SleepTile
 import ru.morozovit.ultimatesecurity.ui.Theme
-import ru.morozovit.ultimatesecurity.ui.customization.shortcuts.FilesActivity
 import kotlin.random.Random
 
 object Settings {
@@ -73,20 +67,12 @@ object Settings {
 
     val accessibility get() = Accessibility.instance != null
 
+    @Deprecated("")
     var globalPassword
         get() = sharedPref.getString("globalPassword", "")!!
         set(value) {
             with(sharedPref.edit()) {
                 putString("globalPassword", value)
-                apply()
-            }
-        }
-
-    var globalPasswordEnabled
-        get() = sharedPref.getBoolean("globalPasswordEnabled", false)
-        set(value) {
-            with(sharedPref.edit()) {
-                putBoolean("globalPasswordEnabled", value)
                 apply()
             }
         }
@@ -133,68 +119,113 @@ object Settings {
 
         override fun init() {
             if (!init) {
-                sharedPref = App.context.getSharedPreferences("keys", Context.MODE_PRIVATE)
+                sharedPref = ru.morozovit.ultimatesecurity.App.context.getSharedPreferences("keys", Context.MODE_PRIVATE)
                 init = true
             }
         }
 
-        private fun generateKey() = Random.nextBytes(Random.nextInt(1, 1024)).joinToString()
-
-        var applockerRandomKey: String
-            get() {
-                var result = Settings.sharedPref.getString("applockerRandomKey", null)
-                if (result == null) {
-                    result = generateKey()
-                    applockerRandomKey = result
-                }
-                return result
-            }
-            set(value) {
-                with(Settings.sharedPref.edit()) {
-                    putString("applockerRandomKey", value)
-                    apply()
-                }
-            }
-
-        var authRandomKey: String
-            get() {
-                var result = Settings.sharedPref.getString("authlockerRandomKey", null)
-                if (result == null) {
-                    result = generateKey()
-                    authRandomKey = result
-                }
-                return result
-            }
-            set(value) {
-                with(Settings.sharedPref.edit()) {
-                    putString("authRandomKey", value)
-                    apply()
-                }
-            }
-
-        var applockerEncryptedPassoword
-            get() = Settings.sharedPref.getString("applockerEncryptedPassoword", "")!!
-            set(value) {
-                with(Settings.sharedPref.edit()) {
-                    putString("applockerEncryptedPassoword", value)
-                    apply()
-                }
-            }
-
-        private val encryptor = StrongPasswordEncryptor()
-
-        fun encrypt(key: String, value: String): String {
-            return encryptor.encryptPassword(value)
+        interface Key {
+            fun set(password: String)
+            fun check(password: String): Boolean
+            val isSet: Boolean
         }
 
-        fun setApplockerPassword(value: String) {
-            applockerEncryptedPassoword =
-                if (value.isEmpty()) ""
-                else encrypt(applockerRandomKey, value)
+        private fun generateKey() = Random.nextBytes(Random.nextInt(1, 16)).map { it.toInt().toChar() }.joinToString("")
+
+        object Applocker: Key {
+            private var randomKey: String
+                get() {
+                    var result = Settings.sharedPref.getString("applockerRandomKey", null)
+                    if (result == null) {
+                        result = generateKey()
+                        randomKey = result
+                    }
+                    return result
+                }
+                set(value) {
+                    with(Settings.sharedPref.edit()) {
+                        putString("applockerRandomKey", value)
+                        apply()
+                    }
+                }
+
+            private var encryptedPassword
+                get() = Settings.sharedPref.getString("applockerEncryptedPassoword", "")!!
+                set(value) {
+                    with(Settings.sharedPref.edit()) {
+                        putString("applockerEncryptedPassoword", value)
+                        apply()
+                    }
+                }
+
+            override fun set(password: String) {
+                randomKey = generateKey()
+                encryptedPassword =
+                    if (password.isEmpty()) ""
+                    else randomKey.encrypt(password)
+            }
+
+            override fun check(password: String): Boolean {
+                if (encryptedPassword.isEmpty() && password.isEmpty()) {
+                    return true
+                }
+                val decryptedPassword = try {
+                    encryptedPassword.decrypt(password)
+                } catch (e: Exception) {
+                    null
+                }
+                return decryptedPassword != null && decryptedPassword == randomKey
+            }
+
+            override val isSet get() = encryptedPassword.isNotEmpty()
         }
 
-        fun checkApplockerPassword(value: String) {
+        object App: Key {
+            private var randomKey: String
+                get() {
+                    var result = Settings.sharedPref.getString("authRandomKey", null)
+                    if (result == null) {
+                        result = generateKey()
+                        randomKey = result
+                    }
+                    return result
+                }
+                set(value) {
+                    with(Settings.sharedPref.edit()) {
+                        putString("authRandomKey", value)
+                        apply()
+                    }
+                }
 
+            private var encryptedPassword
+                get() = Settings.sharedPref.getString("authEncryptedPassoword", "")!!
+                set(value) {
+                    with(Settings.sharedPref.edit()) {
+                        putString("authEncryptedPassoword", value)
+                        apply()
+                    }
+                }
+
+            override fun set(password: String) {
+                if (password.isNotEmpty()) randomKey = generateKey()
+                encryptedPassword =
+                    if (password.isEmpty()) ""
+                    else randomKey.encrypt(password)
+            }
+
+            override fun check(password: String): Boolean {
+                if (encryptedPassword.isEmpty() && password.isEmpty()) {
+                    return true
+                }
+                val decryptedPassword = try {
+                    encryptedPassword.decrypt(password)
+                } catch (e: Exception) {
+                    null
+                }
+                return decryptedPassword != null && decryptedPassword == randomKey
+            }
+
+            override val isSet get() = encryptedPassword.isNotEmpty()
         }
     }
 
@@ -228,10 +259,11 @@ object Settings {
                 }
             }
 
+        @Deprecated("Use Settings.Keys.Applocker instead.")
         var password
             get() = sharedPref.getString("password", "")!!
             set(value) {
-                if (value != "") with(sharedPref.edit()) {
+                with(sharedPref.edit()) {
                     putString("password", value)
                     apply()
                 }
@@ -405,47 +437,4 @@ object Settings {
             }
     }
 
-    object Shortcuts: SettingsObj {
-        private var init = false
-
-        override fun init() {
-            if (!init) {
-                sharedPref = App.context.getSharedPreferences("shortcuts", Context.MODE_PRIVATE)
-                init = true
-            }
-        }
-
-        var files
-            get() = sharedPref.getBoolean("files", false)
-            set(value) {
-                with(sharedPref.edit()) {
-                    putBoolean("files", value)
-                    apply()
-                }
-                with (App.context) {
-                    packageManager.setComponentEnabledSetting(
-                        ComponentName(this, FilesActivity::class.java),
-                        if (value)
-                            COMPONENT_ENABLED_STATE_ENABLED
-                        else
-                            COMPONENT_ENABLED_STATE_DISABLED,
-                        DONT_KILL_APP
-                    )
-                    try {
-                        SleepTile.scheduleConfig {
-                            state = STATE_UNAVAILABLE
-                        }
-                    } catch (_: Exception) {}
-                }
-            }
-
-        var files_choice
-            get() = sharedPref.getInt("files_choice", -1)
-            set(value) {
-                with(sharedPref.edit()) {
-                    putInt("files_choice", value)
-                    apply()
-                }
-            }
-    }
 }

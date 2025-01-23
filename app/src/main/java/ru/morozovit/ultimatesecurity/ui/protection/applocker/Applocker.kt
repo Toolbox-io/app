@@ -68,7 +68,6 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.unlockMode
 import ru.morozovit.ultimatesecurity.Settings.accessibility
 import ru.morozovit.ultimatesecurity.services.Accessibility
 import ru.morozovit.ultimatesecurity.services.Accessibility.Companion.waitingForAccessibility
-import ru.morozovit.ultimatesecurity.ui.AppTheme
 import ru.morozovit.ultimatesecurity.ui.MainActivity
 import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
@@ -129,7 +128,7 @@ fun ApplockerScreen() {
 
                                 if (
                                     valueOrTrue {
-                                        Settings.Applocker.password != ""
+                                        Settings.Keys.Applocker.isSet
                                     }
                                 ) {
                                     fun validate() {
@@ -201,8 +200,8 @@ fun ApplockerScreen() {
                                     Spacer(Modifier.weight(1f))
                                     TextButton(
                                         onClick = {
-                                            if (oldPassword == Settings.Applocker.password && newPassword == confirmPassword) {
-                                                Settings.Applocker.password = newPassword
+                                            if (Settings.Keys.Applocker.check(oldPassword) && newPassword == confirmPassword) {
+                                                Settings.Keys.Applocker.set(newPassword)
                                                 onDismissRequest()
                                             } else if (oldPassword.isEmpty()) {
                                                 runOrNoop {

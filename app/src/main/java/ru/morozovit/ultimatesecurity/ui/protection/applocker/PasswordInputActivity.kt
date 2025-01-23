@@ -5,14 +5,12 @@ import android.os.Handler
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.Window
-import android.widget.Toast
 import androidx.core.os.postDelayed
 import ru.morozovit.android.screenWidth
-import ru.morozovit.ultimatesecurity.services.Accessibility
 import ru.morozovit.ultimatesecurity.BaseActivity
-import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.databinding.PasswordBinding
+import ru.morozovit.ultimatesecurity.services.Accessibility
 
 
 class PasswordInputActivity: BaseActivity(false) {
@@ -37,8 +35,6 @@ class PasswordInputActivity: BaseActivity(false) {
             binding.pwR.layoutParams = it
         }
 
-        var setPassword = false
-
         var packageName = ""
 
         with (intent.extras) {
@@ -46,55 +42,28 @@ class PasswordInputActivity: BaseActivity(false) {
                 try {
                     packageName = getString("appPackage")!!
                 } catch (_: NullPointerException) {}
-                setPassword = getBoolean("setPassword")
             }
         }
 
-        when (setPassword) {
-            true -> {
-                binding.pwIm.visibility = GONE
-                binding.pwSm.visibility = VISIBLE
-                if (Settings.Applocker.password.isEmpty()) {
-                    binding.pwOpw.visibility = GONE
-                }
-            }
-            false -> {
-                binding.pwIm.visibility = VISIBLE
-                binding.pwSm.visibility = GONE
-            }
-        }
+        binding.pwIm.visibility = VISIBLE
+        binding.pwSm.visibility = GONE
 
         binding.pwOk.setOnClickListener {
-            when (setPassword) {
-                false -> {
-                    val password = binding.pwEt.text.toString()
-                    if (password == Settings.Applocker.password) {
-                        setResult(RESULT_OK, intent)
-                        finish()
-                        Accessibility.instance?.lock = true
-                        val intent = applicationContext
-                            .packageManager
-                            .getLaunchIntentForPackage(packageName)
-                        startActivity(intent)
-                        Handler(mainLooper).postDelayed(2000) {
-                            Accessibility.instance?.lock = false
-                        }
-                    } else {
-                        setResult(RESULT_INVALID_PASSWORD)
-                        finish()
-                    }
+            val password = binding.pwEt.text.toString()
+            if (Settings.Keys.Applocker.check(password)) {
+                setResult(RESULT_OK, intent)
+                finish()
+                Accessibility.instance?.lock = true
+                val intent = applicationContext
+                    .packageManager
+                    .getLaunchIntentForPackage(packageName)
+                startActivity(intent)
+                Handler(mainLooper).postDelayed(2000) {
+                    Accessibility.instance?.lock = false
                 }
-                true -> {
-                    val oldPassword = binding.pwOpw.text.toString()
-                    val newPassword = binding.pwNpw.text.toString()
-                    val confirmPassword = binding.pwCpw.text.toString()
-                    if (oldPassword == Settings.Applocker.password && newPassword == confirmPassword) {
-                        setResult(RESULT_OK, intent.putExtra("password", newPassword))
-                        finish()
-                    } else {
-                        Toast.makeText(this, R.string.passwords_dont_match, Toast.LENGTH_SHORT).show()
-                    }
-                }
+            } else {
+                setResult(RESULT_INVALID_PASSWORD)
+                finish()
             }
         }
 

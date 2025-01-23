@@ -24,8 +24,6 @@ import ru.morozovit.android.homeScreen
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
 import ru.morozovit.ultimatesecurity.Settings.appTheme
 import ru.morozovit.ultimatesecurity.Settings.dontShowInRecents
-import ru.morozovit.ultimatesecurity.Settings.globalPassword
-import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
 import ru.morozovit.ultimatesecurity.Settings.materialYouEnabled
 import ru.morozovit.ultimatesecurity.ui.AuthActivity
 import ru.morozovit.ultimatesecurity.ui.AuthActivity.Companion.started
@@ -117,7 +115,7 @@ abstract class BaseActivity(
         private set
 
     protected fun interactionDetector() {
-        if (globalPassword != "" && globalPasswordEnabled) {
+        if (Settings.Keys.App.isSet) {
             interactionDetectorExecutor.execute {
                 try {
                     var timer = 0
@@ -157,14 +155,14 @@ abstract class BaseActivity(
     override fun onCreate(savedInstanceState: Bundle?) {
         currentActivity = this
 //        overridePendingTransition(R.anim.slide_left, R.anim.scale_down_translate)
-        preSplashScreen(!(!(authEnabled && globalPassword != "" && globalPasswordEnabled) || this !is MainActivity))
+        preSplashScreen(!(!(authEnabled && Settings.Keys.App.isSet) || this !is MainActivity))
         if (savedInstanceStateEnabled) {
             super.onCreate(savedInstanceState)
         } else {
             savedInstanceState?.clear()
             super.onCreate(null)
         }
-        if (authEnabled && globalPassword != "" && globalPasswordEnabled) {
+        if (authEnabled && Settings.Keys.App.isSet) {
 //            window.decorView.viewTreeObserver.addOnPreDrawListener(
 //                object: OnPreDrawListener {
 //                    override fun onPreDraw(): Boolean {
@@ -183,8 +181,7 @@ abstract class BaseActivity(
     }
 
     protected fun auth(noAnim: Boolean = true, setPendingAuth: Boolean = false) {
-        if (currentActivity?.authEnabled == true && globalPassword != "" && !authenticated &&
-            globalPasswordEnabled) {
+        if (currentActivity?.authEnabled == true && Settings.Keys.App.isSet && !authenticated) {
             authenticated = false
             scheduleAuth(noAnim, setPendingAuth)
         }
@@ -211,7 +208,7 @@ abstract class BaseActivity(
         interacted = true
     }
 
-    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+    @Suppress("OVERRIDE_DEPRECATION")
     override fun overridePendingTransition(@AnimRes enterAnim: Int, @AnimRes exitAnim: Int) {
         overridePendingTransition(0, enterAnim, exitAnim)
     }
@@ -291,7 +288,7 @@ abstract class BaseActivity(
                     if (configTheme) configureTheme()
                 }
                 splashScreen.setKeepOnScreenCondition {
-                    if (authEnabled && globalPassword != "" && globalPasswordEnabled) {
+                    if (authEnabled && Settings.Keys.App.isSet) {
                         started
                     } else {
                         false

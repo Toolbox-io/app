@@ -179,4 +179,6 @@
     <string name="save">Save</string>
     <string name="discard">Discard</string>
     <string name="discard_d">Do you want to discard the changes?</string>
+    <string name="use_password">Use password</string>
+    <string name="shortcuts_unsuported">This feature requires Android 8 or higher.</string>
 </resources>

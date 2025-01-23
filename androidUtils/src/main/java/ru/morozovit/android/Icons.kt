@@ -1,4 +1,4 @@
-@file:Suppress("UnusedReceiverParameter")
+@file:Suppress("UnusedReceiverParameter", "unused", "unused", "unused")
 
 package ru.morozovit.android
 

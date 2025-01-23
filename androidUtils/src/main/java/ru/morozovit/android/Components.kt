@@ -1,4 +1,4 @@
-@file:Suppress("NOTHING_TO_INLINE", "unused", "unused", "unused", "unused", "unused")
+@file:Suppress("NOTHING_TO_INLINE", "unused")
 
 package ru.morozovit.android
 
@@ -676,7 +676,7 @@ class RadioButtonControllerScope<T> @PublishedApi internal constructor() {
     class OrderedIntId internal constructor(override val id: Int): Id<Int>
 
     open class Ids<IdT: Id<T>, T> @PublishedApi internal constructor(
-        val clazz: KClass<IdT>?
+        private val clazz: KClass<IdT>?
     ) {
         private val newId: () -> IdT = {
             clazz!!.java.getConstructor().newInstance()
@@ -719,6 +719,7 @@ class RadioButtonControllerScope<T> @PublishedApi internal constructor() {
         override fun component16() = OrderedIntId(15)
     }
 
+    @Suppress("SameReturnValue")
     class Ints internal constructor() {
         operator fun component1() = 0
         operator fun component2() = 1

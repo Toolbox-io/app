@@ -8,6 +8,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
+// TODO remove when Shortcuts screen is rewritten
 abstract class BottomSheet: BottomSheetDialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,

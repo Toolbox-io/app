@@ -16,6 +16,7 @@ import android.os.Build
 import android.provider.OpenableColumns
 import android.service.quicksettings.Tile
 import android.text.Editable
+import android.util.Base64
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
@@ -76,7 +77,12 @@ import androidx.window.core.layout.WindowWidthSizeClass
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.security.SecureRandom
 import java.util.regex.Pattern
+import javax.crypto.Cipher
+import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.PBEKeySpec
 import kotlin.reflect.KClass
 
 
@@ -735,4 +741,37 @@ inline fun <reified F, reified S : F> Collection<F>.contentEqualsIgnoringOrder(o
     val list2 = other.toMutableList()
     list1.removeAll(list2)
     return list1.size == 0
+}
+
+fun String.encrypt(password: String): String {
+    val salt = ByteArray(16).also { SecureRandom().nextBytes(it) }
+    val spec = PBEKeySpec(password.toCharArray(), salt, 65536, 256)
+    val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
+    val secretKey = factory.generateSecret(spec)
+
+    val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+    val iv = ByteArray(cipher.blockSize).also { SecureRandom().nextBytes(it) }
+    val params = IvParameterSpec(iv)
+    cipher.init(Cipher.ENCRYPT_MODE, secretKey, params)
+
+    val encryptedBytes = cipher.doFinal(this.toByteArray())
+    return Base64.encodeToString(salt, Base64.DEFAULT) + ":" + Base64.encodeToString(iv, Base64.DEFAULT) + ":" + Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+}
+
+fun String.decrypt(password: String): String {
+    val parts = this.split(":")
+    val salt = Base64.decode(parts[0], Base64.DEFAULT)
+    val iv = Base64.decode(parts[1], Base64.DEFAULT)
+    val encryptedBytes = Base64.decode(parts[2], Base64.DEFAULT)
+
+    val spec = PBEKeySpec(password.toCharArray(), salt, 65536, 256)
+    val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
+    val secretKey = factory.generateSecret(spec)
+
+    val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+    val params = IvParameterSpec(iv)
+    cipher.init(Cipher.DECRYPT_MODE, secretKey, params)
+
+    val decryptedBytes = cipher.doFinal(encryptedBytes)
+    return String(decryptedBytes)
 }

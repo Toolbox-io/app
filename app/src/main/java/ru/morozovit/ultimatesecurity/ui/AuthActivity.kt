@@ -84,8 +84,8 @@ import ru.morozovit.android.requestAuthentication
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
+import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.allowBiometric
-import ru.morozovit.ultimatesecurity.Settings.globalPassword
 import ru.morozovit.utils.EParser
 import kotlin.math.roundToInt
 
@@ -192,7 +192,8 @@ class AuthActivity: BaseActivity(false) {
 
             val blurRadius by animateFloatAsState(
                 targetValue = if (blur.value) 30f else 0f,
-                animationSpec = tween(durationMillis = 500)
+                animationSpec = tween(durationMillis = 500),
+                label = "blur"
             )
 
             if (!isSetOrConfirm) BackHandler(onBack = ::homeScreen)
@@ -267,7 +268,7 @@ class AuthActivity: BaseActivity(false) {
                                         MODE_SET ->
                                             if (
                                                 valueOrFalse {
-                                                    globalPassword == ""
+                                                    !Settings.Keys.App.isSet
                                                 }
                                             ) R.string.setpassword
                                             else R.string.change_password
@@ -281,6 +282,7 @@ class AuthActivity: BaseActivity(false) {
                                 modifier = Modifier.padding(top = 20.dp)
                             )
 
+                            // TODO animation
                             Row(
                                 modifier = Modifier
                                     .animateContentSize()
@@ -325,17 +327,18 @@ class AuthActivity: BaseActivity(false) {
                         }
 
                         fun processPassword() {
-                            val password = symbols.let {
-                                var string = ""
-                                symbols.forEach {
-                                    string += it.symbol
+                            coroutineScope.launch {
+                                val password = symbols.let {
+                                    var string = ""
+                                    symbols.forEach {
+                                        string += it.symbol
+                                    }
+                                    string
                                 }
-                                string
-                            }
-                            @SuppressLint("SuspiciousIndentation")
-                            if (password == globalPassword && !isSetOrConfirm) {
-                                authenticated = true
-                                /*if (uses == 1) {
+                                @SuppressLint("SuspiciousIndentation")
+                                if (!isSetOrConfirm && Settings.Keys.App.check(password)) {
+                                    authenticated = true
+                                    /*if (uses == 1) {
                                     startActivity(
                                         Intent(this@AuthActivity, MainActivity::class.java).apply {
                                             putExtra("noAnim", true)
@@ -344,36 +347,35 @@ class AuthActivity: BaseActivity(false) {
                                     )
                                 } else {*/
                                     finishAfterTransition(R.anim.scale_down, R.anim.alpha_down)
-                                /*}*/
-                                /*pendingAuth = false*/
-                            } else if (mode == MODE_ENTER_OLD_PW && password == globalPassword) {
-                                startActivity(Intent(this@AuthActivity, AuthActivity::class.java).apply {
-                                    putExtra("mode", MODE_SET)
-                                    putExtra("oldPwConfirmed", true)
-                                    putExtra("noAnim", true)
-                                })
-                                finish()
-                            } else if (mode == MODE_SET) {
-                                activityLauncher.launch(Intent(this@AuthActivity, AuthActivity::class.java).apply {
-                                    putExtra("mode", MODE_CONFIRM)
-                                    putExtra("password", password)
-                                    putExtra("noAnim", true)
-                                }) {
-                                    if (it.resultCode == RESULT_OK) {
-                                        setResult(RESULT_OK)
-                                        finish()
+                                    /*}*/
+                                    /*pendingAuth = false*/
+                                } else if (mode == MODE_ENTER_OLD_PW && Settings.Keys.App.check(password)) {
+                                    startActivity(Intent(this@AuthActivity, AuthActivity::class.java).apply {
+                                        putExtra("mode", MODE_SET)
+                                        putExtra("oldPwConfirmed", true)
+                                        putExtra("noAnim", true)
+                                    })
+                                    finish()
+                                } else if (mode == MODE_SET) {
+                                    activityLauncher.launch(Intent(this@AuthActivity, AuthActivity::class.java).apply {
+                                        putExtra("mode", MODE_CONFIRM)
+                                        putExtra("password", password)
+                                        putExtra("noAnim", true)
+                                    }) {
+                                        if (it.resultCode == RESULT_OK) {
+                                            setResult(RESULT_OK)
+                                            finish()
+                                        }
                                     }
-                                }
-                                clear()
-                            } else if (
-                                mode == MODE_CONFIRM &&
-                                password == enteredPassword
-                            ) {
-                                globalPassword = password
-                                setResult(RESULT_OK)
-                                finish()
-                            } else {
-                                coroutineScope.launch {
+                                    clear()
+                                } else if (
+                                    mode == MODE_CONFIRM &&
+                                    password == enteredPassword
+                                ) {
+                                    Settings.Keys.App.set(password)
+                                    setResult(RESULT_OK)
+                                    finish()
+                                } else {
                                     val delay = 100L
 
                                     offsetSet = -5
@@ -534,8 +536,8 @@ class AuthActivity: BaseActivity(false) {
             Log.d("Auth", "Requesting biometrical auth")
             blur.value = true
             requestAuthentication {
-                title = "Biometrical authentication"
-                negativeButtonText = "Use password"
+                title = resources.getString(R.string.biometric)
+                negativeButtonText = resources.getString(R.string.use_password)
                 success {
                     authenticated = true
                     finishAfterTransition(R.anim.scale_down, R.anim.alpha_down)
@@ -556,7 +558,7 @@ class AuthActivity: BaseActivity(false) {
         /*uses++*/
         activityLauncher = registerActivityForResult(this)
 
-        if ((globalPassword == "" || authenticated) && !isSetOrConfirm) {
+        if ((!Settings.Keys.App.isSet || authenticated) && !isSetOrConfirm) {
             finish()
             return
         }
@@ -569,7 +571,7 @@ class AuthActivity: BaseActivity(false) {
         val view = ComposeView {
             AuthScreen(mode)
         }
-        if (isSetOrConfirm && mode == MODE_SET && globalPassword != "" && !oldPwConfirmed) {
+        if (isSetOrConfirm && mode == MODE_SET && Settings.Keys.App.isSet && !oldPwConfirmed) {
             intent.putExtra("mode", MODE_ENTER_OLD_PW)
             assert(mode == MODE_ENTER_OLD_PW)
         } else {

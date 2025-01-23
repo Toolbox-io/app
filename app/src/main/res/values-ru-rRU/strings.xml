@@ -161,4 +161,13 @@
     <string name="app_desc_l">Приложение с множеством полезных функций для вашего устройства, таких как защита, кастомизация и инструменты.</string>
     <string name="osl">Лицензии открытого кода</string>
     <string name="report_error">Сообщить о проблеме</string>
+    <string name="more">Больше</string>
+    <string name="select_all">Выбрать все</string>
+    <string name="discard_changes">Откатить изменения</string>
+    <string name="are_you_sure">Вы уверены?</string>
+    <string name="unsaved_changes">У Вас несохранённые изменения. Действительно ли Вы хотите удалить их?\nНажмите "Назад" для отмены.</string>
+    <string name="save">Сохранить</string>
+    <string name="discard">Удалить</string>
+    <string name="discard_d">Выдействительно хотите отккатить измения?</string>
+    <string name="use_password">Исп. пароль</string>
 </resources>

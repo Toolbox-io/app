@@ -5,7 +5,6 @@ import android.app.Application
 import android.content.Context
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.DynamicColorsOptions
-import ru.morozovit.ultimatesecurity.Settings.Shortcuts.files
 import ru.morozovit.ultimatesecurity.Settings.materialYouEnabled
 
 
@@ -18,11 +17,26 @@ class App : Application() {
         var authenticated = false
     }
 
+    @Suppress("DEPRECATION")
+    private fun migrateSettings() {
+        val applockerPassword = Settings.Applocker.password
+
+        if (applockerPassword != "") {
+            Settings.Keys.Applocker.set(applockerPassword)
+            Settings.Applocker.password = ""
+        }
+
+        val appPassword = Settings.globalPassword
+        if (appPassword != "") {
+            Settings.Keys.App.set(appPassword)
+            Settings.globalPassword = ""
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
         mContext = applicationContext
         Settings.init()
-        if (!files) files = false
         if (materialYouEnabled)
             DynamicColors.applyToActivitiesIfAvailable(
                 this,
@@ -33,5 +47,7 @@ class App : Application() {
                     )
                     .build()
             )
+
+        migrateSettings()
     }
 }

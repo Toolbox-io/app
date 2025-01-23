@@ -89,8 +89,7 @@ import ru.morozovit.android.widthSizeClass
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
-import ru.morozovit.ultimatesecurity.Settings.globalPassword
-import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
+import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.services.UpdateChecker
 import ru.morozovit.ultimatesecurity.ui.AuthActivity.Companion.started
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.ABOUT
@@ -444,10 +443,7 @@ class MainActivity : BaseActivity(
 
         activityLauncher = ActivityLauncher.registerActivityForResult(this)
         updateLock()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            enableEdgeToEdge()
-            window.isNavigationBarContrastEnforced = false
-        }
+        enableEdgeToEdge()
 
         val content = ComposeView(this).apply {
             setContent {
@@ -517,7 +513,7 @@ class MainActivity : BaseActivity(
 
 
     fun updateLock() {
-        isLockVisible = globalPassword != "" && globalPasswordEnabled
+        isLockVisible = Settings.Keys.App.isSet
         interactionDetector()
     }
 

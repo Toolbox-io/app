@@ -151,6 +151,7 @@ fun AppTheme(
     consumeBottomInsets: Boolean = false,
     consumeLeftInsets: Boolean = false,
     consumeRightInsets: Boolean = false,
+    enforceNavContrast: Boolean = false,
     content: @Composable WindowInsetsScope.() -> Unit
 ) {
     val (_, _, isPreview) = previewUtils()
@@ -248,6 +249,10 @@ fun AppTheme(
             (LocalContext() as Activity).window,
             LocalView()
         ).isAppearanceLightStatusBars = !darkTheme
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        (LocalContext() as Activity).window.isNavigationBarContrastEnforced = enforceNavContrast
     }
 
     MaterialTheme(

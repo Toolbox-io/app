@@ -50,8 +50,6 @@ import ru.morozovit.ultimatesecurity.Settings.allowBiometric
 import ru.morozovit.ultimatesecurity.Settings.appTheme
 import ru.morozovit.ultimatesecurity.Settings.deleteGlobalPasswordDsa
 import ru.morozovit.ultimatesecurity.Settings.dontShowInRecents
-import ru.morozovit.ultimatesecurity.Settings.globalPassword
-import ru.morozovit.ultimatesecurity.Settings.globalPasswordEnabled
 import ru.morozovit.ultimatesecurity.Settings.materialYouEnabled
 import ru.morozovit.ultimatesecurity.services.DeviceAdmin
 import ru.morozovit.ultimatesecurity.ui.AuthActivity
@@ -104,17 +102,12 @@ fun SettingsScreen() {
             var allowBiometricSwitchEnabled by remember {
                 mutableStateOf(
                     valueOrFalse {
-                        globalPassword != "" &&
-                                globalPasswordEnabled &&
+                        Settings.Keys.App.isSet &&
                                 BiometricManager.from(context).canAuthenticate(
                                     BiometricManager.Authenticators.BIOMETRIC_STRONG
                                 ) == BIOMETRIC_SUCCESS
                     }
                 )
-            }
-
-            runOrNoop {
-                if (globalPassword == "") globalPasswordEnabled = false
             }
 
             // Device admin
@@ -192,7 +185,7 @@ fun SettingsScreen() {
             var passwordSwitch by remember {
                 mutableStateOf(
                     valueOrFalse {
-                        globalPasswordEnabled && globalPassword != ""
+                        Settings.Keys.App.isSet
                     }
                 )
             }
@@ -207,14 +200,13 @@ fun SettingsScreen() {
                 ) {
                     if (it.resultCode == RESULT_OK) {
                         passwordSwitch = true
-                        globalPasswordEnabled = true
                     }
                 }
             }
             val passwordOnCheckedChanged: (Boolean) -> Unit = pw@ {
                 // passwordSwitch = it
                 if (it) {
-                    if (globalPassword == "") {
+                    if (!Settings.Keys.App.isSet) {
                         setPassword()
                         passwordSwitch = true
                         return@pw
@@ -222,28 +214,13 @@ fun SettingsScreen() {
                 } else {
                     if (!deleteGlobalPasswordDsa) {
                         passwordSwitch = false
-                        // TODO rewrite in Jetpack Compose
-                        context.alertDialog {
-                            title(R.string.dpw)
-                            message(R.string.dpw_d)
-                            negativeButton(R.string.no) {
-                                allowBiometricSwitchEnabled = globalPassword != "" && globalPasswordEnabled
-                            }
-                            neutralButton(R.string.dsa) {
-                                deleteGlobalPasswordDsa = true
-                                allowBiometricSwitchEnabled = globalPassword != "" && globalPasswordEnabled
-                            }
-                            positiveButton(R.string.yes) {
-                                globalPassword = ""
-                                allowBiometricSwitchEnabled = globalPassword != "" && globalPasswordEnabled
-                            }
-                        }
+                        Settings.Keys.App.set("")
+                        allowBiometricSwitchEnabled = Settings.Keys.App.isSet
                         return@pw
                     }
                 }
-                globalPasswordEnabled = it
                 context.updateLock()
-                allowBiometricSwitchEnabled = globalPassword != "" && globalPasswordEnabled
+                allowBiometricSwitchEnabled = Settings.Keys.App.isSet
                 passwordSwitch = it
             }
 

@@ -92,20 +92,6 @@
         <activity
             android:name=".ui.customization.shortcuts.FilesShortcut"
             android:theme="@style/Theme.SplashScreen.Files" />
-        <activity
-            android:name=".ui.customization.shortcuts.FilesActivity"
-            android:exported="true"
-            android:theme="@style/Theme.SplashScreen.Files"
-            android:icon="@mipmap/files_icon"
-            android:label="@string/files"
-            android:excludeFromRecents="true"
-            android:taskAffinity="ru.morozovit.ultimatesecurity.ui.customization.shortcuts.FilesActivity"
-            android:enabled="false">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
 
         <activity
             android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"

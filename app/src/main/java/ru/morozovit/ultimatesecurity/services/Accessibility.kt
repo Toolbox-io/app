@@ -14,6 +14,7 @@ import ru.morozovit.ultimatesecurity.ui.MainActivity
 import ru.morozovit.ultimatesecurity.ui.protection.applocker.FakeCrashActivity
 import java.lang.Thread.sleep
 
+// TODO foreground service to keep this working
 class Accessibility: AccessibilityService() {
     private var interrupted = false
     var lock = false
