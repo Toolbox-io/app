@@ -157,7 +157,6 @@ class AlarmSettingsActivity: BaseActivity() {
     @SuppressLint("MissingSuperCall")
     @Suppress("OVERRIDE_DEPRECATION")
     override fun onBackPressed() {
-        // TODO predictive back
         setResult(if (binding.upActionsAlarmSwitch.isChecked) 1 else 2)
         finish()
     }
