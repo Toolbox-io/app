@@ -9,6 +9,8 @@ import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -18,6 +20,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -46,6 +50,8 @@ import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -796,6 +802,41 @@ inline fun CheckboxWithText(
     }
 }
 
+
+@Composable
+inline fun RadioButtonWithText(
+    modifier: Modifier = Modifier,
+    selected: Boolean,
+    crossinline onSelectedChange: () -> Unit,
+    enabled: Boolean = true,
+    crossinline content: @Composable () -> Unit
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .selectable(
+                selected = selected,
+                onClick = {
+                    if (enabled) onSelectedChange()
+                },
+                role = Role.RadioButton
+            )
+            .padding(horizontal = 16.dp)
+            + modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = null // null recommended for accessibility with screenreaders
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        ProvideTextStyle(value = MaterialTheme.typography.bodyLarge) {
+            content()
+        }
+    }
+}
+
 @Composable
 inline fun SimpleAlertDialog(
     open: Boolean,
@@ -863,5 +904,15 @@ inline fun SimpleAlertDialog(
                 }
             } else null
         )
+    }
+}
+
+@Composable
+inline fun RadioGroup(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(Modifier.selectableGroup() + modifier) {
+        content()
     }
 }

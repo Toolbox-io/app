@@ -114,6 +114,10 @@ abstract class BaseActivity(
     var isActive = false
         private set
 
+    private var onPause = mutableListOf<() -> Unit>()
+    private var onResume = mutableListOf<() -> Unit>()
+    private var onDestroy = mutableListOf<() -> Unit>()
+
     protected fun interactionDetector() {
         if (Settings.Keys.App.isSet) {
             interactionDetectorExecutor.execute {
@@ -149,6 +153,30 @@ abstract class BaseActivity(
                 } catch (_: InterruptedException) {}
             }
         }
+    }
+
+    fun addResumeCallback(callback: () -> Unit) {
+        onResume.add(callback)
+    }
+
+    fun removeResumeCallback(callback: () -> Unit) {
+        onResume.remove(callback)
+    }
+
+    fun addPauseCallback(callback: () -> Unit) {
+        onPause.add(callback)
+    }
+
+    fun removePauseCallback(callback: () -> Unit) {
+        onPause.remove(callback)
+    }
+
+    fun addDestroyCallback(callback: () -> Unit) {
+        onDestroy.add(callback)
+    }
+
+    fun removeDestroyCallback(callback: () -> Unit) {
+        onDestroy.remove(callback)
     }
 
     @CallSuper
@@ -193,6 +221,7 @@ abstract class BaseActivity(
         currentActivity = this
         interactionDetector()
         isActive = true
+        onResume.forEach { it() }
     }
 
     @CallSuper
@@ -200,6 +229,7 @@ abstract class BaseActivity(
         super.onPause()
         interactionDetector()
         isActive = false
+        onPause.forEach { it() }
     }
 
     @CallSuper
@@ -435,6 +465,12 @@ abstract class BaseActivity(
                 }
             }
         }
+    }
+
+    @CallSuper
+    override fun onDestroy() {
+        super.onDestroy()
+        onDestroy.forEach { it() }
     }
 
 //    override fun finish() {

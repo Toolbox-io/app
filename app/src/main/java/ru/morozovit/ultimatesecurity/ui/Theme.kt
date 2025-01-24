@@ -249,10 +249,10 @@ fun AppTheme(
             (LocalContext() as Activity).window,
             LocalView()
         ).isAppearanceLightStatusBars = !darkTheme
-    }
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        (LocalContext() as Activity).window.isNavigationBarContrastEnforced = enforceNavContrast
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            (LocalContext() as Activity).window.isNavigationBarContrastEnforced = enforceNavContrast
+        }
     }
 
     MaterialTheme(
