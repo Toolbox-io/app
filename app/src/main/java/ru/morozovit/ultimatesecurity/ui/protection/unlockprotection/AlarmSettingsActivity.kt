@@ -299,7 +299,6 @@ class AlarmSettingsActivity: BaseActivity() {
                         }
                     ) {
                         LaunchedEffect(Unit) {
-                            // TODO load user-added alarms
                             for (i in customAlarms) {
                                 createRadioButton(Uri.parse(i))
                             }
