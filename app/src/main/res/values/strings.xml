@@ -182,4 +182,6 @@
     <string name="use_password">Use password</string>
     <string name="shortcuts_unsuported">This feature requires Android 8 or higher.</string>
     <string name="default_alarm">Default alarm</string>
+    <string name="unknown">Unknown</string>
+    <string name="alarm_deleted">Alarm deleted</string>
 </resources>
