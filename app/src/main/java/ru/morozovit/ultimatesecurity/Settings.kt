@@ -56,15 +56,6 @@ object Settings {
             }
         }
 
-    var deleteGlobalPasswordDsa
-        get() = sharedPref.getBoolean("deleteGlobalPasswordDsa", false)
-        set(value) {
-            with(sharedPref.edit()) {
-                putBoolean("deleteGlobalPasswordDsa", value)
-                apply()
-            }
-        }
-
     val accessibility get() = Accessibility.instance != null
 
     @Deprecated("")
@@ -130,7 +121,14 @@ object Settings {
             val isSet: Boolean
         }
 
-        private fun generateKey() = Random.nextBytes(Random.nextInt(1, 16)).map { it.toInt().toChar() }.joinToString("")
+        private fun generateKey() =
+            Random.nextBytes(
+                Random.nextInt(1, 16)
+            )
+                .map {
+                    it.toInt().toChar()
+                }
+                .joinToString("")
 
         object Applocker: Key {
             private var randomKey: String
@@ -269,10 +267,15 @@ object Settings {
                 }
             }
 
+        private val DEFAULT_UNLOCK_MODE =
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O)
+                LONG_PRESS_APP_INFO
+            else
+                LONG_PRESS_OPEN_APP_AGAIN
+
         var unlockMode: Int
-            get() = sharedPref.getInt("unlockMode", if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) LONG_PRESS_APP_INFO else LONG_PRESS_OPEN_APP_AGAIN).let {
-                if (it == NOTHING_SELECTED) return if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) LONG_PRESS_APP_INFO else LONG_PRESS_OPEN_APP_AGAIN
-                return it
+            get() = sharedPref.getInt("unlockMode", DEFAULT_UNLOCK_MODE).let {
+                return if (it == NOTHING_SELECTED) DEFAULT_UNLOCK_MODE else it
             }
             set(value) {
                 if (value in 0..LONG_PRESS_OPEN_APP_AGAIN) with(sharedPref.edit()) {
@@ -334,87 +337,58 @@ object Settings {
                 }
             }
 
-            var alarm
-                get() = sharedPref.getBoolean("alarm", false)
-                set(value) {
-                    with(sharedPref.edit()) {
-                        putBoolean("alarm", value)
-                        commit()
+            object Alarm {
+                var enabled
+                    get() = sharedPref.getBoolean("alarm", false)
+                    set(value) {
+                        with(sharedPref.edit()) {
+                            putBoolean("alarm", value)
+                            commit()
+                        }
                     }
-                }
 
-            var customAlarms: Set<String>
-                get() = sharedPref.getStringSet("customAlarms", setOf())!!
-                set(value) {
-                    with(sharedPref.edit()) {
-                        putStringSet("customAlarms", value)
-                        commit()
+                var current
+                    get() = sharedPref.getString("currentCustomAlarm", "")!!
+                    set(value) {
+                        with(sharedPref.edit()) {
+                            putString("currentCustomAlarm", value)
+                            commit()
+                        }
                     }
-                }
 
-            var currentCustomAlarm
-                get() = sharedPref.getString("currentCustomAlarm", "")!!
-                set(value) {
-                    with(sharedPref.edit()) {
-                        putString("currentCustomAlarm", value)
-                        commit()
+                var customAlarms: Set<String>
+                    get() = sharedPref.getStringSet("customAlarms", setOf())!!
+                    set(value) {
+                        with(sharedPref.edit()) {
+                            putStringSet("customAlarms", value)
+                            commit()
+                        }
                     }
-                }
+            }
 
-            var intruderPhoto
-                get() = sharedPref.getBoolean("intruderPhoto", false)
-                set(value) {
-                    with(sharedPref.edit()) {
-                        putBoolean("intruderPhoto", value)
-                        commit()
+            object IntruderPhoto {
+                var enabled
+                    get() = sharedPref.getBoolean("intruderPhoto", false)
+                    set(value) {
+                        with(sharedPref.edit()) {
+                            putBoolean("intruderPhoto", value)
+                            commit()
+                        }
                     }
-                }
 
-            var intruderPhotoFromBackCam
-                get() = sharedPref.getBoolean("intruderPhotoFromBackCam", false)
-                set(value) {
-                    with(sharedPref.edit()) {
-                        putBoolean("intruderPhotoFromBackCam", value)
-                        commit()
+                var nopt
+                    get() = sharedPref.getBoolean("intruderPhoto.nopt", false)
+                    set(value) {
+                        with(sharedPref.edit()) {
+                            putBoolean("intruderPhoto.nopt", value)
+                            commit()
+                        }
                     }
-                }
-
-            var intruderPhotoFromFrontCam
-                get() = sharedPref.getBoolean("intruderPhotoFromFrontCam", false)
-                set(value) {
-                    with(sharedPref.edit()) {
-                        putBoolean("intruderPhotoFromFrontCam", value)
-                        commit()
-                    }
-                }
-
-            var intruderPhotoDirEnabled
-                get() = sharedPref.getBoolean("intruderPhotoDirEnabled", false)
-                set(value) {
-                    with(sharedPref.edit()) {
-                        putBoolean("intruderPhotoDirEnabled", value)
-                        commit()
-                    }
-                }
-
-            var intruderPhotoDir
-                get() = sharedPref.getString("intruderPhotoDir", "")!!
-                set(value) {
-                    with(sharedPref.edit()) {
-                        putString("intruderPhotoDir", value)
-                        commit()
-                    }
-                }
-
-            var intruderPhotoWarning_dsa
-                get() = sharedPref.getBoolean("intruderPhotoWarning_dsa", false)
-                set(value) {
-                    with(sharedPref.edit()) {
-                        putBoolean("intruderPhotoWarning_dsa", value)
-                        commit()
-                    }
-                }
+            }
         }
+
+        val Alarm = Actions.Alarm
+        val IntruderPhoto = Actions.IntruderPhoto
     }
 
     object Tiles: SettingsObj {

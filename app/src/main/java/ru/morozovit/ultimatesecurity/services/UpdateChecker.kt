@@ -4,8 +4,6 @@ package ru.morozovit.ultimatesecurity.services
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.job.JobInfo
@@ -21,7 +19,6 @@ import android.content.Intent.ACTION_PACKAGE_ADDED
 import android.content.Intent.ACTION_PACKAGE_REPLACED
 import android.content.pm.PackageManager
 import android.os.AsyncTask
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -37,6 +34,8 @@ import ru.morozovit.android.JobIdManager
 import ru.morozovit.android.NoParallelExecutor
 import ru.morozovit.android.SimpleAsyncTask
 import ru.morozovit.ultimatesecurity.App
+import ru.morozovit.ultimatesecurity.App.Companion.UPDATE_CHANNEL_ID
+import ru.morozovit.ultimatesecurity.App.Companion.UPDATE_NOTIFICATION_ID
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.ui.MainActivity
 import java.io.BufferedInputStream
@@ -81,8 +80,6 @@ class UpdateChecker: JobService() {
 
         private val TASK_EXECUTOR = NoParallelExecutor()
 
-        const val UPDATE_AVAILABLE_NOTIFICATION_ID = 1
-        const val UPDATE_AVAILABLE_CHANNEL_ID = "update"
         const val ACTION_START_UPDATE_CHECKER = "ru.morozovit.ultimatesecurity." +
                 "UpdateChecker.START"
 
@@ -242,7 +239,7 @@ class UpdateChecker: JobService() {
                 @SuppressLint("MissingPermission")
                 override fun onPreExecute() {
                     super.onPreExecute()
-                    builder = NotificationCompat.Builder(App.context, UPDATE_AVAILABLE_CHANNEL_ID)
+                    builder = NotificationCompat.Builder(App.context, UPDATE_CHANNEL_ID)
                         .setSmallIcon(R.drawable.primitive_icon)
                         .setContentTitle("Downloading update...")
                         .setPriority(PRIORITY_DEFAULT)
@@ -255,7 +252,7 @@ class UpdateChecker: JobService() {
                             ) != PackageManager.PERMISSION_GRANTED
                         ) return@notification
 
-                        notify(UPDATE_AVAILABLE_NOTIFICATION_ID, builder.build())
+                        notify(UPDATE_NOTIFICATION_ID, builder.build())
                     }
                 }
 
@@ -322,7 +319,7 @@ class UpdateChecker: JobService() {
                     ) return
 
                     NotificationManagerCompat.from(App.context).notify(
-                        UPDATE_AVAILABLE_NOTIFICATION_ID, builder.build()
+                        UPDATE_NOTIFICATION_ID, builder.build()
                     )
                 }
 
@@ -356,7 +353,7 @@ class UpdateChecker: JobService() {
 
                     Handler(Looper.getMainLooper()).postDelayed(1000) {
                         NotificationManagerCompat.from(App.context).notify(
-                            UPDATE_AVAILABLE_NOTIFICATION_ID, builder.build()
+                            UPDATE_NOTIFICATION_ID, builder.build()
                         )
                     }
                 }
@@ -399,7 +396,7 @@ class UpdateChecker: JobService() {
                     Intent(App.context, DownloadBroadcastReceiver::class.java)
                         .apply {
                             action = DOWNLOAD_BROADCAST
-                            putExtra(UPDATE_AVAILABLE_CHANNEL_ID, 0)
+                            putExtra(UPDATE_CHANNEL_ID, 0)
                             putExtra("updateInfo", info)
                         }
                 val downloadPendingIntent = PendingIntent.getBroadcast(
@@ -415,7 +412,7 @@ class UpdateChecker: JobService() {
 
                 val builder = NotificationCompat.Builder(
                     App.context,
-                    UPDATE_AVAILABLE_CHANNEL_ID
+                    UPDATE_CHANNEL_ID
                 )
                     .setSmallIcon(R.drawable.primitive_icon)
                     .setContentTitle("Update available")
@@ -425,23 +422,6 @@ class UpdateChecker: JobService() {
                     .setContentIntent(pendingIntent)
                     .addAction(R.drawable.primitive_icon, "Download", downloadPendingIntent)
                     .setAutoCancel(true)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    val channelName = "Update"
-                    val descriptionText = "When a new version is available"
-                    val importance = NotificationManager.IMPORTANCE_HIGH
-                    val channel = NotificationChannel(
-                        UPDATE_AVAILABLE_CHANNEL_ID,
-                        channelName,
-                        importance
-                    )
-                    channel.description = descriptionText
-                    // Register the channel with the system.
-                    val notificationManager: NotificationManager =
-                        App.context.getSystemService(
-                            Context.NOTIFICATION_SERVICE
-                        ) as NotificationManager
-                    notificationManager.createNotificationChannel(channel)
-                }
 
                 with(NotificationManagerCompat.from(App.context)) notification@{
                     if (ActivityCompat.checkSelfPermission(
@@ -451,7 +431,7 @@ class UpdateChecker: JobService() {
                     ) return@notification
 
                     // notificationId is a unique int for each notification that you must define.
-                    notify(UPDATE_AVAILABLE_NOTIFICATION_ID, builder.build())
+                    notify(UPDATE_NOTIFICATION_ID, builder.build())
                 }
                 prevInfo = info
             } else {

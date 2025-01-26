@@ -124,10 +124,7 @@ fun UnlockProtectionScreen() {
             SwitchCard(
                 text = stringResource(R.string.enable),
                 checked = mainSwitch,
-                onCheckedChange = mainSwitchOnCheckedChange,
-                cardOnClick = {
-                    mainSwitchOnCheckedChange(!mainSwitch)
-                }
+                onCheckedChange = mainSwitchOnCheckedChange
             )
             HorizontalDivider()
 

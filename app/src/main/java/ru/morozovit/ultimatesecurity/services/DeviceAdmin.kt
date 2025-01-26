@@ -1,8 +1,11 @@
 package ru.morozovit.ultimatesecurity.services
 
+import android.Manifest
+import android.app.Notification
 import android.app.admin.DeviceAdminReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.AssetFileDescriptor
 import android.media.AudioAttributes
 import android.media.AudioManager
@@ -13,18 +16,13 @@ import android.os.Handler
 import android.os.Looper
 import android.os.UserHandle
 import android.util.Log
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.os.postDelayed
 import ru.morozovit.ultimatesecurity.App
+import ru.morozovit.ultimatesecurity.App.Companion.IP_PHOTO_TAKEN_NOTIFICATION_ID
 import ru.morozovit.ultimatesecurity.Settings
-import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoService.Companion.BACK_CAM
-import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoService.Companion.BOTH_CAMS
-import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoService.Companion.FRONT_CAM
 import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoService.Companion.takePhoto
-import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.alarm
-import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.currentCustomAlarm
-import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhoto
-import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoFromBackCam
-import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoFromFrontCam
 import java.io.IOException
 
 
@@ -38,6 +36,8 @@ class DeviceAdmin: DeviceAdminReceiver() {
             }
         private val mediaPlayer = MediaPlayer()
         lateinit var audioManager: AudioManager
+
+        var intruderPhotoNotification: Notification? = null
     }
 
     override fun onEnabled(context: Context, intent: Intent) {
@@ -55,7 +55,7 @@ class DeviceAdmin: DeviceAdminReceiver() {
             }
             if (attemptsCounter >= Settings.UnlockProtection.unlockAttempts) {
                 // Take the required actions
-                if (alarm) {
+                if (Settings.UnlockProtection.Alarm.enabled) {
                     mediaPlayer.apply {
                         if (mediaPlayer.isPlaying) stop()
                         reset()
@@ -65,7 +65,7 @@ class DeviceAdmin: DeviceAdminReceiver() {
                                 .setUsage(AudioAttributes.USAGE_ALARM)
                                 .build()
                         )
-                        if (currentCustomAlarm == "") {
+                        if (Settings.UnlockProtection.Alarm.current == "") {
                             val afd: AssetFileDescriptor =
                                 App.context.assets.openFd("alarm.mp3")
                             setDataSource(
@@ -75,10 +75,10 @@ class DeviceAdmin: DeviceAdminReceiver() {
                             )
                         } else {
                             try {
-                                setDataSource(App.context, Uri.parse(currentCustomAlarm))
+                                setDataSource(App.context, Uri.parse(Settings.UnlockProtection.Alarm.current))
                             } catch (e: IOException) {
                                 Log.w("DeviceAdmin", "Invalid custom alarm URI, falling back to default")
-                                currentCustomAlarm = ""
+                                Settings.UnlockProtection.Alarm.current = ""
                                 val afd: AssetFileDescriptor =
                                     App.context.assets.openFd("alarm.mp3")
                                 setDataSource(
@@ -99,22 +99,28 @@ class DeviceAdmin: DeviceAdminReceiver() {
                         }.start()
                     }
                 }
-                if (intruderPhoto) {
-                    val cam = if (intruderPhotoFromFrontCam && intruderPhotoFromBackCam) {
-                        BOTH_CAMS
-                    } else if (intruderPhotoFromFrontCam) {
-                        FRONT_CAM
-                    } else if (intruderPhotoFromBackCam) {
-                        BACK_CAM
-                    } else {
-                        null
-                    }
-
-                    if (cam != null) {
-                        takePhoto(context, "${System.currentTimeMillis()}", cam)
-                    }
+                if (Settings.UnlockProtection.IntruderPhoto.enabled) {
+                    takePhoto(context, "${System.currentTimeMillis()}")
                 }
                 attemptsCounter = 0
+            }
+        }
+    }
+
+    override fun onPasswordSucceeded(context: Context, intent: Intent, userHandle: UserHandle) {
+        super.onPasswordSucceeded(context, intent, userHandle)
+        if (intruderPhotoNotification != null && Settings.UnlockProtection.IntruderPhoto.nopt) {
+            with(NotificationManagerCompat.from(App.context)) {
+                if (ActivityCompat.checkSelfPermission(
+                        App.context,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    return@with
+                }
+                // notificationId is a unique int for each notification that you must define.
+                notify(IP_PHOTO_TAKEN_NOTIFICATION_ID, intruderPhotoNotification!!)
+                intruderPhotoNotification = null
             }
         }
     }

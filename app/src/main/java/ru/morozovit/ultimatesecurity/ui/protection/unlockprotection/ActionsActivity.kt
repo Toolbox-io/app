@@ -89,14 +89,14 @@ class ActionsActivity: BaseActivity() {
                     var alarm by remember {
                         mutableStateOf(
                             valueOrFalse {
-                                Settings.UnlockProtection.Actions.alarm
+                                Settings.UnlockProtection.Alarm.enabled
                             }
                         )
                     }
                     val alarmOnCheckedChange: (Boolean) -> Unit = {
                         alarm = it
                         coroutineScope.launch {
-                            Settings.UnlockProtection.Actions.alarm = it
+                            Settings.UnlockProtection.Alarm.enabled = it
                         }
                     }
                     SeparatedSwitchListItem(
@@ -112,7 +112,7 @@ class ActionsActivity: BaseActivity() {
                                         AlarmSettingsActivity::class.java
                                     )
                                 ) {
-                                    alarm = Settings.UnlockProtection.Actions.alarm
+                                    alarm = Settings.UnlockProtection.Alarm.enabled
                                 }
                             }
                         },
@@ -122,14 +122,14 @@ class ActionsActivity: BaseActivity() {
                     var intruderPhoto by remember {
                         mutableStateOf(
                             valueOrFalse {
-                                Settings.UnlockProtection.Actions.intruderPhoto
+                                Settings.UnlockProtection.IntruderPhoto.enabled
                             }
                         )
                     }
                     val intruderPhotoOnCheckedChange: (Boolean) -> Unit = {
                         intruderPhoto = it
                         coroutineScope.launch {
-                            Settings.UnlockProtection.Actions.intruderPhoto = it
+                            Settings.UnlockProtection.IntruderPhoto.enabled = it
                         }
                     }
 
@@ -145,7 +145,7 @@ class ActionsActivity: BaseActivity() {
                                     IntruderPhotoSettingsActivity::class.java
                                 )
                             ) {
-                                intruderPhoto = Settings.UnlockProtection.Actions.intruderPhoto
+                                intruderPhoto = Settings.UnlockProtection.IntruderPhoto.enabled
                             }
                         },
                         divider = true

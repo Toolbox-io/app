@@ -76,10 +76,10 @@
             android:name="ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoSettingsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
-        <activity
+        <!--<activity
             android:name="ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoActivity"
             android:theme="@style/Theme.UltimateSecurity.ImageViewer"
-            android:configChanges="orientation|keyboardHidden|screenSize" />
+            android:configChanges="orientation|keyboardHidden|screenSize" />-->
         <activity
             android:name=".ui.AuthActivity"
             android:theme="@style/Theme.UltimateSecurity.SplashScreen"

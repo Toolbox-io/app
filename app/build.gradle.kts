@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.accompanist.drawablepainter)
 
     implementation(libs.play.services.oss.licenses)
 

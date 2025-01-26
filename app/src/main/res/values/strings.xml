@@ -184,4 +184,16 @@
     <string name="default_alarm">Default alarm</string>
     <string name="unknown">Unknown</string>
     <string name="alarm_deleted">Alarm deleted</string>
+    <string name="notify_on_photo_taken">Notify on photo taken</string>
+    <string name="nopt_d">When the screen will be unlocked successfully, you will be notified if there were attempts to unlock your device without permission</string>
+    <string name="intruderphotos">Intruder photos</string>
+    <string name="close">Close</string>
+    <string name="fgs_ip">Intruder photo: foreground service</string>
+    <string name="fgs_ip_d">A blank notification that is required for taking photos of intruders.\nTip: you can disable this notification on the lock screen so the intruder won\'t see this.</string>
+    <string name="update_n">Updates</string>
+    <string name="update_n_d">When a new version is available</string>
+    <string name="ip_pt">Intruder photo: photo taken</string>
+    <string name="ip_pt_d">When Intruder photo captures an intruder. Appears only after successfully unlocking the screen.</string>
+    <string name="i_f">Intruder found!</string>
+    <string name="i_f_d">An intruder was captured</string>
 </resources>

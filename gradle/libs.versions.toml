@@ -1,8 +1,12 @@
 [versions]
+accompanistCoil = "0.6.2"
+accompanistDrawablepainter = "0.37.0"
+accompanistImageloadingCore = "0.6.2"
 activityCompose = "1.10.0"
 agp = "8.5.2"
 biometric = "1.4.0-alpha02"
 cloudy = "0.2.4"
+coilCompose = "2.4.0"
 composeBom = "2025.01.00"
 constraintlayoutCompose = "1.1.0"
 core = "0.10.0"
@@ -30,6 +34,8 @@ uiViewbinding = "1.7.6"
 jetbrainsKotlinJvm = "2.1.0"
 
 [libraries]
+accompanist-coil = { module = "dev.chrisbanes.accompanist:accompanist-coil", version.ref = "accompanistCoil" }
+accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanistDrawablepainter" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-adaptive = { module = "androidx.compose.material3.adaptive:adaptive" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
@@ -44,7 +50,9 @@ androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
 cloudy = { module = "com.github.skydoves:cloudy", version.ref = "cloudy" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 core = { module = "me.jahnen.libaums:core", version.ref = "core" }
+dev-accompanist-imageloading-core = { module = "dev.chrisbanes.accompanist:accompanist-imageloading-core", version.ref = "accompanistImageloadingCore" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 jasypt = { module = "org.jasypt:jasypt", version.ref = "jasypt" }

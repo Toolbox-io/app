@@ -4,6 +4,7 @@ package ru.morozovit.ultimatesecurity
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -118,6 +119,9 @@ abstract class BaseActivity(
     private var onResume = mutableListOf<() -> Unit>()
     private var onDestroy = mutableListOf<() -> Unit>()
 
+    private var permissionCallbacks =
+        mutableMapOf<Array<out String>, (Map<String, Boolean>) -> Unit>()
+
     protected fun interactionDetector() {
         if (Settings.Keys.App.isSet) {
             interactionDetectorExecutor.execute {
@@ -177,6 +181,39 @@ abstract class BaseActivity(
 
     fun removeDestroyCallback(callback: () -> Unit) {
         onDestroy.remove(callback)
+    }
+
+    fun requestPermissions(vararg permissions: String, callback: (Map<String, Boolean>) -> Unit) {
+        requestPermissions(permissions, 0)
+        permissionCallbacks[permissions] = callback
+    }
+
+    fun requestPermission(permission: String, callback: (Boolean) -> Unit) {
+        requestPermissions(arrayOf(permission), 1)
+        permissionCallbacks[arrayOf(permission)] = {
+            callback.invoke(it[permission]!!)
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 0 || requestCode == 1) {
+            for ((perms, callback) in permissionCallbacks) {
+                if (perms.contentEquals(permissions)) {
+                    val map = mutableMapOf<String, Boolean>()
+                    for (i in permissions.indices) {
+                        map[permissions[i]] = grantResults[i] == PackageManager.PERMISSION_GRANTED
+                    }
+                    callback.invoke(map)
+                    break
+                }
+            }
+        }
+        permissionCallbacks.clear()
     }
 
     @CallSuper

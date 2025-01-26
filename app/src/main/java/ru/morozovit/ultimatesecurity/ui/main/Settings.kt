@@ -48,7 +48,6 @@ import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.allowBiometric
 import ru.morozovit.ultimatesecurity.Settings.appTheme
-import ru.morozovit.ultimatesecurity.Settings.deleteGlobalPasswordDsa
 import ru.morozovit.ultimatesecurity.Settings.dontShowInRecents
 import ru.morozovit.ultimatesecurity.Settings.materialYouEnabled
 import ru.morozovit.ultimatesecurity.services.DeviceAdmin
@@ -212,12 +211,10 @@ fun SettingsScreen() {
                         return@pw
                     }
                 } else {
-                    if (!deleteGlobalPasswordDsa) {
-                        passwordSwitch = false
-                        Settings.Keys.App.set("")
-                        allowBiometricSwitchEnabled = Settings.Keys.App.isSet
-                        return@pw
-                    }
+                    passwordSwitch = false
+                    Settings.Keys.App.set("")
+                    allowBiometricSwitchEnabled = Settings.Keys.App.isSet
+                    return@pw
                 }
                 context.updateLock()
                 allowBiometricSwitchEnabled = Settings.Keys.App.isSet

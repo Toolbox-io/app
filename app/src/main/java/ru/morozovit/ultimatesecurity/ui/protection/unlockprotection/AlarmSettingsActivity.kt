@@ -71,9 +71,9 @@ import ru.morozovit.android.SwitchCard
 import ru.morozovit.android.previewUtils
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
-import ru.morozovit.ultimatesecurity.Settings
-import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.currentCustomAlarm
-import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.customAlarms
+import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.Alarm.current
+import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.Alarm.customAlarms
+import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.Alarm.enabled
 import ru.morozovit.ultimatesecurity.ui.AppTheme
 import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import java.io.File
@@ -141,23 +141,20 @@ class AlarmSettingsActivity: BaseActivity() {
                     var mainSwitch by remember {
                         mutableStateOf(
                             valueOrFalse {
-                                Settings.UnlockProtection.Actions.alarm
+                                enabled
                             }
                         )
                     }
 
                     val mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@ {
                         mainSwitch = it
-                        Settings.UnlockProtection.Actions.alarm = it
+                        enabled = it
                     }
 
                     SwitchCard(
                         text = stringResource(R.string.enable),
                         checked = mainSwitch,
-                        onCheckedChange = mainSwitchOnCheckedChange,
-                        cardOnClick = {
-                            mainSwitchOnCheckedChange(!mainSwitch)
-                        }
+                        onCheckedChange = mainSwitchOnCheckedChange
                     )
                     HorizontalDivider()
 
@@ -198,7 +195,7 @@ class AlarmSettingsActivity: BaseActivity() {
                                         prepare()
                                         start()
                                     }
-                                    currentCustomAlarm = ""
+                                    current = ""
                                 },
                                 null
                             )
@@ -208,7 +205,7 @@ class AlarmSettingsActivity: BaseActivity() {
 
                     fun createRadioButton(
                         item: Uri,
-                        checked: Boolean = "$item" == currentCustomAlarm
+                        checked: Boolean = "$item" == current
                     ) {
                         try {
                             contentResolver.openInputStream(item)!!.apply {
@@ -241,10 +238,10 @@ class AlarmSettingsActivity: BaseActivity() {
                                     prepare()
                                     start()
                                 }
-                                currentCustomAlarm = "$item"
+                                current = "$item"
                             },
                             {
-                                currentCustomAlarm = ""
+                                current = ""
                                 onOptionSelected(alarm)
                                 customAlarms =
                                     customAlarms
@@ -271,7 +268,7 @@ class AlarmSettingsActivity: BaseActivity() {
                                                         it.add("$item")
                                                     }
                                                     .toSet()
-                                            currentCustomAlarm = "$item"
+                                            current = "$item"
                                             onOptionSelected(text)
                                             isSizeAnimationEnabled = true
                                             alarmCreated!!.visible.value = true
@@ -303,14 +300,14 @@ class AlarmSettingsActivity: BaseActivity() {
                                 createRadioButton(Uri.parse(i))
                             }
                             if (customAlarms.isEmpty()) {
-                                currentCustomAlarm = ""
+                                current = ""
                                 onOptionSelected(alarm)
                             }
                             if (toRemove.isNotEmpty()) {
                                 val alarms = customAlarms.toMutableList()
                                 for (item in toRemove) {
-                                    if (currentCustomAlarm == item) {
-                                        currentCustomAlarm = ""
+                                    if (current == item) {
+                                        current = ""
                                         onOptionSelected(alarm)
                                     }
                                     alarms.remove(item)

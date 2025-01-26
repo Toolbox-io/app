@@ -226,7 +226,7 @@ inline fun SwitchListItem(
     noinline leadingContent: (@Composable ConstraintLayoutScope.() -> Unit)? = null,
     checked: Boolean,
     noinline onCheckedChange: (Boolean) -> Unit,
-    noinline listItemOnClick: () -> Unit,
+    crossinline listItemOnClick: () -> Unit = { onCheckedChange(!checked) },
     divider: Boolean = false,
     enabled: Boolean = true
 ) {
@@ -235,7 +235,7 @@ inline fun SwitchListItem(
         modifier = if (enabled) Modifier.clickable(
             interactionSource = interactionSource,
             indication = LocalIndication(),
-            onClick = listItemOnClick
+            onClick = { listItemOnClick() }
         ) + modifier else modifier,
         headline = headline,
         supportingText = supportingText,
@@ -308,7 +308,7 @@ fun SwitchCard(
     text: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    cardOnClick: () -> Unit
+    cardOnClick: () -> Unit = { onCheckedChange(!checked) }
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Card(

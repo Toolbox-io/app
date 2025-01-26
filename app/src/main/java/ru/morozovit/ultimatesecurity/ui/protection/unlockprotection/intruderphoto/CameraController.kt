@@ -15,7 +15,6 @@ import android.hardware.camera2.TotalCaptureResult
 import android.media.Image
 import android.media.ImageReader
 import android.media.ImageReader.OnImageAvailableListener
-import android.net.Uri
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
@@ -24,12 +23,6 @@ import android.util.Size
 import androidx.core.content.ContextCompat
 import androidx.core.os.postDelayed
 import androidx.documentfile.provider.DocumentFile
-import androidx.documentfile.provider.DocumentFile.fromTreeUri
-import org.jetbrains.annotations.Range
-import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoService.Companion.BACK_CAM
-import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoService.Companion.FRONT_CAM
-import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoDir
-import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.intruderPhotoDirEnabled
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -55,7 +48,6 @@ class CameraController private constructor(context: Context) {
     private val mCameraOpenCloseLock = Semaphore(1)
 
     private var shouldClose = false
-    private var cam: Int = 0
     private var recursionLimit = 5
     private var waitingForImage = false
 
@@ -92,7 +84,7 @@ class CameraController private constructor(context: Context) {
 
     fun getWaitingForImage() = waitingForImage
 
-    fun open(cam: @Range(from = 1, to = 2) Int): Boolean {
+    fun open(): Boolean {
         if (ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.CAMERA
@@ -100,8 +92,7 @@ class CameraController private constructor(context: Context) {
         ) {
             return false
         }
-        this.cam = cam
-        setUpCameraOutputs(cam)
+        setUpCameraOutputs()
         val manager =
             context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
@@ -119,7 +110,7 @@ class CameraController private constructor(context: Context) {
         return true
     }
 
-    private fun setUpCameraOutputs(cam: Int) {
+    private fun setUpCameraOutputs() {
         val manager =
             weakReference.get()!!.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
@@ -128,17 +119,8 @@ class CameraController private constructor(context: Context) {
 
                 // We don't use a front facing camera in this sample.
                 val facing = characteristics.get(CameraCharacteristics.LENS_FACING)
-                if (cam == FRONT_CAM) {
-                    if (facing != null && facing == CameraCharacteristics.LENS_FACING_BACK) {
-                        continue
-                    }
-                } else if (cam == BACK_CAM) {
-                    if (facing != null && facing == CameraCharacteristics.LENS_FACING_FRONT) {
-                        mCameraId = cameraId
-                        continue
-                    }
-                } else {
-                    throw IllegalArgumentException()
+                if (facing != null && facing == CameraCharacteristics.LENS_FACING_BACK) {
+                    continue
                 }
 
                 val map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
@@ -177,7 +159,6 @@ class CameraController private constructor(context: Context) {
     }
 
     private fun closeCamera() {
-        cam = 0
         shouldClose = false
         try {
             mCameraOpenCloseLock.acquire()
@@ -263,7 +244,7 @@ class CameraController private constructor(context: Context) {
         if (waitingForImage) {
             return false
         }
-        file = if (cam == FRONT_CAM) getFrontFile(filename) else getBackFile(filename)
+        file = getFrontFile(filename)
         try {
             if (null == mCameraDevice) {
                 return false
@@ -309,33 +290,13 @@ class CameraController private constructor(context: Context) {
     }
 
     private fun getFrontFile(filename: String): Any? {
-        if (intruderPhotoDirEnabled && intruderPhotoDir != "") {
-            val dir = fromTreeUri(context, Uri.parse(intruderPhotoDir))!!
-            return dir.findFile("front") ?: dir.createDirectory("front")!!
-        } else {
-            val mediaStorageDir = File(context.filesDir.absolutePath + "/front")
-            if (!mediaStorageDir.exists()) {
-                if (!mediaStorageDir.mkdirs()) {
-                    return null
-                }
+        val mediaStorageDir = File(context.filesDir.absolutePath + "/front")
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                return null
             }
-            return File("${mediaStorageDir.absolutePath}/$filename.jpg")
         }
-    }
-
-    private fun getBackFile(filename: String): Any? {
-        if (intruderPhotoDirEnabled && intruderPhotoDir != "") {
-            val dir = fromTreeUri(context, Uri.parse(intruderPhotoDir))!!
-            return dir.findFile("back") ?: dir.createDirectory("back")!!
-        } else {
-            val mediaStorageDir = File(context.filesDir.absolutePath + "/back")
-            if (!mediaStorageDir.exists()) {
-                if (!mediaStorageDir.mkdirs()) {
-                    return null
-                }
-            }
-            return File("${mediaStorageDir.absolutePath}/$filename.jpg")
-        }
+        return File("${mediaStorageDir.absolutePath}/$filename.jpg")
     }
 
     private class ImageSaver(
