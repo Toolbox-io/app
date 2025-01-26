@@ -11,6 +11,7 @@ import androidx.activity.result.ActivityResult
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntOffsetAsState
@@ -39,6 +40,7 @@ import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
@@ -65,6 +67,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -77,6 +80,7 @@ import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
 import ru.morozovit.android.ComposeView
 import ru.morozovit.android.addOneTimeOnPreDrawListener
+import ru.morozovit.android.async
 import ru.morozovit.android.homeScreen
 import ru.morozovit.android.invoke
 import ru.morozovit.android.previewUtils
@@ -100,8 +104,6 @@ class AuthActivity: BaseActivity(false) {
         const val MODE_ENTER_OLD_PW = 3
 
         var started = false
-
-        /*var uses = 0*/
     }
 
     private var mode
@@ -198,8 +200,6 @@ class AuthActivity: BaseActivity(false) {
 
             if (!isSetOrConfirm) BackHandler(onBack = ::homeScreen)
 
-            // TODO adapt to landscape orientation
-
             Scaffold(
                 topBar = {
                     if (valueOrFalse { isSetOrConfirm }) {
@@ -244,6 +244,7 @@ class AuthActivity: BaseActivity(false) {
                 ) {
                     val content = @Composable {
                         val coroutineScope = rememberCoroutineScope()
+                        val view = LocalView()
 
                         val symbols = remember { mutableStateListOf<PasswordEntry>() }
 
@@ -254,6 +255,9 @@ class AuthActivity: BaseActivity(false) {
                             label = "wrong"
                         )
                         var triggerVisibility by remember { mutableStateOf(false) }
+                        var inputLocked by remember { mutableStateOf(false) }
+
+                        var currentPasswordState by remember { mutableIntStateOf(0) }
 
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(
@@ -282,37 +286,55 @@ class AuthActivity: BaseActivity(false) {
                                 modifier = Modifier.padding(top = 20.dp)
                             )
 
-                            // TODO animation
-                            Row(
+                            Crossfade(
+                                targetState = currentPasswordState,
                                 modifier = Modifier
-                                    .animateContentSize()
                                     .padding(top = 10.dp, bottom = 20.dp)
-                                    .offset { offset },
-                                verticalAlignment = Alignment.CenterVertically
+                                    .let {
+                                        if (currentPasswordState == 1)
+                                            it.animateContentSize()
+                                        else
+                                            it
+                                    },
+                                label = ""
                             ) {
-                                Spacer(Modifier.width(20.dp))
-
-                                SideEffect {
-                                    if (triggerVisibility) {
-                                        triggerVisibility = false
-                                        symbols.last().visible = true
-                                    }
-                                }
-
-                                symbols.forEach { symbol ->
-                                    AnimatedVisibility(
-                                        visible = symbol.visible,
-                                        enter = scaleIn() + fadeIn(),
-                                        exit = scaleOut() + fadeOut()
+                                when (it) {
+                                    0 -> Row(
+                                        modifier = Modifier
+                                            .animateContentSize()
+                                            .offset { offset },
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text(
-                                            text = PASSWORD_DOT,
-                                            fontSize = 30.sp
-                                        )
-                                    }
-                                }
+                                        Spacer(Modifier.width(20.dp))
 
-                                Spacer(Modifier.width(20.dp))
+                                        SideEffect {
+                                            if (triggerVisibility) {
+                                                triggerVisibility = false
+                                                symbols.last().visible = true
+                                            }
+                                        }
+
+                                        symbols.forEach { symbol ->
+                                            AnimatedVisibility(
+                                                visible = symbol.visible,
+                                                enter = scaleIn() + fadeIn(),
+                                                exit = scaleOut() + fadeOut()
+                                            ) {
+                                                Text(
+                                                    text = PASSWORD_DOT,
+                                                    fontSize = 30.sp
+                                                )
+                                            }
+                                        }
+
+                                        Spacer(Modifier.width(20.dp))
+                                    }
+                                    1 -> CircularProgressIndicator(
+                                        modifier = Modifier
+                                            .size(30.dp)
+                                            .align(Alignment.CenterHorizontally)
+                                    )
+                                }
                             }
                         }
 
@@ -327,7 +349,9 @@ class AuthActivity: BaseActivity(false) {
                         }
 
                         fun processPassword() {
-                            coroutineScope.launch {
+                            async {
+                                inputLocked = true
+                                currentPasswordState = 1
                                 val password = symbols.let {
                                     var string = ""
                                     symbols.forEach {
@@ -350,21 +374,25 @@ class AuthActivity: BaseActivity(false) {
                                     /*}*/
                                     /*pendingAuth = false*/
                                 } else if (mode == MODE_ENTER_OLD_PW && Settings.Keys.App.check(password)) {
-                                    startActivity(Intent(this@AuthActivity, AuthActivity::class.java).apply {
-                                        putExtra("mode", MODE_SET)
-                                        putExtra("oldPwConfirmed", true)
-                                        putExtra("noAnim", true)
-                                    })
-                                    finish()
+                                    view.post {
+                                        startActivity(Intent(this@AuthActivity, AuthActivity::class.java).apply {
+                                            putExtra("mode", MODE_SET)
+                                            putExtra("oldPwConfirmed", true)
+                                            putExtra("noAnim", true)
+                                        })
+                                        finish()
+                                    }
                                 } else if (mode == MODE_SET) {
-                                    activityLauncher.launch(Intent(this@AuthActivity, AuthActivity::class.java).apply {
-                                        putExtra("mode", MODE_CONFIRM)
-                                        putExtra("password", password)
-                                        putExtra("noAnim", true)
-                                    }) {
-                                        if (it.resultCode == RESULT_OK) {
-                                            setResult(RESULT_OK)
-                                            finish()
+                                    view.post {
+                                        activityLauncher.launch(Intent(this@AuthActivity, AuthActivity::class.java).apply {
+                                            putExtra("mode", MODE_CONFIRM)
+                                            putExtra("password", password)
+                                            putExtra("noAnim", true)
+                                        }) {
+                                            if (it.resultCode == RESULT_OK) {
+                                                setResult(RESULT_OK)
+                                                finish()
+                                            }
                                         }
                                     }
                                     clear()
@@ -373,29 +401,34 @@ class AuthActivity: BaseActivity(false) {
                                     password == enteredPassword
                                 ) {
                                     Settings.Keys.App.set(password)
-                                    setResult(RESULT_OK)
-                                    finish()
+                                    view.post {
+                                        setResult(RESULT_OK)
+                                        finish()
+                                    }
                                 } else {
+                                    currentPasswordState = 0
                                     val delay = 100L
 
                                     offsetSet = -5
-                                    delay(delay)
+                                    Thread.sleep(delay)
                                     offsetSet = 10
-                                    delay(delay)
+                                    Thread.sleep(delay)
                                     offsetSet = -15
-                                    delay(delay)
+                                    Thread.sleep(delay)
                                     offsetSet = 20
-                                    delay(delay)
+                                    Thread.sleep(delay)
                                     offsetSet = -15
-                                    delay(delay)
+                                    Thread.sleep(delay)
                                     offsetSet = 10
-                                    delay(delay)
+                                    Thread.sleep(delay)
                                     offsetSet = -5
-                                    delay(delay)
+                                    Thread.sleep(delay)
                                     offsetSet = 0
-                                    delay(delay)
+                                    Thread.sleep(delay)
                                     clear()
+                                    Thread.sleep(500)
                                 }
+                                inputLocked = false
                             }
                         }
 
@@ -409,10 +442,12 @@ class AuthActivity: BaseActivity(false) {
                                 Button(
                                     shape = CircleShape,
                                     onClick = {
-                                        val entry = PasswordEntry(number, false)
-                                        symbols += entry
-                                        triggerVisibility = true
-                                        if (symbols.size == MAX_PASSWORD_LENGTH) processPassword()
+                                        if (!inputLocked) {
+                                            val entry = PasswordEntry(number, false)
+                                            symbols += entry
+                                            triggerVisibility = true
+                                            if (symbols.size == MAX_PASSWORD_LENGTH) processPassword()
+                                        }
                                     }.also { handlers.addNumberHandler(number, it) },
                                     modifier = Modifier.size(75.dp),
                                     contentPadding = PaddingValues()
@@ -439,42 +474,44 @@ class AuthActivity: BaseActivity(false) {
                                     contentColor = Color.White
                                 ),
                                 onClick = {
-                                    coroutineScope.launch {
-                                        try {
-                                            val reset: Int
-                                            synchronized(lock) {
-                                                resetCount++
-                                                reset = resetCount
-                                                symbols[symbols.lastIndex - reset + 1].visible = false
-                                            }
-                                            delay(500)
-                                            synchronized(lock) {
-                                                symbols.removeAt(symbols.lastIndex - reset + 1)
-                                            }
-                                        } catch (e: Exception) {
-                                            Log.e("Auth", "${EParser(e)}")
-                                            Log.d("Auth", "$symbols")
-                                            delay(250)
-                                            val toRemove = mutableListOf<PasswordEntry>()
-
-                                            var vis = true
-                                            @Suppress("NAME_SHADOWING")
-                                            for (it in symbols) {
-                                                if (!it.visible) {
-                                                    toRemove += it
-                                                } else {
-                                                    vis = false
-                                                    break
+                                    if (!inputLocked) {
+                                        coroutineScope.launch {
+                                            try {
+                                                val reset: Int
+                                                synchronized(lock) {
+                                                    resetCount++
+                                                    reset = resetCount
+                                                    symbols[symbols.lastIndex - reset + 1].visible = false
                                                 }
-                                            }
-
-                                            if (vis) {
-                                                toRemove.forEach {
-                                                    symbols.remove(it)
+                                                delay(500)
+                                                synchronized(lock) {
+                                                    symbols.removeAt(symbols.lastIndex - reset + 1)
                                                 }
+                                            } catch (e: Exception) {
+                                                Log.e("Auth", "${EParser(e)}")
+                                                Log.d("Auth", "$symbols")
+                                                delay(250)
+                                                val toRemove = mutableListOf<PasswordEntry>()
+
+                                                var vis = true
+                                                @Suppress("NAME_SHADOWING")
+                                                for (it in symbols) {
+                                                    if (!it.visible) {
+                                                        toRemove += it
+                                                    } else {
+                                                        vis = false
+                                                        break
+                                                    }
+                                                }
+
+                                                if (vis) {
+                                                    toRemove.forEach {
+                                                        symbols.remove(it)
+                                                    }
+                                                }
+                                            } finally {
+                                                resetCount--
                                             }
-                                        } finally {
-                                            resetCount--
                                         }
                                     }
                                     Unit
@@ -516,9 +553,12 @@ class AuthActivity: BaseActivity(false) {
 
                     if (
                         config.orientation == Configuration.ORIENTATION_LANDSCAPE &&
-                        config.screenWidthDp < 600
+                        config.screenHeightDp < 600
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(30.dp)
+                        ) {
                             content()
                         }
                     } else {
