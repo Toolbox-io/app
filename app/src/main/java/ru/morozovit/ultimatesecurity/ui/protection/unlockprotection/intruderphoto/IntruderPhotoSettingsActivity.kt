@@ -55,7 +55,6 @@ import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.ui.AppTheme
 import java.io.File
 
-// TODO rewrite in Jetpack Compose
 class IntruderPhotoSettingsActivity: BaseActivity(false) {
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
     private var resumeLock = true
