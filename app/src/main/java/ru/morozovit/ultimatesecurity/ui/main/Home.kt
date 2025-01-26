@@ -75,6 +75,8 @@ fun HomeScreen() {
 
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 val (valueOrFalse, runOrNoop) = previewUtils()
+
+                // UPDATE
                 if (valueOrFalse { !update_dsa }) {
                     var isUpdateCardVisible by remember { mutableStateOf(false) }
 
@@ -245,6 +247,8 @@ fun HomeScreen() {
                         }
                     }
                 }
+
+                // TODO add some content
             }
         }
     }
