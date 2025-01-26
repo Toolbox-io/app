@@ -22,14 +22,17 @@ class App : Application() {
 
 
         // Notification channels
-        const val UPDATE_NOTIFICATION_ID = 1
         const val UPDATE_CHANNEL_ID = "update"
+        const val UPDATE_NOTIFICATION_ID = 1
 
         const val IP_FG_SERVICE_CHANNEL_ID = "ip_fgservice"
         const val IP_FG_SERVICE_NOTIFICATION_ID = 2
 
-        const val IP_PHOTO_TAKEN_NOTIFICATION_ID = 1
         const val IP_PHOTO_TAKEN_CHANNEL_ID = "photo_taken"
+        const val IP_PHOTO_TAKEN_NOTIFICATION_ID = 3
+
+        const val ACCESSIBILITY_CHANNEL_ID = "accessibility"
+        const val ACCESSIBILITY_NOTIFICATION_ID = 4
     }
 
     private lateinit var notificationManager: NotificationManager
@@ -110,6 +113,14 @@ class App : Application() {
                 description = resources.getString(R.string.ip_pt_d),
                 importance = NotificationManager.IMPORTANCE_HIGH,
                 id = IP_PHOTO_TAKEN_CHANNEL_ID
+            )
+
+            // Accessibility foreground service
+            createNotificationChannel(
+                name = resources.getString(R.string.afs),
+                description = resources.getString(R.string.afs_d),
+                importance = NotificationManager.IMPORTANCE_LOW,
+                id = ACCESSIBILITY_CHANNEL_ID
             )
         }
     }

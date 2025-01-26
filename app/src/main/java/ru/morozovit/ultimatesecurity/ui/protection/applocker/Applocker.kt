@@ -51,6 +51,7 @@ import kotlinx.coroutines.launch
 import ru.morozovit.android.ListItem
 import ru.morozovit.android.SecureTextField
 import ru.morozovit.android.SwitchCard
+import ru.morozovit.android.SwitchListItem
 import ru.morozovit.android.alertDialog
 import ru.morozovit.android.clearFocusOnKeyboardDismiss
 import ru.morozovit.android.homeScreen
@@ -68,6 +69,7 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.unlockMode
 import ru.morozovit.ultimatesecurity.Settings.accessibility
 import ru.morozovit.ultimatesecurity.services.Accessibility
 import ru.morozovit.ultimatesecurity.services.Accessibility.Companion.waitingForAccessibility
+import ru.morozovit.ultimatesecurity.services.AccessibilityKeeperService
 import ru.morozovit.ultimatesecurity.ui.MainActivity
 import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
@@ -458,6 +460,20 @@ fun ApplockerScreen() {
                         supportingText = unlockMethodText,
                         onClick = {
                             openUnlockMethodDialog = true
+                        },
+                        divider = true
+                    )
+
+                    var afsSwitch by remember { mutableStateOf(Settings.UnlockProtection.fgServiceEnabled) }
+
+                    SwitchListItem(
+                        headline = stringResource(R.string.afs),
+                        supportingText = stringResource(R.string.afs_d),
+                        checked = afsSwitch,
+                        onCheckedChange = {
+                            afsSwitch = it
+                            Settings.UnlockProtection.fgServiceEnabled = it
+                            AccessibilityKeeperService.instance?.stopSelf()
                         },
                         divider = true
                     )

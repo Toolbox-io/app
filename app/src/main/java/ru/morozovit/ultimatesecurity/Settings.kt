@@ -325,6 +325,15 @@ object Settings {
                 apply()
             }
 
+        var fgServiceEnabled
+            get() = sharedPref.getBoolean("fgServiceEnabled", true)
+            set(value) {
+                with(sharedPref.edit()) {
+                    putBoolean("fgServiceEnabled", value)
+                    apply()
+                }
+            }
+
         object Actions: SettingsObj {
             private lateinit var sharedPref: SharedPreferences
             private var init = false

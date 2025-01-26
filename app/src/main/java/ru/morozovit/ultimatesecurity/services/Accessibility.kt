@@ -14,11 +14,9 @@ import ru.morozovit.ultimatesecurity.ui.MainActivity
 import ru.morozovit.ultimatesecurity.ui.protection.applocker.FakeCrashActivity
 import java.lang.Thread.sleep
 
-// TODO foreground service to keep this working
 class Accessibility: AccessibilityService() {
     private var interrupted = false
     var lock = false
-
     private var prevApp: String? = null
 
     @SuppressLint("StaticFieldLeak")
@@ -37,6 +35,8 @@ class Accessibility: AccessibilityService() {
             intent.addCategory(Intent.CATEGORY_LAUNCHER)
             startActivity(intent)
         }
+        if (Settings.UnlockProtection.fgServiceEnabled)
+            AccessibilityKeeperService.start(this)
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
@@ -75,6 +75,8 @@ class Accessibility: AccessibilityService() {
     override fun onInterrupt() {
         interrupted = true
         instance = null
+        if (Settings.UnlockProtection.fgServiceEnabled)
+            AccessibilityKeeperService.instance?.stopSelf()
     }
 
     override fun onDestroy() {
