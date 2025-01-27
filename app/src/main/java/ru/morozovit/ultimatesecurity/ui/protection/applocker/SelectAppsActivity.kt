@@ -4,13 +4,9 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager.GET_ACTIVITIES
 import android.os.Bundle
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -69,7 +65,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
-import kotlinx.coroutines.delay
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import ru.morozovit.android.backCallback
 import ru.morozovit.android.ui.ListItem
@@ -87,6 +85,7 @@ class SelectAppsActivity: BaseActivity() {
         AppTheme {
             val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
             val coroutineScope = rememberCoroutineScope()
+            val navController = rememberNavController()
 
             val selectedApps = remember { mutableStateSetOf<String>() }
             val apps = remember { mutableStateListOf<PackageInfo>() }
@@ -168,135 +167,107 @@ class SelectAppsActivity: BaseActivity() {
                 }
             )
 
-            Scaffold(
-                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                topBar = {
-                    var animate by remember { mutableStateOf(false) }
-                    val focusRequester = remember { FocusRequester() }
+            fun LazyListScope.apps(list: List<PackageInfo>, container: Boolean = false) {
+                items(list.size) {
+                    var appName by remember { mutableStateOf("") }
+                    var appPackage: String? by remember { mutableStateOf("") }
+                    var appIcon: ImageBitmap? by remember { mutableStateOf(null) }
 
-                    suspend fun closeSearch() {
-                        animate = true
-                        delay(300L)
-                        search = false
-                        delay(300L)
-                        animate = false
-                        focusRequester.freeFocus()
-                    }
+                    var compose by remember { mutableStateOf(true) }
 
-                    @Composable
-                    fun Actions() {
-                        Box {
-                            var expanded by remember { mutableStateOf(false) }
-
-                            fun onDismissRequest() {
-                                expanded = false
-                            }
-
-                            IconButton(onClick = {
-                                expanded = true
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Filled.MoreVert,
-                                    contentDescription = stringResource(R.string.more)
-                                )
-                            }
-
-                            DropdownMenu(expanded = expanded, onDismissRequest = ::onDismissRequest) {
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.select_all)) },
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            apps.forEach {
-                                                selectedApps.add(it.packageName)
-                                            }
-                                            updateUnsavedChanges()
-                                        }
-                                        onDismissRequest()
-                                    },
-                                    leadingIcon = { Icon(Icons.Filled.SelectAll, contentDescription = null) }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.clear)) },
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            selectedApps.clear()
-                                            updateUnsavedChanges()
-                                        }
-                                        onDismissRequest()
-                                    },
-                                    leadingIcon = { Icon(Icons.Filled.Clear, contentDescription = null) },
-                                    enabled = selectedApps.isNotEmpty()
-                                )
-                                HorizontalDivider()
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.discard_changes)) },
-                                    onClick = {
-                                        resetConfirmationExpanded = true
-                                        onDismissRequest()
-                                    },
-                                    leadingIcon = { Icon(Icons.Filled.RestartAlt, contentDescription = null) },
-                                    enabled = unsavedChanges
-                                )
+                    LaunchedEffect(list[it]) {
+                        coroutineScope.launch {
+                            val info = list[it].applicationInfo
+                            if (info != null) {
+                                appName = info.loadLabel(packageManager).toString()
+                                appPackage = if (appName != list[it].packageName) {
+                                    list[it].packageName
+                                } else {
+                                    null
+                                }
+                                appIcon = info.loadIcon(packageManager).toBitmap().asImageBitmap()
+                            } else {
+                                compose = false
                             }
                         }
                     }
 
-                    Crossfade(
-                        targetState = search,
-                        modifier = Modifier
-                            .let {
-                                if (animate) it.animateContentSize() else it
+                    if (compose) {
+                        fun onCheckedChange(it: Boolean) {
+                            if (it) {
+                                selectedApps.add(appPackage ?: appName)
+                            } else {
+                                selectedApps.remove(appPackage ?: appName)
                             }
-                            .background(MaterialTheme.colorScheme.surface),
-                        label = ""
-                    ) { s ->
-                        if (s) {
-                            BackHandler {
-                                coroutineScope.launch {
-                                    closeSearch()
-                                }
+                            coroutineScope.launch {
+                                updateUnsavedChanges()
                             }
-                            TopAppBar(
-                                title = {
-                                    BasicTextField(
-                                        value = searchInputState,
-                                        onValueChange = { searchInputState = it },
-                                        textStyle = MaterialTheme.typography.titleMedium.copy(
-                                            color = MaterialTheme.colorScheme.onSurface,
-                                        ),
-                                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                                        modifier = Modifier.focusRequester(focusRequester),
-                                        maxLines = 1,
-                                        singleLine = true,
-                                        keyboardOptions = KeyboardOptions(
-                                            autoCorrectEnabled = true,
-                                            keyboardType = KeyboardType.Text,
-                                            imeAction = ImeAction.Search
-                                        )
+                        }
+
+                        ListItem(
+                            headline = appName,
+                            supportingText = appPackage,
+                            divider = !container,
+                            leadingContent = {
+                                if (appIcon != null) {
+                                    Image(
+                                        bitmap = appIcon!!,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(56.dp)
+                                            .clip(RoundedCornerShape(30.dp))
                                     )
-                                },
-                                navigationIcon = {
-                                    IconButton(
-                                        onClick = {
-                                            coroutineScope.launch {
-                                                closeSearch()
-                                            }
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Close,
-                                            contentDescription = null
-                                        )
-                                    }
-                                },
-                                actions = {
-                                    Actions()
-                                },
-                                colors = TopAppBarDefaults.topAppBarColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                }
+                            },
+                            trailingContent = {
+                                Checkbox(
+                                    checked = selectedApps.contains(appPackage ?: appName),
+                                    onCheckedChange = ::onCheckedChange
                                 )
-                            )
-                        } else {
+                            },
+                            onClick = {
+                                onCheckedChange(!selectedApps.contains(appPackage ?: appName))
+                            }
+                        )
+                    }
+                }
+            }
+
+            LaunchedEffect(Unit) {
+                coroutineScope.launch {
+                    val appsList = packageManager.getInstalledPackages(GET_ACTIVITIES).toMutableList()
+                    selectedApps.addAll(Settings.Applocker.apps)
+
+                    val sorted = appsList.sortedBy {
+                        it.applicationInfo?.loadLabel(packageManager).toString()
+                    }
+
+                    apps.addAll(sorted)
+
+                    val toRemove = mutableListOf<PackageInfo>()
+
+                    apps.forEach { app ->
+                        if (app.activities.let { it.isNullOrEmpty() }) {
+                            toRemove += app
+                        }
+                    }
+
+                    toRemove.forEach {
+                        apps.remove(it)
+                    }
+                }
+            }
+
+            val focusRequester = remember { FocusRequester() }
+
+            NavHost(
+                navController = navController,
+                startDestination = "main"
+            ) {
+                composable("main") {
+                    Scaffold(
+                        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                        topBar = {
                             MediumTopAppBar(
                                 title = {
                                     Text(
@@ -316,14 +287,7 @@ class SelectAppsActivity: BaseActivity() {
                                 actions = {
                                     IconButton(
                                         onClick = {
-                                            coroutineScope.launch {
-                                                animate = true
-                                                delay(300L)
-                                                search = true
-                                                delay(600L)
-                                                animate = false
-                                                focusRequester.requestFocus()
-                                            }
+                                            navController.navigate("search")
                                         }
                                     ) {
                                         Icon(
@@ -331,124 +295,129 @@ class SelectAppsActivity: BaseActivity() {
                                             contentDescription = stringResource(R.string.search)
                                         )
                                     }
-                                    Actions()
+                                    Box {
+                                        var expanded by remember { mutableStateOf(false) }
+
+                                        fun onDismissRequest() {
+                                            expanded = false
+                                        }
+
+                                        IconButton(onClick = {
+                                            expanded = true
+                                        }) {
+                                            Icon(
+                                                imageVector = Icons.Filled.MoreVert,
+                                                contentDescription = stringResource(R.string.more)
+                                            )
+                                        }
+
+                                        DropdownMenu(expanded = expanded, onDismissRequest = ::onDismissRequest) {
+                                            DropdownMenuItem(
+                                                text = { Text(stringResource(R.string.select_all)) },
+                                                onClick = {
+                                                    coroutineScope.launch {
+                                                        apps.forEach {
+                                                            selectedApps.add(it.packageName)
+                                                        }
+                                                        updateUnsavedChanges()
+                                                    }
+                                                    onDismissRequest()
+                                                },
+                                                leadingIcon = { Icon(Icons.Filled.SelectAll, contentDescription = null) }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text(stringResource(R.string.clear)) },
+                                                onClick = {
+                                                    coroutineScope.launch {
+                                                        selectedApps.clear()
+                                                        updateUnsavedChanges()
+                                                    }
+                                                    onDismissRequest()
+                                                },
+                                                leadingIcon = { Icon(Icons.Filled.Clear, contentDescription = null) },
+                                                enabled = selectedApps.isNotEmpty()
+                                            )
+                                            HorizontalDivider()
+                                            DropdownMenuItem(
+                                                text = { Text(stringResource(R.string.discard_changes)) },
+                                                onClick = {
+                                                    resetConfirmationExpanded = true
+                                                    onDismissRequest()
+                                                },
+                                                leadingIcon = { Icon(Icons.Filled.RestartAlt, contentDescription = null) },
+                                                enabled = unsavedChanges
+                                            )
+                                        }
+                                    }
                                 },
-                                scrollBehavior = scrollBehavior,
-                                colors =
-                                    if (search)
-                                        TopAppBarDefaults.mediumTopAppBarColors(
-                                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                                        )
-                                    else
-                                        TopAppBarDefaults.mediumTopAppBarColors()
+                                scrollBehavior = scrollBehavior
                             )
-                        }
-                    }
-                },
-                floatingActionButton = {
-                    FloatingActionButton(
-                        onClick = ::saveChangesAndFinish,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Check,
-                            contentDescription = stringResource(R.string.done)
-                        )
-                    }
-                }
-            ) { innerPadding ->
-                LaunchedEffect(Unit) {
-                    coroutineScope.launch {
-                        val appsList = packageManager.getInstalledPackages(GET_ACTIVITIES).toMutableList()
-                        selectedApps.addAll(Settings.Applocker.apps)
-
-                        val sorted = appsList.sortedBy {
-                            it.applicationInfo?.loadLabel(packageManager).toString()
-                        }
-
-                        apps.addAll(sorted)
-
-                        val toRemove = mutableListOf<PackageInfo>()
-
-                        apps.forEach { app ->
-                            if (app.activities.let { it.isNullOrEmpty() }) {
-                                toRemove += app
+                        },
+                        floatingActionButton = {
+                            FloatingActionButton(
+                                onClick = ::saveChangesAndFinish,
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = stringResource(R.string.done)
+                                )
                             }
                         }
-
-                        toRemove.forEach {
-                            apps.remove(it)
+                    ) { innerPadding ->
+                        LazyColumn(
+                            contentPadding = innerPadding
+                        ) {
+                            apps(apps)
                         }
                     }
                 }
 
-                fun LazyListScope.apps(list: List<PackageInfo>, container: Boolean = false) {
-                    items(list.size) {
-                        var appName by remember { mutableStateOf("") }
-                        var appPackage: String? by remember { mutableStateOf("") }
-                        var appIcon: ImageBitmap? by remember { mutableStateOf(null) }
-
-                        var compose by remember { mutableStateOf(true) }
-
-                        LaunchedEffect(list[it]) {
-                            coroutineScope.launch {
-                                val info = list[it].applicationInfo
-                                if (info != null) {
-                                    appName = info.loadLabel(packageManager).toString()
-                                    appPackage = if (appName != list[it].packageName) {
-                                        list[it].packageName
-                                    } else {
-                                        null
-                                    }
-                                    appIcon = info.loadIcon(packageManager).toBitmap().asImageBitmap()
-                                } else {
-                                    compose = false
-                                }
-                            }
-                        }
-
-                        if (compose) {
-                            fun onCheckedChange(it: Boolean) {
-                                if (it) {
-                                    selectedApps.add(appPackage ?: appName)
-                                } else {
-                                    selectedApps.remove(appPackage ?: appName)
-                                }
-                                coroutineScope.launch {
-                                    updateUnsavedChanges()
-                                }
-                            }
-
-                            ListItem(
-                                headline = appName,
-                                supportingText = appPackage,
-                                divider = !container,
-                                leadingContent = {
-                                    if (appIcon != null) {
-                                        Image(
-                                            bitmap = appIcon!!,
-                                            contentDescription = null,
-                                            modifier = Modifier
-                                                .size(56.dp)
-                                                .clip(RoundedCornerShape(30.dp))
+                composable("search") {
+                    Scaffold(
+                        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                        topBar = {
+                            TopAppBar(
+                                title = {
+                                    BasicTextField(
+                                        value = searchInputState,
+                                        onValueChange = { searchInputState = it },
+                                        textStyle = MaterialTheme.typography.titleMedium.copy(
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                        ),
+                                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                                        modifier = Modifier.focusRequester(focusRequester),
+                                        maxLines = 1,
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(
+                                            autoCorrectEnabled = true,
+                                            keyboardType = KeyboardType.Text,
+                                            imeAction = ImeAction.Search
                                         )
-                                    }
-                                },
-                                trailingContent = {
-                                    Checkbox(
-                                        checked = selectedApps.contains(appPackage ?: appName),
-                                        onCheckedChange = ::onCheckedChange
                                     )
+
+                                    LaunchedEffect(Unit) {
+                                        focusRequester.requestFocus()
+                                    }
                                 },
-                                onClick = {
-                                    onCheckedChange(!selectedApps.contains(appPackage ?: appName))
-                                }
+                                navigationIcon = {
+                                    IconButton(
+                                        onClick = {
+                                            navController.navigate("main")
+                                            navController.popBackStack()
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Close,
+                                            contentDescription = null
+                                        )
+                                    }
+                                },
+                                colors = TopAppBarDefaults.topAppBarColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                )
                             )
                         }
-                    }
-                }
-
-                Crossfade(targetState = search, label = "") { s ->
-                    if (s) {
+                    ) { innerPadding ->
                         Surface(
                             color = MaterialTheme.colorScheme.surfaceContainer,
                             modifier = Modifier.fillMaxSize()
@@ -480,12 +449,6 @@ class SelectAppsActivity: BaseActivity() {
                                     container = true
                                 )
                             }
-                        }
-                    } else {
-                        LazyColumn(
-                            contentPadding = innerPadding
-                        ) {
-                            apps(apps)
                         }
                     }
                 }
