@@ -33,6 +33,7 @@ import androidx.activity.result.ActivityResult
 import androidx.annotation.AnimRes
 import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -468,10 +469,10 @@ class QuickAlertDialogBuilder(context: Context): MaterialAlertDialogBuilder(cont
     }
 }
 
-inline fun Activity.alertDialog(crossinline config: QuickAlertDialogBuilder.() -> Unit) {
+inline fun Activity.alertDialog(crossinline config: QuickAlertDialogBuilder.() -> Unit): AlertDialog {
     val builder = QuickAlertDialogBuilder(this)
     config(builder)
-    builder.show()
+    return builder.show()
 }
 
 inline fun Fragment.alertDialog(crossinline config: QuickAlertDialogBuilder.() -> Unit)

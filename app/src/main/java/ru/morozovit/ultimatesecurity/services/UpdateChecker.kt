@@ -148,71 +148,89 @@ class UpdateChecker: JobService() {
                 request.setRequestProperty("X-GitHub-Api-Version", "2022-11-28")
 
                 try {
-                    val input = BufferedInputStream(request.inputStream)
-                    var c: Char;
+                    request.connect()
+                    if (request.responseCode == HttpsURLConnection.HTTP_OK) {
+                        val input = BufferedInputStream(request.inputStream)
+                        var c: Char;
 
-                    val chars: MutableList<Char> = mutableListOf()
+                        val chars: MutableList<Char> = mutableListOf()
 
-                    while (true) {
-                        c = input.read().toChar()
-                        if (c == 0.toChar() || c == '\uFFFF') break;
-                        chars.add(c)
-                    }
-                    val response = String(chars.toCharArray())
-                    val parsedResponse = JsonParser.parseString(response) as JsonArray
-
-                    val latestRelease = parsedResponse[0].asJsonObject
-                    val name = latestRelease["name"].asString;
-                    val description = latestRelease["body"].asString
-
-                    val asset = latestRelease["assets"].asJsonArray[0].asJsonObject["browser_download_url"].asString
-
-                    // Parse the semantic version of the latest release
-                    var majorLatest = 0
-                    var minorLatest = 0
-                    var patchLatest = 0
-                    name.substring(1).split(".").forEachIndexed { index, s ->
-                        when (index) {
-                            0 -> majorLatest = s.toInt()
-                            1 -> minorLatest = s.toInt()
-                            2 -> patchLatest = s.toInt()
+                        while (true) {
+                            c = input.read().toChar()
+                            if (c == 0.toChar() || c == '\uFFFF') break;
+                            chars.add(c)
                         }
-                    }
-                    // Parse the semantic version of the current release
-                    var majorCurrent = 0
-                    var minorCurrent = 0
-                    var patchCurrent = 0
-                    packageManager
-                        .getPackageInfo(packageName, PackageManager.GET_META_DATA)
-                        .versionName?.split(".")?.forEachIndexed { index, s ->
+                        val response = String(chars.toCharArray())
+                        val parsedResponse = JsonParser.parseString(response) as JsonArray
+
+                        val latestRelease = parsedResponse[0].asJsonObject
+                        val name = latestRelease["name"].asString;
+                        val description = latestRelease["body"].asString
+
+                        val asset = latestRelease["assets"].asJsonArray[0].asJsonObject["browser_download_url"].asString
+
+                        // Parse the semantic version of the latest release
+                        var majorLatest = 0
+                        var minorLatest = 0
+                        var patchLatest = 0
+                        name.substring(1).split(".").forEachIndexed { index, s ->
                             when (index) {
-                                0 -> majorCurrent = s.toInt()
-                                1 -> minorCurrent = s.toInt()
-                                2 -> patchCurrent = s.toInt()
+                                0 -> majorLatest = s.toInt()
+                                1 -> minorLatest = s.toInt()
+                                2 -> patchLatest = s.toInt()
                             }
                         }
-                    // Compare
-                    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-                    var updateAvailable = false
-                    @Suppress("UNUSED_VALUE")
-                    if (majorLatest > majorCurrent) {
-                        updateAvailable = true
-                    } else if (majorLatest == majorCurrent) {
-                        if (minorLatest > minorCurrent) {
+                        // Parse the semantic version of the current release
+                        var majorCurrent = 0
+                        var minorCurrent = 0
+                        var patchCurrent = 0
+                        packageManager
+                            .getPackageInfo(packageName, PackageManager.GET_META_DATA)
+                            .versionName?.split(".")?.forEachIndexed { index, s ->
+                                when (index) {
+                                    0 -> majorCurrent = s.toInt()
+                                    1 -> minorCurrent = s.toInt()
+                                    2 -> patchCurrent = s.toInt()
+                                }
+                            }
+                        // Compare
+                        @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+                        var updateAvailable = false
+                        @Suppress("UNUSED_VALUE")
+                        if (majorLatest > majorCurrent) {
                             updateAvailable = true
-                        } else if (minorLatest == minorCurrent) {
-                            if (patchLatest > patchCurrent) {
+                        } else if (majorLatest == majorCurrent) {
+                            if (minorLatest > minorCurrent) {
                                 updateAvailable = true
+                            } else if (minorLatest == minorCurrent) {
+                                if (patchLatest > patchCurrent) {
+                                    updateAvailable = true
+                                }
                             }
                         }
-                    }
 
-                    return UpdateInfo(
-                        updateAvailable,
-                        SemanticVersion(majorLatest, minorLatest, patchLatest),
-                        description,
-                        asset
-                    )
+                        return UpdateInfo(
+                            updateAvailable,
+                            SemanticVersion(majorLatest, minorLatest, patchLatest),
+                            description,
+                            asset
+                        )
+                    } else {
+                        Log.d("UpdateChecker", "Error. HTTP response code: ${request.responseCode}")
+                        val errorInput = request.errorStream!!
+                        var c: Char;
+
+                        val chars: MutableList<Char> = mutableListOf()
+
+                        while (true) {
+                            c = errorInput.read().toChar()
+                            if (c == 0.toChar() || c == '\uFFFF') break;
+                            chars.add(c)
+                        }
+                        val response = String(chars.toCharArray())
+                        Log.d("UpdateChecker", "Error response: $response")
+                        return null
+                    }
                 } catch (e: Exception) {
                     Log.d("UpdateChecker", "Error. \n${ru.morozovit.utils.EParser(e)}")
                     return null
@@ -341,12 +359,9 @@ class UpdateChecker: JobService() {
                             positiveButtonText = resources.getString(R.string.install),
                             negativeButtonText = resources.getString(R.string.cancel),
                             positiveButtonOnClick = {
-                                finish()
                                 startActivity(install)
                             },
-                            negativeButtonOnClick = {
-                                finish()
-                            }
+                            negativeButtonOnClick = {}
                         )
 
                         val pendingIntent = PendingIntent.getActivity(this, 0, dialog, FLAG_IMMUTABLE)

@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Widget.Material3.Button.IconButton.Filled.Toggleable.Active"
-        parent="Widget.Material3.Button.IconButton.Filled">
-        <item name="colorOnPrimary">?attr/checked</item>
-    </style>
-
     <style name="Theme.Dialog" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>

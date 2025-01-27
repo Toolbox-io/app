@@ -168,6 +168,26 @@
     <string name="unsaved_changes">У Вас несохранённые изменения. Действительно ли Вы хотите удалить их?\nНажмите "Назад" для отмены.</string>
     <string name="save">Сохранить</string>
     <string name="discard">Удалить</string>
-    <string name="discard_d">Выдействительно хотите отккатить измения?</string>
+    <string name="discard_d">Вы действительно хотите отменить измения?</string>
     <string name="use_password">Исп. пароль</string>
+    <string name="shortcuts_unsuported">Для этой функции требуется Android 8 или выше.</string>
+    <string name="default_alarm">По умолчанию</string>
+    <string name="unknown">Неизвестный</string>
+    <string name="alarm_deleted">Сигнализация удалена</string>
+    <string name="notify_on_photo_taken">Уведомление</string>
+    <string name="nopt_d">Когда Вы успешно разблокируете экран, вы увидите уведомление, если кто-то попытался разблокировать ваше устройство без разрешения.</string>
+    <string name="intruderphotos">Фото мошенников</string>
+    <string name="close">Закрыть</string>
+    <string name="fgs_ip">Фото мошенника: служба переднего плана</string>
+    <string name="fgs_ip_d">Пустое уведомление, которое необходимо для снятия фото мошенников.\nСовет: вы можете отключить это уведомление на заблокированном экране, чтобы мошенник не увидел это.</string>
+    <string name="update_n">Обновления</string>
+    <string name="update_n_d">Когда доступна новая версия приложения</string>
+    <string name="ip_pt">Фото мошенника: фото снято</string>
+    <string name="ip_pt_d">Когда мошенник был снят. Показывается только после успешной разблокировки экрана.</string>
+    <string name="i_f">Мошенник найден!</string>
+    <string name="i_f_d">Мошенник был снят</string>
+    <string name="afs">Служба переднего плана для специальных возможностей</string>
+    <string name="afs_d">Служба переднего плана, которая ничего не делает. Она необязательна, но рекомендуется для стабильной работы защиты.</string>
+    <string name="devadmin_ed">Это разрешение необходимо для следующего:\n- Защитить приложение от несанкционорованого уведомления;\n- для работы функции "Фото мошенника".\nЭто приложение НИКОГДА не использует такие разрешения для действий, не описанных здесь.</string>
+    <string name="search">Поиск</string>
 </resources>

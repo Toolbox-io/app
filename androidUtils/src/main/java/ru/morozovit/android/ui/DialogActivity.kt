@@ -3,8 +3,12 @@ package ru.morozovit.android.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.postDelayed
 import ru.morozovit.android.alertDialog
 
 class DialogActivity: AppCompatActivity() {
@@ -85,6 +89,9 @@ class DialogActivity: AppCompatActivity() {
         }
     }
 
+    lateinit var dialog: AlertDialog
+    private val handler = Handler(Looper.getMainLooper())
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         try {
@@ -96,7 +103,7 @@ class DialogActivity: AppCompatActivity() {
             val negativeButtonText = intent.extras!!.getString(EXTRA_NEGATIVE_BUTTON_TEXT)
             val neutralButtonText = intent.extras!!.getString(EXTRA_NEUTRAL_BUTTON_TEXT)
 
-            alertDialog {
+            dialog = alertDialog {
                 title(title)
                 message(body)
                 if (positiveButtonText != null) {
@@ -115,9 +122,23 @@ class DialogActivity: AppCompatActivity() {
                     }
                 }
             }
+            dialog.setOnDismissListener {
+                handler.postDelayed(500) {
+                    super.finish()
+                }
+            }
         } catch (e: Exception) {
             setResult(RESULT_ERROR)
             finish()
+        }
+    }
+
+    override fun finish() {
+        runCatching {
+            dialog.dismiss()
+        }
+        handler.postDelayed(500) {
+            super.finish()
         }
     }
 }

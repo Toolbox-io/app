@@ -164,9 +164,4 @@
         <item name="android:statusBarColor">?attr/colorSurfaceContainer</item>
         <item name="android:windowFullscreen">false</item>
     </style>
-
-    <style name="Widget.Material3.Button.IconButton.Filled.Toggleable.Active"
-        parent="Widget.Material3.Button.IconButton.Filled">
-        <item name="colorOnPrimary">?attr/checked</item>
-    </style>
 </resources>
