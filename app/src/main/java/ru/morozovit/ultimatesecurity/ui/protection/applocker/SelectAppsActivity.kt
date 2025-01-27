@@ -4,19 +4,29 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager.GET_ACTIVITIES
 import android.os.Bundle
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.RestartAlt
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Checkbox
@@ -27,9 +37,12 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
@@ -44,17 +57,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import ru.morozovit.android.ListItem
-import ru.morozovit.android.SimpleAlertDialog
 import ru.morozovit.android.backCallback
+import ru.morozovit.android.ui.ListItem
+import ru.morozovit.android.ui.SimpleAlertDialog
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
@@ -81,6 +100,9 @@ class SelectAppsActivity: BaseActivity() {
                 exitConfirmationExpanded = true
             }
 
+            var searchInputState by remember { mutableStateOf("") }
+            var search by remember { mutableStateOf(false) }
+
             onBackPressedDispatcher.addCallback(backCallback)
 
             LaunchedEffect(Unit) {
@@ -92,20 +114,16 @@ class SelectAppsActivity: BaseActivity() {
             fun onExitConfirmDismiss() {
                 exitConfirmationExpanded = false
             }
-
             fun onResetConfirmDismiss() {
                 resetConfirmationExpanded = false
             }
-
             fun saveChangesAndFinish() {
                 Settings.Applocker.apps = selectedApps.toSet()
                 finish()
             }
-
             fun updateUnsavedChanges() {
                 unsavedChanges = selectedApps.toSet() != Settings.Applocker.apps.toSet()
             }
-
             fun discardChanges() {
                 coroutineScope.launch {
                     selectedApps.clear()
@@ -130,7 +148,6 @@ class SelectAppsActivity: BaseActivity() {
                     )
                 }
             )
-
             SimpleAlertDialog(
                 open = resetConfirmationExpanded,
                 onDismissRequest = ::onResetConfirmDismiss,
@@ -151,84 +168,182 @@ class SelectAppsActivity: BaseActivity() {
                 }
             )
 
-            // TODO implement search
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
-                    MediumTopAppBar(
-                        title = {
-                            Text(
-                                stringResource(R.string.select_apps),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        },
-                        navigationIcon = {
-                            IconButton(onClick = onBackPressedDispatcher::onBackPressed) {
+                    var animate by remember { mutableStateOf(false) }
+                    val focusRequester = remember { FocusRequester() }
+
+                    suspend fun closeSearch() {
+                        animate = true
+                        delay(300L)
+                        search = false
+                        delay(300L)
+                        animate = false
+                        focusRequester.freeFocus()
+                    }
+
+                    @Composable
+                    fun Actions() {
+                        Box {
+                            var expanded by remember { mutableStateOf(false) }
+
+                            fun onDismissRequest() {
+                                expanded = false
+                            }
+
+                            IconButton(onClick = {
+                                expanded = true
+                            }) {
                                 Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Localized description"
+                                    imageVector = Icons.Filled.MoreVert,
+                                    contentDescription = stringResource(R.string.more)
                                 )
                             }
-                        },
-                        actions = {
-                            Box {
-                                var expanded by remember { mutableStateOf(false) }
 
-                                fun onDismissRequest() {
-                                    expanded = false
-                                }
-
-                                IconButton(onClick = {
-                                    expanded = true
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.MoreVert,
-                                        contentDescription = stringResource(R.string.more)
-                                    )
-                                }
-
-                                DropdownMenu(expanded = expanded, onDismissRequest = ::onDismissRequest) {
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.select_all)) },
-                                        onClick = {
-                                            coroutineScope.launch {
-                                                apps.forEach {
-                                                    selectedApps.add(it.packageName)
-                                                }
-                                                updateUnsavedChanges()
+                            DropdownMenu(expanded = expanded, onDismissRequest = ::onDismissRequest) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.select_all)) },
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            apps.forEach {
+                                                selectedApps.add(it.packageName)
                                             }
-                                            onDismissRequest()
-                                        },
-                                        leadingIcon = { Icon(Icons.Filled.SelectAll, contentDescription = null) }
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.clear)) },
-                                        onClick = {
-                                            coroutineScope.launch {
-                                                selectedApps.clear()
-                                                updateUnsavedChanges()
-                                            }
-                                            onDismissRequest()
-                                        },
-                                        leadingIcon = { Icon(Icons.Filled.Clear, contentDescription = null) },
-                                        enabled = selectedApps.isNotEmpty()
-                                    )
-                                    HorizontalDivider()
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.discard_changes)) },
-                                        onClick = {
-                                            resetConfirmationExpanded = true
-                                            onDismissRequest()
-                                        },
-                                        leadingIcon = { Icon(Icons.Filled.RestartAlt, contentDescription = null) },
-                                        enabled = unsavedChanges
-                                    )
+                                            updateUnsavedChanges()
+                                        }
+                                        onDismissRequest()
+                                    },
+                                    leadingIcon = { Icon(Icons.Filled.SelectAll, contentDescription = null) }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.clear)) },
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            selectedApps.clear()
+                                            updateUnsavedChanges()
+                                        }
+                                        onDismissRequest()
+                                    },
+                                    leadingIcon = { Icon(Icons.Filled.Clear, contentDescription = null) },
+                                    enabled = selectedApps.isNotEmpty()
+                                )
+                                HorizontalDivider()
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.discard_changes)) },
+                                    onClick = {
+                                        resetConfirmationExpanded = true
+                                        onDismissRequest()
+                                    },
+                                    leadingIcon = { Icon(Icons.Filled.RestartAlt, contentDescription = null) },
+                                    enabled = unsavedChanges
+                                )
+                            }
+                        }
+                    }
+
+                    Crossfade(
+                        targetState = search,
+                        modifier = Modifier
+                            .let {
+                                if (animate) it.animateContentSize() else it
+                            }
+                            .background(MaterialTheme.colorScheme.surface),
+                        label = ""
+                    ) { s ->
+                        if (s) {
+                            BackHandler {
+                                coroutineScope.launch {
+                                    closeSearch()
                                 }
                             }
-                        },
-                        scrollBehavior = scrollBehavior
-                    )
+                            TopAppBar(
+                                title = {
+                                    BasicTextField(
+                                        value = searchInputState,
+                                        onValueChange = { searchInputState = it },
+                                        textStyle = MaterialTheme.typography.titleMedium.copy(
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                        ),
+                                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                                        modifier = Modifier.focusRequester(focusRequester),
+                                        maxLines = 1,
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(
+                                            autoCorrectEnabled = true,
+                                            keyboardType = KeyboardType.Text,
+                                            imeAction = ImeAction.Search
+                                        )
+                                    )
+                                },
+                                navigationIcon = {
+                                    IconButton(
+                                        onClick = {
+                                            coroutineScope.launch {
+                                                closeSearch()
+                                            }
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Close,
+                                            contentDescription = null
+                                        )
+                                    }
+                                },
+                                actions = {
+                                    Actions()
+                                },
+                                colors = TopAppBarDefaults.topAppBarColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                )
+                            )
+                        } else {
+                            MediumTopAppBar(
+                                title = {
+                                    Text(
+                                        stringResource(R.string.select_apps),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                },
+                                navigationIcon = {
+                                    IconButton(onClick = onBackPressedDispatcher::onBackPressed) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                            contentDescription = stringResource(R.string.back)
+                                        )
+                                    }
+                                },
+                                actions = {
+                                    IconButton(
+                                        onClick = {
+                                            coroutineScope.launch {
+                                                animate = true
+                                                delay(300L)
+                                                search = true
+                                                delay(600L)
+                                                animate = false
+                                                focusRequester.requestFocus()
+                                            }
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Search,
+                                            contentDescription = stringResource(R.string.search)
+                                        )
+                                    }
+                                    Actions()
+                                },
+                                scrollBehavior = scrollBehavior,
+                                colors =
+                                    if (search)
+                                        TopAppBarDefaults.mediumTopAppBarColors(
+                                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                        )
+                                    else
+                                        TopAppBarDefaults.mediumTopAppBarColors()
+                            )
+                        }
+                    }
                 },
                 floatingActionButton = {
                     FloatingActionButton(
@@ -266,23 +381,21 @@ class SelectAppsActivity: BaseActivity() {
                     }
                 }
 
-                LazyColumn(
-                    contentPadding = innerPadding
-                ) {
-                    items(apps.size) {
+                fun LazyListScope.apps(list: List<PackageInfo>, container: Boolean = false) {
+                    items(list.size) {
                         var appName by remember { mutableStateOf("") }
                         var appPackage: String? by remember { mutableStateOf("") }
                         var appIcon: ImageBitmap? by remember { mutableStateOf(null) }
 
                         var compose by remember { mutableStateOf(true) }
 
-                        LaunchedEffect(apps[it]) {
+                        LaunchedEffect(list[it]) {
                             coroutineScope.launch {
-                                val info = apps[it].applicationInfo
+                                val info = list[it].applicationInfo
                                 if (info != null) {
                                     appName = info.loadLabel(packageManager).toString()
-                                    appPackage = if (appName != apps[it].packageName) {
-                                        apps[it].packageName
+                                    appPackage = if (appName != list[it].packageName) {
+                                        list[it].packageName
                                     } else {
                                         null
                                     }
@@ -308,7 +421,7 @@ class SelectAppsActivity: BaseActivity() {
                             ListItem(
                                 headline = appName,
                                 supportingText = appPackage,
-                                divider = true,
+                                divider = !container,
                                 leadingContent = {
                                     if (appIcon != null) {
                                         Image(
@@ -332,7 +445,49 @@ class SelectAppsActivity: BaseActivity() {
                             )
                         }
                     }
+                }
 
+                Crossfade(targetState = search, label = "") { s ->
+                    if (s) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.surfaceContainer,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            LazyColumn(
+                                contentPadding = innerPadding
+                            ) {
+                                apps(
+                                    list = if (searchInputState == "")
+                                        mutableListOf()
+                                    else {
+                                        val words = searchInputState.split(" ")
+                                        apps.filter {
+                                            val filt = it
+                                                .applicationInfo
+                                                ?.loadLabel(packageManager)
+                                                .toString()
+                                            words.forEach { word ->
+                                                if (
+                                                    !filt.contains(
+                                                        other = word,
+                                                        ignoreCase = true
+                                                    )
+                                                ) return@filter false
+                                            }
+                                            return@filter true
+                                        }
+                                    },
+                                    container = true
+                                )
+                            }
+                        }
+                    } else {
+                        LazyColumn(
+                            contentPadding = innerPadding
+                        ) {
+                            apps(apps)
+                        }
+                    }
                 }
             }
         }

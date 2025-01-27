@@ -27,8 +27,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import ru.morozovit.android.Mipmap
-import ru.morozovit.android.TextButton
+import ru.morozovit.android.ui.Mipmap
+import ru.morozovit.android.ui.TextButton
 import ru.morozovit.android.getSystemService
 import ru.morozovit.android.invoke
 import ru.morozovit.ultimatesecurity.R

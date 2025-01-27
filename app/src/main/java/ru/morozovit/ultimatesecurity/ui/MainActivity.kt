@@ -1,5 +1,6 @@
 package ru.morozovit.ultimatesecurity.ui
 
+import android.Manifest
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
@@ -46,6 +47,10 @@ import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.PermanentDrawerSheet
 import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -68,12 +73,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -219,6 +222,7 @@ class MainActivity : BaseActivity(
             val scope = rememberCoroutineScope()
             var selectedItem by rememberSaveable { mutableStateOf(HOME) }
             val navController = rememberNavController()
+            val snackbarHostState = remember { SnackbarHostState() }
 
             val currentEntry = navController.currentBackStackEntryAsState()
 
@@ -233,15 +237,16 @@ class MainActivity : BaseActivity(
             val isScreenBig = currentWindowAdaptiveInfo().widthSizeClass >= WidthSizeClass.MEDIUM
 
             val drawerContent: @Composable ColumnScope.() -> Unit = {
-                Column(Modifier
-                    .verticalScroll(rememberScrollState())
-                    .windowInsetsPadding(
-                        WindowInsets.safeDrawing.only(
-                            WindowInsetsSides.Top +
-                                    WindowInsetsSides.Bottom +
-                                    WindowInsetsSides.Left
+                Column(
+                    Modifier
+                        .verticalScroll(rememberScrollState())
+                        .windowInsetsPadding(
+                            WindowInsets.safeDrawing.only(
+                                WindowInsetsSides.Top +
+                                        WindowInsetsSides.Bottom +
+                                        WindowInsetsSides.Left
+                            )
                         )
-                    )
                 ) {
                     ConstraintLayout(
                         Modifier
@@ -374,6 +379,9 @@ class MainActivity : BaseActivity(
                                 .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Right))
                         )
                     },
+                    snackbarHost = {
+                        SnackbarHost(hostState = snackbarHostState)
+                    }
                 ) { innerPadding ->
                     val start by remember { mutableStateOf(selectedItem) }
                     NavHost(
@@ -394,6 +402,29 @@ class MainActivity : BaseActivity(
                         composable(route = SHORTCUTS) { ShortcutsScreen() }
 
                         composable(route = APK_EXTRACTOR) { APKExtractorScreen() }
+                    }
+                }
+
+                val grant_notification = stringResource(R.string.grant_notification)
+                val grant = stringResource(R.string.grant)
+
+                LaunchedEffect(Unit) {
+                    if (Build.VERSION.SDK_INT >= 33) {
+                        if (
+                            checkSelfPermission(
+                                Manifest.permission.POST_NOTIFICATIONS
+                            ) != PackageManager.PERMISSION_GRANTED
+                        ) {
+                            val result = snackbarHostState.showSnackbar(
+                                message = grant_notification,
+                                actionLabel = grant,
+                                duration = SnackbarDuration.Long
+                            )
+                            when (result) {
+                                SnackbarResult.ActionPerformed -> requestPermission(Manifest.permission.POST_NOTIFICATIONS)
+                                SnackbarResult.Dismissed -> {}
+                            }
+                        }
                     }
                 }
             }
@@ -471,28 +502,6 @@ class MainActivity : BaseActivity(
                 }
             })
             /*finish()*/
-        }
-
-        if (Build.VERSION.SDK_INT >= 33) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    android.Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                // TODO rewrite in Jetpack Compose
-                Snackbar.make(
-                    content,
-                    R.string.grant_notification,
-                    Snackbar.LENGTH_LONG
-                )
-                    .setAction(R.string.grant) {
-                        requestPermissions(
-                            arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                            101
-                        )
-                    }
-                    .show()
-            }
         }
 
         if (!pendingAuth /*&& !intent.getBooleanExtra("noAnim", false)*/) startEnterAnimation(content)

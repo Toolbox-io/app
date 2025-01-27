@@ -26,12 +26,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import kotlinx.coroutines.launch
-import ru.morozovit.android.ListItem
-import ru.morozovit.android.SwitchCard
-import ru.morozovit.android.alertDialog
 import ru.morozovit.android.clearFocusOnKeyboardDismiss
 import ru.morozovit.android.invoke
 import ru.morozovit.android.previewUtils
+import ru.morozovit.android.ui.ListItem
+import ru.morozovit.android.ui.SimpleAlertDialog
+import ru.morozovit.android.ui.SwitchCard
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.enabled
@@ -48,7 +48,6 @@ fun UnlockProtectionScreen() {
             val (valueOrFalse, runOrNoop, isPreview) = previewUtils()
             val context = LocalContext() as MainActivity
             val activityLauncher = context.activityLauncher
-
             val dpm =
                 if (isPreview)
                     null
@@ -60,11 +59,9 @@ fun UnlockProtectionScreen() {
                     null
                 else
                     ComponentName(context, DeviceAdmin::class.java)
-
             runOrNoop {
                 if (!dpm!!.isAdminActive(admComponent!!)) enabled = false
             }
-
             val coroutineScope = rememberCoroutineScope()
 
             var mainSwitch by remember {
@@ -78,6 +75,37 @@ fun UnlockProtectionScreen() {
                 )
             }
 
+            var permissionDialogOpen by remember { mutableStateOf(false) }
+            fun permissionDialogOnDismiss() {
+                permissionDialogOpen = false
+            }
+            SimpleAlertDialog(
+                open = permissionDialogOpen,
+                onDismissRequest = ::permissionDialogOnDismiss,
+                title = stringResource(R.string.permissions_required),
+                body = stringResource(R.string.up_permissions),
+                positiveButtonText = stringResource(R.string.ok),
+                onPositiveButtonClick = {
+                    val intent =
+                        Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
+                            putExtra(
+                                DevicePolicyManager.EXTRA_DEVICE_ADMIN,
+                                admComponent
+                            )
+                            putExtra(
+                                DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                                context.resources.getString(R.string.devadmin_ed)
+                            )
+                        }
+                    activityLauncher.launch(intent) { result ->
+                        mainSwitch = result.resultCode == RESULT_OK
+                        enabled = result.resultCode == RESULT_OK
+                    }
+                },
+                negativeButtonText = stringResource(R.string.cancel),
+                onNegativeButtonClick = ::permissionDialogOnDismiss
+            )
+
             val mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@ {
                 if (!isPreview) {
                     if (it) {
@@ -86,33 +114,7 @@ fun UnlockProtectionScreen() {
                             mainSwitch = true
                             return@sw
                         }
-                        // TODO rewrite in Jetpack Compose
-                        context.alertDialog {
-                            title(R.string.permissions_required)
-                            message(R.string.up_permissions)
-                            negativeButton(R.string.cancel)
-                            positiveButton(R.string.ok) {
-                                val intent =
-                                    Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
-                                        putExtra(
-                                            DevicePolicyManager.EXTRA_DEVICE_ADMIN,
-                                            admComponent
-                                        )
-                                        putExtra(
-                                            DevicePolicyManager.EXTRA_ADD_EXPLANATION, """
-                            This permission is needed for the following features:
-                            - Protect this app from being removed by an intruder
-                            - Detect failed unlock attempts to take the required actions
-                            This app NEVER uses this permission for anything not listed above.
-                            """.trimIndent()
-                                        )
-                                    }
-                                activityLauncher.launch(intent) { result ->
-                                    mainSwitch = result.resultCode == RESULT_OK
-                                    enabled = result.resultCode == RESULT_OK
-                                }
-                            }
-                        }
+                        permissionDialogOpen = true
                         return@sw
                     } else {
                         enabled = false

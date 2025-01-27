@@ -195,6 +195,14 @@ abstract class BaseActivity(
         }
     }
 
+    fun requestPermissions(vararg permissions: String) {
+        requestPermissions(permissions, 2)
+    }
+
+    fun requestPermission(permission: String) {
+        requestPermissions(arrayOf(permission), 3)
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -212,8 +220,8 @@ abstract class BaseActivity(
                     break
                 }
             }
+            permissionCallbacks.clear()
         }
-        permissionCallbacks.clear()
     }
 
     @CallSuper

@@ -1,4 +1,4 @@
-package ru.morozovit.android
+package ru.morozovit.android.ui
 
 import com.google.android.material.tabs.TabLayout
 

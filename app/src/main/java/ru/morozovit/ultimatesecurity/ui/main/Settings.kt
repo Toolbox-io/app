@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Build
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -37,13 +36,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import ru.morozovit.android.ListItem
-import ru.morozovit.android.SeparatedSwitchListItem
-import ru.morozovit.android.SimpleAlertDialog
-import ru.morozovit.android.SwitchListItem
-import ru.morozovit.android.alertDialog
 import ru.morozovit.android.invoke
 import ru.morozovit.android.previewUtils
+import ru.morozovit.android.ui.ListItem
+import ru.morozovit.android.ui.SeparatedSwitchListItem
+import ru.morozovit.android.ui.SimpleAlertDialog
+import ru.morozovit.android.ui.SwitchListItem
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.allowBiometric
@@ -77,11 +75,138 @@ fun SettingsScreen() {
         context.activityLauncher
     }
 
-    var deleteAppDialogOpen by remember { mutableStateOf(false) }
+    // Device admin
+    var devAdmSwitch by remember {
+        mutableStateOf(
+            valueOrFalse {
+                dpm.isAdminActive(adminComponentName)
+            }
+        )
+    }
+    val devAdmOnCheckedChanged: (Boolean) -> Unit = {
+        runOrNoop {
+            if (it) {
+                activityLauncher.launch(Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
+                    putExtra(
+                        DevicePolicyManager.EXTRA_DEVICE_ADMIN,
+                        adminComponentName
+                    )
+                    putExtra(
+                        DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                        context.resources.getString(R.string.devadmin_ed)
+                    )
+                }) { result ->
+                    devAdmSwitch = result.resultCode == RESULT_OK
+                }
+            } else {
+                dpm.removeActiveAdmin(adminComponentName)
+                Settings.UnlockProtection.enabled = false
+                devAdmSwitch = false
+            }
+        }
+    }
 
+    // Allow biometric
+    var allowBiometricSwitchEnabled by remember {
+        mutableStateOf(
+            valueOrFalse {
+                Settings.Keys.App.isSet &&
+                        BiometricManager.from(context).canAuthenticate(
+                            BiometricManager.Authenticators.BIOMETRIC_STRONG
+                        ) == BIOMETRIC_SUCCESS
+            }
+        )
+    }
+    var allowBiometricSwitch by remember {
+        mutableStateOf(
+            valueOrFalse { allowBiometric }
+        )
+    }
+    val allowBiometricSwitchOnCheckedChanged: (Boolean) -> Unit = {
+        allowBiometricSwitch = it
+        allowBiometric = it
+    }
+
+    // Password lock
+    var passwordSwitch by remember {
+        mutableStateOf(
+            valueOrFalse {
+                Settings.Keys.App.isSet
+            }
+        )
+    }
+    fun setPassword() {
+        activityLauncher.launch(
+            Intent(
+                context,
+                AuthActivity::class.java
+            ).apply {
+                putExtra("mode", 1)
+            }
+        ) {
+            if (it.resultCode == RESULT_OK) {
+                passwordSwitch = true
+            }
+        }
+    }
+    val passwordOnCheckedChanged: (Boolean) -> Unit = pw@ {
+        if (it) {
+            if (!Settings.Keys.App.isSet) {
+                setPassword()
+                passwordSwitch = true
+                return@pw
+            }
+        } else {
+            passwordSwitch = false
+            Settings.Keys.App.set("")
+            allowBiometricSwitchEnabled = Settings.Keys.App.isSet
+            return@pw
+        }
+        context.updateLock()
+        allowBiometricSwitchEnabled = Settings.Keys.App.isSet
+        passwordSwitch = true
+    }
+
+    // Don't show in recents
+    var dontShowInRecentsSwitch by remember {
+        mutableStateOf(
+            valueOrFalse { dontShowInRecents }
+        )
+    }
+    val dontShowInRecentsOnCheckedChanged: (Boolean) -> Unit = {
+        dontShowInRecentsSwitch = it
+        dontShowInRecents = it
+    }
+
+    // Material You
+    runOrNoop {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
+            materialYouEnabled = false
+    }
+    var materialYouSwitch by remember {
+        mutableStateOf(
+            valueOrFalse {
+                materialYouEnabled
+            }
+        )
+    }
+    val materialYouOnCheckedChanged: (Boolean) -> Unit = {
+        materialYouSwitch = it
+        runOrNoop {
+            materialYouEnabled = it
+            dynamicThemeEnabled = it
+            context.configureTheme()
+        }
+    }
+
+    // Delete app dialog
+    var deleteAppDialogOpen by remember { mutableStateOf(false) }
+    fun deleteAppDialogOnDismiss() {
+        deleteAppDialogOpen = false
+    }
     SimpleAlertDialog(
         open = deleteAppDialogOpen,
-        onDismissRequest = { deleteAppDialogOpen = false },
+        onDismissRequest = ::deleteAppDialogOnDismiss,
         icon = {
             Icon(
                 imageVector = Icons.Filled.Warning,
@@ -90,137 +215,48 @@ fun SettingsScreen() {
         },
         title = stringResource(R.string.delete_app),
         body = stringResource(R.string.delete_app_d),
-        // TODO finish
+        positiveButtonText = stringResource(R.string.yes),
+        onPositiveButtonClick = {
+            devAdmOnCheckedChanged(false)
+            context.startActivity(
+                Intent(
+                    Intent.ACTION_DELETE,
+                    Uri.fromParts(
+                        "package",
+                        context.packageName,
+                        null
+                    )
+                )
+            )
+            deleteAppDialogOnDismiss()
+        },
+        negativeButtonText = stringResource(R.string.no),
+        onNegativeButtonClick = ::deleteAppDialogOnDismiss
     )
 
+    // Main content
     WindowInsetsHandler {
-        Column(
-            Modifier
-                .verticalScroll(rememberScrollState())
-        ) {
-            var allowBiometricSwitchEnabled by remember {
-                mutableStateOf(
-                    valueOrFalse {
-                        Settings.Keys.App.isSet &&
-                                BiometricManager.from(context).canAuthenticate(
-                                    BiometricManager.Authenticators.BIOMETRIC_STRONG
-                                ) == BIOMETRIC_SUCCESS
-                    }
-                )
-            }
-
+        Column(Modifier.verticalScroll(rememberScrollState())) {
             // Device admin
-            var devAdmSwitch by remember {
-                mutableStateOf(
-                    valueOrFalse {
-                        dpm.isAdminActive(adminComponentName)
-                    }
-                )
-            }
-            val devAdmOnCheckedChanged: (Boolean) -> Unit = {
-                runOrNoop {
-                    if (it) {
-                        activityLauncher.launch(Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
-                            putExtra(
-                                DevicePolicyManager.EXTRA_DEVICE_ADMIN,
-                                adminComponentName
-                            )
-                            putExtra(
-                                DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-                                """
-                                    This permission is needed for the following features:
-                                    - Protect this app from being removed by an intruder
-                                    - Detect failed unlock attempts to take the required actions
-                                    This app NEVER uses this permission for anything not listed above.
-                                    """.trimIndent()
-                            )
-                        }) { result ->
-                            devAdmSwitch = result.resultCode == RESULT_OK
-                        }
-                    } else {
-                        dpm.removeActiveAdmin(adminComponentName)
-                        Settings.UnlockProtection.enabled = false
-                        devAdmSwitch = false
-                    }
-                }
-            }
             SwitchListItem(
                 headline = stringResource(R.string.devadmin),
                 supportingText = stringResource(R.string.devadmin_d),
                 checked = devAdmSwitch,
                 onCheckedChange = devAdmOnCheckedChanged,
-                listItemOnClick = {
-                    devAdmOnCheckedChanged(!devAdmSwitch)
-                },
                 divider = true
             )
 
-            // Delete
+            // Delete app
             ListItem(
                 headline = stringResource(R.string.delete),
                 supportingText = stringResource(R.string.delete_d),
-                modifier = Modifier.clickable {
-                    // TODO rewrite in Jetpack Compose
-                    context.alertDialog {
-                        title(R.string.delete_app)
-                        message(R.string.delete_app_d)
-                        neutralButton(R.string.cancel)
-                        positiveButton(R.string.yes) {
-                            devAdmOnCheckedChanged(false)
-                            context.startActivity(Intent(
-                                Intent.ACTION_DELETE, Uri.fromParts(
-                                    "package",
-                                    context.packageName,
-                                    null
-                                )
-                            ))
-                        }
-                    }
+                onClick = {
+                    deleteAppDialogOpen = true
                 },
                 divider = true
             )
 
             // Password lock
-            var passwordSwitch by remember {
-                mutableStateOf(
-                    valueOrFalse {
-                        Settings.Keys.App.isSet
-                    }
-                )
-            }
-            fun setPassword() {
-                activityLauncher.launch(
-                    Intent(
-                        context,
-                        AuthActivity::class.java
-                    ).apply {
-                        putExtra("mode", 1)
-                    }
-                ) {
-                    if (it.resultCode == RESULT_OK) {
-                        passwordSwitch = true
-                    }
-                }
-            }
-            val passwordOnCheckedChanged: (Boolean) -> Unit = pw@ {
-                // passwordSwitch = it
-                if (it) {
-                    if (!Settings.Keys.App.isSet) {
-                        setPassword()
-                        passwordSwitch = true
-                        return@pw
-                    }
-                } else {
-                    passwordSwitch = false
-                    Settings.Keys.App.set("")
-                    allowBiometricSwitchEnabled = Settings.Keys.App.isSet
-                    return@pw
-                }
-                context.updateLock()
-                allowBiometricSwitchEnabled = Settings.Keys.App.isSet
-                passwordSwitch = it
-            }
-
             SeparatedSwitchListItem(
                 headline = stringResource(R.string.lockapp),
                 supportingText = stringResource(R.string.lockapp_d),
@@ -231,80 +267,34 @@ fun SettingsScreen() {
             )
 
             // Allow biometric
-            var allowBiometricSwitch by remember {
-                mutableStateOf(
-                    valueOrFalse { allowBiometric }
-                )
-            }
-
-            val allowBiometricSwitchOnCheckedChanged: (Boolean) -> Unit = {
-                allowBiometricSwitch = it
-                allowBiometric = it
-            }
-
             SwitchListItem(
                 headline = stringResource(R.string.allow_biometric),
                 supportingText = stringResource(R.string.allow_biometric_d),
                 checked = allowBiometricSwitch,
                 onCheckedChange = allowBiometricSwitchOnCheckedChanged,
-                listItemOnClick = {
-                    allowBiometricSwitchOnCheckedChanged(!allowBiometricSwitch)
-                },
                 divider = true
             )
 
             // Don't show in recents
-            var dontShowInRecentsSwitch by remember {
-                mutableStateOf(
-                    valueOrFalse { dontShowInRecents }
-                )
-            }
-            val dontShowInRecentsOnCheckedChanged: (Boolean) -> Unit = {
-                dontShowInRecentsSwitch = it
-                dontShowInRecents = it
-            }
             SwitchListItem(
                 headline = stringResource(R.string.dont_show_in_recents),
                 supportingText = stringResource(R.string.dont_show_in_recents_d),
                 checked = dontShowInRecentsSwitch,
                 onCheckedChange = dontShowInRecentsOnCheckedChanged,
-                listItemOnClick = {
-                    dontShowInRecentsOnCheckedChanged(!dontShowInRecentsSwitch)
-                },
                 divider = true
             )
 
-            runOrNoop {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
-                    materialYouEnabled = false
-            }
-
-            var materialYouSwitch by remember {
-                mutableStateOf(
-                    valueOrFalse {
-                        materialYouEnabled
-                    }
-                )
-            }
-            val materialYouOnCheckedChanged: (Boolean) -> Unit = {
-                materialYouSwitch = it
-                runOrNoop {
-                    materialYouEnabled = it
-                    dynamicThemeEnabled = it
-                    context.configureTheme()
-                }
-            }
-
+            // Material You
             SwitchListItem(
                 headline = stringResource(R.string.materialYou),
                 supportingText = stringResource(R.string.materialYou_d),
                 enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
                 checked = materialYouSwitch,
                 onCheckedChange = materialYouOnCheckedChanged,
-                listItemOnClick = { materialYouOnCheckedChanged(!materialYouSwitch) },
                 divider = true
             )
 
+            // Theme
             ListItem(
                 headline = stringResource(R.string.theme),
                 divider = true,

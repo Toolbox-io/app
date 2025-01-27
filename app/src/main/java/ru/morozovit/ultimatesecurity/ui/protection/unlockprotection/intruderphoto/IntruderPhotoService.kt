@@ -8,7 +8,6 @@ import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.util.Log
-import androidx.annotation.MainThread
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.PRIORITY_LOW
 import androidx.core.content.ContextCompat
@@ -24,21 +23,39 @@ import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.services.DeviceAdmin.Companion.intruderPhotoNotification
 import java.io.File
 
-@MainThread
 class IntruderPhotoService: Service() {
     companion object {
         private var filename: String? = null
         private var running = false
         private var instance: IntruderPhotoService? = null
+            set(value) {
+                field = value
+                if (value == null) {
+                    nullCallback?.invoke()
+                }
+            }
+        private var nullCallback: (() -> Unit)? = null
 
         fun takePhoto(context: Context, name: String) {
             filename = name
-            context.applicationContext.stopService(Intent(context, IntruderPhotoService::class.java))
-            assert(instance == null && !running)
-            ContextCompat.startForegroundService(
-                context.applicationContext,
-                Intent(context, IntruderPhotoService::class.java)
-            )
+            runCatching {
+                context.stopService(Intent(context, IntruderPhotoService::class.java))
+                instance!!.stop()
+            }
+
+            fun callback() {
+                assert(instance == null && !running)
+                ContextCompat.startForegroundService(
+                    context,
+                    Intent(context, IntruderPhotoService::class.java)
+                )
+            }
+
+            if (instance != null || running) {
+                nullCallback = ::callback
+            } else {
+                callback()
+            }
         }
     }
 

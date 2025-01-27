@@ -24,9 +24,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
-import ru.morozovit.android.Button
-import ru.morozovit.android.License
-import ru.morozovit.android.Website
+import ru.morozovit.android.ui.Button
+import ru.morozovit.android.ui.License
+import ru.morozovit.android.ui.Website
 import ru.morozovit.android.invoke
 import ru.morozovit.android.openUrl
 import ru.morozovit.ultimatesecurity.BuildConfig

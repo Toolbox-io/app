@@ -1,6 +1,5 @@
 package ru.morozovit.ultimatesecurity.ui.protection.unlockprotection
 
-import android.app.Activity
 import android.content.Intent
 import android.content.res.AssetFileDescriptor
 import android.media.AudioAttributes
@@ -63,11 +62,11 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
-import ru.morozovit.android.Button
-import ru.morozovit.android.RadioButtonWithText
-import ru.morozovit.android.RadioGroup
-import ru.morozovit.android.SwipeToDismissBackground
-import ru.morozovit.android.SwitchCard
+import ru.morozovit.android.ui.Button
+import ru.morozovit.android.ui.RadioButtonWithText
+import ru.morozovit.android.ui.RadioGroup
+import ru.morozovit.android.ui.SwipeToDismissBackground
+import ru.morozovit.android.ui.SwitchCard
 import ru.morozovit.android.previewUtils
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
@@ -416,7 +415,7 @@ class AlarmSettingsActivity: BaseActivity() {
                                 intent.addCategory(Intent.CATEGORY_OPENABLE)
                                 intent.setType("audio/*")
                                 activityLauncher.launch(intent) {
-                                    if (it.resultCode == Activity.RESULT_OK) {
+                                    if (it.resultCode == RESULT_OK) {
                                         val uri = it.data?.data
                                         if (uri != null) {
                                             contentResolver.takePersistableUriPermission(

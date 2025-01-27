@@ -1,6 +1,6 @@
 @file:Suppress("NOTHING_TO_INLINE", "unused")
 
-package ru.morozovit.android
+package ru.morozovit.android.ui
 
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
@@ -53,6 +53,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
@@ -96,6 +97,13 @@ import androidx.constraintlayout.compose.ConstraintLayoutScope
 import androidx.constraintlayout.compose.Dimension
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import ru.morozovit.android.R
+import ru.morozovit.android.asAndroidScaleType
+import ru.morozovit.android.invoke
+import ru.morozovit.android.left
+import ru.morozovit.android.link
+import ru.morozovit.android.plus
+import ru.morozovit.android.right
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
@@ -167,7 +175,10 @@ fun ListItem(
                         mod += Modifier.clickable(onClick = bodyOnClick)
                     }
                     mod + bodyModifier
-                }
+                },
+            colors = ListItemDefaults.colors(
+                containerColor = Color.Transparent
+            )
         )
         if (trailingContent != null) {
             ConstraintLayout(

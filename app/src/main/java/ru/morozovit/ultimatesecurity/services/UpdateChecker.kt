@@ -33,6 +33,7 @@ import com.google.gson.JsonParser
 import ru.morozovit.android.JobIdManager
 import ru.morozovit.android.NoParallelExecutor
 import ru.morozovit.android.SimpleAsyncTask
+import ru.morozovit.android.ui.DialogActivity
 import ru.morozovit.ultimatesecurity.App
 import ru.morozovit.ultimatesecurity.App.Companion.UPDATE_CHANNEL_ID
 import ru.morozovit.ultimatesecurity.App.Companion.UPDATE_NOTIFICATION_ID
@@ -140,13 +141,10 @@ class UpdateChecker: JobService() {
         fun checkForUpdates(): UpdateInfo? {
             with (App.context) {
                 Log.d("UpdateChecker", "Checking for updates")
-                val request = URL("https://api.github.com/repos/denis0001-dev/AIP-Website/releases")
+                val request = URL("https://api.github.com/repos/denis0001-dev/Toolbox-io/releases")
                     .openConnection() as HttpsURLConnection
                 request.requestMethod = "GET";
                 request.setRequestProperty("Accept", "application/vnd.github+json")
-                val token = "gi" + "th" + "ub_p" + "at_11BESRTYY" + "0e5lNGcsHV9Up_7HTMBq6ZkfKYXou7bkc" + "mZVX6nMJ0ua9I" + "sqqcsPGmuHHYCZ" + "J4BDL4f0SSrM0"
-
-                request.setRequestProperty("Authorization", "Bearer $token")
                 request.setRequestProperty("X-GitHub-Api-Version", "2022-11-28")
 
                 try {
@@ -325,36 +323,53 @@ class UpdateChecker: JobService() {
 
                 @SuppressLint("MissingPermission")
                 override fun onPostExecute(result: Unit?) {
-                    val install = Intent(Intent.ACTION_INSTALL_PACKAGE)
-                    install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    install.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                    install.data = FileProvider.getUriForFile(
-                        App.context,
-                        App.context.packageName + ".provider",
-                        file
-                    )
-
-                    val pendingIntent = PendingIntent.getActivity(App.context, 0, install, FLAG_IMMUTABLE)
-
-                    builder.setContentTitle("Update is ready")
-                        .setContentText("Tap to install")
-                        .setProgress(0, 0, false)
-                        .setContentIntent(pendingIntent)
-                        .setAutoCancel(true)
-                        .setSilent(false)
-                        .setOngoing(false)
-
-                    if (ActivityCompat.checkSelfPermission(
-                            App.context,
-                            Manifest.permission.POST_NOTIFICATIONS
-                        ) != PackageManager.PERMISSION_GRANTED
-                    ) return
-
-                    Handler(Looper.getMainLooper()).postDelayed(1000) {
-                        NotificationManagerCompat.from(App.context).notify(
-                            UPDATE_NOTIFICATION_ID, builder.build()
+                    with (App.context) {
+                        val install = Intent(Intent.ACTION_INSTALL_PACKAGE)
+                        install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        install.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        install.data = FileProvider.getUriForFile(
+                            this,
+                            App.context.packageName + ".provider",
+                            file
                         )
+
+                        val dialog = DialogActivity.getLaunchIntent(
+                            context = App.context,
+                            title = resources.getString(R.string.install_package),
+                            body = resources.getString(R.string.install_package_d),
+                            positiveButtonText = resources.getString(R.string.install),
+                            negativeButtonText = resources.getString(R.string.cancel),
+                            positiveButtonOnClick = {
+                                finish()
+                                startActivity(install)
+                            },
+                            negativeButtonOnClick = {
+                                finish()
+                            }
+                        )
+
+                        val pendingIntent = PendingIntent.getActivity(this, 0, dialog, FLAG_IMMUTABLE)
+
+                        builder.setContentTitle("Update is ready")
+                            .setContentText("Tap to install")
+                            .setProgress(0, 0, false)
+                            .setContentIntent(pendingIntent)
+                            .setAutoCancel(true)
+                            .setSilent(false)
+                            .setOngoing(false)
+
+                        if (ActivityCompat.checkSelfPermission(
+                                this,
+                                Manifest.permission.POST_NOTIFICATIONS
+                            ) != PackageManager.PERMISSION_GRANTED
+                        ) return
+
+                        Handler(Looper.getMainLooper()).postDelayed(1000) {
+                            NotificationManagerCompat.from(this).notify(
+                                UPDATE_NOTIFICATION_ID, builder.build()
+                            )
+                        }
                     }
                 }
             }
@@ -396,7 +411,6 @@ class UpdateChecker: JobService() {
                     Intent(App.context, DownloadBroadcastReceiver::class.java)
                         .apply {
                             action = DOWNLOAD_BROADCAST
-                            putExtra(UPDATE_CHANNEL_ID, 0)
                             putExtra("updateInfo", info)
                         }
                 val downloadPendingIntent = PendingIntent.getBroadcast(

@@ -26,7 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import ru.morozovit.android.ToggleIconButton
+import ru.morozovit.android.ui.ToggleIconButton
 import ru.morozovit.android.previewUtils
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings.Tiles.sleep

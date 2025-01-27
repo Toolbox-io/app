@@ -46,9 +46,9 @@ import androidx.core.content.FileProvider
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
-import ru.morozovit.android.SwitchCard
-import ru.morozovit.android.SwitchListItem
 import ru.morozovit.android.invoke
+import ru.morozovit.android.ui.SwitchCard
+import ru.morozovit.android.ui.SwitchListItem
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
@@ -81,7 +81,7 @@ class IntruderPhotoSettingsActivity: BaseActivity(false) {
                             IconButton(onClick = onBackPressedDispatcher::onBackPressed) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Localized description"
+                                    contentDescription = stringResource(R.string.back)
                                 )
                             }
                         },

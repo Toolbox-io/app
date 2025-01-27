@@ -34,7 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import kotlinx.coroutines.launch
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
-import ru.morozovit.android.SeparatedSwitchListItem
+import ru.morozovit.android.ui.SeparatedSwitchListItem
 import ru.morozovit.android.previewUtils
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R

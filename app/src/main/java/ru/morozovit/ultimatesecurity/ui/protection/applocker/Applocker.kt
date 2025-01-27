@@ -48,15 +48,15 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.launch
-import ru.morozovit.android.ListItem
-import ru.morozovit.android.SecureTextField
-import ru.morozovit.android.SwitchCard
-import ru.morozovit.android.SwitchListItem
-import ru.morozovit.android.alertDialog
 import ru.morozovit.android.clearFocusOnKeyboardDismiss
 import ru.morozovit.android.homeScreen
 import ru.morozovit.android.invoke
 import ru.morozovit.android.previewUtils
+import ru.morozovit.android.ui.ListItem
+import ru.morozovit.android.ui.SecureTextField
+import ru.morozovit.android.ui.SimpleAlertDialog
+import ru.morozovit.android.ui.SwitchCard
+import ru.morozovit.android.ui.SwitchListItem
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_APP_INFO
@@ -104,6 +104,14 @@ fun ApplockerScreen() {
                 val errorDisablingService = stringResource(R.string.error_disabling_service)
                 val settings = stringResource(R.string.settings)
 
+                // Main switch
+                var mainSwitch by remember {
+                    mutableStateOf(
+                        valueOrFalse { accessibility }
+                    )
+                }
+
+                // Set password dialog
                 var openSetPasswordDialog by remember { mutableStateOf(false) }
                 if (openSetPasswordDialog) {
                     fun onDismissRequest() {
@@ -143,7 +151,7 @@ fun ApplockerScreen() {
                                     SecureTextField(
                                         value = oldPassword,
                                         onValueChange = { oldPassword = it },
-                                        label = { Text("Old password") },
+                                        label = { Text(stringResource(R.string.old_password)) },
                                         visibilityOnClick = {
                                             oldPasswordHidden = !oldPasswordHidden
                                         },
@@ -162,7 +170,7 @@ fun ApplockerScreen() {
                                 SecureTextField(
                                     value = newPassword,
                                     onValueChange = { newPassword = it },
-                                    label = { Text("New password") },
+                                    label = { Text(stringResource(R.string.new_password)) },
                                     visibilityOnClick = {
                                         newPasswordHidden = !newPasswordHidden
                                     },
@@ -184,7 +192,7 @@ fun ApplockerScreen() {
                                 SecureTextField(
                                     value = confirmPassword,
                                     onValueChange = { confirmPassword = it },
-                                    label = { Text("Confirm password") },
+                                    label = { Text(stringResource(R.string.confirm_password)) },
                                     visibilityOnClick = {
                                         confirmPasswordHidden = !confirmPasswordHidden
                                     },
@@ -232,6 +240,7 @@ fun ApplockerScreen() {
                     }
                 }
 
+                // Unlock method dialog
                 var openUnlockMethodDialog by remember { mutableStateOf(false) }
                 if (openUnlockMethodDialog) {
                     fun onDismissRequest() {
@@ -327,73 +336,81 @@ fun ApplockerScreen() {
                     }
                 }
 
-                Column {
-                    var mainSwitch by remember {
-                        mutableStateOf(
-                            valueOrFalse { accessibility }
-                        )
-                    }
+                // Accessibility permission dialog
+                var openPermissionDialog by remember { mutableStateOf(false) }
+                fun onPermissionDialogDismiss() {
+                    openPermissionDialog = false
+                }
+                SimpleAlertDialog(
+                    open = openPermissionDialog,
+                    onDismissRequest = ::onPermissionDialogDismiss,
+                    title = stringResource(R.string.permissions_required),
+                    body = stringResource(R.string.al_permissions),
+                    positiveButtonText = stringResource(R.string.ok),
+                    onPositiveButtonClick = {
+                        val intent = Intent(ACTION_ACCESSIBILITY_SETTINGS)
+                        intent.flags = FLAG_ACTIVITY_NEW_TASK
+                        context.resumeHandlers.size
+                        var handler: (() -> Unit)? = null
+                        handler = {
+                            if (accessibility) {
+                                mainSwitch = true
+                            }
+                            waitingForAccessibility = false
+                            context.resumeHandlers.remove(handler)
+                        }
+                        context.resumeHandlers.add(handler)
+                        waitingForAccessibility = true
+                        context.startActivity(intent)
+                    },
+                    negativeButtonText = stringResource(R.string.cancel),
+                    onNegativeButtonClick = ::onPermissionDialogDismiss
+                )
 
-                    val mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@{
-                        if (!isPreview) {
-                            if (it) {
-                                // TODO rewrite in Jetpack Compose
-                                context.alertDialog {
-                                    title(R.string.permissions_required)
-                                    message(R.string.al_permissions)
-                                    negativeButton(R.string.cancel)
-                                    positiveButton(R.string.ok) {
-                                        val intent = Intent(ACTION_ACCESSIBILITY_SETTINGS)
-                                        intent.flags = FLAG_ACTIVITY_NEW_TASK
-                                        context.resumeHandlers.size
-                                        var handler: (() -> Unit)? = null
-                                        handler = {
-                                            if (accessibility) {
-                                                mainSwitch = true
-                                            }
-                                            waitingForAccessibility = false
-                                            context.resumeHandlers.remove(handler)
+                // Main switch
+                val mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@{
+                    if (!isPreview) {
+                        if (it) {
+                            openPermissionDialog = true
+                            return@sw
+                        } else {
+                            var error = false
+                            try {
+                                Accessibility.instance!!.disable()
+                            } catch (e: Exception) {
+                                error = true
+                            }
+
+                            if (accessibility || error) {
+                                scope.launch {
+                                    val result = snackbarHostState
+                                        .showSnackbar(
+                                            message = errorDisablingService,
+                                            actionLabel = settings,
+                                            duration = SnackbarDuration.Short
+                                        )
+                                    when (result) {
+                                        SnackbarResult.ActionPerformed -> {
+                                            val intent =
+                                                Intent(ACTION_ACCESSIBILITY_SETTINGS)
+                                            intent.flags = FLAG_ACTIVITY_NEW_TASK
+                                            context.startActivity(intent)
                                         }
-                                        context.resumeHandlers.add(handler)
-                                        waitingForAccessibility = true
-                                        context.startActivity(intent)
+
+                                        SnackbarResult.Dismissed -> {}
                                     }
                                 }
                                 return@sw
-                            } else {
-                                var error = false
-                                try {
-                                    Accessibility.instance!!.disable()
-                                } catch (e: Exception) {
-                                    error = true
-                                }
-
-                                if (accessibility || error) {
-                                    scope.launch {
-                                        val result = snackbarHostState
-                                            .showSnackbar(
-                                                message = errorDisablingService,
-                                                actionLabel = settings,
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        when (result) {
-                                            SnackbarResult.ActionPerformed -> {
-                                                val intent =
-                                                    Intent(ACTION_ACCESSIBILITY_SETTINGS)
-                                                intent.flags = FLAG_ACTIVITY_NEW_TASK
-                                                context.startActivity(intent)
-                                            }
-
-                                            SnackbarResult.Dismissed -> {}
-                                        }
-                                    }
-                                    return@sw
-                                }
                             }
                         }
-                        mainSwitch = it
                     }
+                    mainSwitch = it
+                }
 
+                // Foreground service switch
+                var afsSwitch by remember { mutableStateOf(Settings.UnlockProtection.fgServiceEnabled) }
+
+                Column {
                     SwitchCard(
                         text = stringResource(R.string.enable),
                         checked = mainSwitch,
@@ -463,8 +480,6 @@ fun ApplockerScreen() {
                         },
                         divider = true
                     )
-
-                    var afsSwitch by remember { mutableStateOf(Settings.UnlockProtection.fgServiceEnabled) }
 
                     SwitchListItem(
                         headline = stringResource(R.string.afs),
