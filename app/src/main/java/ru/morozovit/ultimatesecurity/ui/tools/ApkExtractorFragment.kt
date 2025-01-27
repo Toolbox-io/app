@@ -1,116 +1,295 @@
 package ru.morozovit.ultimatesecurity.ui.tools
 
-import android.content.res.Configuration
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager.GET_ACTIVITIES
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.isTraversalGroup
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.traversalIndex
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.drawable.toBitmap
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.launch
+import ru.morozovit.android.invoke
+import ru.morozovit.android.ui.ListItem
+import ru.morozovit.ultimatesecurity.R
+import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
-fun APKExtractorScreen() {
+fun APKExtractorScreen(actions: @Composable RowScope.() -> Unit, navigation: @Composable () -> Unit) {
     // TODO implement
     WindowInsetsHandler {
-        Column {
-            val textFieldState = rememberTextFieldState()
-            var expanded by rememberSaveable { mutableStateOf(false) }
+        with (LocalContext()) {
+            val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+            val coroutineScope = rememberCoroutineScope()
+            val navController = rememberNavController()
 
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .semantics { isTraversalGroup = true }) {
-                SearchBar(
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .semantics { traversalIndex = 0f },
-                    inputField = {
-                        SearchBarDefaults.InputField(
-                            onSearch = { expanded = false },
-                            expanded = expanded,
-                            onExpandedChange = { expanded = it },
-                            placeholder = { Text("Hinted search text") },
-                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                            trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
-                            onQueryChange = {},
-                            query = "",
-                            enabled = true
+            val apps = remember { mutableStateListOf<PackageInfo>() }
+            var searchInputState by remember { mutableStateOf("") }
+
+            fun LazyListScope.apps(list: List<PackageInfo>, container: Boolean = false) {
+                items(list.size) {
+                    var appName by remember { mutableStateOf("") }
+                    var appPackage: String? by remember { mutableStateOf("") }
+                    var appIcon: ImageBitmap? by remember { mutableStateOf(null) }
+
+                    var compose by remember { mutableStateOf(true) }
+
+                    LaunchedEffect(list[it]) {
+                        coroutineScope.launch {
+                            val info = list[it].applicationInfo
+                            if (info != null) {
+                                appName = info.loadLabel(packageManager).toString()
+                                appPackage = if (appName != list[it].packageName) {
+                                    list[it].packageName
+                                } else {
+                                    null
+                                }
+                                appIcon = info.loadIcon(packageManager).toBitmap().asImageBitmap()
+                            } else {
+                                compose = false
+                            }
+                        }
+                    }
+
+                    if (compose) {
+                        ListItem(
+                            headline = appName,
+                            supportingText = appPackage,
+                            divider = !container,
+                            leadingContent = {
+                                if (appIcon != null) {
+                                    Image(
+                                        bitmap = appIcon!!,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(56.dp)
+                                            .clip(RoundedCornerShape(30.dp))
+                                    )
+                                }
+                            },
+                            onClick = {
+                                // TODO app info
+                            }
                         )
-                    },
-                    expanded = expanded,
-                    onExpandedChange = { expanded = it },
-                ) {
-                    Column(Modifier.verticalScroll(rememberScrollState())) {
-                        repeat(4) { idx ->
-                            val resultText = "Suggestion $idx"
-                            ListItem(
-                                headlineContent = { Text(resultText) },
-                                supportingContent = { Text("Additional info") },
-                                leadingContent = { Icon(Icons.Filled.Star, contentDescription = null) },
-                                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                                modifier =
-                                Modifier
-                                    .clickable {
-                                        textFieldState.setTextAndPlaceCursorAtEnd(resultText)
-                                        expanded = false
+                    }
+                }
+            }
+
+            LaunchedEffect(Unit) {
+                coroutineScope.launch {
+                    val appsList = packageManager.getInstalledPackages(GET_ACTIVITIES).toMutableList()
+
+                    val sorted = appsList.sortedBy {
+                        it.applicationInfo?.loadLabel(packageManager).toString()
+                    }
+
+                    apps.addAll(sorted)
+
+                    val toRemove = mutableListOf<PackageInfo>()
+
+                    apps.forEach { app ->
+                        if (app.activities.let { it.isNullOrEmpty() }) {
+                            toRemove += app
+                        }
+                    }
+
+                    toRemove.forEach {
+                        apps.remove(it)
+                    }
+                }
+            }
+
+            val focusRequester = remember { FocusRequester() }
+
+            NavHost(
+                navController = navController,
+                startDestination = "main"
+            ) {
+                composable("main") {
+                    Scaffold(
+                        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                        topBar = {
+                            TopAppBar(
+                                title = {
+                                    Text(
+                                        stringResource(R.string.apkextractor),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                },
+                                navigationIcon = navigation,
+                                actions = {
+                                    IconButton(
+                                        onClick = {
+                                            navController.navigate("search")
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Search,
+                                            contentDescription = stringResource(R.string.search)
+                                        )
                                     }
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                                    actions()
+                                },
+                                scrollBehavior = scrollBehavior
                             )
+                        }
+                    ) { innerPadding ->
+                        LazyColumn(
+                            contentPadding = innerPadding
+                        ) {
+                            apps(apps)
                         }
                     }
                 }
 
-                LazyColumn(
-                    contentPadding = PaddingValues(start = 16.dp, top = 72.dp, end = 16.dp, bottom = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.semantics { traversalIndex = 1f },
-                ) {
-                    val list = List(100) { "Text $it" }
-                    items(count = list.size) {
-                        Text(
-                            text = list[it],
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                        )
+                composable("search") {
+                    Scaffold(
+                        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                        topBar = {
+                            TopAppBar(
+                                title = {
+                                    BasicTextField(
+                                        value = searchInputState,
+                                        onValueChange = { searchInputState = it },
+                                        textStyle = MaterialTheme.typography.titleMedium.copy(
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                        ),
+                                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                                        modifier = Modifier.focusRequester(focusRequester),
+                                        maxLines = 1,
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(
+                                            autoCorrectEnabled = true,
+                                            keyboardType = KeyboardType.Text,
+                                            imeAction = ImeAction.Search
+                                        )
+                                    )
+
+                                    LaunchedEffect(Unit) {
+                                        focusRequester.requestFocus()
+                                    }
+                                },
+                                navigationIcon = {
+                                    IconButton(
+                                        onClick = {
+                                            navController.navigateUp()
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Close,
+                                            contentDescription = null
+                                        )
+                                    }
+                                },
+                                colors = TopAppBarDefaults.topAppBarColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                )
+                            )
+                        }
+                    ) { innerPadding ->
+                        Surface(
+                            color = MaterialTheme.colorScheme.surfaceContainer,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            LazyColumn(
+                                contentPadding = innerPadding
+                            ) {
+                                apps(
+                                    list = if (searchInputState == "")
+                                        mutableListOf()
+                                    else {
+                                        val words = searchInputState.split(" ")
+                                        apps.filter {
+                                            val result1 = run {
+                                                var matches = 0
+                                                val filt = it
+                                                    .applicationInfo
+                                                    ?.loadLabel(packageManager)
+                                                    .toString()
+                                                words.forEach { word ->
+                                                    if (
+                                                        filt.contains(
+                                                            other = word,
+                                                            ignoreCase = true
+                                                        )
+                                                    ) matches++
+                                                }
+                                                return@run matches > words.size * 0.5
+                                            }
+                                            val result2 = run {
+                                                var matches = 0
+                                                val filt = it.packageName
+                                                words.forEach { word ->
+                                                    if (
+                                                        filt.contains(
+                                                            other = word,
+                                                            ignoreCase = true
+                                                        )
+                                                    ) matches++
+                                                }
+                                                return@run matches > words.size * 0.5
+                                            }
+                                            result1 || result2
+                                        }
+                                    },
+                                    container = true
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+@PhonePreview
+private fun APKExtractorScreenPreview() {
+    APKExtractorScreen(actions = {}, navigation = {})
 }

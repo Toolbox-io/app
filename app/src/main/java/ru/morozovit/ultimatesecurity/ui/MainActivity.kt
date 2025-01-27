@@ -1,6 +1,7 @@
 package ru.morozovit.ultimatesecurity.ui
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
@@ -9,8 +10,10 @@ import android.util.Log
 import android.view.ViewTreeObserver
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -53,8 +56,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -66,6 +71,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
@@ -213,6 +219,7 @@ class MainActivity : BaseActivity(
         @Serializable data object APKExtractor: Screen(APK_EXTRACTOR, R.string.apkextractor, Icons.Filled.Android)
     }
 
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     @PhonePreview
@@ -328,80 +335,101 @@ class MainActivity : BaseActivity(
             }
 
             val content = @Composable {
+                val navigation = @Composable {
+                    if (!isScreenBig) {
+                        IconButton(
+                            onClick = {
+                                scope.launch {
+                                    drawerState.open()
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Menu,
+                                contentDescription = stringResource(R.string.menu)
+                            )
+                        }
+                    }
+                }
+
+                val actions: @Composable RowScope.() -> Unit = {
+                    if (isLockVisible) {
+                        IconButton(
+                            onClick = {
+                                authenticated = false
+                                auth()
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Lock,
+                                contentDescription = "Localized description"
+                            )
+                        }
+                    }
+                }
+
+                val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+
+                val bar = @Composable {
+                    TopAppBar(
+                        title = {
+                            val titleRes = Screen[selectedItem]?.displayName
+                            val title = if (titleRes != null) {
+                                stringResource(titleRes)
+                            } else {
+                                ""
+                            }
+                            Text(
+                                text = title,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        navigationIcon = navigation,
+                        actions = actions,
+                        modifier = Modifier
+                            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Right)),
+                        scrollBehavior = scrollBehavior
+                    )
+                }
+
+                val EdgeToEdgeBar = @Composable { content: @Composable () -> Unit ->
+                    Scaffold(
+                        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                        topBar = bar
+                    ) {
+                        Box(
+                            modifier = Modifier.padding(it)
+                        ) {
+                            content()
+                        }
+                    }
+                }
+
                 Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = {
-                                val titleRes = Screen[selectedItem]?.displayName
-                                val title = if (titleRes != null) {
-                                    stringResource(titleRes)
-                                } else {
-                                    ""
-                                }
-                                Text(
-                                    text = title,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            },
-                            navigationIcon = {
-                                if (!isScreenBig) {
-                                    IconButton(
-                                        onClick = {
-                                            scope.launch {
-                                                drawerState.open()
-                                            }
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Menu,
-                                            contentDescription = stringResource(R.string.menu)
-                                        )
-                                    }
-                                }
-                            },
-                            actions = {
-                                if (isLockVisible) {
-                                    IconButton(
-                                        onClick = {
-                                            authenticated = false
-                                            auth()
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Lock,
-                                            contentDescription = "Localized description"
-                                        )
-                                    }
-                                }
-                            },
-                            modifier = Modifier
-                                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Right))
-                        )
-                    },
                     snackbarHost = {
                         SnackbarHost(hostState = snackbarHostState)
-                    }
-                ) { innerPadding ->
+                    },
+                    contentWindowInsets = WindowInsets(0, 0, 0, 0)
+                ) {
                     val start by remember { mutableStateOf(selectedItem) }
                     NavHost(
                         navController = navController,
                         startDestination = start,
                         modifier = Modifier
-                            .padding(innerPadding)
                             .consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Left))
                     ) {
-                        composable(route = HOME) { HomeScreen() }
-                        composable(route = SETTINGS) { SettingsScreen() }
-                        composable(route = ABOUT) { AboutScreen() }
+                        composable(route = HOME) { HomeScreen(EdgeToEdgeBar) }
+                        composable(route = SETTINGS) { SettingsScreen(EdgeToEdgeBar) }
+                        composable(route = ABOUT) { AboutScreen(EdgeToEdgeBar) }
 
-                        composable(route = APP_LOCKER) { ApplockerScreen() }
-                        composable(route = UNLOCK_PROTECTION) { UnlockProtectionScreen() }
+                        composable(route = APP_LOCKER) { ApplockerScreen(bar, scrollBehavior) }
+                        composable(route = UNLOCK_PROTECTION) { UnlockProtectionScreen(EdgeToEdgeBar) }
 
-                        composable(route = TILES) { TilesScreen() }
-                        composable(route = SHORTCUTS) { ShortcutsScreen() }
+                        composable(route = TILES) { TilesScreen(EdgeToEdgeBar) }
+                        composable(route = SHORTCUTS) { ShortcutsScreen(EdgeToEdgeBar) }
 
-                        composable(route = APK_EXTRACTOR) { APKExtractorScreen() }
+                        composable(route = APK_EXTRACTOR) { APKExtractorScreen(actions, navigation) }
                     }
                 }
 
@@ -436,7 +464,15 @@ class MainActivity : BaseActivity(
                             drawerContainerColor = MaterialTheme.colorScheme.surfaceContainer,
                             content = drawerContent,
                             drawerShape = RoundedCornerShape(0.dp, 20.dp, 20.dp, 0.dp),
-                            modifier = Modifier.widthIn(max = 360.dp)
+                            modifier = Modifier.widthIn(
+                                max =
+                                    (
+                                        if (360 > LocalConfiguration().screenWidthDp * 0.5)
+                                            300
+                                        else
+                                            360
+                                    ).dp
+                            )
                         )
                     },
                     content = content

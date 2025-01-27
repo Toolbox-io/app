@@ -51,7 +51,6 @@ import ru.morozovit.ultimatesecurity.Settings.materialYouEnabled
 import ru.morozovit.ultimatesecurity.services.DeviceAdmin
 import ru.morozovit.ultimatesecurity.ui.AuthActivity
 import ru.morozovit.ultimatesecurity.ui.MainActivity
-import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import ru.morozovit.ultimatesecurity.ui.Theme
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 import ru.morozovit.ultimatesecurity.ui.dynamicThemeEnabled
@@ -59,8 +58,7 @@ import ru.morozovit.ultimatesecurity.ui.theme
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-@PhonePreview
-fun SettingsScreen() {
+fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) {
     val (valueOrFalse, runOrNoop) = previewUtils()
 
     val c = LocalContext()
@@ -236,106 +234,108 @@ fun SettingsScreen() {
 
     // Main content
     WindowInsetsHandler {
-        Column(Modifier.verticalScroll(rememberScrollState())) {
-            // Device admin
-            SwitchListItem(
-                headline = stringResource(R.string.devadmin),
-                supportingText = stringResource(R.string.devadmin_d),
-                checked = devAdmSwitch,
-                onCheckedChange = devAdmOnCheckedChanged,
-                divider = true
-            )
+        EdgeToEdgeBar {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                // Device admin
+                SwitchListItem(
+                    headline = stringResource(R.string.devadmin),
+                    supportingText = stringResource(R.string.devadmin_d),
+                    checked = devAdmSwitch,
+                    onCheckedChange = devAdmOnCheckedChanged,
+                    divider = true
+                )
 
-            // Delete app
-            ListItem(
-                headline = stringResource(R.string.delete),
-                supportingText = stringResource(R.string.delete_d),
-                onClick = {
-                    deleteAppDialogOpen = true
-                },
-                divider = true
-            )
+                // Delete app
+                ListItem(
+                    headline = stringResource(R.string.delete),
+                    supportingText = stringResource(R.string.delete_d),
+                    onClick = {
+                        deleteAppDialogOpen = true
+                    },
+                    divider = true
+                )
 
-            // Password lock
-            SeparatedSwitchListItem(
-                headline = stringResource(R.string.lockapp),
-                supportingText = stringResource(R.string.lockapp_d),
-                checked = passwordSwitch,
-                onCheckedChange = passwordOnCheckedChanged,
-                bodyOnClick = ::setPassword,
-                divider = true
-            )
+                // Password lock
+                SeparatedSwitchListItem(
+                    headline = stringResource(R.string.lockapp),
+                    supportingText = stringResource(R.string.lockapp_d),
+                    checked = passwordSwitch,
+                    onCheckedChange = passwordOnCheckedChanged,
+                    bodyOnClick = ::setPassword,
+                    divider = true
+                )
 
-            // Allow biometric
-            SwitchListItem(
-                headline = stringResource(R.string.allow_biometric),
-                supportingText = stringResource(R.string.allow_biometric_d),
-                checked = allowBiometricSwitch,
-                onCheckedChange = allowBiometricSwitchOnCheckedChanged,
-                divider = true
-            )
+                // Allow biometric
+                SwitchListItem(
+                    headline = stringResource(R.string.allow_biometric),
+                    supportingText = stringResource(R.string.allow_biometric_d),
+                    checked = allowBiometricSwitch,
+                    onCheckedChange = allowBiometricSwitchOnCheckedChanged,
+                    divider = true
+                )
 
-            // Don't show in recents
-            SwitchListItem(
-                headline = stringResource(R.string.dont_show_in_recents),
-                supportingText = stringResource(R.string.dont_show_in_recents_d),
-                checked = dontShowInRecentsSwitch,
-                onCheckedChange = dontShowInRecentsOnCheckedChanged,
-                divider = true
-            )
+                // Don't show in recents
+                SwitchListItem(
+                    headline = stringResource(R.string.dont_show_in_recents),
+                    supportingText = stringResource(R.string.dont_show_in_recents_d),
+                    checked = dontShowInRecentsSwitch,
+                    onCheckedChange = dontShowInRecentsOnCheckedChanged,
+                    divider = true
+                )
 
-            // Material You
-            SwitchListItem(
-                headline = stringResource(R.string.materialYou),
-                supportingText = stringResource(R.string.materialYou_d),
-                enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
-                checked = materialYouSwitch,
-                onCheckedChange = materialYouOnCheckedChanged,
-                divider = true
-            )
+                // Material You
+                SwitchListItem(
+                    headline = stringResource(R.string.materialYou),
+                    supportingText = stringResource(R.string.materialYou_d),
+                    enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+                    checked = materialYouSwitch,
+                    onCheckedChange = materialYouOnCheckedChanged,
+                    divider = true
+                )
 
-            // Theme
-            ListItem(
-                headline = stringResource(R.string.theme),
-                divider = true,
-                bottomContent = {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        var selectedIndex by remember { mutableIntStateOf(appTheme.ordinal) }
-                        val options = listOf(
-                            stringResource(R.string.as_system),
-                            stringResource(R.string.light),
-                            stringResource(R.string.dark)
-                        )
-                        options.forEachIndexed { index, label ->
-                            FilterChip(
-                                onClick = {
-                                    selectedIndex = index
-                                    appTheme = Theme.entries[index]
-                                    theme = Theme.entries[index]
-                                    context.configureTheme()
-                                },
-                                selected = index == selectedIndex,
-                                leadingIcon = {
-                                    if (index == 0) {
-                                        Spacer(Modifier.width(16.dp))
-                                    }
-                                    when (index) {
-                                        0 -> Icon(Icons.Filled.Settings, null)
-                                        1 -> Icon(Icons.Filled.LightMode, null)
-                                        2 -> Icon(Icons.Filled.DarkMode, null)
-                                    }
-                                },
-                                label = {
-                                    Text(
-                                        text = label,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                }
+                // Theme
+                ListItem(
+                    headline = stringResource(R.string.theme),
+                    divider = true,
+                    bottomContent = {
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            var selectedIndex by remember { mutableIntStateOf(appTheme.ordinal) }
+                            val options = listOf(
+                                stringResource(R.string.as_system),
+                                stringResource(R.string.light),
+                                stringResource(R.string.dark)
                             )
+                            options.forEachIndexed { index, label ->
+                                FilterChip(
+                                    onClick = {
+                                        selectedIndex = index
+                                        appTheme = Theme.entries[index]
+                                        theme = Theme.entries[index]
+                                        context.configureTheme()
+                                    },
+                                    selected = index == selectedIndex,
+                                    leadingIcon = {
+                                        if (index == 0) {
+                                            Spacer(Modifier.width(16.dp))
+                                        }
+                                        when (index) {
+                                            0 -> Icon(Icons.Filled.Settings, null)
+                                            1 -> Icon(Icons.Filled.LightMode, null)
+                                            2 -> Icon(Icons.Filled.DarkMode, null)
+                                        }
+                                    },
+                                    label = {
+                                        Text(
+                                            text = label,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                )
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }

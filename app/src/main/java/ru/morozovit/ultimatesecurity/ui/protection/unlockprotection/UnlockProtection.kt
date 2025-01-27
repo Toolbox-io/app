@@ -37,156 +37,158 @@ import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.enabled
 import ru.morozovit.ultimatesecurity.services.DeviceAdmin
 import ru.morozovit.ultimatesecurity.ui.MainActivity
-import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 
 @Composable
-@PhonePreview
-fun UnlockProtectionScreen() {
+fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) {
     WindowInsetsHandler {
-        Column(Modifier.verticalScroll(rememberScrollState())) {
-            val (valueOrFalse, runOrNoop, isPreview) = previewUtils()
-            val context = LocalContext() as MainActivity
-            val activityLauncher = context.activityLauncher
-            val dpm =
-                if (isPreview)
-                    null
-                else
-                    context
-                        .getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-            val admComponent =
-                if (isPreview)
-                    null
-                else
-                    ComponentName(context, DeviceAdmin::class.java)
-            runOrNoop {
-                if (!dpm!!.isAdminActive(admComponent!!)) enabled = false
-            }
-            val coroutineScope = rememberCoroutineScope()
-
-            var mainSwitch by remember {
-                mutableStateOf(
-                    valueOrFalse {
-                        if (!dpm!!.isAdminActive(admComponent!!))
-                            false
-                        else
-                            enabled
-                    }
-                )
-            }
-
-            var permissionDialogOpen by remember { mutableStateOf(false) }
-            fun permissionDialogOnDismiss() {
-                permissionDialogOpen = false
-            }
-            SimpleAlertDialog(
-                open = permissionDialogOpen,
-                onDismissRequest = ::permissionDialogOnDismiss,
-                title = stringResource(R.string.permissions_required),
-                body = stringResource(R.string.up_permissions),
-                positiveButtonText = stringResource(R.string.ok),
-                onPositiveButtonClick = {
-                    val intent =
-                        Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
-                            putExtra(
-                                DevicePolicyManager.EXTRA_DEVICE_ADMIN,
-                                admComponent
-                            )
-                            putExtra(
-                                DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-                                context.resources.getString(R.string.devadmin_ed)
-                            )
-                        }
-                    activityLauncher.launch(intent) { result ->
-                        mainSwitch = result.resultCode == RESULT_OK
-                        enabled = result.resultCode == RESULT_OK
-                    }
-                },
-                negativeButtonText = stringResource(R.string.cancel),
-                onNegativeButtonClick = ::permissionDialogOnDismiss
-            )
-
-            val mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@ {
-                if (!isPreview) {
-                    if (it) {
-                        if (dpm!!.isAdminActive(admComponent!!)) {
-                            enabled = true
-                            mainSwitch = true
-                            return@sw
-                        }
-                        permissionDialogOpen = true
-                        return@sw
-                    } else {
-                        enabled = false
-                    }
+        EdgeToEdgeBar {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                val (valueOrFalse, runOrNoop, isPreview) = previewUtils()
+                val context = LocalContext() as MainActivity
+                val activityLauncher = context.activityLauncher
+                val dpm =
+                    if (isPreview)
+                        null
+                    else
+                        context
+                            .getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+                val admComponent =
+                    if (isPreview)
+                        null
+                    else
+                        ComponentName(context, DeviceAdmin::class.java)
+                runOrNoop {
+                    if (!dpm!!.isAdminActive(admComponent!!)) enabled = false
                 }
-                mainSwitch = it
-            }
+                val coroutineScope = rememberCoroutineScope()
 
-            SwitchCard(
-                text = stringResource(R.string.enable),
-                checked = mainSwitch,
-                onCheckedChange = mainSwitchOnCheckedChange
-            )
-            HorizontalDivider()
+                var mainSwitch by remember {
+                    mutableStateOf(
+                        valueOrFalse {
+                            if (!dpm!!.isAdminActive(admComponent!!))
+                                false
+                            else
+                                enabled
+                        }
+                    )
+                }
 
-            var unlockAttempts by rememberSaveable {
-                mutableStateOf("${
-                    if (isPreview) 
-                        0 
-                    else 
-                        Settings.UnlockProtection.unlockAttempts
-                }")
-            }
-            var isError by remember { mutableStateOf(false) }
-            fun validate() {
-                isError = runCatching { unlockAttempts.toInt() }.isSuccess
-            }
-            LaunchedEffect(Unit) {
-                validate()
-            }
-
-            ListItem(
-                headline = stringResource(R.string.unlock_attempts),
-                supportingText = stringResource(R.string.unlock_attempts_d),
-                divider = true,
-                onClick = {}
-            ) {
-                TextField(
-                    value = unlockAttempts,
-                    onValueChange = {
-                        unlockAttempts = it
-                        validate()
-                        coroutineScope.launch {
-                            runCatching {
-                                Settings.UnlockProtection.unlockAttempts = unlockAttempts.toInt()
+                var permissionDialogOpen by remember { mutableStateOf(false) }
+                fun permissionDialogOnDismiss() {
+                    permissionDialogOpen = false
+                }
+                SimpleAlertDialog(
+                    open = permissionDialogOpen,
+                    onDismissRequest = ::permissionDialogOnDismiss,
+                    title = stringResource(R.string.permissions_required),
+                    body = stringResource(R.string.up_permissions),
+                    positiveButtonText = stringResource(R.string.ok),
+                    onPositiveButtonClick = {
+                        val intent =
+                            Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
+                                putExtra(
+                                    DevicePolicyManager.EXTRA_DEVICE_ADMIN,
+                                    admComponent
+                                )
+                                putExtra(
+                                    DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                                    context.resources.getString(R.string.devadmin_ed)
+                                )
                             }
+                        activityLauncher.launch(intent) { result ->
+                            mainSwitch = result.resultCode == RESULT_OK
+                            enabled = result.resultCode == RESULT_OK
                         }
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clearFocusOnKeyboardDismiss(),
-                    label = {
-                        Text(stringResource(R.string.attempts))
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                    negativeButtonText = stringResource(R.string.cancel),
+                    onNegativeButtonClick = ::permissionDialogOnDismiss
+                )
+
+                val mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@{
+                    if (!isPreview) {
+                        if (it) {
+                            if (dpm!!.isAdminActive(admComponent!!)) {
+                                enabled = true
+                                mainSwitch = true
+                                return@sw
+                            }
+                            permissionDialogOpen = true
+                            return@sw
+                        } else {
+                            enabled = false
+                        }
+                    }
+                    mainSwitch = it
+                }
+
+                SwitchCard(
+                    text = stringResource(R.string.enable),
+                    checked = mainSwitch,
+                    onCheckedChange = mainSwitchOnCheckedChange
+                )
+                HorizontalDivider()
+
+                var unlockAttempts by rememberSaveable {
+                    mutableStateOf(
+                        "${
+                            if (isPreview)
+                                0
+                            else
+                                Settings.UnlockProtection.unlockAttempts
+                        }"
+                    )
+                }
+                var isError by remember { mutableStateOf(false) }
+                fun validate() {
+                    isError = runCatching { unlockAttempts.toInt() }.isSuccess
+                }
+                LaunchedEffect(Unit) {
+                    validate()
+                }
+
+                ListItem(
+                    headline = stringResource(R.string.unlock_attempts),
+                    supportingText = stringResource(R.string.unlock_attempts_d),
+                    divider = true,
+                    onClick = {}
+                ) {
+                    TextField(
+                        value = unlockAttempts,
+                        onValueChange = {
+                            unlockAttempts = it
+                            validate()
+                            coroutineScope.launch {
+                                runCatching {
+                                    Settings.UnlockProtection.unlockAttempts = unlockAttempts.toInt()
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clearFocusOnKeyboardDismiss(),
+                        label = {
+                            Text(stringResource(R.string.attempts))
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                    )
+                }
+                ListItem(
+                    headline = stringResource(R.string.actions),
+                    supportingText = stringResource(R.string.actions_d),
+                    divider = true,
+                    onClick = {
+                        runOrNoop {
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    ActionsActivity::class.java
+                                )
+                            )
+                        }
+                    }
                 )
             }
-            ListItem(
-                headline = stringResource(R.string.actions),
-                supportingText = stringResource(R.string.actions_d),
-                divider = true,
-                onClick = {
-                    runOrNoop {
-                        context.startActivity(
-                            Intent(
-                                context,
-                                ActionsActivity::class.java
-                            )
-                        )
-                    }
-                }
-            )
         }
     }
 }

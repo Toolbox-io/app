@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
@@ -27,74 +29,76 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import ru.morozovit.android.ui.Mipmap
-import ru.morozovit.android.ui.TextButton
 import ru.morozovit.android.getSystemService
 import ru.morozovit.android.invoke
+import ru.morozovit.android.ui.Mipmap
+import ru.morozovit.android.ui.TextButton
 import ru.morozovit.ultimatesecurity.R
-import ru.morozovit.ultimatesecurity.ui.AppTheme
-import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 
 private const val FILES_SHORTCUT = "files-shortcut"
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-@PhonePreview
-fun ShortcutsScreen() {
-    AppTheme {
-        WindowInsetsHandler {
+fun ShortcutsScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) {
+    WindowInsetsHandler {
+        EdgeToEdgeBar {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val context = LocalContext()
 
-                FlowRow(Modifier.padding(10.dp)) {
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainer
-                        )
+                Box(Modifier.verticalScroll(rememberScrollState())) {
+                    FlowRow(
+                        Modifier
+                            .padding(10.dp)
                     ) {
-                        Column(
-                            modifier = Modifier.padding(10.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainer
+                            )
                         ) {
-                            Box(Modifier.padding(bottom = 5.dp)) {
-                                Mipmap(
-                                    id = R.mipmap.files_icon,
-                                    contentDescription = stringResource(R.string.files),
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(50))
-                                        .size(60.dp)
-                                )
-                            }
-                            Text(stringResource(R.string.files))
-
-                            TextButton(
-                                onClick = {
-                                    val shortcutManager = context.getSystemService(ShortcutManager::class)!!
-                                    if (shortcutManager.isRequestPinShortcutSupported) {
-                                        val shortcutInfo = ShortcutInfo.Builder(
-                                            context, FILES_SHORTCUT
-                                        )
-                                            .setShortLabel(context.resources.getString(R.string.files))
-                                            .setLongLabel(context.resources.getString(R.string.files))
-                                            .setIcon(android.graphics.drawable.Icon.createWithResource(context, R.mipmap.files_icon))
-                                            .setIntent(
-                                                Intent(context, FilesShortcut::class.java).apply {
-                                                    action = ACTION_MAIN
-                                                }
-                                            )
-                                            .build()
-                                        shortcutManager.requestPinShortcut(shortcutInfo, null)
-                                    }
-                                },
-                                icon = {
-                                    Icon(
-                                        imageVector = Icons.Filled.Add,
-                                        contentDescription = stringResource(R.string.add)
+                            Column(
+                                modifier = Modifier.padding(10.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Box(Modifier.padding(bottom = 5.dp)) {
+                                    Mipmap(
+                                        id = R.mipmap.files_icon,
+                                        contentDescription = stringResource(R.string.files),
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(50))
+                                            .size(60.dp)
                                     )
                                 }
-                            ) {
-                                Text(stringResource(R.string.add))
+                                Text(stringResource(R.string.files))
+
+                                TextButton(
+                                    onClick = {
+                                        val shortcutManager = context.getSystemService(ShortcutManager::class)!!
+                                        if (shortcutManager.isRequestPinShortcutSupported) {
+                                            val shortcutInfo = ShortcutInfo.Builder(
+                                                context, FILES_SHORTCUT
+                                            )
+                                                .setShortLabel(context.resources.getString(R.string.files))
+                                                .setLongLabel(context.resources.getString(R.string.files))
+                                                .setIcon(android.graphics.drawable.Icon.createWithResource(context, R.mipmap.files_icon))
+                                                .setIntent(
+                                                    Intent(context, FilesShortcut::class.java).apply {
+                                                        action = ACTION_MAIN
+                                                    }
+                                                )
+                                                .build()
+                                            shortcutManager.requestPinShortcut(shortcutInfo, null)
+                                        }
+                                    },
+                                    icon = {
+                                        Icon(
+                                            imageVector = Icons.Filled.Add,
+                                            contentDescription = stringResource(R.string.add)
+                                        )
+                                    }
+                                ) {
+                                    Text(stringResource(R.string.add))
+                                }
                             }
                         }
                     }

@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,14 +38,12 @@ import ru.morozovit.ultimatesecurity.services.UpdateChecker.Companion.DOWNLOAD_B
 import ru.morozovit.ultimatesecurity.services.UpdateChecker.Companion.DownloadBroadcastReceiver
 import ru.morozovit.ultimatesecurity.services.UpdateChecker.Companion.checkForUpdates
 import ru.morozovit.ultimatesecurity.ui.MainActivity
-import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 
 @Composable
-@PhonePreview
-fun HomeScreen() {
+fun HomeScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) {
     WindowInsetsHandler {
-        Box {
+        EdgeToEdgeBar {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 val (valueOrFalse, runOrNoop) = previewUtils()
                 val context = LocalContext() as MainActivity
