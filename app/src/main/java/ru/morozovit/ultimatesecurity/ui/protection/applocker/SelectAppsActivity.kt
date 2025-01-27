@@ -100,7 +100,6 @@ class SelectAppsActivity: BaseActivity() {
             }
 
             var searchInputState by remember { mutableStateOf("") }
-            var search by remember { mutableStateOf(false) }
 
             onBackPressedDispatcher.addCallback(backCallback)
 
@@ -402,8 +401,7 @@ class SelectAppsActivity: BaseActivity() {
                                 navigationIcon = {
                                     IconButton(
                                         onClick = {
-                                            navController.navigate("main")
-                                            navController.popBackStack()
+                                            navController.navigateUp()
                                         }
                                     ) {
                                         Icon(
@@ -431,19 +429,36 @@ class SelectAppsActivity: BaseActivity() {
                                     else {
                                         val words = searchInputState.split(" ")
                                         apps.filter {
-                                            val filt = it
-                                                .applicationInfo
-                                                ?.loadLabel(packageManager)
-                                                .toString()
-                                            words.forEach { word ->
-                                                if (
-                                                    !filt.contains(
-                                                        other = word,
-                                                        ignoreCase = true
-                                                    )
-                                                ) return@filter false
+                                            val result1 = run {
+                                                var matches = 0
+                                                val filt = it
+                                                    .applicationInfo
+                                                    ?.loadLabel(packageManager)
+                                                    .toString()
+                                                words.forEach { word ->
+                                                    if (
+                                                        filt.contains(
+                                                            other = word,
+                                                            ignoreCase = true
+                                                        )
+                                                    ) matches++
+                                                }
+                                                return@run matches > words.size * 0.5
                                             }
-                                            return@filter true
+                                            val result2 = run {
+                                                var matches = 0
+                                                val filt = it.packageName
+                                                words.forEach { word ->
+                                                    if (
+                                                        filt.contains(
+                                                            other = word,
+                                                            ignoreCase = true
+                                                        )
+                                                    ) matches++
+                                                }
+                                                return@run matches > words.size * 0.5
+                                            }
+                                            result1 || result2
                                         }
                                     },
                                     container = true
