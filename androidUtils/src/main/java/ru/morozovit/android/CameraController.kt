@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto
+package ru.morozovit.android
 
 import android.Manifest
 import android.content.Context
@@ -27,15 +27,11 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
-import java.lang.ref.WeakReference
 import java.util.Collections
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
-class CameraController private constructor(context: Context) {
-    private var weakReference = WeakReference(context)
-    private val context get() = weakReference.get()!!
-
+class CameraController(val context: Context) {
     private var mCameraId: String? = null
     private var mCaptureSession: CameraCaptureSession? = null
     private var mCameraDevice: CameraDevice? = null
@@ -49,7 +45,9 @@ class CameraController private constructor(context: Context) {
 
     private var shouldClose = false
     private var recursionLimit = 5
-    private var waitingForImage = false
+
+    var waitingForImage = false
+        private set
 
     private val mStateCallback: CameraDevice.StateCallback = object : CameraDevice.StateCallback() {
         override fun onOpened(cameraDevice: CameraDevice) {
@@ -82,8 +80,6 @@ class CameraController private constructor(context: Context) {
             waitingForImage = false
         }
 
-    fun getWaitingForImage() = waitingForImage
-
     fun open(): Boolean {
         if (ContextCompat.checkSelfPermission(
                 context,
@@ -112,7 +108,7 @@ class CameraController private constructor(context: Context) {
 
     private fun setUpCameraOutputs() {
         val manager =
-            weakReference.get()!!.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
             for (cameraId in manager.cameraIdList) {
                 val characteristics = manager.getCameraCharacteristics(cameraId)
@@ -299,7 +295,7 @@ class CameraController private constructor(context: Context) {
         return File("${mediaStorageDir.absolutePath}/$filename.jpg")
     }
 
-    private class ImageSaver(
+    private inner class ImageSaver(
         private val image: Image,
         private val file: File? = null,
         private val documentFile: DocumentFile? = null
@@ -314,8 +310,7 @@ class CameraController private constructor(context: Context) {
                     if (file != null)
                         FileOutputStream(file)
                     else
-                        instance!!
-                            .context
+                        context
                             .contentResolver
                             .openOutputStream(
                                 documentFile!!.uri
@@ -332,10 +327,10 @@ class CameraController private constructor(context: Context) {
                         e.printStackTrace()
                     }
                 }
-                if (instance!!.shouldClose) {
-                    instance!!.closeCamera()
+                if (shouldClose) {
+                    closeCamera()
                 }
-                instance!!.waitingForImage = false
+                waitingForImage = false
             }
         }
     }
@@ -348,15 +343,6 @@ class CameraController private constructor(context: Context) {
     }
 
     companion object {
-        private const val TAG = "CCV2WithoutPreview"
-
-        private var instance: CameraController? = null
-
-        fun getInstance(context: Context): CameraController {
-            if (instance == null) {
-                instance = CameraController(context)
-            }
-            return instance as CameraController
-        }
+        private const val TAG = "CameraController"
     }
 }

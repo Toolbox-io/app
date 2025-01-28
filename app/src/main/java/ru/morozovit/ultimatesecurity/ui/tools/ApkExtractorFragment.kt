@@ -51,6 +51,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
+import ru.morozovit.android.async
 import ru.morozovit.android.invoke
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.ultimatesecurity.R
@@ -120,7 +121,7 @@ fun APKExtractorScreen(actions: @Composable RowScope.() -> Unit, navigation: @Co
             }
 
             LaunchedEffect(Unit) {
-                coroutineScope.launch {
+                async {
                     val appsList = packageManager.getInstalledPackages(GET_ACTIVITIES).toMutableList()
 
                     val sorted = appsList.sortedBy {

@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.PhonelinkLock
 import androidx.compose.material3.DrawerValue
@@ -104,6 +105,7 @@ import ru.morozovit.ultimatesecurity.ui.AuthActivity.Companion.started
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.ABOUT
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.APK_EXTRACTOR
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.APP_LOCKER
+import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.DONT_TOUCH_MY_PHONE
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.HOME
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.SETTINGS
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.SHORTCUTS
@@ -117,6 +119,7 @@ import ru.morozovit.ultimatesecurity.ui.main.SettingsScreen
 import ru.morozovit.ultimatesecurity.ui.protection.applocker.ApplockerScreen
 import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.UnlockProtectionScreen
 import ru.morozovit.ultimatesecurity.ui.tools.APKExtractorScreen
+import ru.morozovit.ultimatesecurity.ui.tools.DontTouchMyPhoneScreen
 
 class MainActivity : BaseActivity(
     backButtonBehavior = Companion.BackButtonBehavior.DEFAULT,
@@ -181,6 +184,7 @@ class MainActivity : BaseActivity(
                 TILES -> Tiles
                 SHORTCUTS -> Shortcuts
                 APK_EXTRACTOR -> APKExtractor
+                DONT_TOUCH_MY_PHONE -> DontTouchMyPhone
                 else -> {
                     Log.e("MainActivity", "Unknown screen index: $name")
                     null
@@ -198,6 +202,7 @@ class MainActivity : BaseActivity(
             const val SHORTCUTS = "shortcuts"
 
             const val APK_EXTRACTOR = "apkExtractor"
+            const val DONT_TOUCH_MY_PHONE = "dontTouchMyPhone"
         }
 
         override fun equals(other: Any?) = other is Screen && displayName == other.displayName
@@ -217,6 +222,7 @@ class MainActivity : BaseActivity(
         @Serializable data object Shortcuts: Screen(SHORTCUTS, R.string.shortcuts, Icons.AutoMirrored.Filled.Shortcut)
 
         @Serializable data object APKExtractor: Screen(APK_EXTRACTOR, R.string.apkextractor, Icons.Filled.Android)
+        @Serializable data object DontTouchMyPhone: Screen(DONT_TOUCH_MY_PHONE, R.string.dont_touch_my_phone, Icons.Filled.Phone)
     }
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -303,7 +309,8 @@ class MainActivity : BaseActivity(
                         Screen.Tiles,
                         Screen.Shortcuts,
                         Screen.Label(R.string.tools),
-                        Screen.APKExtractor
+                        Screen.APKExtractor,
+                        Screen.DontTouchMyPhone
                     )
                     items.forEach { item ->
                         when (item) {
@@ -430,6 +437,7 @@ class MainActivity : BaseActivity(
                         composable(route = SHORTCUTS) { ShortcutsScreen(EdgeToEdgeBar) }
 
                         composable(route = APK_EXTRACTOR) { APKExtractorScreen(actions, navigation) }
+                        composable(route = DONT_TOUCH_MY_PHONE) { DontTouchMyPhoneScreen(EdgeToEdgeBar) }
                     }
                 }
 

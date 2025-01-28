@@ -200,4 +200,6 @@
     <string name="afs_d">A foreground service that does nothing. It is not required, but recommended for stability of security features.</string>
     <string name="devadmin_ed">This permission is needed for the following features:\n- Protect this app from being removed by an intruder\n- Detect failed unlock attempts to take the required actions\n\nThis app NEVER uses this permission for anything not listed above.</string>
     <string name="search">Search</string>
+    <string name="touched">Touched!</string>
+    <string name="dont_touch_my_phone">Don\'t touch my phone</string>
 </resources>

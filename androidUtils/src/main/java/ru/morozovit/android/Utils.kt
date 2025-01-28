@@ -776,3 +776,23 @@ fun String.decrypt(password: String): String {
     val decryptedBytes = cipher.doFinal(encryptedBytes)
     return String(decryptedBytes)
 }
+
+inline fun waitUntil(timeout: Long = 0, condition: () -> Boolean): Boolean {
+    val time = System.currentTimeMillis()
+    while (!condition()) {
+        if (timeout > 0 && System.currentTimeMillis() - time > timeout) {
+            return false
+        }
+    }
+    return true
+}
+
+inline fun waitWhile(timeout: Long = 0, condition: () -> Boolean): Boolean {
+    val time = System.currentTimeMillis()
+    while (condition()) {
+        if (timeout > 0 && System.currentTimeMillis() - time > timeout) {
+            return false
+        }
+    }
+    return true
+}

@@ -13,14 +13,16 @@ import androidx.core.app.NotificationCompat.PRIORITY_LOW
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.toBitmap
+import ru.morozovit.android.CameraController
 import ru.morozovit.android.async
+import ru.morozovit.android.waitWhile
 import ru.morozovit.ultimatesecurity.App
 import ru.morozovit.ultimatesecurity.App.Companion.IP_FG_SERVICE_CHANNEL_ID
 import ru.morozovit.ultimatesecurity.App.Companion.IP_FG_SERVICE_NOTIFICATION_ID
 import ru.morozovit.ultimatesecurity.App.Companion.IP_PHOTO_TAKEN_CHANNEL_ID
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
-import ru.morozovit.ultimatesecurity.services.DeviceAdmin.Companion.intruderPhotoNotification
+import ru.morozovit.ultimatesecurity.services.DeviceAdmin.Companion.intruderPhotoNotifications
 import java.io.File
 
 class IntruderPhotoService: Service() {
@@ -40,7 +42,7 @@ class IntruderPhotoService: Service() {
             filename = name
             runCatching {
                 context.stopService(Intent(context, IntruderPhotoService::class.java))
-                instance!!.stop()
+                instance!!.stopSelf()
             }
 
             fun callback() {
@@ -65,14 +67,13 @@ class IntruderPhotoService: Service() {
         try {
             if (filename != null) {
                 Log.d("IntruderPhoto", "Filename not null")
-                CameraController.getInstance(this).apply {
+                CameraController(this).apply {
                     if (open()) {
                         Log.d("IntruderPhoto", "Camera opened successfully")
                         Thread.sleep(20)
                         takePicture(filename!!)
                         async {
-                            @Suppress("ControlFlowWithEmptyBody")
-                            while (getWaitingForImage()) {}
+                            waitWhile(2000) { waitingForImage }
                             Log.d("IntruderPhoto", "Picture taken!")
                             handler.post {
                                 try {
@@ -111,7 +112,7 @@ class IntruderPhotoService: Service() {
                                         } catch (e: Exception) {
                                             null
                                         }
-                                        intruderPhotoNotification =
+                                        intruderPhotoNotifications +=
                                             NotificationCompat.Builder(
                                                 this@IntruderPhotoService,
                                                 IP_PHOTO_TAKEN_CHANNEL_ID
@@ -129,7 +130,7 @@ class IntruderPhotoService: Service() {
                                     }
 
                                     Log.d("IntruderPhoto", "Stopping!")
-                                    stop()
+                                    stopSelf()
                                 }
                             }
                         }
@@ -139,18 +140,18 @@ class IntruderPhotoService: Service() {
                             close()
                         }
                         Log.d("IntruderPhoto", "Stopping!")
-                        stop()
+                        stopSelf()
                     }
                 }
             } else {
                 Log.e("IntruderPhoto", "Filename is null!")
                 Log.d("IntruderPhoto", "Stopping!")
-                stop()
+                stopSelf()
             }
         } catch (e: Exception) {
             Log.e("IntruderPhotoService", e.message ?: "Unknown error")
             Log.d("IntruderPhoto", "Stopping")
-            stop()
+            stopSelf()
         }
     }
 
@@ -179,13 +180,9 @@ class IntruderPhotoService: Service() {
             .build()
     }
 
-    private fun stop() {
-        stopForeground(STOP_FOREGROUND_REMOVE)
-        stopSelf()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
+        stopForeground(STOP_FOREGROUND_REMOVE)
         running = false
         instance = null
     }
