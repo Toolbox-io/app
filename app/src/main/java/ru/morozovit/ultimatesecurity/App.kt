@@ -9,7 +9,9 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.DynamicColorsOptions
+import ru.morozovit.android.NotificationIdManager
 import ru.morozovit.ultimatesecurity.Settings.materialYouEnabled
+import java.io.File
 
 
 class App : Application() {
@@ -20,6 +22,7 @@ class App : Application() {
 
         var authenticated = false
 
+        val NotificationIdManager = NotificationIdManager(1, 2, 4)
 
         // Notification channels
         const val UPDATE_CHANNEL_ID = "update"
@@ -29,7 +32,11 @@ class App : Application() {
         const val IP_FG_SERVICE_NOTIFICATION_ID = 2
 
         const val IP_PHOTO_TAKEN_CHANNEL_ID = "photo_taken"
-        const val IP_PHOTO_TAKEN_NOTIFICATION_ID = 3
+        val IP_PHOTO_TAKEN_NOTIFICATION_ID: Int get() {
+            val id = NotificationIdManager.get()
+            NotificationIdManager.reserve(id)
+            return id
+        }
 
         const val ACCESSIBILITY_CHANNEL_ID = "accessibility"
         const val ACCESSIBILITY_NOTIFICATION_ID = 4
@@ -122,6 +129,11 @@ class App : Application() {
                 importance = NotificationManager.IMPORTANCE_LOW,
                 id = ACCESSIBILITY_CHANNEL_ID
             )
+        }
+
+        // Clean up the cache
+        runCatching {
+            File(filesDir.absolutePath + "/update.apk").delete()
         }
     }
 }

@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.ui.protection.unlockprotection
+package ru.morozovit.ultimatesecurity.ui.protection
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -34,13 +34,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import kotlinx.coroutines.launch
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
-import ru.morozovit.android.ui.SeparatedSwitchListItem
 import ru.morozovit.android.previewUtils
+import ru.morozovit.android.ui.SeparatedSwitchListItem
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.ui.AppTheme
 import ru.morozovit.ultimatesecurity.ui.PhonePreview
+import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.AlarmSettingsActivity
 import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoSettingsActivity
 
 class ActionsActivity: BaseActivity() {

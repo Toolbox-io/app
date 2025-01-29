@@ -54,6 +54,7 @@ import ru.morozovit.ultimatesecurity.ui.MainActivity
 import ru.morozovit.ultimatesecurity.ui.Theme
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 import ru.morozovit.ultimatesecurity.ui.dynamicThemeEnabled
+import ru.morozovit.ultimatesecurity.ui.protection.ActionsActivity
 import ru.morozovit.ultimatesecurity.ui.theme
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -332,6 +333,21 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) 
                                     }
                                 )
                             }
+                        }
+                    }
+                )
+                ListItem(
+                    headline = stringResource(R.string.actions),
+                    supportingText = stringResource(R.string.actions_d),
+                    divider = true,
+                    onClick = {
+                        runOrNoop {
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    ActionsActivity::class.java
+                                )
+                            )
                         }
                     }
                 )

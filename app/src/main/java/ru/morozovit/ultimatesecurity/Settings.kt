@@ -2,8 +2,15 @@ package ru.morozovit.ultimatesecurity
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.AssetFileDescriptor
 import android.content.res.Resources
+import android.media.AudioAttributes
+import android.media.AudioManager
+import android.media.AudioManager.STREAM_ALARM
+import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Build
+import android.util.Log
 import ru.morozovit.android.decrypt
 import ru.morozovit.android.encrypt
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_APP_INFO
@@ -14,6 +21,8 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.NOTHING_SELEC
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
 import ru.morozovit.ultimatesecurity.services.Accessibility
 import ru.morozovit.ultimatesecurity.ui.Theme
+import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoService.Companion.takePhoto
+import java.io.IOException
 import kotlin.random.Random
 
 object Settings {
@@ -35,17 +44,6 @@ object Settings {
             init = true
         }
     }
-
-    var installPackage_dsa
-        get() = sharedPref.getBoolean("installPackage_dsa", false)
-        set(value) {
-            if (value) {
-                with(sharedPref.edit()) {
-                    putBoolean("installPackage_dsa", true)
-                    apply()
-                }
-            }
-        }
 
     var update_dsa
         get() = sharedPref.getBoolean("update_dsa", false)
@@ -103,6 +101,118 @@ object Settings {
                 apply()
             }
         }
+
+    object Actions: SettingsObj {
+        private lateinit var sharedPref: SharedPreferences
+        private var init = false
+
+        override fun init() {
+            if (!init) {
+                sharedPref =
+                    App.context.getSharedPreferences("unlockProtection.actions", Context.MODE_PRIVATE)
+                init = true
+            }
+        }
+
+        object Alarm {
+            var enabled
+                get() = sharedPref.getBoolean("alarm", false)
+                set(value) {
+                    with(sharedPref.edit()) {
+                        putBoolean("alarm", value)
+                        commit()
+                    }
+                }
+
+            var current
+                get() = sharedPref.getString("currentCustomAlarm", "")!!
+                set(value) {
+                    with(sharedPref.edit()) {
+                        putString("currentCustomAlarm", value)
+                        commit()
+                    }
+                }
+
+            var customAlarms: Set<String>
+                get() = sharedPref.getStringSet("customAlarms", setOf())!!
+                set(value) {
+                    with(sharedPref.edit()) {
+                        putStringSet("customAlarms", value)
+                        commit()
+                    }
+                }
+        }
+        object IntruderPhoto {
+            var enabled
+                get() = sharedPref.getBoolean("intruderPhoto", false)
+                set(value) {
+                    with(sharedPref.edit()) {
+                        putBoolean("intruderPhoto", value)
+                        commit()
+                    }
+                }
+
+            var nopt
+                get() = sharedPref.getBoolean("intruderPhoto.nopt", false)
+                set(value) {
+                    with(sharedPref.edit()) {
+                        putBoolean("intruderPhoto.nopt", value)
+                        commit()
+                    }
+                }
+        }
+
+        fun run(context: Context, mediaPlayer: MediaPlayer, audioManager: AudioManager) {
+            // Take the required actions
+            if (UnlockProtection.Alarm.enabled) {
+                mediaPlayer.apply {
+                    if (mediaPlayer.isPlaying) stop()
+                    reset()
+                    setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .setUsage(AudioAttributes.USAGE_ALARM)
+                            .build()
+                    )
+                    if (UnlockProtection.Alarm.current == "") {
+                        val afd: AssetFileDescriptor =
+                            App.context.assets.openFd("alarm.mp3")
+                        setDataSource(
+                            afd.fileDescriptor,
+                            afd.startOffset,
+                            afd.length
+                        )
+                    } else {
+                        try {
+                            setDataSource(App.context, Uri.parse(UnlockProtection.Alarm.current))
+                        } catch (e: IOException) {
+                            Log.w("DeviceAdmin", "Invalid custom alarm URI, falling back to default")
+                            UnlockProtection.Alarm.current = ""
+                            val afd: AssetFileDescriptor =
+                                App.context.assets.openFd("alarm.mp3")
+                            setDataSource(
+                                afd.fileDescriptor,
+                                afd.startOffset,
+                                afd.length
+                            )
+                        }
+                    }
+                    prepare()
+                    start()
+
+                    Thread {
+                        while (mediaPlayer.isPlaying) {
+                            audioManager.setStreamVolume(STREAM_ALARM, audioManager.getStreamMaxVolume(STREAM_ALARM), 0);
+                            Thread.sleep(100)
+                        }
+                    }.start()
+                }
+            }
+            if (UnlockProtection.IntruderPhoto.enabled) {
+                takePhoto(context, "${System.currentTimeMillis()}")
+            }
+        }
+    }
 
     object Keys: SettingsObj {
         private lateinit var sharedPref: SharedPreferences
@@ -304,7 +414,7 @@ object Settings {
             if (!init) {
                 sharedPref =
                     App.context.getSharedPreferences("unlockProtection", Context.MODE_PRIVATE)
-                Actions.init()
+                Settings.Actions.init()
                 init = true
             }
         }
@@ -334,70 +444,8 @@ object Settings {
                 }
             }
 
-        object Actions: SettingsObj {
-            private lateinit var sharedPref: SharedPreferences
-            private var init = false
-
-            override fun init() {
-                if (!init) {
-                    sharedPref =
-                        App.context.getSharedPreferences("unlockProtection.actions", Context.MODE_PRIVATE)
-                    init = true
-                }
-            }
-
-            object Alarm {
-                var enabled
-                    get() = sharedPref.getBoolean("alarm", false)
-                    set(value) {
-                        with(sharedPref.edit()) {
-                            putBoolean("alarm", value)
-                            commit()
-                        }
-                    }
-
-                var current
-                    get() = sharedPref.getString("currentCustomAlarm", "")!!
-                    set(value) {
-                        with(sharedPref.edit()) {
-                            putString("currentCustomAlarm", value)
-                            commit()
-                        }
-                    }
-
-                var customAlarms: Set<String>
-                    get() = sharedPref.getStringSet("customAlarms", setOf())!!
-                    set(value) {
-                        with(sharedPref.edit()) {
-                            putStringSet("customAlarms", value)
-                            commit()
-                        }
-                    }
-            }
-
-            object IntruderPhoto {
-                var enabled
-                    get() = sharedPref.getBoolean("intruderPhoto", false)
-                    set(value) {
-                        with(sharedPref.edit()) {
-                            putBoolean("intruderPhoto", value)
-                            commit()
-                        }
-                    }
-
-                var nopt
-                    get() = sharedPref.getBoolean("intruderPhoto.nopt", false)
-                    set(value) {
-                        with(sharedPref.edit()) {
-                            putBoolean("intruderPhoto.nopt", value)
-                            commit()
-                        }
-                    }
-            }
-        }
-
-        val Alarm = Actions.Alarm
-        val IntruderPhoto = Actions.IntruderPhoto
+        val Alarm = Settings.Actions.Alarm
+        val IntruderPhoto = Settings.Actions.IntruderPhoto
     }
 
     object Tiles: SettingsObj {

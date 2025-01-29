@@ -119,7 +119,7 @@ import ru.morozovit.ultimatesecurity.ui.main.SettingsScreen
 import ru.morozovit.ultimatesecurity.ui.protection.applocker.ApplockerScreen
 import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.UnlockProtectionScreen
 import ru.morozovit.ultimatesecurity.ui.tools.APKExtractorScreen
-import ru.morozovit.ultimatesecurity.ui.tools.DontTouchMyPhoneScreen
+import ru.morozovit.ultimatesecurity.ui.protection.DontTouchMyPhoneScreen
 
 class MainActivity : BaseActivity(
     backButtonBehavior = Companion.BackButtonBehavior.DEFAULT,

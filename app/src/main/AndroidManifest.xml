@@ -6,6 +6,9 @@
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
+    <uses-feature
+        android:name="android.hardware.sensor.gyroscope"
+        android:required="false" />
 
     <uses-permission android:name="android.permission.ACCESSIBILITY_SERVICE" />
     <uses-permission
@@ -66,7 +69,7 @@
             android:theme="@style/Theme.FakeCrash"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode" />
         <activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.ActionsActivity"
+            android:name="ru.morozovit.ultimatesecurity.ui.protection.ActionsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity

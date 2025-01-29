@@ -57,7 +57,7 @@
     <string name="unlock_protection">Блокировка экрана</string>
     <string name="unlock_attempts">Попытки разблокировки</string>
     <string name="unlock_attempts_d">Число неудачных попыток разблокировки, необходимое для запуска действий</string>
-    <string name="actions">Действия</string>
+    <string name="actions">Действия защиты</string>
     <string name="actions_d">Действия, которые будут выполнены при активации защиты</string>
     <string name="attempts">Попытки</string>
     <string name="up_permissions">Для работы этой функции требуется разрешение \"Администратор устройства\". Оно используется для того, чтобы обнаружить неудачные попятки разблокировки и выполнить действия</string>

@@ -70,9 +70,9 @@ import ru.morozovit.android.ui.SwitchCard
 import ru.morozovit.android.previewUtils
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
-import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.Alarm.current
-import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.Alarm.customAlarms
-import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.Actions.Alarm.enabled
+import ru.morozovit.ultimatesecurity.Settings.Actions.Alarm.current
+import ru.morozovit.ultimatesecurity.Settings.Actions.Alarm.customAlarms
+import ru.morozovit.ultimatesecurity.Settings.Actions.Alarm.enabled
 import ru.morozovit.ultimatesecurity.ui.AppTheme
 import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import java.io.File

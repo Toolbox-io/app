@@ -129,7 +129,7 @@ class IntruderPhotoSettingsActivity: BaseActivity(false) {
                 ) {
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         Column {
-                            var mainSwitch by remember { mutableStateOf(Settings.UnlockProtection.Actions.IntruderPhoto.enabled) }
+                            var mainSwitch by remember { mutableStateOf(Settings.Actions.IntruderPhoto.enabled) }
                             SwitchCard(
                                 text = stringResource(R.string.enable),
                                 checked = mainSwitch,
@@ -152,7 +152,7 @@ class IntruderPhotoSettingsActivity: BaseActivity(false) {
 
                             HorizontalDivider()
 
-                            var noptChecked by remember { mutableStateOf(Settings.UnlockProtection.Actions.IntruderPhoto.nopt) }
+                            var noptChecked by remember { mutableStateOf(Settings.Actions.IntruderPhoto.nopt) }
                             SwitchListItem(
                                 headline = stringResource(R.string.notify_on_photo_taken),
                                 supportingText = stringResource(R.string.nopt_d),

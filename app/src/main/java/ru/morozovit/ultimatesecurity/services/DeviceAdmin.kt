@@ -6,21 +6,14 @@ import android.app.admin.DeviceAdminReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.AssetFileDescriptor
-import android.media.AudioAttributes
 import android.media.AudioManager
-import android.media.AudioManager.STREAM_ALARM
 import android.media.MediaPlayer
-import android.net.Uri
 import android.os.UserHandle
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import ru.morozovit.ultimatesecurity.App
 import ru.morozovit.ultimatesecurity.App.Companion.IP_PHOTO_TAKEN_NOTIFICATION_ID
 import ru.morozovit.ultimatesecurity.Settings
-import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoService.Companion.takePhoto
-import java.io.IOException
 
 
 class DeviceAdmin: DeviceAdminReceiver() {
@@ -31,10 +24,15 @@ class DeviceAdmin: DeviceAdminReceiver() {
             set(value) {
                 if (value >= 0) field = value
             }
-        private val mediaPlayer = MediaPlayer()
-        lateinit var audioManager: AudioManager
+
+
 
         val intruderPhotoNotifications = mutableListOf<Notification>()
+    }
+
+    private val mediaPlayer = MediaPlayer()
+    private val audioManager by lazy {
+        App.context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
 
     override fun onEnabled(context: Context, intent: Intent) {
@@ -44,58 +42,10 @@ class DeviceAdmin: DeviceAdminReceiver() {
 
     override fun onPasswordFailed(context: Context, intent: Intent, user: UserHandle) {
         super.onPasswordFailed(context, intent, user)
-        audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         if (Settings.UnlockProtection.enabled) {
             attemptsCounter++
             if (attemptsCounter >= Settings.UnlockProtection.unlockAttempts) {
-                // Take the required actions
-                if (Settings.UnlockProtection.Alarm.enabled) {
-                    mediaPlayer.apply {
-                        if (mediaPlayer.isPlaying) stop()
-                        reset()
-                        setAudioAttributes(
-                            AudioAttributes.Builder()
-                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                                .setUsage(AudioAttributes.USAGE_ALARM)
-                                .build()
-                        )
-                        if (Settings.UnlockProtection.Alarm.current == "") {
-                            val afd: AssetFileDescriptor =
-                                App.context.assets.openFd("alarm.mp3")
-                            setDataSource(
-                                afd.fileDescriptor,
-                                afd.startOffset,
-                                afd.length
-                            )
-                        } else {
-                            try {
-                                setDataSource(App.context, Uri.parse(Settings.UnlockProtection.Alarm.current))
-                            } catch (e: IOException) {
-                                Log.w("DeviceAdmin", "Invalid custom alarm URI, falling back to default")
-                                Settings.UnlockProtection.Alarm.current = ""
-                                val afd: AssetFileDescriptor =
-                                    App.context.assets.openFd("alarm.mp3")
-                                setDataSource(
-                                    afd.fileDescriptor,
-                                    afd.startOffset,
-                                    afd.length
-                                )
-                            }
-                        }
-                        prepare()
-                        start()
-
-                        Thread {
-                            while (mediaPlayer.isPlaying) {
-                                audioManager.setStreamVolume(STREAM_ALARM, audioManager.getStreamMaxVolume(STREAM_ALARM), 0);
-                                Thread.sleep(100)
-                            }
-                        }.start()
-                    }
-                }
-                if (Settings.UnlockProtection.IntruderPhoto.enabled) {
-                    takePhoto(context, "${System.currentTimeMillis()}")
-                }
+                Settings.Actions.run(context, mediaPlayer, audioManager)
             }
         }
     }

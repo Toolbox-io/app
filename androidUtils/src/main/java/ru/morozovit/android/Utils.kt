@@ -2,6 +2,7 @@
 package ru.morozovit.android
 
 import android.app.Activity
+import android.app.KeyguardManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -9,6 +10,10 @@ import android.content.Intent.ACTION_MAIN
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.hardware.usb.UsbEndpoint
 import android.hardware.usb.UsbInterface
 import android.net.Uri
@@ -84,6 +89,8 @@ import javax.crypto.Cipher
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.PBEKeySpec
+import kotlin.random.Random
+import kotlin.random.nextInt
 import kotlin.reflect.KClass
 
 
@@ -795,4 +802,69 @@ inline fun waitWhile(timeout: Long = 0, condition: () -> Boolean): Boolean {
         }
     }
     return true
+}
+
+inline fun orientationSensorEventListener(crossinline callback: (Float, Float, Float) -> Unit): SensorEventListener {
+    return object: SensorEventListener {
+        private var accelerometerData: FloatArray? = null
+        private var geomagneticData: FloatArray? = null
+
+        override fun onSensorChanged(event: SensorEvent) {
+            if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) accelerometerData = event.values
+            if (event.sensor.type == Sensor.TYPE_MAGNETIC_FIELD) geomagneticData = event.values
+            if (accelerometerData != null && geomagneticData != null) {
+                val R = FloatArray(9)
+                val success = SensorManager.getRotationMatrix(
+                    R,
+                    FloatArray(9),
+                    accelerometerData,
+                    geomagneticData
+                )
+                if (success) {
+                    val orientationData = FloatArray(3)
+                    SensorManager.getOrientation(R, orientationData)
+                    callback(
+                        orientationData[0],
+                        orientationData[1],
+                        orientationData[2]
+                    )
+                }
+            }
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
+    }
+}
+
+inline fun SensorEventListener(crossinline callback: (SensorEvent) -> Unit): SensorEventListener {
+    return object: SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) {
+            callback(event)
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
+    }
+}
+
+inline val Context.isScreenLocked get() = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isKeyguardLocked
+
+class NotificationIdManager(vararg reservedIds: Int) {
+    private val reserved = reservedIds.toMutableList()
+
+    fun reserve(id: Int) {
+        reserved.add(id)
+    }
+
+    fun release(id: Int) {
+        reserved.remove(id)
+    }
+
+    fun get(): Int {
+        while (true) {
+            val random = Random.nextInt(0..Int.MAX_VALUE)
+            if (!reserved.contains(random)) {
+                return random
+            }
+        }
+    }
 }
