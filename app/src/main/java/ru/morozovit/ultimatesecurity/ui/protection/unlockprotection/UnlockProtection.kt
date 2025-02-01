@@ -7,10 +7,15 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -25,10 +30,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import ru.morozovit.android.clearFocusOnKeyboardDismiss
 import ru.morozovit.android.invoke
 import ru.morozovit.android.previewUtils
+import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SimpleAlertDialog
 import ru.morozovit.android.ui.SwitchCard
@@ -126,9 +133,9 @@ fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -
                 SwitchCard(
                     text = stringResource(R.string.enable),
                     checked = mainSwitch,
-                    onCheckedChange = mainSwitchOnCheckedChange
+                    onCheckedChange = mainSwitchOnCheckedChange,
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
-                HorizontalDivider()
 
                 var unlockAttempts by rememberSaveable {
                     mutableStateOf(
@@ -148,47 +155,62 @@ fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -
                     validate()
                 }
 
-                ListItem(
-                    headline = stringResource(R.string.unlock_attempts),
-                    supportingText = stringResource(R.string.unlock_attempts_d),
-                    divider = true,
-                    onClick = {}
-                ) {
-                    TextField(
-                        value = unlockAttempts,
-                        onValueChange = {
-                            unlockAttempts = it
-                            validate()
-                            coroutineScope.launch {
-                                runCatching {
-                                    Settings.UnlockProtection.unlockAttempts = unlockAttempts.toInt()
-                                }
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clearFocusOnKeyboardDismiss(),
-                        label = {
-                            Text(stringResource(R.string.attempts))
-                        },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-                    )
-                }
-                ListItem(
-                    headline = stringResource(R.string.actions),
-                    supportingText = stringResource(R.string.actions_d),
-                    divider = true,
-                    onClick = {
-                        runOrNoop {
-                            context.startActivity(
-                                Intent(
-                                    context,
-                                    ActionsActivity::class.java
-                                )
+                Category {
+                    ListItem(
+                        headline = stringResource(R.string.unlock_attempts),
+                        supportingText = stringResource(R.string.unlock_attempts_d),
+                        divider = true,
+                        dividerThickness = 2.dp,
+                        dividerColor = MaterialTheme.colorScheme.surface,
+                        onClick = {},
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Filled.Password,
+                                contentDescription = null
                             )
                         }
+                    ) {
+                        TextField(
+                            value = unlockAttempts,
+                            onValueChange = {
+                                unlockAttempts = it
+                                validate()
+                                coroutineScope.launch {
+                                    runCatching {
+                                        Settings.UnlockProtection.unlockAttempts = unlockAttempts.toInt()
+                                    }
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clearFocusOnKeyboardDismiss(),
+                            label = {
+                                Text(stringResource(R.string.attempts))
+                            },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                        )
                     }
-                )
+                    ListItem(
+                        headline = stringResource(R.string.actions),
+                        supportingText = stringResource(R.string.actions_d),
+                        onClick = {
+                            runOrNoop {
+                                context.startActivity(
+                                    Intent(
+                                        context,
+                                        ActionsActivity::class.java
+                                    )
+                                )
+                            }
+                        },
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Filled.Security,
+                                contentDescription = null
+                            )
+                        }
+                    )
+                }
             }
         }
     }

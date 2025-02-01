@@ -20,3 +20,8 @@ val Icons.Outlined.License
     @Composable get() = ImageVector.vectorResource(R.drawable.license)
 val Icons.Filled.License
     @Composable get() = Icons.Outlined.License
+
+val Icons.Outlined.Siren
+    @Composable get() = ImageVector.vectorResource(R.drawable.siren_outlined)
+val Icons.Filled.Siren
+    @Composable get() = ImageVector.vectorResource(R.drawable.siren_filled)

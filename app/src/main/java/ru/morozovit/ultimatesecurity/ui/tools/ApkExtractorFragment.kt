@@ -1,5 +1,6 @@
 package ru.morozovit.ultimatesecurity.ui.tools
 
+import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager.GET_ACTIVITIES
 import androidx.compose.foundation.Image
@@ -113,7 +114,11 @@ fun APKExtractorScreen(actions: @Composable RowScope.() -> Unit, navigation: @Co
                                 }
                             },
                             onClick = {
-                                // TODO app info
+                                startActivity(
+                                    Intent(this@with, AppInfoActivity::class.java).apply {
+                                        putExtra("appPackage", appPackage)
+                                    }
+                                )
                             }
                         )
                     }

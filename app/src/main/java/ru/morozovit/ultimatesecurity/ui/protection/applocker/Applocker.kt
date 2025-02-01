@@ -17,10 +17,17 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.SettingsApplications
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.cardColors
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -54,6 +61,7 @@ import ru.morozovit.android.clearFocusOnKeyboardDismiss
 import ru.morozovit.android.homeScreen
 import ru.morozovit.android.invoke
 import ru.morozovit.android.previewUtils
+import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SecureTextField
 import ru.morozovit.android.ui.SimpleAlertDialog
@@ -420,84 +428,128 @@ fun ApplockerScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScr
                     SwitchCard(
                         text = stringResource(R.string.enable),
                         checked = mainSwitch,
-                        onCheckedChange = mainSwitchOnCheckedChange
+                        onCheckedChange = mainSwitchOnCheckedChange,
+                        modifier = Modifier.padding(bottom = 12.dp)
                     )
-                    HorizontalDivider()
-                    ListItem(
-                        headline = stringResource(R.string.select_apps),
-                        supportingText = stringResource(R.string.select_apps_d),
-                        onClick = {
-                            runOrNoop {
-                                context.startActivity(
-                                    Intent(
-                                        context,
-                                        SelectAppsActivity::class.java
+                    Category(title = stringResource(R.string.settings)) {
+                        ListItem(
+                            headline = stringResource(R.string.select_apps),
+                            supportingText = stringResource(R.string.select_apps_d),
+                            onClick = {
+                                runOrNoop {
+                                    context.startActivity(
+                                        Intent(
+                                            context,
+                                            SelectAppsActivity::class.java
+                                        )
                                     )
+                                }
+                            },
+                            divider = true,
+                            dividerThickness = 2.dp,
+                            dividerColor = MaterialTheme.colorScheme.surface,
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.Apps,
+                                    contentDescription = null
                                 )
                             }
-                        },
-                        divider = true
-                    )
-                    ListItem(
-                        headline = stringResource(R.string.test_crash),
-                        supportingText = stringResource(R.string.test_crash_d),
-                        onClick = {
-                            runOrNoop {
-                                @Suppress("DIVISION_BY_ZERO")
-                                0 / 0
+                        )
+                        SwitchListItem(
+                            headline = stringResource(R.string.afs),
+                            supportingText = stringResource(R.string.afs_d),
+                            checked = afsSwitch,
+                            onCheckedChange = {
+                                afsSwitch = it
+                                Settings.UnlockProtection.fgServiceEnabled = it
+                                AccessibilityKeeperService.instance?.stopSelf()
+                            },
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.SettingsApplications,
+                                    contentDescription = null
+                                )
                             }
-                        },
-                        divider = true
-                    )
-                    ListItem(
-                        headline = stringResource(R.string.test_fake_crash),
-                        supportingText = stringResource(R.string.test_fake_crash_d),
-                        onClick = {
-                            runOrNoop {
-                                context.homeScreen()
-
-                                sleep(500)
-
-                                context.finish()
-
-                                val intent = Intent(context, FakeCrashActivity::class.java)
-                                intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
-                                val b = Bundle()
-                                b.putString("appPackage", context.packageName)
-                                context.startActivity(intent)
+                        )
+                    }
+                    Category(title = stringResource(R.string.security)) {
+                        ListItem(
+                            headline = stringResource(R.string.setpassword),
+                            supportingText = stringResource(R.string.setpassword_d),
+                            onClick = {
+                                openSetPasswordDialog = true
+                            },
+                            divider = true,
+                            dividerThickness = 2.dp,
+                            dividerColor = MaterialTheme.colorScheme.surface,
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.Password,
+                                    contentDescription = null
+                                )
                             }
-                        },
-                        divider = true
-                    )
-                    ListItem(
-                        headline = stringResource(R.string.setpassword),
-                        supportingText = stringResource(R.string.setpassword_d),
-                        onClick = {
-                            openSetPasswordDialog = true
-                        },
-                        divider = true
-                    )
+                        )
 
-                    ListItem(
-                        headline = stringResource(R.string.unlockmethod),
-                        supportingText = unlockMethodText,
-                        onClick = {
-                            openUnlockMethodDialog = true
-                        },
-                        divider = true
-                    )
+                        ListItem(
+                            headline = stringResource(R.string.unlockmethod),
+                            supportingText = unlockMethodText,
+                            onClick = {
+                                openUnlockMethodDialog = true
+                            },
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.Key,
+                                    contentDescription = null
+                                )
+                            }
+                        )
+                    }
+                    Category(title = stringResource(R.string.testing)) {
+                        ListItem(
+                            headline = stringResource(R.string.test_crash),
+                            supportingText = stringResource(R.string.test_crash_d),
+                            onClick = {
+                                runOrNoop {
+                                    @Suppress("DIVISION_BY_ZERO")
+                                    0 / 0
+                                }
+                            },
+                            divider = true,
+                            dividerThickness = 2.dp,
+                            dividerColor = MaterialTheme.colorScheme.surface,
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.Error,
+                                    contentDescription = null
+                                )
+                            }
+                        )
+                        ListItem(
+                            headline = stringResource(R.string.test_fake_crash),
+                            supportingText = stringResource(R.string.test_fake_crash_d),
+                            onClick = {
+                                runOrNoop {
+                                    context.homeScreen()
 
-                    SwitchListItem(
-                        headline = stringResource(R.string.afs),
-                        supportingText = stringResource(R.string.afs_d),
-                        checked = afsSwitch,
-                        onCheckedChange = {
-                            afsSwitch = it
-                            Settings.UnlockProtection.fgServiceEnabled = it
-                            AccessibilityKeeperService.instance?.stopSelf()
-                        },
-                        divider = true
-                    )
+                                    sleep(500)
+
+                                    context.finish()
+
+                                    val intent = Intent(context, FakeCrashActivity::class.java)
+                                    intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
+                                    val b = Bundle()
+                                    b.putString("appPackage", context.packageName)
+                                    context.startActivity(intent)
+                                }
+                            },
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.Warning,
+                                    contentDescription = null
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }

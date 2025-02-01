@@ -9,8 +9,10 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.util.Log
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -27,9 +29,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ru.morozovit.android.SensorEventListener
+import ru.morozovit.android.copy
 import ru.morozovit.android.invoke
 import ru.morozovit.android.orientationSensorEventListener
 import ru.morozovit.android.previewUtils
+import ru.morozovit.android.ui.Category
+import ru.morozovit.android.ui.CategoryDefaults
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
@@ -131,6 +136,8 @@ fun DontTouchMyPhoneScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -
                 LaunchedEffect(Unit) {
                     snapshotFlow { touched }.collect {
                         if (it) {
+                            started = false
+                            touched = false
                             Settings.Actions.run(
                                 context,
                                 mediaPlayer,
@@ -140,46 +147,41 @@ fun DontTouchMyPhoneScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -
                     }
                 }
 
-                ListItem(
-                    headline = stringResource(R.string.actions),
-                    supportingText = stringResource(R.string.actions_d),
-                    divider = true,
-                    onClick = {
-                        runOrNoop {
-                            context.startActivity(
-                                Intent(
-                                    context,
-                                    ActionsActivity::class.java
+                Category(margin = CategoryDefaults.margin.copy(top = 16.dp)) {
+                    ListItem(
+                        headline = stringResource(R.string.actions),
+                        supportingText = stringResource(R.string.actions_d),
+                        onClick = {
+                            runOrNoop {
+                                context.startActivity(
+                                    Intent(
+                                        context,
+                                        ActionsActivity::class.java
+                                    )
                                 )
+                            }
+                        },
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Filled.Security,
+                                contentDescription = null
                             )
                         }
-                    }
-                )
+                    )
+                }
 
                 Button(
                     onClick = {
-                        // Reset the "touched" variable
                         touched = false
                         started = !started
                     },
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(top = 10.dp)
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
                     Text(
                         if (started)
                             stringResource(R.string.stop)
                         else
                             stringResource(R.string.start)
-                    )
-                }
-
-                if (touched) {
-                    Text(
-                        if (started)
-                            stringResource(R.string.stop)
-                        else
-                            stringResource(R.string.touched)
                     )
                 }
             }

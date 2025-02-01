@@ -37,7 +37,7 @@ import java.lang.Thread.sleep
 abstract class BaseActivity(
     @Suppress("MemberVisibilityCanBePrivate")
     protected var authEnabled: Boolean = true,
-    private val savedInstanceStateEnabled: Boolean = false,
+    private val savedInstanceStateEnabled: Boolean = true,
     private var backButtonBehavior: BackButtonBehavior = BackButtonBehavior.DEFAULT,
     private val configTheme: Boolean = true
 ): AppCompatActivity() {

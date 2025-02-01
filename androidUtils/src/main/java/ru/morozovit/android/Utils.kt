@@ -4,6 +4,7 @@ package ru.morozovit.android
 import android.app.Activity
 import android.app.KeyguardManager
 import android.content.ComponentName
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_MAIN
@@ -18,6 +19,7 @@ import android.hardware.usb.UsbEndpoint
 import android.hardware.usb.UsbInterface
 import android.net.Uri
 import android.os.Build
+import android.os.Parcelable
 import android.provider.OpenableColumns
 import android.service.quicksettings.Tile
 import android.text.Editable
@@ -43,7 +45,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.runtime.Composable
@@ -65,6 +70,8 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.constraintlayout.compose.ConstrainScope
 import androidx.constraintlayout.compose.ConstrainedLayoutReference
@@ -83,6 +90,8 @@ import androidx.window.core.layout.WindowWidthSizeClass
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.io.IOException
+import java.io.InputStream
 import java.security.SecureRandom
 import java.util.regex.Pattern
 import javax.crypto.Cipher
@@ -867,4 +876,53 @@ class NotificationIdManager(vararg reservedIds: Int) {
             }
         }
     }
+}
+
+@Composable
+fun PaddingValues.copy(
+    start: Dp? = null,
+    end: Dp? = null,
+    top: Dp? = null,
+    bottom: Dp? = null
+) = PaddingValues(
+    start = start ?: calculateStartPadding(LocalLayoutDirection.current),
+    end = end ?: calculateEndPadding(LocalLayoutDirection.current),
+    top = top ?: calculateTopPadding(),
+    bottom = bottom ?: calculateBottomPadding()
+)
+
+@Composable
+fun PaddingValues.copy(
+    horizontal: Dp? = null,
+    vertical: Dp? = null
+) = copy(
+    start = horizontal,
+    end = horizontal,
+    top = vertical,
+    bottom = vertical
+)
+
+inline fun InputStream.test() =
+    try {
+        read()
+        close()
+        true
+    } catch (e: IOException) {
+        false
+    }
+
+inline fun ContentResolver.test(item: Uri) =
+    try {
+        openInputStream(item)!!.test()
+    } catch (e: Exception) {
+        false
+    }
+
+inline fun <reified T: Parcelable> Intent.getParcelableExtraAs(key: String): T {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getParcelableExtra(key, T::class.java)
+    } else {
+        @Suppress("DEPRECATION")
+        getParcelableExtra(key)
+    }!!
 }

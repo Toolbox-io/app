@@ -146,7 +146,11 @@ interface WindowInsetsScope {
 @Suppress("AnimateAsStateLabel")
 @Composable
 fun AppTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = when (theme) {
+        Theme.AsSystem -> isSystemInDarkTheme()
+        Theme.Light -> false
+        Theme.Dark -> true
+    },
     consumeTopInsets: Boolean = false,
     consumeBottomInsets: Boolean = false,
     consumeLeftInsets: Boolean = false,
@@ -156,17 +160,12 @@ fun AppTheme(
 ) {
     val (_, _, isPreview) = previewUtils()
 
-    val finalDarkTheme = when (theme) {
-        Theme.AsSystem -> darkTheme
-        Theme.Light -> false
-        Theme.Dark -> true
-    }
     var colorScheme = when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && dynamicThemeEnabled -> {
             val context = LocalContext()
-            if (finalDarkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        finalDarkTheme -> appDarkColorScheme
+        darkTheme -> appDarkColorScheme
         else -> appLightColorScheme
     }
 
@@ -248,7 +247,7 @@ fun AppTheme(
         WindowCompat.getInsetsController(
             (LocalContext() as Activity).window,
             LocalView()
-        ).isAppearanceLightStatusBars = !finalDarkTheme
+        ).isAppearanceLightStatusBars = !darkTheme
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             (LocalContext() as Activity).window.isNavigationBarContrastEnforced = enforceNavContrast

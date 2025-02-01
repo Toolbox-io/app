@@ -13,9 +13,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -31,11 +33,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
+import ru.morozovit.android.copy
 import ru.morozovit.android.previewUtils
+import ru.morozovit.android.ui.Category
+import ru.morozovit.android.ui.CategoryDefaults
 import ru.morozovit.android.ui.SeparatedSwitchListItem
+import ru.morozovit.android.ui.Siren
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
@@ -53,7 +60,7 @@ class ActionsActivity: BaseActivity() {
     @PhonePreview
     fun ActionsScreen() {
         AppTheme {
-            val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+            val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -70,7 +77,7 @@ class ActionsActivity: BaseActivity() {
                             IconButton(onClick = onBackPressedDispatcher::onBackPressed) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Localized description"
+                                    contentDescription = stringResource(R.string.back)
                                 )
                             }
                         },
@@ -87,70 +94,85 @@ class ActionsActivity: BaseActivity() {
                     val (valueOrFalse, runOrNoop) = previewUtils()
                     val coroutineScope = rememberCoroutineScope()
 
-                    var alarm by remember {
-                        mutableStateOf(
-                            valueOrFalse {
-                                Settings.UnlockProtection.Alarm.enabled
+                    Category(margin = CategoryDefaults.margin.copy(top = 16.dp)) {
+                        var alarm by remember {
+                            mutableStateOf(
+                                valueOrFalse {
+                                    Settings.UnlockProtection.Alarm.enabled
+                                }
+                            )
+                        }
+                        val alarmOnCheckedChange: (Boolean) -> Unit = {
+                            alarm = it
+                            coroutineScope.launch {
+                                Settings.UnlockProtection.Alarm.enabled = it
+                            }
+                        }
+                        SeparatedSwitchListItem(
+                            headline = stringResource(R.string.alarm),
+                            supportingText = stringResource(R.string.alarm_d),
+                            checked = alarm,
+                            onCheckedChange = alarmOnCheckedChange,
+                            bodyOnClick = {
+                                runOrNoop {
+                                    activityLauncher.launch(
+                                        Intent(
+                                            this@ActionsActivity,
+                                            AlarmSettingsActivity::class.java
+                                        )
+                                    ) {
+                                        alarm = Settings.UnlockProtection.Alarm.enabled
+                                    }
+                                }
+                            },
+                            divider = true,
+                            dividerThickness = 2.dp,
+                            dividerColor = MaterialTheme.colorScheme.surface,
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.Siren,
+                                    contentDescription = null
+                                )
                             }
                         )
-                    }
-                    val alarmOnCheckedChange: (Boolean) -> Unit = {
-                        alarm = it
-                        coroutineScope.launch {
-                            Settings.UnlockProtection.Alarm.enabled = it
+
+                        var intruderPhoto by remember {
+                            mutableStateOf(
+                                valueOrFalse {
+                                    Settings.UnlockProtection.IntruderPhoto.enabled
+                                }
+                            )
                         }
-                    }
-                    SeparatedSwitchListItem(
-                        headline = stringResource(R.string.alarm),
-                        supportingText = stringResource(R.string.alarm_d),
-                        checked = alarm,
-                        onCheckedChange = alarmOnCheckedChange,
-                        bodyOnClick = {
-                            runOrNoop {
+                        val intruderPhotoOnCheckedChange: (Boolean) -> Unit = {
+                            intruderPhoto = it
+                            coroutineScope.launch {
+                                Settings.UnlockProtection.IntruderPhoto.enabled = it
+                            }
+                        }
+
+                        SeparatedSwitchListItem(
+                            headline = stringResource(R.string.intruderphoto),
+                            supportingText = stringResource(R.string.intruderphoto_d),
+                            checked = intruderPhoto,
+                            onCheckedChange = intruderPhotoOnCheckedChange,
+                            bodyOnClick = {
                                 activityLauncher.launch(
                                     Intent(
                                         this@ActionsActivity,
-                                        AlarmSettingsActivity::class.java
+                                        IntruderPhotoSettingsActivity::class.java
                                     )
                                 ) {
-                                    alarm = Settings.UnlockProtection.Alarm.enabled
+                                    intruderPhoto = Settings.UnlockProtection.IntruderPhoto.enabled
                                 }
-                            }
-                        },
-                        divider = true
-                    )
-
-                    var intruderPhoto by remember {
-                        mutableStateOf(
-                            valueOrFalse {
-                                Settings.UnlockProtection.IntruderPhoto.enabled
+                            },
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.PhotoCamera,
+                                    contentDescription = null
+                                )
                             }
                         )
                     }
-                    val intruderPhotoOnCheckedChange: (Boolean) -> Unit = {
-                        intruderPhoto = it
-                        coroutineScope.launch {
-                            Settings.UnlockProtection.IntruderPhoto.enabled = it
-                        }
-                    }
-
-                    SeparatedSwitchListItem(
-                        headline = stringResource(R.string.intruderphoto),
-                        supportingText = stringResource(R.string.intruderphoto_d),
-                        checked = intruderPhoto,
-                        onCheckedChange = intruderPhotoOnCheckedChange,
-                        bodyOnClick = {
-                            activityLauncher.launch(
-                                Intent(
-                                    this@ActionsActivity,
-                                    IntruderPhotoSettingsActivity::class.java
-                                )
-                            ) {
-                                intruderPhoto = Settings.UnlockProtection.IntruderPhoto.enabled
-                            }
-                        },
-                        divider = true
-                    )
                 }
             }
         }

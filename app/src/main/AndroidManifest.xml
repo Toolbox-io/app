@@ -104,6 +104,22 @@
             android:name="com.google.android.gms.oss.licenses.OssLicensesActivity"
             android:theme="@style/Theme.UltimateSecurity.Licenses" />
 
+        <activity
+            android:name=".ui.tools.AppInfoActivity"
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+
+        <activity
+            android:name=".share.SaveActivity"
+            android:exported="true"
+            android:label="@string/share"
+            android:icon="@mipmap/files_icon">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity>
+
         <receiver
             android:name=".services.UpdateChecker$Companion$Receiver"
             android:exported="false">

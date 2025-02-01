@@ -19,8 +19,8 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +47,7 @@ import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
 import ru.morozovit.android.invoke
+import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.SwitchCard
 import ru.morozovit.android.ui.SwitchListItem
 import ru.morozovit.ultimatesecurity.BaseActivity
@@ -63,7 +64,7 @@ class IntruderPhotoSettingsActivity: BaseActivity(false) {
     @Composable
     fun IntruderPhotoScreen() {
         AppTheme {
-            val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+            val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
             val context = LocalContext()
 
             Scaffold(
@@ -147,44 +148,50 @@ class IntruderPhotoSettingsActivity: BaseActivity(false) {
                                     } else {
                                         mainSwitch = false
                                     }
-                                }
+                                },
+                                modifier = Modifier.padding(bottom = 12.dp)
                             )
 
-                            HorizontalDivider()
-
-                            var noptChecked by remember { mutableStateOf(Settings.Actions.IntruderPhoto.nopt) }
-                            SwitchListItem(
-                                headline = stringResource(R.string.notify_on_photo_taken),
-                                supportingText = stringResource(R.string.nopt_d),
-                                checked = noptChecked,
-                                onCheckedChange = {
-                                    if (it) {
-                                        if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PERMISSION_GRANTED
-                                            || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
-                                        ) {
-                                            noptChecked = true
-                                            Settings.UnlockProtection.IntruderPhoto.nopt = true
-                                        } else {
-                                            requestPermission(Manifest.permission.POST_NOTIFICATIONS) { granted ->
-                                                if (granted) {
-                                                    noptChecked = true
-                                                    Settings.UnlockProtection.IntruderPhoto.nopt = true
+                            Category {
+                                var noptChecked by remember { mutableStateOf(Settings.Actions.IntruderPhoto.nopt) }
+                                SwitchListItem(
+                                    headline = stringResource(R.string.notify_on_photo_taken),
+                                    supportingText = stringResource(R.string.nopt_d),
+                                    checked = noptChecked,
+                                    onCheckedChange = {
+                                        if (it) {
+                                            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PERMISSION_GRANTED
+                                                || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+                                            ) {
+                                                noptChecked = true
+                                                Settings.UnlockProtection.IntruderPhoto.nopt = true
+                                            } else {
+                                                requestPermission(Manifest.permission.POST_NOTIFICATIONS) { granted ->
+                                                    if (granted) {
+                                                        noptChecked = true
+                                                        Settings.UnlockProtection.IntruderPhoto.nopt = true
+                                                    }
                                                 }
                                             }
+                                        } else {
+                                            noptChecked = false
+                                            Settings.UnlockProtection.IntruderPhoto.nopt = false
                                         }
-                                    } else {
-                                        noptChecked = false
-                                        Settings.UnlockProtection.IntruderPhoto.nopt = false
+                                    },
+                                    leadingContent = {
+                                        Icon(
+                                            imageVector = Icons.Filled.NotificationsActive,
+                                            contentDescription = null
+                                        )
                                     }
-                                },
-                                divider = true
-                            )
+                                )
+                            }
 
                             Text(
                                 text = stringResource(R.string.intruderphotos),
                                 style = MaterialTheme.typography.titleSmall,
                                 color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 16.dp)
+                                modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 16.dp)
                             )
                         }
                     }

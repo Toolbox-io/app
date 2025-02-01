@@ -18,12 +18,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,6 +46,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ru.morozovit.android.invoke
 import ru.morozovit.android.previewUtils
+import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SeparatedSwitchListItem
 import ru.morozovit.android.ui.SimpleAlertDialog
@@ -237,120 +246,185 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) 
     WindowInsetsHandler {
         EdgeToEdgeBar {
             Column(Modifier.verticalScroll(rememberScrollState())) {
-                // Device admin
-                SwitchListItem(
-                    headline = stringResource(R.string.devadmin),
-                    supportingText = stringResource(R.string.devadmin_d),
-                    checked = devAdmSwitch,
-                    onCheckedChange = devAdmOnCheckedChanged,
-                    divider = true
-                )
-
-                // Delete app
-                ListItem(
-                    headline = stringResource(R.string.delete),
-                    supportingText = stringResource(R.string.delete_d),
-                    onClick = {
-                        deleteAppDialogOpen = true
-                    },
-                    divider = true
-                )
-
-                // Password lock
-                SeparatedSwitchListItem(
-                    headline = stringResource(R.string.lockapp),
-                    supportingText = stringResource(R.string.lockapp_d),
-                    checked = passwordSwitch,
-                    onCheckedChange = passwordOnCheckedChanged,
-                    bodyOnClick = ::setPassword,
-                    divider = true
-                )
-
-                // Allow biometric
-                SwitchListItem(
-                    headline = stringResource(R.string.allow_biometric),
-                    supportingText = stringResource(R.string.allow_biometric_d),
-                    checked = allowBiometricSwitch,
-                    onCheckedChange = allowBiometricSwitchOnCheckedChanged,
-                    divider = true
-                )
-
-                // Don't show in recents
-                SwitchListItem(
-                    headline = stringResource(R.string.dont_show_in_recents),
-                    supportingText = stringResource(R.string.dont_show_in_recents_d),
-                    checked = dontShowInRecentsSwitch,
-                    onCheckedChange = dontShowInRecentsOnCheckedChanged,
-                    divider = true
-                )
-
-                // Material You
-                SwitchListItem(
-                    headline = stringResource(R.string.materialYou),
-                    supportingText = stringResource(R.string.materialYou_d),
-                    enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
-                    checked = materialYouSwitch,
-                    onCheckedChange = materialYouOnCheckedChanged,
-                    divider = true
-                )
-
-                // Theme
-                ListItem(
-                    headline = stringResource(R.string.theme),
-                    divider = true,
-                    bottomContent = {
-                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            var selectedIndex by remember { mutableIntStateOf(appTheme.ordinal) }
-                            val options = listOf(
-                                stringResource(R.string.as_system),
-                                stringResource(R.string.light),
-                                stringResource(R.string.dark)
+                Category(title = stringResource(R.string.security)) {
+                    // Device admin
+                    SwitchListItem(
+                        headline = stringResource(R.string.devadmin),
+                        supportingText = stringResource(R.string.devadmin_d),
+                        checked = devAdmSwitch,
+                        onCheckedChange = devAdmOnCheckedChanged,
+                        divider = true,
+                        dividerColor = MaterialTheme.colorScheme.surface,
+                        dividerThickness = 2.dp,
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Filled.Security,
+                                contentDescription = null
                             )
-                            options.forEachIndexed { index, label ->
-                                FilterChip(
-                                    onClick = {
-                                        selectedIndex = index
-                                        appTheme = Theme.entries[index]
-                                        theme = Theme.entries[index]
-                                        context.configureTheme()
-                                    },
-                                    selected = index == selectedIndex,
-                                    leadingIcon = {
-                                        if (index == 0) {
-                                            Spacer(Modifier.width(16.dp))
-                                        }
-                                        when (index) {
-                                            0 -> Icon(Icons.Filled.Settings, null)
-                                            1 -> Icon(Icons.Filled.LightMode, null)
-                                            2 -> Icon(Icons.Filled.DarkMode, null)
-                                        }
-                                    },
-                                    label = {
-                                        Text(
-                                            text = label,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
+                        }
+                    )
+                    // Password lock
+                    SeparatedSwitchListItem(
+                        headline = stringResource(R.string.lockapp),
+                        supportingText = stringResource(R.string.lockapp_d),
+                        checked = passwordSwitch,
+                        onCheckedChange = passwordOnCheckedChanged,
+                        bodyOnClick = ::setPassword,
+                        divider = true,
+                        dividerThickness = 2.dp,
+                        dividerColor = MaterialTheme.colorScheme.surface,
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Filled.Password,
+                                contentDescription = null
+                            )
+                        }
+                    )
+
+                    // Allow biometric
+                    SwitchListItem(
+                        headline = stringResource(R.string.allow_biometric),
+                        supportingText = stringResource(R.string.allow_biometric_d),
+                        checked = allowBiometricSwitch,
+                        onCheckedChange = allowBiometricSwitchOnCheckedChanged,
+                        divider = true,
+                        dividerThickness = 2.dp,
+                        dividerColor = MaterialTheme.colorScheme.surface,
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Filled.Fingerprint,
+                                contentDescription = null
+                            )
+                        }
+                    )
+
+                    // Don't show in recents
+                    SwitchListItem(
+                        headline = stringResource(R.string.dont_show_in_recents),
+                        supportingText = stringResource(R.string.dont_show_in_recents_d),
+                        checked = dontShowInRecentsSwitch,
+                        onCheckedChange = dontShowInRecentsOnCheckedChanged,
+                        divider = true,
+                        dividerThickness = 2.dp,
+                        dividerColor = MaterialTheme.colorScheme.surface,
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Filled.VisibilityOff,
+                                contentDescription = null
+                            )
+                        }
+                    )
+
+                    // Security actions
+                    ListItem(
+                        headline = stringResource(R.string.actions),
+                        supportingText = stringResource(R.string.actions_d),
+                        onClick = {
+                            runOrNoop {
+                                context.startActivity(
+                                    Intent(
+                                        context,
+                                        ActionsActivity::class.java
+                                    )
                                 )
                             }
-                        }
-                    }
-                )
-                ListItem(
-                    headline = stringResource(R.string.actions),
-                    supportingText = stringResource(R.string.actions_d),
-                    divider = true,
-                    onClick = {
-                        runOrNoop {
-                            context.startActivity(
-                                Intent(
-                                    context,
-                                    ActionsActivity::class.java
-                                )
+                        },
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Filled.Security,
+                                contentDescription = null
                             )
                         }
-                    }
-                )
+                    )
+                }
+
+                Category(title = stringResource(R.string.customization)) {
+                    // Material You
+                    SwitchListItem(
+                        headline = stringResource(R.string.materialYou),
+                        supportingText = stringResource(R.string.materialYou_d),
+                        enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+                        checked = materialYouSwitch,
+                        onCheckedChange = materialYouOnCheckedChanged,
+                        divider = true,
+                        dividerColor = MaterialTheme.colorScheme.surface,
+                        dividerThickness = 2.dp,
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Filled.Wallpaper,
+                                contentDescription = null
+                            )
+                        }
+                    )
+
+                    // Theme
+                    ListItem(
+                        headline = stringResource(R.string.theme),
+                        divider = true,
+                        dividerColor = MaterialTheme.colorScheme.surface,
+                        dividerThickness = 2.dp,
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Filled.Brush,
+                                contentDescription = null
+                            )
+                        },
+                        bottomContent = {
+                            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                var selectedIndex by remember { mutableIntStateOf(appTheme.ordinal) }
+                                val options = listOf(
+                                    stringResource(R.string.as_system),
+                                    stringResource(R.string.light),
+                                    stringResource(R.string.dark)
+                                )
+                                options.forEachIndexed { index, label ->
+                                    FilterChip(
+                                        onClick = {
+                                            selectedIndex = index
+                                            appTheme = Theme.entries[index]
+                                            theme = Theme.entries[index]
+                                            context.configureTheme()
+                                        },
+                                        selected = index == selectedIndex,
+                                        leadingIcon = {
+                                            if (index == 0) {
+                                                Spacer(Modifier.width(16.dp))
+                                            }
+                                            when (index) {
+                                                0 -> Icon(Icons.Filled.Settings, null)
+                                                1 -> Icon(Icons.Filled.LightMode, null)
+                                                2 -> Icon(Icons.Filled.DarkMode, null)
+                                            }
+                                        },
+                                        label = {
+                                            Text(
+                                                text = label,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    )
+                }
+
+                Category {
+                    // Delete app
+                    ListItem(
+                        headline = stringResource(R.string.delete),
+                        supportingText = stringResource(R.string.delete_d),
+                        onClick = {
+                            deleteAppDialogOpen = true
+                        },
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Filled.DeleteForever,
+                                contentDescription = null
+                            )
+                        }
+                    )
+                }
             }
         }
     }

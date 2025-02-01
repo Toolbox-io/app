@@ -27,9 +27,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -62,12 +62,17 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
+import ru.morozovit.android.copy
+import ru.morozovit.android.getFileName
+import ru.morozovit.android.previewUtils
+import ru.morozovit.android.test
 import ru.morozovit.android.ui.Button
+import ru.morozovit.android.ui.Category
+import ru.morozovit.android.ui.CategoryDefaults
 import ru.morozovit.android.ui.RadioButtonWithText
 import ru.morozovit.android.ui.RadioGroup
 import ru.morozovit.android.ui.SwipeToDismissBackground
 import ru.morozovit.android.ui.SwitchCard
-import ru.morozovit.android.previewUtils
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings.Actions.Alarm.current
@@ -75,7 +80,6 @@ import ru.morozovit.ultimatesecurity.Settings.Actions.Alarm.customAlarms
 import ru.morozovit.ultimatesecurity.Settings.Actions.Alarm.enabled
 import ru.morozovit.ultimatesecurity.ui.AppTheme
 import ru.morozovit.ultimatesecurity.ui.PhonePreview
-import java.io.File
 
 class AlarmSettingsActivity: BaseActivity() {
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
@@ -153,11 +157,12 @@ class AlarmSettingsActivity: BaseActivity() {
                     SwitchCard(
                         text = stringResource(R.string.enable),
                         checked = mainSwitch,
-                        onCheckedChange = mainSwitchOnCheckedChange
+                        onCheckedChange = mainSwitchOnCheckedChange,
+                        modifier = Modifier.padding(bottom = 12.dp)
                     )
-                    HorizontalDivider()
 
                     val toRemove = mutableListOf<String>()
+
                     data class Alarm(
                         val label: String,
                         val onClick: () -> Unit,
@@ -206,19 +211,10 @@ class AlarmSettingsActivity: BaseActivity() {
                         item: Uri,
                         checked: Boolean = "$item" == current
                     ) {
-                        try {
-                            contentResolver.openInputStream(item)!!.apply {
-                                read()
-                                close()
-                            }
-                        } catch (e: Exception) {
+                        if (!contentResolver.test(item)) {
                             toRemove.add("$item")
                         }
-                        val text =
-                            if (item.path != null)
-                                File(item.path!!).absolutePath
-                            else
-                                unknown
+                        val text = getFileName(item)
 
                         var alarmCreated: Alarm? = null
                         alarmCreated = Alarm(
@@ -288,125 +284,128 @@ class AlarmSettingsActivity: BaseActivity() {
                         }
                     }
 
-                    Column(
-                        Modifier.let {
-                            if (isSizeAnimationEnabled) it.animateContentSize()
-                            else it
-                        }
+                    Category(
+                        margin = CategoryDefaults.margin.copy(bottom = 16.dp)
                     ) {
-                        LaunchedEffect(Unit) {
-                            for (i in customAlarms) {
-                                createRadioButton(Uri.parse(i))
+                        Column(
+                            Modifier.let {
+                                if (isSizeAnimationEnabled) it.animateContentSize()
+                                else it
                             }
-                            if (customAlarms.isEmpty()) {
-                                current = ""
-                                onOptionSelected(alarm)
-                            }
-                            if (toRemove.isNotEmpty()) {
-                                val alarms = customAlarms.toMutableList()
-                                for (item in toRemove) {
-                                    if (current == item) {
-                                        current = ""
-                                        onOptionSelected(alarm)
-                                    }
-                                    alarms.remove(item)
-                                }
-                                customAlarms = alarms.toSet()
-                            }
-                        }
-
-                        @Composable
-                        fun SwipeToDismissRadioButton(
-                            text: String,
-                            selected: Boolean,
-                            onSelectedChange: () -> Unit,
-                            dismissCallback: (() -> Unit)?,
-                            visible: MutableState<Boolean>
                         ) {
-                            if (dismissCallback != null) {
-                                val dismissState = rememberSwipeToDismissBoxState(
-                                    confirmValueChange = {
-                                        when (it) {
-                                            SwipeToDismissBoxValue.StartToEnd -> {
-                                                dismissCallback()
-                                            }
-
-                                            SwipeToDismissBoxValue.EndToStart -> {
-                                                dismissCallback()
-                                            }
-
-                                            SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
+                            LaunchedEffect(Unit) {
+                                for (i in customAlarms) {
+                                    createRadioButton(Uri.parse(i))
+                                }
+                                if (customAlarms.isEmpty()) {
+                                    current = ""
+                                    onOptionSelected(alarm)
+                                }
+                                if (toRemove.isNotEmpty()) {
+                                    val alarms = customAlarms.toMutableList()
+                                    for (item in toRemove) {
+                                        if (current == item) {
+                                            current = ""
+                                            onOptionSelected(alarm)
                                         }
-                                        isSizeAnimationEnabled = false
-                                        visible.value = false
-                                        return@rememberSwipeToDismissBoxState true
-                                    },
-                                    // positional threshold of 25%
-                                    positionalThreshold = { it * .25f }
-                                )
-                                SwipeToDismissBox(
-                                    state = dismissState,
-                                    backgroundContent = {
-                                        SwipeToDismissBackground(
-                                            dismissState = dismissState,
-                                            endToStartColor = Color(0xFFFF1744),
-                                            endToStartIcon = {
-                                                Icon(
-                                                    Icons.Default.Delete,
-                                                    contentDescription = "Delete"
-                                                )
+                                        alarms.remove(item)
+                                    }
+                                    customAlarms = alarms.toSet()
+                                }
+                            }
+
+                            @Composable
+                            fun SwipeToDismissRadioButton(
+                                text: String,
+                                selected: Boolean,
+                                onSelectedChange: () -> Unit,
+                                dismissCallback: (() -> Unit)?,
+                                visible: MutableState<Boolean>
+                            ) {
+                                if (dismissCallback != null) {
+                                    val dismissState = rememberSwipeToDismissBoxState(
+                                        confirmValueChange = {
+                                            when (it) {
+                                                SwipeToDismissBoxValue.StartToEnd -> {
+                                                    dismissCallback()
+                                                }
+
+                                                SwipeToDismissBoxValue.EndToStart -> {
+                                                    dismissCallback()
+                                                }
+
+                                                SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
                                             }
-                                        )
-                                    },
-                                    content = {
-                                        Surface {
-                                            AnimatedVisibility(
-                                                visible = visible.value,
-                                                exit = shrinkVertically(),
-                                                enter = slideInHorizontally() + fadeIn() + expandVertically()
-                                            ) {
-                                                RadioButtonWithText(
-                                                    selected = selected,
-                                                    onSelectedChange = onSelectedChange
+                                            isSizeAnimationEnabled = false
+                                            visible.value = false
+                                            return@rememberSwipeToDismissBoxState true
+                                        },
+                                        // positional threshold of 25%
+                                        positionalThreshold = { it * .25f }
+                                    )
+                                    SwipeToDismissBox(
+                                        state = dismissState,
+                                        backgroundContent = {
+                                            SwipeToDismissBackground(
+                                                dismissState = dismissState,
+                                                endToStartColor = Color(0xFFFF1744),
+                                                endToStartIcon = {
+                                                    Icon(
+                                                        Icons.Default.Delete,
+                                                        contentDescription = "Delete"
+                                                    )
+                                                }
+                                            )
+                                        },
+                                        content = {
+                                            Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
+                                                AnimatedVisibility(
+                                                    visible = visible.value,
+                                                    exit = shrinkVertically(),
+                                                    enter = slideInHorizontally() + fadeIn() + expandVertically()
                                                 ) {
-                                                    Text(text)
+                                                    RadioButtonWithText(
+                                                        selected = selected,
+                                                        onSelectedChange = onSelectedChange
+                                                    ) {
+                                                        Text(text)
+                                                    }
                                                 }
                                             }
                                         }
+                                    )
+                                } else {
+                                    RadioButtonWithText(
+                                        selected = selected,
+                                        onSelectedChange = onSelectedChange
+                                    ) {
+                                        Text(text)
                                     }
-                                )
-                            } else {
-                                RadioButtonWithText(
-                                    selected = selected,
-                                    onSelectedChange = onSelectedChange
-                                ) {
-                                    Text(text)
                                 }
                             }
-                        }
 
-                        RadioGroup {
-                            radioOptions.forEach { (text, callback, dismissCallback, visible) ->
-                                SwipeToDismissRadioButton(
-                                    selected = (text == selectedOption),
-                                    onSelectedChange = {
-                                        onOptionSelected(text)
-                                        callback()
-                                    },
-                                    text = text,
-                                    dismissCallback = dismissCallback,
-                                    visible = visible
-                                )
+                            RadioGroup {
+                                radioOptions.forEach { (text, callback, dismissCallback, visible) ->
+                                    SwipeToDismissRadioButton(
+                                        selected = (text == selectedOption),
+                                        onSelectedChange = {
+                                            onOptionSelected(text)
+                                            callback()
+                                        },
+                                        text = text,
+                                        dismissCallback = dismissCallback,
+                                        visible = visible
+                                    )
+                                }
                             }
                         }
                     }
 
-                    HorizontalDivider()
-
                     Row(
                         Modifier.padding(
-                            horizontal = 16.dp,
-                            vertical = 10.dp
+                            start = 16.dp,
+                            end = 16.dp,
+                            bottom = 10.dp
                         )
                     ) {
                         Button(
