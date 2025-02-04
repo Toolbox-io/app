@@ -13,7 +13,7 @@ import ru.morozovit.ultimatesecurity.R
 @Composable
 inline fun AppIcon(modifier: Modifier = Modifier) {
     Mipmap(
-        id = R.mipmap.app_icon_2_round,
+        id = R.mipmap.app_icon_3_round,
         contentDescription = stringResource(R.string.app_name),
         modifier = Modifier.size(80.dp) + modifier
     )

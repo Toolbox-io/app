@@ -1,7 +1,8 @@
-package ru.morozovit.ultimatesecurity.ui.tools
+package ru.morozovit.ultimatesecurity.ui.tools.appmanager
 
 import android.content.Intent
 import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
@@ -21,9 +22,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.automirrored.filled.Launch
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.FilePresent
+import androidx.compose.material.icons.filled.PermDeviceInformation
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,11 +50,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.toBitmap
+import ru.morozovit.android.ui.Category
+import ru.morozovit.android.ui.ListItem
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.ui.AppTheme
@@ -55,6 +65,7 @@ import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import kotlin.math.roundToInt
 
 class AppInfoActivity: BaseActivity() {
     private val appPackage by lazy { intent.getStringExtra("appPackage")!! }
@@ -93,12 +104,13 @@ class AppInfoActivity: BaseActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
-                        .verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    val packageInfo = remember { packageManager.getPackageInfo(appPackage, 0) }
+                    val packageInfo = remember { packageManager.getPackageInfo(appPackage, PackageManager.GET_ACTIVITIES) }
                     val launchIntent by lazy { packageManager.getLaunchIntentForPackage(appPackage) }
+                    val unknown = stringResource(R.string.unknown)
 
+                    // App icon & name
                     Image(
                         bitmap =
                             packageInfo
@@ -110,6 +122,7 @@ class AppInfoActivity: BaseActivity() {
                         modifier = Modifier
                             .size(94.dp)
                             .padding(bottom = 8.dp, top = 16.dp)
+                            .align(Alignment.CenterHorizontally)
                     )
                     Text(
                         text = packageInfo
@@ -118,9 +131,11 @@ class AppInfoActivity: BaseActivity() {
                             .toString(),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
 
+                    // App actions
                     Card(
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surfaceContainer
@@ -137,11 +152,11 @@ class AppInfoActivity: BaseActivity() {
                         ) {
                             Column(
                                 modifier =
-                                if (enabled) {
-                                    Modifier.clickable(onClick = onClick)
-                                } else {
-                                    Modifier
-                                }
+                                    if (enabled) {
+                                        Modifier.clickable(onClick = onClick)
+                                    } else {
+                                        Modifier
+                                    }
                                     .padding(vertical = 16.dp)
                                     .weight(1f),
                                 horizontalAlignment = Alignment.CenterHorizontally
@@ -170,9 +185,20 @@ class AppInfoActivity: BaseActivity() {
                                 title = stringResource(R.string.launch),
                                 icon = Icons.AutoMirrored.Filled.Launch,
                                 onClick = {
-                                    startActivity(launchIntent!!)
+                                    if (launchIntent != null) {
+                                        startActivity(launchIntent)
+                                    } else {
+                                        startActivity(
+                                            Intent(
+                                                this@AppInfoActivity,
+                                                ChooseActivityActivity::class.java
+                                            ).apply {
+                                                putExtra("appPackage", appPackage)
+                                            }
+                                        )
+                                    }
                                 },
-                                enabled = launchIntent != null
+                                enabled = !packageInfo.activities.isNullOrEmpty()
                             )
                             VerticalDivider(
                                 thickness = 2.dp,
@@ -232,6 +258,143 @@ class AppInfoActivity: BaseActivity() {
                                 enabled = true
                             )
                         }
+                    }
+
+                    Category {
+                        ListItem(
+                            headline = stringResource(R.string.system_app_info),
+                            supportingText = stringResource(R.string.system_app_info_d),
+                            divider = true,
+                            dividerThickness = 2.dp,
+                            dividerColor = MaterialTheme.colorScheme.surface,
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                                    contentDescription = null
+                                )
+                            },
+                            onClick = {
+                                val intent = Intent("android.settings.APPLICATION_DETAILS_SETTINGS")
+                                intent.data = Uri.parse("package:$appPackage")
+                                startActivity(intent)
+                            }
+                        )
+                        ListItem(
+                            headline = stringResource(R.string.view_in_gplay),
+                            supportingText = stringResource(R.string.view_in_gplay_d),
+                            divider = true,
+                            dividerThickness = 2.dp,
+                            dividerColor = MaterialTheme.colorScheme.surface,
+                            leadingContent = {
+                                Image(
+                                    painter = painterResource(R.drawable.google_play),
+                                    contentDescription = null
+                                )
+                            },
+                            onClick = {
+                                val intent = Intent(Intent.ACTION_SHOW_APP_INFO)
+                                intent.putExtra(Intent.EXTRA_PACKAGE_NAME, appPackage)
+                                startActivity(intent)
+                            }
+                        )
+                    }
+
+                    // Technical information
+                    Category(title = stringResource(R.string.technical_info)) {
+                        ListItem(
+                            headline = stringResource(R.string.version),
+                            supportingText = packageInfo.versionName,
+                            divider = true,
+                            dividerThickness = 2.dp,
+                            dividerColor = MaterialTheme.colorScheme.surface,
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.PermDeviceInformation,
+                                    contentDescription = null
+                                )
+                            }
+                        )
+                        @Suppress("DEPRECATION")
+                        ListItem(
+                            headline = stringResource(R.string.version_code),
+                            supportingText = packageInfo.versionCode.toString(),
+                            divider = true,
+                            dividerThickness = 2.dp,
+                            dividerColor = MaterialTheme.colorScheme.surface,
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.Code,
+                                    contentDescription = null
+                                )
+                            }
+                        )
+                        ListItem(
+                            headline = stringResource(R.string.package_name),
+                            supportingText = packageInfo.packageName,
+                            divider = true,
+                            dividerThickness = 2.dp,
+                            dividerColor = MaterialTheme.colorScheme.surface,
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.Label,
+                                    contentDescription = null
+                                )
+                            }
+                        )
+                        ListItem(
+                            headline = stringResource(R.string.package_size),
+                            supportingText = remember {
+                                try {
+                                    val file = File(packageInfo.applicationInfo!!.publicSourceDir)
+                                    val fileSize = file.length()
+                                    if (fileSize < 1024) "$fileSize B"
+                                    else if (fileSize < 1024 * 1024) "${(fileSize / 1024).toFloat().roundToInt()} KB"
+                                    else if (fileSize < 1024 * 1024 * 1024) "${(fileSize / (1024 * 1024)).toFloat().roundToInt()} MB"
+                                    else "${(fileSize / (1024 * 1024 * 1024)).toFloat().roundToInt()} GB"
+                                } catch (e: Exception) {
+                                    unknown
+                                }
+                            },
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.Storage,
+                                    contentDescription = null
+                                )
+                            },
+                            divider = true,
+                            dividerThickness = 2.dp,
+                            dividerColor = MaterialTheme.colorScheme.surface,
+                        )
+                        ListItem(
+                            headline = stringResource(R.string.location),
+                            supportingText = File(packageInfo.applicationInfo!!.publicSourceDir).absolutePath,
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.FilePresent,
+                                    contentDescription = null
+                                )
+                            }
+                        )
+                    }
+                    Category {
+                        ListItem(
+                            headline = stringResource(R.string.permissions),
+                            supportingText = stringResource(R.string.permissions_d),
+                            divider = true,
+                            dividerThickness = 2.dp,
+                            dividerColor = MaterialTheme.colorScheme.surface,
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.PermDeviceInformation,
+                                    contentDescription = null
+                                )
+                            },
+                            onClick = {
+                                val intent = Intent(this@AppInfoActivity, PermissionsActivity::class.java)
+                                intent.putExtra("appPackage", appPackage)
+                                startActivity(intent)
+                            }
+                        )
                     }
                 }
             }

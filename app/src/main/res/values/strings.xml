@@ -206,4 +206,22 @@
     <string name="testing">Testing</string>
     <string name="launch">Launch</string>
     <string name="share">Share</string>
+    <string name="version">Version</string>
+    <string name="version_code">Version code</string>
+    <string name="version_info">Version information</string>
+    <string name="technical_info">Technical information</string>
+    <string name="package_name">Package name</string>
+    <string name="package_size">Package size</string>
+    <string name="system_app_info">System \"App info\"</string>
+    <string name="system_app_info_d">Open the system \"App info\" menu</string>
+    <string name="view_in_gplay">View in Google Play (or other store)</string>
+    <string name="view_in_gplay_d">View this app in Google Play or other stores if it exists</string>
+    <string name="permissions">Permissions</string>
+    <string name="permissions_d">Manage permissions for this app</string>
+    <string name="normalPermissions">Normal permissions</string>
+    <string name="specialPermissions">Special permissions</string>
+    <string name="dangerousPermissions">Dangerous permissions</string>
+    <string name="systemOnlyPermissions">System-only permissions</string>
+    <string name="location">Location</string>
+    <string name="choose_activity">Choose activity</string>
 </resources>

@@ -118,7 +118,7 @@ import ru.morozovit.ultimatesecurity.ui.main.HomeScreen
 import ru.morozovit.ultimatesecurity.ui.main.SettingsScreen
 import ru.morozovit.ultimatesecurity.ui.protection.applocker.ApplockerScreen
 import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.UnlockProtectionScreen
-import ru.morozovit.ultimatesecurity.ui.tools.APKExtractorScreen
+import ru.morozovit.ultimatesecurity.ui.tools.appmanager.AppManagerScreen
 import ru.morozovit.ultimatesecurity.ui.protection.DontTouchMyPhoneScreen
 
 class MainActivity : BaseActivity(
@@ -436,7 +436,7 @@ class MainActivity : BaseActivity(
                         composable(route = TILES) { TilesScreen(EdgeToEdgeBar) }
                         composable(route = SHORTCUTS) { ShortcutsScreen(EdgeToEdgeBar) }
 
-                        composable(route = APK_EXTRACTOR) { APKExtractorScreen(actions, navigation) }
+                        composable(route = APK_EXTRACTOR) { AppManagerScreen(actions, navigation) }
                         composable(route = DONT_TOUCH_MY_PHONE) { DontTouchMyPhoneScreen(EdgeToEdgeBar) }
                     }
                 }

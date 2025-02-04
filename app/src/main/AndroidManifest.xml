@@ -35,8 +35,8 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/app_icon_2"
-        android:roundIcon="@mipmap/app_icon_2_round"
+        android:icon="@mipmap/app_icon_3"
+        android:roundIcon="@mipmap/app_icon_3_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.UltimateSecurity"
@@ -105,7 +105,10 @@
             android:theme="@style/Theme.UltimateSecurity.Licenses" />
 
         <activity
-            android:name=".ui.tools.AppInfoActivity"
+            android:name=".ui.tools.appmanager.AppInfoActivity"
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+        <activity
+            android:name=".ui.tools.appmanager.PermissionsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
 
         <activity

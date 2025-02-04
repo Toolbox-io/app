@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.ui.tools
+package ru.morozovit.ultimatesecurity.ui.tools.appmanager
 
 import android.content.Intent
 import android.content.pm.PackageInfo
@@ -61,7 +61,7 @@ import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun APKExtractorScreen(actions: @Composable RowScope.() -> Unit, navigation: @Composable () -> Unit) {
+fun AppManagerScreen(actions: @Composable RowScope.() -> Unit, navigation: @Composable () -> Unit) {
     // TODO implement
     WindowInsetsHandler {
         with (LocalContext()) {
@@ -297,5 +297,5 @@ fun APKExtractorScreen(actions: @Composable RowScope.() -> Unit, navigation: @Co
 @Composable
 @PhonePreview
 private fun APKExtractorScreenPreview() {
-    APKExtractorScreen(actions = {}, navigation = {})
+    AppManagerScreen(actions = {}, navigation = {})
 }
