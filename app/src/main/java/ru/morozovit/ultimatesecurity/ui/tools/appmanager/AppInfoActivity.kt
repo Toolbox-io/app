@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
@@ -70,7 +71,7 @@ import kotlin.math.roundToInt
 class AppInfoActivity: BaseActivity() {
     private val appPackage by lazy { intent.getStringExtra("appPackage")!! }
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
     @Composable
     @PhonePreview
     fun AppInfoScreen() {

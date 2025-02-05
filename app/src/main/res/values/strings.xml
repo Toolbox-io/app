@@ -107,7 +107,7 @@
     <string name="asasa">As a separate app</string>
     <string name="continue1">Continue</string>
     <string name="rc">Remember your choice</string>
-    <string name="smthwentwrong">Something went wrong. Select an option and try again.</string>
+    <string name="smthwentwrong">Something went wrong</string>
     <string name="fsh">
         A \"Files\" icon was created in the launcher. You can always disable it by pressing
         "Remove icon" on the shortcut in the app.

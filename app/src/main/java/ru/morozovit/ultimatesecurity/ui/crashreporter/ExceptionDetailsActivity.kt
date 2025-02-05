@@ -105,6 +105,7 @@ class ExceptionDetailsActivity: BaseActivity(authEnabled = false) {
 
                     Button(
                         onClick = {
+                            // TODO advanced report
                             reportIssue(this@ExceptionDetailsActivity, exception)
                         },
                         modifier = Modifier.padding(16.dp)

@@ -10,7 +10,8 @@ import ru.morozovit.android.ui.DialogActivity
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.ui.MainActivity
 
-fun startCrashedActivity(exception: Throwable, context: Context) {
+@Suppress("NOTHING_TO_INLINE")
+inline fun startCrashedActivity(exception: Throwable, context: Context) {
     val handler = Handler(Looper.getMainLooper())
     context.startActivity(
         Intent(context, MainActivity::class.java).apply {
