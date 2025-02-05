@@ -110,6 +110,9 @@
         <activity
             android:name=".ui.tools.appmanager.PermissionsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+        <activity
+            android:name=".ui.tools.appmanager.ChooseActivityActivity"
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
 
         <activity
             android:name=".share.SaveActivity"
@@ -122,6 +125,10 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ui.crashreporter.ExceptionDetailsActivity"
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
 
         <receiver
             android:name=".services.UpdateChecker$Companion$Receiver"

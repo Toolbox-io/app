@@ -37,6 +37,7 @@ import ru.morozovit.android.ui.DialogActivity
 import ru.morozovit.ultimatesecurity.App
 import ru.morozovit.ultimatesecurity.App.Companion.UPDATE_CHANNEL_ID
 import ru.morozovit.ultimatesecurity.App.Companion.UPDATE_NOTIFICATION_ID
+import ru.morozovit.ultimatesecurity.App.Companion.githubRateLimitRemaining
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.ui.MainActivity
 import java.io.BufferedInputStream
@@ -65,12 +66,12 @@ class UpdateChecker: JobService() {
                         ),
                         ComponentName(context, UpdateChecker::class.java)
                     ).apply {
-                        if (scheduled) setMinimumLatency(10000)
+                        if (scheduled) setMinimumLatency(60 * 1000)
                         setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
                         setRequiresDeviceIdle(false)
                         setRequiresCharging(false)
                         setBackoffCriteria(
-                            TimeUnit.SECONDS.toMillis(10),
+                            TimeUnit.SECONDS.toMillis(60),
                             JobInfo.BACKOFF_POLICY_LINEAR
                         )
                     }.build()
@@ -139,6 +140,10 @@ class UpdateChecker: JobService() {
         }
 
         fun checkForUpdates(): UpdateInfo? {
+            if (githubRateLimitRemaining < 10) {
+                Log.d("UpdateChecker", "Rate limit almost exceeded.")
+                return null
+            }
             with (App.context) {
                 Log.d("UpdateChecker", "Checking for updates")
                 val request = URL("https://api.github.com/repos/denis0001-dev/Toolbox-io/releases")
@@ -146,6 +151,7 @@ class UpdateChecker: JobService() {
                 request.requestMethod = "GET";
                 request.setRequestProperty("Accept", "application/vnd.github+json")
                 request.setRequestProperty("X-GitHub-Api-Version", "2022-11-28")
+                request.setRequestProperty("Authorization", "Bearer ${App.GITHUB_TOKEN}")
 
                 try {
                     request.connect()
@@ -235,6 +241,9 @@ class UpdateChecker: JobService() {
                     Log.d("UpdateChecker", "Error. \n${ru.morozovit.utils.EParser(e)}")
                     return null
                 } finally {
+                    runCatching {
+                        githubRateLimitRemaining = request.getHeaderField("x-ratelimit-remaining").toLong()
+                    }
                     request.disconnect()
                 }
             }

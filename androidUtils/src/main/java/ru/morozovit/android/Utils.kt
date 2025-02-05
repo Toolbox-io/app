@@ -8,7 +8,9 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_MAIN
+import android.content.Intent.CATEGORY_LAUNCHER
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.hardware.Sensor
@@ -92,6 +94,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCa
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.IOException
 import java.io.InputStream
+import java.io.Serializable
 import java.security.SecureRandom
 import java.util.regex.Pattern
 import javax.crypto.Cipher
@@ -925,4 +928,91 @@ inline fun <reified T: Parcelable> Intent.getParcelableExtraAs(key: String): T {
         @Suppress("DEPRECATION")
         getParcelableExtra(key)
     }!!
+}
+
+inline fun <reified T: Serializable> Intent.getSerializableExtraAs(key: String): T {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getSerializableExtra(key, T::class.java)
+    } else {
+        @Suppress("DEPRECATION")
+        getSerializableExtra(key) as T
+    }!!
+}
+
+fun ActivityInfo.contentEquals(other: ActivityInfo): Boolean {
+    return (
+        (
+            if (Build.VERSION.SDK_INT >= 26)
+                colorMode == other.colorMode
+            else true
+        ) &&
+        (
+            if (Build.VERSION.SDK_INT >= 34)
+                requiredDisplayCategory == other.requiredDisplayCategory
+            else true
+        ) &&
+        theme == other.theme &&
+        launchMode == other.launchMode &&
+        documentLaunchMode == other.documentLaunchMode &&
+        permission == other.permission &&
+        taskAffinity == other.taskAffinity &&
+        targetActivity == other.targetActivity &&
+        flags == other.flags &&
+        screenOrientation == other.screenOrientation &&
+        configChanges == other.configChanges &&
+        softInputMode == other.softInputMode &&
+        uiOptions == other.uiOptions &&
+        parentActivityName == other.parentActivityName &&
+        maxRecents == other.maxRecents &&
+        windowLayout == other.windowLayout
+    )
+}
+
+val ActivityInfo.launchIntent get() = Intent().apply {
+    component = ComponentName(packageName!!, name)
+    flags = FLAG_ACTIVITY_NEW_TASK
+}
+
+fun ActivityInfo.isLauncher(context: Context): Boolean {
+    with (context) {
+        @Suppress("ExplicitThis")
+        val intent = launchIntent.apply {
+            action = ACTION_MAIN
+            addCategory(CATEGORY_LAUNCHER)
+            component = ComponentName(this@isLauncher.packageName!!, name)
+            flags = FLAG_ACTIVITY_NEW_TASK
+        }
+        val infos = packageManager.queryIntentActivities(intent, PackageManager.GET_RESOLVED_FILTER)
+        for (info in infos) {
+            val filter = info.filter
+            if (
+                info.activityInfo.contentEquals(this@isLauncher) &&
+                filter != null &&
+                filter.hasAction(ACTION_MAIN) &&
+                filter.hasCategory(CATEGORY_LAUNCHER)
+            ) {
+                return true
+            }
+        }
+        return false
+    }
+}
+
+fun String.encodeJSON(): String {
+    val out = StringBuilder()
+    for (i in indices) {
+        when (val c: Char = get(i)) {
+            '"', '\\', '/' -> out.append('\\').append(c)
+            '\t' -> out.append("\\t")
+            '\b' -> out.append("\\b")
+            '\n' -> out.append("\\n")
+            '\r' -> out.append("\\r")
+            else -> if (c.code <= 0x1F) {
+                out.append(String.format("\\u%04x", c.code))
+            } else {
+                out.append(c)
+            }
+        }
+    }
+    return "$out"
 }

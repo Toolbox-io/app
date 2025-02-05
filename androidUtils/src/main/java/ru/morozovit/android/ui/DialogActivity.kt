@@ -24,6 +24,11 @@ class DialogActivity: AppCompatActivity() {
         @PublishedApi internal var positiveButtonOnClick: (DialogActivity.() -> Unit)? = null
         @PublishedApi internal var negativeButtonOnClick: (DialogActivity.() -> Unit)? = null
         @PublishedApi internal var neutralButtonOnClick: (DialogActivity.() -> Unit)? = null
+        @PublishedApi internal var onCreate: (DialogActivity.() -> Unit)? = null
+        @PublishedApi internal var onPause: (DialogActivity.() -> Unit)? = null
+        @PublishedApi internal var onResume: (DialogActivity.() -> Unit)? = null
+        @PublishedApi internal var onDestroy: (DialogActivity.() -> Unit)? = null
+        @PublishedApi internal var onDismiss: (DialogActivity.() -> Boolean)? = null
 
         inline fun getLaunchIntent(
             context: Context,
@@ -32,22 +37,42 @@ class DialogActivity: AppCompatActivity() {
             positiveButtonText: String? = null,
             negativeButtonText: String? = null,
             neutralButtonText: String? = null,
-            noinline positiveButtonOnClick: (DialogActivity.() -> Unit)? = {},
-            noinline negativeButtonOnClick: (DialogActivity.() -> Unit)? = {},
-            noinline neutralButtonOnClick: (DialogActivity.() -> Unit)? = {},
+            noinline positiveButtonOnClick: (DialogActivity.() -> Unit)? = null,
+            noinline negativeButtonOnClick: (DialogActivity.() -> Unit)? = null,
+            noinline neutralButtonOnClick: (DialogActivity.() -> Unit)? = null,
+            noinline onCreate: (DialogActivity.() -> Unit)? = null,
+            noinline onPause: (DialogActivity.() -> Unit)? = null,
+            noinline onResume: (DialogActivity.() -> Unit)? = null,
+            noinline onDestroy: (DialogActivity.() -> Unit)? = null,
+            noinline onDismiss: (DialogActivity.() -> Boolean)? = null,
             intentModifier: (Intent.() -> Intent) = {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 this
             }
         ): Intent {
             if (positiveButtonText != null) {
-                this.positiveButtonOnClick = positiveButtonOnClick!!
+                this.positiveButtonOnClick = positiveButtonOnClick
             }
             if (negativeButtonText != null) {
-                this.negativeButtonOnClick = negativeButtonOnClick!!
+                this.negativeButtonOnClick = negativeButtonOnClick
             }
             if (neutralButtonText != null) {
-                this.neutralButtonOnClick = neutralButtonOnClick!!
+                this.neutralButtonOnClick = neutralButtonOnClick
+            }
+            if (onCreate != null) {
+                this.onCreate = onCreate
+            }
+            if (onPause != null) {
+                this.onPause = onPause
+            }
+            if (onResume != null) {
+                this.onResume = onResume
+            }
+            if (onDestroy != null) {
+                this.onDestroy = onDestroy
+            }
+            if (onDismiss != null) {
+                this.onDismiss = onDismiss
             }
 
             return Intent(context, DialogActivity::class.java).let {
@@ -70,7 +95,15 @@ class DialogActivity: AppCompatActivity() {
             noinline positiveButtonOnClick: (DialogActivity.() -> Unit)? = null,
             noinline negativeButtonOnClick: (DialogActivity.() -> Unit)? = null,
             noinline neutralButtonOnClick: (DialogActivity.() -> Unit)? = null,
-            intentModifier: (Intent.() -> Intent) = { this }
+            noinline onCreate: (DialogActivity.() -> Unit)? = null,
+            noinline onPause: (DialogActivity.() -> Unit)? = null,
+            noinline onResume: (DialogActivity.() -> Unit)? = null,
+            noinline onDestroy: (DialogActivity.() -> Unit)? = null,
+            noinline onDismiss: (DialogActivity.() -> Boolean)? = null,
+            intentModifier: (Intent.() -> Intent) = {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                this
+            }
         ) {
             context.startActivity(
                 getLaunchIntent(
@@ -83,6 +116,11 @@ class DialogActivity: AppCompatActivity() {
                     positiveButtonOnClick,
                     negativeButtonOnClick,
                     neutralButtonOnClick,
+                    onCreate,
+                    onPause,
+                    onResume,
+                    onDestroy,
+                    onDismiss,
                     intentModifier
                 )
             )
@@ -124,9 +162,12 @@ class DialogActivity: AppCompatActivity() {
             }
             dialog.setOnDismissListener {
                 handler.postDelayed(500) {
-                    super.finish()
+                    if (onDismiss?.invoke(this) != false) {
+                        super.finish()
+                    }
                 }
             }
+            onCreate?.invoke(this)
         } catch (e: Exception) {
             setResult(RESULT_ERROR)
             finish()
@@ -140,5 +181,20 @@ class DialogActivity: AppCompatActivity() {
         handler.postDelayed(500) {
             super.finish()
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        onPause?.invoke(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        onResume?.invoke(this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        onDestroy?.invoke(this)
     }
 }

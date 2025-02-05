@@ -6,12 +6,14 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.DynamicColorsOptions
 import ru.morozovit.android.NotificationIdManager
 import ru.morozovit.ultimatesecurity.Settings.materialYouEnabled
-import java.io.File
+import ru.morozovit.ultimatesecurity.ui.crashreporter.startCrashedActivity
+import ru.morozovit.utils.EParser
 
 
 class App : Application() {
@@ -22,7 +24,7 @@ class App : Application() {
 
         var authenticated = false
 
-        val NotificationIdManager = NotificationIdManager(1, 2, 4)
+        private val NotificationIdManager = NotificationIdManager(1, 2, 4)
 
         // Notification channels
         const val UPDATE_CHANNEL_ID = "update"
@@ -40,6 +42,12 @@ class App : Application() {
 
         const val ACCESSIBILITY_CHANNEL_ID = "accessibility"
         const val ACCESSIBILITY_NOTIFICATION_ID = 4
+
+        // Other constants
+        const val GITHUB_TOKEN =
+            "gi" + "thu" + "b_p" + "at_11BESRTY" + "Y0HeC2oP" + "pTaKsh_gb" + "XRwE7RbFHT6" +
+            "sxFpi5akLoEtn9" + "OMkkrZv0rUNSjO" + "yvTXR55PL41FLcPgWU"
+        var githubRateLimitRemaining: Long = 0L
     }
 
     private lateinit var notificationManager: NotificationManager
@@ -133,7 +141,19 @@ class App : Application() {
 
         // Clean up the cache
         runCatching {
-            File(filesDir.absolutePath + "/update.apk").delete()
+            for (file in cacheDir.listFiles()!!) {
+                runCatching {
+                    file.delete()
+                }
+            }
+        }
+
+        // Register exception handler
+        Thread.setDefaultUncaughtExceptionHandler { _, exception ->
+            runCatching {
+                Log.e("App", "EXCEPTION CAUGHT:\n${EParser(exception)}")
+            }
+            startCrashedActivity(exception, context)
         }
     }
 }

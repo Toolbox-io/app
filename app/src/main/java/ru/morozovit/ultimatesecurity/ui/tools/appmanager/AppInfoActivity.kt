@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -148,12 +148,16 @@ class AppInfoActivity: BaseActivity() {
                             title: String,
                             icon: ImageVector,
                             enabled: Boolean = true,
-                            onClick: () -> Unit
+                            onClick: () -> Unit,
+                            onLongClick: (() -> Unit)? = null
                         ) {
                             Column(
                                 modifier =
                                     if (enabled) {
-                                        Modifier.clickable(onClick = onClick)
+                                        Modifier.combinedClickable(
+                                            onClick = onClick,
+                                            onLongClick = onLongClick
+                                        )
                                     } else {
                                         Modifier
                                     }
@@ -181,6 +185,17 @@ class AppInfoActivity: BaseActivity() {
                         }
 
                         Row(Modifier.height(IntrinsicSize.Max)) {
+                            fun launchChooseActivity() {
+                                startActivity(
+                                    Intent(
+                                        this@AppInfoActivity,
+                                        ChooseActivityActivity::class.java
+                                    ).apply {
+                                        putExtra("appPackage", appPackage)
+                                    }
+                                )
+                            }
+
                             HeaderItem(
                                 title = stringResource(R.string.launch),
                                 icon = Icons.AutoMirrored.Filled.Launch,
@@ -188,16 +203,10 @@ class AppInfoActivity: BaseActivity() {
                                     if (launchIntent != null) {
                                         startActivity(launchIntent)
                                     } else {
-                                        startActivity(
-                                            Intent(
-                                                this@AppInfoActivity,
-                                                ChooseActivityActivity::class.java
-                                            ).apply {
-                                                putExtra("appPackage", appPackage)
-                                            }
-                                        )
+                                        launchChooseActivity()
                                     }
                                 },
+                                onLongClick = ::launchChooseActivity,
                                 enabled = !packageInfo.activities.isNullOrEmpty()
                             )
                             VerticalDivider(
@@ -395,6 +404,8 @@ class AppInfoActivity: BaseActivity() {
                                 startActivity(intent)
                             }
                         )
+                        // TODO services
+                        // TODO broadcast receivers
                     }
                 }
             }

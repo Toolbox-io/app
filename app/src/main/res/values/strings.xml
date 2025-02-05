@@ -217,11 +217,18 @@
     <string name="view_in_gplay">View in Google Play (or other store)</string>
     <string name="view_in_gplay_d">View this app in Google Play or other stores if it exists</string>
     <string name="permissions">Permissions</string>
-    <string name="permissions_d">Manage permissions for this app</string>
+    <string name="permissions_d">View permissions declared in the manifest of this app</string>
     <string name="normalPermissions">Normal permissions</string>
     <string name="specialPermissions">Special permissions</string>
     <string name="dangerousPermissions">Dangerous permissions</string>
     <string name="systemOnlyPermissions">System-only permissions</string>
     <string name="location">Location</string>
     <string name="choose_activity">Choose activity</string>
+    <string name="im_sorry">I\'m sorry :(</string>
+    <string name="crash_d">This app has recovered from an error and restarted automatically. \nYou can view the error and report it by pressing "Details".</string>
+    <string name="issuecreated">Issue #%1$d has been successfully created.</string>
+    <string name="details">Details</string>
+    <string name="error_info">Error info</string>
+    <string name="report">Report</string>
+    <string name="report_d">By clicking \"Report\", you agree that the following information will be sent:\n- android version;\n- device manufactor, brand, model;\n- app version;\n- the exception shown above.\nAll reports are anonymous and don\'t contain any information not listed above.</string>
 </resources>
