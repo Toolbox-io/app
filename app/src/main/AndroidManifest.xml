@@ -53,6 +53,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.main.DeveloperOptionsActivity"
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
 
         <activity
             android:name="ru.morozovit.ultimatesecurity.ui.protection.applocker.SelectAppsActivity"
