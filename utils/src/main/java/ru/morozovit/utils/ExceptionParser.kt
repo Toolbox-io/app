@@ -4,6 +4,8 @@ package ru.morozovit.utils
 
 import java.io.PrintWriter
 import java.io.StringWriter
+import java.util.Collections
+import java.util.IdentityHashMap
 
 typealias ExcParser = ExceptionParser
 typealias EParser = ExceptionParser
@@ -29,11 +31,134 @@ class ExceptionParser(val exception: Throwable) {
     val cause get() = exception.cause
     val causeParser get() = cause?.let { ExceptionParser(it) }
 
+    private fun Throwable.fallbackToString(writer: PrintWriter) {
+        val visitedExceptions: MutableSet<Throwable> = Collections.newSetFromMap(IdentityHashMap())
+        visitedExceptions.add(this)
+        writer.println(this)
+        val trace: Array<StackTraceElement> = this.stackTrace
+        var size = trace.size
+        var counter = 0
+        while (counter < size) {
+            val traceElement = trace[counter]
+            writer.println("\tat $traceElement")
+            ++counter
+        }
+
+        size = suppressed.size
+
+        counter = 0
+        while (counter < size) {
+            val suppressedException = suppressed[counter]
+            suppressedException.printEnclosedStackTrace(
+                writer,
+                trace,
+                "Suppressed: ",
+                "\t",
+                visitedExceptions
+            )
+            ++counter
+        }
+
+        this.cause?.printEnclosedStackTrace(
+            writer,
+            trace,
+            "Caused by: ",
+            "",
+            visitedExceptions
+        )
+    }
+
+    private fun Throwable.printEnclosedStackTrace(
+        writer: PrintWriter,
+        enclosingTrace: Array<StackTraceElement>,
+        caption: String,
+        prefix: String,
+        visitedExceptions: MutableSet<Throwable>
+    ) {
+        try {
+            if (visitedExceptions.contains(this)) {
+                writer.println("$prefix$caption[CIRCULAR REFERENCE: $this]")
+            } else {
+                visitedExceptions.add(this)
+                val trace: Array<StackTraceElement> = this.stackTrace
+                var m = trace.size - 1
+
+                var n = enclosingTrace.size - 1
+                while (m >= 0 && n >= 0 && trace[m] == enclosingTrace[n]) {
+                    --m
+                    --n
+                }
+
+                val framesInCommon = trace.size - 1 - m
+                writer.println(prefix + caption + this)
+
+                for (i in 0..m) {
+                    writer.println(prefix + "\tat " + trace[i])
+                }
+
+                if (framesInCommon != 0) {
+                    writer.println("$prefix\t... $framesInCommon more")
+                }
+
+                for (element in suppressed) {
+                    element.printEnclosedStackTrace(
+                        writer,
+                        trace,
+                        "Suppressed: ",
+                        prefix + "\t",
+                        visitedExceptions
+                    )
+                }
+
+                this.cause?.printEnclosedStackTrace(
+                    writer,
+                    trace,
+                    "Caused by: ",
+                    prefix,
+                    visitedExceptions
+                )
+            }
+        } catch (e: Exception) {
+            runCatching {
+                e.printStackTrace()
+            }
+            writer.println("$prefix$caption[Exception ocurred while printing stack trace]")
+        }
+    }
+
     override fun toString(): String {
-        val sw = StringWriter()
-        val pw = PrintWriter(sw)
-        exception.printStackTrace(pw)
-        return "$sw"
+        try {
+            val sw = StringWriter()
+            val pw = PrintWriter(sw)
+            exception.printStackTrace(pw)
+            return "$sw"
+        } catch (e: Exception) {
+            runCatching {
+                e.printStackTrace()
+            }
+            try {
+                val sw = StringWriter()
+                val pw = PrintWriter(sw)
+                exception.fallbackToString(pw)
+                return "$sw"
+            } catch (e: Exception) {
+                var exceptionStr: String? = null
+                runCatching {
+                    exceptionStr = "${EParser(e)}"
+                }
+                return if (exceptionStr != null) {
+                    """
+                    |Cannot show exception details, because another exception occurred.
+                    |
+                    |$exceptionStr
+                """.trimMargin()
+                } else {
+                    """
+                    Cannot show exception details, because another exception occurred.
+                """.trimIndent()
+                }
+            }
+        }
     }
 
     override fun equals(other: Any?): Boolean {

@@ -56,13 +56,11 @@ import ru.morozovit.android.async
 import ru.morozovit.android.invoke
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.ultimatesecurity.R
-import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppManagerScreen(actions: @Composable RowScope.() -> Unit, navigation: @Composable () -> Unit) {
-    // TODO implement
     WindowInsetsHandler {
         with (LocalContext()) {
             val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
@@ -292,10 +290,4 @@ fun AppManagerScreen(actions: @Composable RowScope.() -> Unit, navigation: @Comp
             }
         }
     }
-}
-
-@Composable
-@PhonePreview
-private fun APKExtractorScreenPreview() {
-    AppManagerScreen(actions = {}, navigation = {})
 }

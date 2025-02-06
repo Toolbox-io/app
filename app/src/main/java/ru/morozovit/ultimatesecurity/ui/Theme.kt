@@ -32,7 +32,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import ru.morozovit.android.invoke
 import ru.morozovit.android.plus
-import ru.morozovit.android.previewUtils
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.materialYouEnabled
 
@@ -158,8 +157,6 @@ fun AppTheme(
     enforceNavContrast: Boolean = false,
     content: @Composable WindowInsetsScope.() -> Unit
 ) {
-    val (_, _, isPreview) = previewUtils()
-
     var colorScheme = when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && dynamicThemeEnabled -> {
             val context = LocalContext()
@@ -243,15 +240,13 @@ fun AppTheme(
         surfaceContainerHighest = surfaceContainerHighest
     )
 
-    if (!isPreview) {
-        WindowCompat.getInsetsController(
-            (LocalContext() as Activity).window,
-            LocalView()
-        ).isAppearanceLightStatusBars = !darkTheme
+    WindowCompat.getInsetsController(
+        (LocalContext() as Activity).window,
+        LocalView()
+    ).isAppearanceLightStatusBars = !darkTheme
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            (LocalContext() as Activity).window.isNavigationBarContrastEnforced = enforceNavContrast
-        }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        (LocalContext() as Activity).window.isNavigationBarContrastEnforced = enforceNavContrast
     }
 
     MaterialTheme(

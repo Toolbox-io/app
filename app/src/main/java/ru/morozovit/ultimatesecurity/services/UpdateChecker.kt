@@ -140,7 +140,7 @@ class UpdateChecker: JobService() {
         }
 
         fun checkForUpdates(): UpdateInfo? {
-            if (githubRateLimitRemaining < 10) {
+            if (githubRateLimitRemaining < 10 && githubRateLimitRemaining != -1L) {
                 Log.d("UpdateChecker", "Rate limit almost exceeded.")
                 return null
             }

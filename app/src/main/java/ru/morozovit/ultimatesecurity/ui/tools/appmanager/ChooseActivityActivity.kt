@@ -1,7 +1,13 @@
 package ru.morozovit.ultimatesecurity.ui.tools.appmanager
 
+import android.content.ComponentName
+import android.content.Intent
+import android.content.Intent.ACTION_MAIN
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.content.pm.ShortcutInfo
+import android.content.pm.ShortcutManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -16,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Shortcut
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,21 +42,21 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayoutScope
 import androidx.core.graphics.drawable.toBitmap
+import ru.morozovit.android.getSystemService
 import ru.morozovit.android.isLauncher
 import ru.morozovit.android.launchIntent
 import ru.morozovit.android.ui.Category
+import ru.morozovit.android.ui.IntentActivity
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.ui.AppTheme
-import ru.morozovit.ultimatesecurity.ui.PhonePreview
 
 class ChooseActivityActivity: BaseActivity() {
     private val appPackage by lazy { intent.getStringExtra("appPackage")!! }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    @PhonePreview
     fun ChooseActivityScreen() {
         AppTheme {
             val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
@@ -112,6 +119,54 @@ class ChooseActivityActivity: BaseActivity() {
                                     .clip(RoundedCornerShape(30.dp))
                             )
                         }
+                        val trailingContent: @Composable ConstraintLayoutScope.() -> Unit = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                IconButton(
+                                    onClick = {
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                            val shortcutManager = getSystemService(ShortcutManager::class)!!
+                                            if (shortcutManager.isRequestPinShortcutSupported) {
+                                                val shortcutInfo = ShortcutInfo.Builder(
+                                                    this@ChooseActivityActivity,
+                                                    "${activity.packageName}:${activity.name}"
+                                                )
+                                                    .setShortLabel(activity.loadLabel(packageManager))
+                                                    .setLongLabel(activity.loadLabel(packageManager))
+                                                    .setIcon(
+                                                        try {
+                                                            android.graphics.drawable.Icon.createWithAdaptiveBitmap(
+                                                                activity.loadIcon(packageManager).toBitmap()
+                                                            )
+                                                        } catch (e: Exception) {
+                                                            android.graphics.drawable.Icon.createWithBitmap(
+                                                                activity.loadIcon(packageManager).toBitmap()
+                                                            )
+                                                        }
+                                                    )
+                                                    .setIntent(
+                                                        Intent(
+                                                            this@ChooseActivityActivity,
+                                                            IntentActivity::class.java
+                                                        ).apply {
+                                                            val component = ComponentName(activity.packageName, activity.name)
+                                                            putExtra(IntentActivity.EXTRA_PACKAGE_NAME, component.packageName)
+                                                            putExtra(IntentActivity.EXTRA_CLASS_NAME, component.className)
+                                                            action = ACTION_MAIN
+                                                        }
+                                                    )
+                                                    .build()
+                                                shortcutManager.requestPinShortcut(shortcutInfo, null)
+                                            }
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.Shortcut,
+                                        contentDescription = null
+                                    )
+                                }
+                            }
+                        }
                         val smthwentwrong = stringResource(R.string.smthwentwrong)
 
                         fun onClick() {
@@ -130,6 +185,7 @@ class ChooseActivityActivity: BaseActivity() {
                                 dividerThickness = 2.dp,
                                 dividerColor = MaterialTheme.colorScheme.surface,
                                 leadingContent = leadingContent,
+                                trailingContent = trailingContent,
                                 onClick = ::onClick
                             )
                         } else {
@@ -137,6 +193,7 @@ class ChooseActivityActivity: BaseActivity() {
                                 headline = label,
                                 supportingText = activity.name,
                                 leadingContent = leadingContent,
+                                trailingContent = trailingContent,
                                 onClick = ::onClick
                             )
                         }

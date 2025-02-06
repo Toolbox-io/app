@@ -231,4 +231,7 @@
     <string name="error_info">Error info</string>
     <string name="report">Report</string>
     <string name="report_d">By clicking \"Report\", you agree that the following information will be sent:\n- android version;\n- device manufactor, brand, model;\n- app version;\n- the exception shown above.\nAll reports are anonymous and don\'t contain any information not listed above.</string>
+    <string name="one_question">One question</string>
+    <string name="one_question_d">What have you done before this error happened?\n\nYou can skip this if you want.</string>
+    <string name="save_file">Save file</string>
 </resources>

@@ -116,10 +116,10 @@ import ru.morozovit.ultimatesecurity.ui.customization.shortcuts.ShortcutsScreen
 import ru.morozovit.ultimatesecurity.ui.main.AboutScreen
 import ru.morozovit.ultimatesecurity.ui.main.HomeScreen
 import ru.morozovit.ultimatesecurity.ui.main.SettingsScreen
+import ru.morozovit.ultimatesecurity.ui.protection.DontTouchMyPhoneScreen
 import ru.morozovit.ultimatesecurity.ui.protection.applocker.ApplockerScreen
 import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.UnlockProtectionScreen
 import ru.morozovit.ultimatesecurity.ui.tools.appmanager.AppManagerScreen
-import ru.morozovit.ultimatesecurity.ui.protection.DontTouchMyPhoneScreen
 
 class MainActivity : BaseActivity(
     backButtonBehavior = Companion.BackButtonBehavior.DEFAULT,
@@ -228,7 +228,6 @@ class MainActivity : BaseActivity(
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    @PhonePreview
     fun MainScreen() {
         AppTheme(consumeLeftInsets = true, consumeRightInsets = true) {
             val drawerState = rememberDrawerState(DrawerValue.Closed)

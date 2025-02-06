@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
@@ -62,7 +61,6 @@ import ru.morozovit.android.ui.ListItem
 import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.ui.AppTheme
-import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -71,9 +69,8 @@ import kotlin.math.roundToInt
 class AppInfoActivity: BaseActivity() {
     private val appPackage by lazy { intent.getStringExtra("appPackage")!! }
 
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    @PhonePreview
     fun AppInfoScreen() {
         AppTheme {
             val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
@@ -385,28 +382,6 @@ class AppInfoActivity: BaseActivity() {
                                 )
                             }
                         )
-                    }
-                    Category {
-                        ListItem(
-                            headline = stringResource(R.string.permissions),
-                            supportingText = stringResource(R.string.permissions_d),
-                            divider = true,
-                            dividerThickness = 2.dp,
-                            dividerColor = MaterialTheme.colorScheme.surface,
-                            leadingContent = {
-                                Icon(
-                                    imageVector = Icons.Filled.PermDeviceInformation,
-                                    contentDescription = null
-                                )
-                            },
-                            onClick = {
-                                val intent = Intent(this@AppInfoActivity, PermissionsActivity::class.java)
-                                intent.putExtra("appPackage", appPackage)
-                                startActivity(intent)
-                            }
-                        )
-                        // TODO services
-                        // TODO broadcast receivers
                     }
                 }
             }

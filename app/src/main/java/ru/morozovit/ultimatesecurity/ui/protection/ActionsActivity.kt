@@ -38,7 +38,6 @@ import kotlinx.coroutines.launch
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
 import ru.morozovit.android.copy
-import ru.morozovit.android.previewUtils
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.CategoryDefaults
 import ru.morozovit.android.ui.SeparatedSwitchListItem
@@ -47,7 +46,6 @@ import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.ui.AppTheme
-import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.AlarmSettingsActivity
 import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoSettingsActivity
 
@@ -57,7 +55,6 @@ class ActionsActivity: BaseActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @Composable
-    @PhonePreview
     fun ActionsScreen() {
         AppTheme {
             val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
@@ -91,15 +88,12 @@ class ActionsActivity: BaseActivity() {
                         .padding(innerPadding)
                         .verticalScroll(rememberScrollState()),
                 ) {
-                    val (valueOrFalse, runOrNoop) = previewUtils()
                     val coroutineScope = rememberCoroutineScope()
 
                     Category(margin = CategoryDefaults.margin.copy(top = 16.dp)) {
                         var alarm by remember {
                             mutableStateOf(
-                                valueOrFalse {
-                                    Settings.UnlockProtection.Alarm.enabled
-                                }
+                                Settings.UnlockProtection.Alarm.enabled
                             )
                         }
                         val alarmOnCheckedChange: (Boolean) -> Unit = {
@@ -114,15 +108,13 @@ class ActionsActivity: BaseActivity() {
                             checked = alarm,
                             onCheckedChange = alarmOnCheckedChange,
                             bodyOnClick = {
-                                runOrNoop {
-                                    activityLauncher.launch(
-                                        Intent(
-                                            this@ActionsActivity,
-                                            AlarmSettingsActivity::class.java
-                                        )
-                                    ) {
-                                        alarm = Settings.UnlockProtection.Alarm.enabled
-                                    }
+                                activityLauncher.launch(
+                                    Intent(
+                                        this@ActionsActivity,
+                                        AlarmSettingsActivity::class.java
+                                    )
+                                ) {
+                                    alarm = Settings.UnlockProtection.Alarm.enabled
                                 }
                             },
                             divider = true,
@@ -138,9 +130,7 @@ class ActionsActivity: BaseActivity() {
 
                         var intruderPhoto by remember {
                             mutableStateOf(
-                                valueOrFalse {
-                                    Settings.UnlockProtection.IntruderPhoto.enabled
-                                }
+                                Settings.UnlockProtection.IntruderPhoto.enabled
                             )
                         }
                         val intruderPhotoOnCheckedChange: (Boolean) -> Unit = {

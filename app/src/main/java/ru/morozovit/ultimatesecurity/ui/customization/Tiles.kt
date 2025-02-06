@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import ru.morozovit.android.previewUtils
 import ru.morozovit.android.ui.ToggleIconButton
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings.Tiles.sleep
@@ -38,8 +37,6 @@ import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 fun TilesScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) {
     WindowInsetsHandler {
         EdgeToEdgeBar {
-            val (_, _, _, valueOrTrue) = previewUtils()
-
             FlowRow(
                 Modifier
                     .verticalScroll(rememberScrollState())
@@ -57,14 +54,12 @@ fun TilesScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) {
                     ) {
                         var checked by remember {
                             mutableStateOf(
-                                valueOrTrue {
-                                    SleepTile.instance?.enabled ?: true
-                                }
+                                SleepTile.instance?.enabled ?: true
                             )
                         }
                         var enabled by remember {
                             mutableStateOf(
-                                valueOrTrue { sleep }
+                                sleep
                             )
                         }
 
@@ -72,9 +67,7 @@ fun TilesScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) {
                             Modifier
                                 .padding(bottom = 10.dp)
                                 .onFocusChanged {
-                                    checked = valueOrTrue {
-                                        SleepTile.instance?.enabled ?: true
-                                    }
+                                    checked = SleepTile.instance?.enabled ?: true
                                 }
                         ) {
                             ToggleIconButton(
@@ -94,7 +87,7 @@ fun TilesScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) {
 
                         var switchChecked by remember {
                             mutableStateOf(
-                                valueOrTrue { sleep }
+                                sleep
                             )
                         }
 

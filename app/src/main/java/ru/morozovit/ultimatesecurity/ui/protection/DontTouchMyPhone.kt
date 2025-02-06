@@ -32,7 +32,6 @@ import ru.morozovit.android.SensorEventListener
 import ru.morozovit.android.copy
 import ru.morozovit.android.invoke
 import ru.morozovit.android.orientationSensorEventListener
-import ru.morozovit.android.previewUtils
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.CategoryDefaults
 import ru.morozovit.android.ui.ListItem
@@ -49,7 +48,6 @@ fun DontTouchMyPhoneScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -
         EdgeToEdgeBar {
             Column {
                 val context = LocalContext()
-                val (_, runOrNoop) = previewUtils()
                 val sensorManager = remember { context.getSystemService(SensorManager::class.java) }
                 val mediaPlayer = remember { MediaPlayer() }
 
@@ -152,14 +150,12 @@ fun DontTouchMyPhoneScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -
                         headline = stringResource(R.string.actions),
                         supportingText = stringResource(R.string.actions_d),
                         onClick = {
-                            runOrNoop {
-                                context.startActivity(
-                                    Intent(
-                                        context,
-                                        ActionsActivity::class.java
-                                    )
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    ActionsActivity::class.java
                                 )
-                            }
+                            )
                         },
                         leadingContent = {
                             Icon(

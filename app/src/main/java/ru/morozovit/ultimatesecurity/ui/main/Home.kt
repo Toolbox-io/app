@@ -30,7 +30,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ru.morozovit.android.async
 import ru.morozovit.android.invoke
-import ru.morozovit.android.previewUtils
 import ru.morozovit.ultimatesecurity.App
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings.update_dsa
@@ -45,11 +44,10 @@ fun HomeScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) {
     WindowInsetsHandler {
         EdgeToEdgeBar {
             Column(Modifier.verticalScroll(rememberScrollState())) {
-                val (valueOrFalse, runOrNoop) = previewUtils()
                 val context = LocalContext() as MainActivity
 
                 // UPDATE
-                if (valueOrFalse { !update_dsa }) {
+                if (!update_dsa) {
                     var isUpdateCardVisible by remember { mutableStateOf(false) }
 
                     val versionFormat = stringResource(R.string.update_version)
@@ -103,23 +101,21 @@ fun HomeScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) {
                     }
 
                     LaunchedEffect(Unit) {
-                        runOrNoop {
-                            async {
-                                runCatching {
-                                    val info = checkForUpdates()!!
-                                    if (info.available) {
-                                        version = String.format(versionFormat, info.version)
-                                        body = info.description
-                                        downloadOnClick = {
-                                            context.sendBroadcast(
-                                                Intent(App.context, DownloadBroadcastReceiver::class.java).apply {
-                                                    action = DOWNLOAD_BROADCAST
-                                                    putExtra("updateInfo", info)
-                                                }
-                                            )
-                                        }
-                                        isUpdateCardVisible = true
+                        async {
+                            runCatching {
+                                val info = checkForUpdates()!!
+                                if (info.available) {
+                                    version = String.format(versionFormat, info.version)
+                                    body = info.description
+                                    downloadOnClick = {
+                                        context.sendBroadcast(
+                                            Intent(App.context, DownloadBroadcastReceiver::class.java).apply {
+                                                action = DOWNLOAD_BROADCAST
+                                                putExtra("updateInfo", info)
+                                            }
+                                        )
                                     }
+                                    isUpdateCardVisible = true
                                 }
                             }
                         }

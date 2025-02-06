@@ -32,7 +32,6 @@ import ru.morozovit.android.ui.Website
 import ru.morozovit.ultimatesecurity.BuildConfig
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.ui.AppIcon
-import ru.morozovit.ultimatesecurity.ui.PhonePreview
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 
 @Composable

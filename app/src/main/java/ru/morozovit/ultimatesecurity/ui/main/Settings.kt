@@ -45,7 +45,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ru.morozovit.android.invoke
-import ru.morozovit.android.previewUtils
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SeparatedSwitchListItem
@@ -69,8 +68,6 @@ import ru.morozovit.ultimatesecurity.ui.theme
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) {
-    val (valueOrFalse, runOrNoop) = previewUtils()
-
     val c = LocalContext()
     val context by lazy { c as MainActivity }
     val dpm by lazy {
@@ -85,49 +82,41 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) 
 
     // Device admin
     var devAdmSwitch by remember {
-        mutableStateOf(
-            valueOrFalse {
-                dpm.isAdminActive(adminComponentName)
-            }
-        )
+        mutableStateOf(dpm.isAdminActive(adminComponentName))
     }
     val devAdmOnCheckedChanged: (Boolean) -> Unit = {
-        runOrNoop {
-            if (it) {
-                activityLauncher.launch(Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
-                    putExtra(
-                        DevicePolicyManager.EXTRA_DEVICE_ADMIN,
-                        adminComponentName
-                    )
-                    putExtra(
-                        DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-                        context.resources.getString(R.string.devadmin_ed)
-                    )
-                }) { result ->
-                    devAdmSwitch = result.resultCode == RESULT_OK
-                }
-            } else {
-                dpm.removeActiveAdmin(adminComponentName)
-                Settings.UnlockProtection.enabled = false
-                devAdmSwitch = false
+        if (it) {
+            activityLauncher.launch(Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
+                putExtra(
+                    DevicePolicyManager.EXTRA_DEVICE_ADMIN,
+                    adminComponentName
+                )
+                putExtra(
+                    DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                    context.resources.getString(R.string.devadmin_ed)
+                )
+            }) { result ->
+                devAdmSwitch = result.resultCode == RESULT_OK
             }
+        } else {
+            dpm.removeActiveAdmin(adminComponentName)
+            Settings.UnlockProtection.enabled = false
+            devAdmSwitch = false
         }
     }
 
     // Allow biometric
     var allowBiometricSwitchEnabled by remember {
         mutableStateOf(
-            valueOrFalse {
-                Settings.Keys.App.isSet &&
-                        BiometricManager.from(context).canAuthenticate(
-                            BiometricManager.Authenticators.BIOMETRIC_STRONG
-                        ) == BIOMETRIC_SUCCESS
-            }
+            Settings.Keys.App.isSet &&
+            BiometricManager.from(context).canAuthenticate(
+                BiometricManager.Authenticators.BIOMETRIC_STRONG
+            ) == BIOMETRIC_SUCCESS
         )
     }
     var allowBiometricSwitch by remember {
         mutableStateOf(
-            valueOrFalse { allowBiometric }
+            allowBiometric
         )
     }
     val allowBiometricSwitchOnCheckedChanged: (Boolean) -> Unit = {
@@ -137,11 +126,7 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) 
 
     // Password lock
     var passwordSwitch by remember {
-        mutableStateOf(
-            valueOrFalse {
-                Settings.Keys.App.isSet
-            }
-        )
+        mutableStateOf(Settings.Keys.App.isSet)
     }
     fun setPassword() {
         activityLauncher.launch(
@@ -178,7 +163,7 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) 
     // Don't show in recents
     var dontShowInRecentsSwitch by remember {
         mutableStateOf(
-            valueOrFalse { dontShowInRecents }
+            dontShowInRecents
         )
     }
     val dontShowInRecentsOnCheckedChanged: (Boolean) -> Unit = {
@@ -187,24 +172,18 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) 
     }
 
     // Material You
-    runOrNoop {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
-            materialYouEnabled = false
-    }
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
+        materialYouEnabled = false
     var materialYouSwitch by remember {
         mutableStateOf(
-            valueOrFalse {
-                materialYouEnabled
-            }
+            materialYouEnabled
         )
     }
     val materialYouOnCheckedChanged: (Boolean) -> Unit = {
         materialYouSwitch = it
-        runOrNoop {
-            materialYouEnabled = it
-            dynamicThemeEnabled = it
-            context.configureTheme()
-        }
+        materialYouEnabled = it
+        dynamicThemeEnabled = it
+        context.configureTheme()
     }
 
     // Delete app dialog
@@ -320,14 +299,12 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) 
                         headline = stringResource(R.string.actions),
                         supportingText = stringResource(R.string.actions_d),
                         onClick = {
-                            runOrNoop {
-                                context.startActivity(
-                                    Intent(
-                                        context,
-                                        ActionsActivity::class.java
-                                    )
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    ActionsActivity::class.java
                                 )
-                            }
+                            )
                         },
                         leadingContent = {
                             Icon(

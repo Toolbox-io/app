@@ -67,7 +67,8 @@
             android:name="ru.morozovit.ultimatesecurity.ui.protection.applocker.PasswordInputActivity"
             android:excludeFromRecents="true"
             android:theme="@style/Theme.FakeCrash"
-            android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode" />
+            android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
+            android:exported="false" />
         <activity
             android:name="ru.morozovit.ultimatesecurity.ui.protection.ActionsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar"
@@ -87,7 +88,6 @@
         <activity
             android:name=".ui.AuthActivity"
             android:theme="@style/Theme.UltimateSecurity.SplashScreen"
-            android:exported="true"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode" />
         <service
             android:name="ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoService"
@@ -106,18 +106,17 @@
 
         <activity
             android:name=".ui.tools.appmanager.AppInfoActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
-        <activity
-            android:name=".ui.tools.appmanager.PermissionsActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:exported="false"  />
         <activity
             android:name=".ui.tools.appmanager.ChooseActivityActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:exported="false" />
 
         <activity
             android:name=".share.SaveActivity"
             android:exported="true"
-            android:label="@string/share"
+            android:label="@string/save_file"
             android:icon="@mipmap/files_icon">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -126,9 +125,16 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="ru.morozovit.android.ui.IntentActivity" />
+
         <activity
-            android:name=".ui.crashreporter.ExceptionDetailsActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+            android:name=".crashreporter.IssueReporter$ExceptionDetailsActivity"
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:exported="false" />
+        <activity
+            android:name=".crashreporter.IssueReporter$OneQuestionActivity"
+            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:exported="false" />
 
         <receiver
             android:name=".services.UpdateChecker$Companion$Receiver"
@@ -158,7 +164,8 @@
 
         <service
             android:name=".services.UpdateChecker"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -170,7 +177,8 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <receiver android:name=".services.UpdateChecker$Companion$DownloadBroadcastReceiver"
+        <receiver
+            android:name=".services.UpdateChecker$Companion$DownloadBroadcastReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="UpdateChecker.DOWNLOAD" />

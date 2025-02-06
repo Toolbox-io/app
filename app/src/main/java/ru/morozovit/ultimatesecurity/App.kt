@@ -6,14 +6,12 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.DynamicColorsOptions
 import ru.morozovit.android.NotificationIdManager
 import ru.morozovit.ultimatesecurity.Settings.materialYouEnabled
-import ru.morozovit.ultimatesecurity.ui.crashreporter.startCrashedActivity
-import ru.morozovit.utils.EParser
+import ru.morozovit.ultimatesecurity.crashreporter.IssueReporter
 
 
 class App : Application() {
@@ -47,7 +45,7 @@ class App : Application() {
         const val GITHUB_TOKEN =
             "gi" + "thu" + "b_p" + "at_11BESRTY" + "Y0HeC2oP" + "pTaKsh_gb" + "XRwE7RbFHT6" +
             "sxFpi5akLoEtn9" + "OMkkrZv0rUNSjO" + "yvTXR55PL41FLcPgWU"
-        var githubRateLimitRemaining: Long = 0L
+        var githubRateLimitRemaining: Long = -1L
     }
 
     private lateinit var notificationManager: NotificationManager
@@ -149,11 +147,6 @@ class App : Application() {
         }
 
         // Register exception handler
-        Thread.setDefaultUncaughtExceptionHandler { _, exception ->
-            runCatching {
-                Log.e("App", "EXCEPTION CAUGHT:\n${EParser(exception)}")
-            }
-            startCrashedActivity(exception, context)
-        }
+        Thread.setDefaultUncaughtExceptionHandler(IssueReporter.DEFAULT_HANDLER)
     }
 }

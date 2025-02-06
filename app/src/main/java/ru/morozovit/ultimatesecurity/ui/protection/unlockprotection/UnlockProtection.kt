@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import ru.morozovit.android.clearFocusOnKeyboardDismiss
 import ru.morozovit.android.invoke
-import ru.morozovit.android.previewUtils
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SimpleAlertDialog
@@ -52,33 +51,21 @@ fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -
     WindowInsetsHandler {
         EdgeToEdgeBar {
             Column(Modifier.verticalScroll(rememberScrollState())) {
-                val (valueOrFalse, runOrNoop, isPreview) = previewUtils()
                 val context = LocalContext() as MainActivity
                 val activityLauncher = context.activityLauncher
                 val dpm =
-                    if (isPreview)
-                        null
-                    else
                         context
                             .getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-                val admComponent =
-                    if (isPreview)
-                        null
-                    else
-                        ComponentName(context, DeviceAdmin::class.java)
-                runOrNoop {
-                    if (!dpm!!.isAdminActive(admComponent!!)) enabled = false
-                }
+                val admComponent = ComponentName(context, DeviceAdmin::class.java)
+                if (!dpm.isAdminActive(admComponent)) enabled = false
                 val coroutineScope = rememberCoroutineScope()
 
                 var mainSwitch by remember {
                     mutableStateOf(
-                        valueOrFalse {
-                            if (!dpm!!.isAdminActive(admComponent!!))
-                                false
-                            else
-                                enabled
-                        }
+                        if (!dpm.isAdminActive(admComponent))
+                            false
+                        else
+                            enabled
                     )
                 }
 
@@ -114,20 +101,18 @@ fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -
                 )
 
                 val mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@{
-                    if (!isPreview) {
-                        if (it) {
-                            if (dpm!!.isAdminActive(admComponent!!)) {
-                                enabled = true
-                                mainSwitch = true
-                                return@sw
-                            }
-                            permissionDialogOpen = true
+                    if (it) {
+                        if (dpm.isAdminActive(admComponent)) {
+                            enabled = true
+                            mainSwitch = true
                             return@sw
-                        } else {
-                            enabled = false
                         }
+                        permissionDialogOpen = true
+                        return@sw
+                    } else {
+                        enabled = false
                     }
-                    mainSwitch = it
+                    mainSwitch = false
                 }
 
                 SwitchCard(
@@ -139,12 +124,7 @@ fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -
 
                 var unlockAttempts by rememberSaveable {
                     mutableStateOf(
-                        "${
-                            if (isPreview)
-                                0
-                            else
-                                Settings.UnlockProtection.unlockAttempts
-                        }"
+                        "${Settings.UnlockProtection.unlockAttempts}"
                     )
                 }
                 var isError by remember { mutableStateOf(false) }
@@ -194,14 +174,12 @@ fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -
                         headline = stringResource(R.string.actions),
                         supportingText = stringResource(R.string.actions_d),
                         onClick = {
-                            runOrNoop {
-                                context.startActivity(
-                                    Intent(
-                                        context,
-                                        ActionsActivity::class.java
-                                    )
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    ActionsActivity::class.java
                                 )
-                            }
+                            )
                         },
                         leadingContent = {
                             Icon(

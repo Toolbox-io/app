@@ -4,6 +4,8 @@ import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
@@ -56,11 +58,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.core.os.postDelayed
 import kotlinx.coroutines.launch
 import ru.morozovit.android.clearFocusOnKeyboardDismiss
 import ru.morozovit.android.homeScreen
 import ru.morozovit.android.invoke
-import ru.morozovit.android.previewUtils
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SecureTextField
@@ -77,6 +79,7 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
 import ru.morozovit.ultimatesecurity.Settings.Applocker.getUnlockModeDescription
 import ru.morozovit.ultimatesecurity.Settings.Applocker.unlockMode
 import ru.morozovit.ultimatesecurity.Settings.accessibility
+import ru.morozovit.ultimatesecurity.crashreporter.IssueReporter
 import ru.morozovit.ultimatesecurity.services.Accessibility
 import ru.morozovit.ultimatesecurity.services.Accessibility.Companion.waitingForAccessibility
 import ru.morozovit.ultimatesecurity.services.AccessibilityKeeperService
@@ -102,13 +105,12 @@ fun ApplockerScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScr
                     .verticalScroll(rememberScrollState())
                     .padding(innerPadding)
             ) {
-                val (valueOrFalse, runOrNoop, isPreview, valueOrTrue) = previewUtils()
                 val context = LocalContext() as MainActivity
 
                 val default = stringResource(R.string.lp_ai)
                 var unlockMethodText by remember {
                     mutableStateOf(
-                        if (!isPreview)
+                        if (!false)
                             getUnlockModeDescription(unlockMode, context.resources)
                         else
                             default
@@ -121,7 +123,7 @@ fun ApplockerScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScr
                 // Main switch
                 var mainSwitch by remember {
                     mutableStateOf(
-                        valueOrFalse { accessibility }
+                        accessibility
                     )
                 }
 
@@ -150,11 +152,7 @@ fun ApplockerScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScr
                                 var oldPassword by rememberSaveable { mutableStateOf("") }
                                 var oldPasswordIsError by rememberSaveable { mutableStateOf(true) }
 
-                                if (
-                                    valueOrTrue {
-                                        Settings.Keys.Applocker.isSet
-                                    }
-                                ) {
+                                if (Settings.Keys.Applocker.isSet) {
                                     fun validate() {
                                         oldPasswordIsError = oldPassword.isEmpty()
                                     }
@@ -228,21 +226,17 @@ fun ApplockerScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScr
                                                 Settings.Keys.Applocker.set(newPassword)
                                                 onDismissRequest()
                                             } else if (oldPassword.isEmpty()) {
-                                                runOrNoop {
-                                                    Toast.makeText(
-                                                        context,
-                                                        R.string.old_password_cannot_be_empty,
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                }
+                                                Toast.makeText(
+                                                    context,
+                                                    R.string.old_password_cannot_be_empty,
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
                                             } else {
-                                                runOrNoop {
-                                                    Toast.makeText(
-                                                        context,
-                                                        R.string.passwords_dont_match,
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                }
+                                                Toast.makeText(
+                                                    context,
+                                                    R.string.passwords_dont_match,
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
                                             }
                                         }
                                     ) {
@@ -287,7 +281,7 @@ fun ApplockerScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScr
                                 val (selectedOption, onOptionSelected) = remember {
                                     mutableIntStateOf(
                                         radioOptions[
-                                            if (isPreview)
+                                            if (false)
                                                 0
                                             else
                                                 radioOptions.indexOf(unlockMode)
@@ -298,7 +292,7 @@ fun ApplockerScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScr
                                 Column(Modifier.selectableGroup()) {
                                     radioOptions.forEach { num ->
                                         val text =
-                                            if (!isPreview)
+                                            if (!false)
                                                 getUnlockModeDescription(num, context.resources)
                                             else
                                                 stringResource(R.string.lp_ai)
@@ -383,7 +377,7 @@ fun ApplockerScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScr
 
                 // Main switch
                 val mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@{
-                    if (!isPreview) {
+                    if (!false) {
                         if (it) {
                             openPermissionDialog = true
                             return@sw
@@ -436,14 +430,12 @@ fun ApplockerScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScr
                             headline = stringResource(R.string.select_apps),
                             supportingText = stringResource(R.string.select_apps_d),
                             onClick = {
-                                runOrNoop {
-                                    context.startActivity(
-                                        Intent(
-                                            context,
-                                            SelectAppsActivity::class.java
-                                        )
+                                context.startActivity(
+                                    Intent(
+                                        context,
+                                        SelectAppsActivity::class.java
                                     )
-                                }
+                                )
                             },
                             divider = true,
                             dividerThickness = 2.dp,
@@ -509,10 +501,12 @@ fun ApplockerScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScr
                             headline = stringResource(R.string.test_crash),
                             supportingText = stringResource(R.string.test_crash_d),
                             onClick = {
-                                runOrNoop {
-                                    @Suppress("DIVISION_BY_ZERO")
-                                    0 / 0
+                                IssueReporter.enabled = false
+                                Handler(Looper.getMainLooper()).postDelayed(500) {
+                                    IssueReporter.enabled = true
                                 }
+                                @Suppress("DIVISION_BY_ZERO")
+                                0 / 0
                             },
                             divider = true,
                             dividerThickness = 2.dp,
@@ -528,19 +522,17 @@ fun ApplockerScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScr
                             headline = stringResource(R.string.test_fake_crash),
                             supportingText = stringResource(R.string.test_fake_crash_d),
                             onClick = {
-                                runOrNoop {
-                                    context.homeScreen()
+                                context.homeScreen()
 
-                                    sleep(500)
+                                sleep(500)
 
-                                    context.finish()
+                                context.finish()
 
-                                    val intent = Intent(context, FakeCrashActivity::class.java)
-                                    intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
-                                    val b = Bundle()
-                                    b.putString("appPackage", context.packageName)
-                                    context.startActivity(intent)
-                                }
+                                val intent = Intent(context, FakeCrashActivity::class.java)
+                                intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
+                                val b = Bundle()
+                                b.putString("appPackage", context.packageName)
+                                context.startActivity(intent)
                             },
                             leadingContent = {
                                 Icon(

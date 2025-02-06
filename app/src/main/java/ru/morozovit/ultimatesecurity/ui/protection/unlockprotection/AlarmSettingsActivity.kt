@@ -64,7 +64,6 @@ import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.BetterActivityResult.registerActivityForResult
 import ru.morozovit.android.copy
 import ru.morozovit.android.getFileName
-import ru.morozovit.android.previewUtils
 import ru.morozovit.android.test
 import ru.morozovit.android.ui.Button
 import ru.morozovit.android.ui.Category
@@ -79,14 +78,12 @@ import ru.morozovit.ultimatesecurity.Settings.Actions.Alarm.current
 import ru.morozovit.ultimatesecurity.Settings.Actions.Alarm.customAlarms
 import ru.morozovit.ultimatesecurity.Settings.Actions.Alarm.enabled
 import ru.morozovit.ultimatesecurity.ui.AppTheme
-import ru.morozovit.ultimatesecurity.ui.PhonePreview
 
 class AlarmSettingsActivity: BaseActivity() {
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    @PhonePreview
     fun AlarmSettingsScreen() {
         AppTheme {
             val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
@@ -139,13 +136,9 @@ class AlarmSettingsActivity: BaseActivity() {
                         mediaPlayer.stop()
                     }
 
-                    val (valueOrFalse) = previewUtils()
-
                     var mainSwitch by remember {
                         mutableStateOf(
-                            valueOrFalse {
-                                enabled
-                            }
+                            enabled
                         )
                     }
 

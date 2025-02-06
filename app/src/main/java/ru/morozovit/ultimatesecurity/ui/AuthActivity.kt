@@ -83,7 +83,6 @@ import ru.morozovit.android.addOneTimeOnPreDrawListener
 import ru.morozovit.android.async
 import ru.morozovit.android.homeScreen
 import ru.morozovit.android.invoke
-import ru.morozovit.android.previewUtils
 import ru.morozovit.android.requestAuthentication
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
 import ru.morozovit.ultimatesecurity.BaseActivity
@@ -120,12 +119,6 @@ class AuthActivity: BaseActivity(false) {
     private lateinit var launchingIntent: Intent
 
     private var blur = mutableStateOf(false)
-
-    @Composable
-    @PhonePreview
-    fun AuthScreenPreview() {
-        AuthScreen(mode = MODE_ENTER)
-    }
 
     class PasswordEntry(
         val symbol: Int,
@@ -190,7 +183,6 @@ class AuthActivity: BaseActivity(false) {
     fun AuthScreen(mode: Int) {
         AppTheme {
             val handlers = remember { Handlers() }
-            val (valueOrFalse) = previewUtils()
 
             val blurRadius by animateFloatAsState(
                 targetValue = if (blur.value) 30f else 0f,
@@ -202,7 +194,7 @@ class AuthActivity: BaseActivity(false) {
 
             Scaffold(
                 topBar = {
-                    if (valueOrFalse { isSetOrConfirm }) {
+                    if (isSetOrConfirm) {
                         TopAppBar(
                             title = {},
                             navigationIcon = {
@@ -270,12 +262,10 @@ class AuthActivity: BaseActivity(false) {
                                     when (mode) {
                                         MODE_ENTER -> R.string.enter_password
                                         MODE_SET ->
-                                            if (
-                                                valueOrFalse {
-                                                    !Settings.Keys.App.isSet
-                                                }
-                                            ) R.string.setpassword
-                                            else R.string.change_password
+                                            if (!Settings.Keys.App.isSet)
+                                                R.string.setpassword
+                                            else
+                                                R.string.change_password
 
                                         MODE_ENTER_OLD_PW -> R.string.enter_old_password
                                         MODE_CONFIRM -> R.string.confirm_password
@@ -529,7 +519,7 @@ class AuthActivity: BaseActivity(false) {
                                 shape = CircleShape,
                                 modifier = Modifier.size(75.dp),
                                 onClick = ::requestAuth,
-                                enabled = valueOrFalse {
+                                enabled =
                                     if (!isSetOrConfirm) {
                                         BiometricManager.from(this@AuthActivity)
                                             .canAuthenticate(
@@ -538,7 +528,6 @@ class AuthActivity: BaseActivity(false) {
                                     } else {
                                         false
                                     }
-                                }
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.Fingerprint,

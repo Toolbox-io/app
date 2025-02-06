@@ -11,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -55,6 +56,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
@@ -69,6 +71,7 @@ import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -78,6 +81,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.DefaultAlpha
@@ -117,6 +121,7 @@ fun ListItem(
     supportingText: String? = null,
     leadingContent: (@Composable ConstraintLayoutScope.() -> Unit)? = null,
     trailingContent: (@Composable ConstraintLayoutScope.() -> Unit)? = null,
+    enabled: Boolean = true,
     divider: Boolean = false,
     dividerColor: Color = DividerDefaults.color,
     dividerThickness: Dp = DividerDefaults.Thickness,
@@ -126,126 +131,146 @@ fun ListItem(
     bottomContent: (@Composable ConstraintLayoutScope.() -> Unit)? = null
 ) {
     Column {
-        ConstraintLayout(
-            modifier = Modifier.let {
-                var mod = it.fillMaxWidth()
-                if (onClick != null) {
-                    mod += Modifier.clickable(onClick = onClick)
-                }
-                mod + modifier
-            }
+        @Composable
+        fun ProvideStyle(
+            content: @Composable BoxScope?.() -> Unit
         ) {
-            val (leading, listItem, trailing, btm) = createRefs()
+            if (!enabled) {
+                CompositionLocalProvider(
+                    value = LocalContentColor provides MaterialTheme.colorScheme.onSurface,
+                ) {
+                    Box(
+                        modifier = Modifier.alpha(0.38f),
+                        content = content
+                    )
+                }
+            } else {
+                content(null)
+            }
+        }
 
-            @Composable
-            fun leadingBody() {
-                if (leadingContent != null) {
-                    ConstraintLayout(
+        ProvideStyle {
+            ConstraintLayout(
+                modifier = Modifier.let {
+                    var mod = it.fillMaxWidth()
+                    if (onClick != null) {
+                        mod += Modifier.clickable(onClick = onClick)
+                    }
+                    mod + modifier
+                }
+            ) {
+                val (leading, listItem, trailing, btm) = createRefs()
+
+                @Composable
+                fun leadingBody() {
+                    if (leadingContent != null) {
+                        ConstraintLayout(
+                            modifier = Modifier
+                                .constrainAs(leading) {
+                                    top link parent.top
+                                    bottom link
+                                            if (bottomContent != null) btm.top
+                                            else parent.bottom
+                                    left link parent.left
+                                    right link listItem.left
+                                }
+                                .padding(
+                                    start = 16.dp,
+                                    top = 8.dp,
+                                    bottom = 8.dp
+                                ),
+                            content = leadingContent
+                        )
+                    }
+                    androidx.compose.material3.ListItem(
+                        headlineContent = { Text(headline) },
+                        supportingContent = { if (supportingText != null) Text(supportingText) },
                         modifier = Modifier
-                            .constrainAs(leading) {
+                            .let {
+                                var mod = it.constrainAs(listItem) {
+                                    top link parent.top
+                                    bottom link
+                                            if (bottomContent != null) btm.top
+                                            else parent.bottom
+
+                                    left link
+                                            if (leadingContent != null) leading.right
+                                            else parent.left
+                                    right link
+                                            if (trailingContent != null) trailing.left
+                                            else parent.right
+                                    width = Dimension.fillToConstraints
+                                }
+                                if (bodyOnClick != null && !leadingAndBodyShared) {
+                                    mod += Modifier.clickable(onClick = bodyOnClick)
+                                }
+                                mod + bodyModifier
+                            },
+                        colors = ListItemDefaults.colors(
+                            containerColor = Color.Transparent
+                        )
+                    )
+                }
+
+                if (leadingAndBodyShared) {
+                    Row(
+                        modifier = Modifier
+                            .constrainAs(listItem) {
                                 top link parent.top
                                 bottom link
                                         if (bottomContent != null) btm.top
                                         else parent.bottom
                                 left link parent.left
-                                right link listItem.left
-                            }
-                            .padding(
-                                start = 16.dp,
-                                top = 8.dp,
-                                bottom = 8.dp
-                            ),
-                        content = leadingContent
-                    )
-                }
-                androidx.compose.material3.ListItem(
-                    headlineContent = { Text(headline) },
-                    supportingContent = { if (supportingText != null) Text(supportingText) },
-                    modifier = Modifier
-                        .let {
-                            var mod = it.constrainAs(listItem) {
-                                top link parent.top
-                                bottom link
-                                        if (bottomContent != null) btm.top
-                                        else parent.bottom
-
-                                left link
-                                        if (leadingContent != null) leading.right
-                                        else parent.left
                                 right link
                                         if (trailingContent != null) trailing.left
                                         else parent.right
                                 width = Dimension.fillToConstraints
                             }
-                            if (bodyOnClick != null && !leadingAndBodyShared) {
-                                mod += Modifier.clickable(onClick = bodyOnClick)
-                            }
-                            mod + bodyModifier
-                        },
-                    colors = ListItemDefaults.colors(
-                        containerColor = Color.Transparent
-                    )
-                )
-            }
-
-            if (leadingAndBodyShared) {
-                Row(
-                    modifier = Modifier
-                        .constrainAs(listItem) {
-                            top link parent.top
-                            bottom link
-                                    if (bottomContent != null) btm.top
-                                    else parent.bottom
-                            left link parent.left
-                            right link
-                                    if (trailingContent != null) trailing.left
-                                    else parent.right
-                            width = Dimension.fillToConstraints
-                        }
-                            +
-                            if (bodyOnClick != null)
-                                Modifier.clickable(onClick = bodyOnClick)
-                            else
-                                Modifier,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                                +
+                                if (bodyOnClick != null)
+                                    Modifier.clickable(onClick = bodyOnClick)
+                                else
+                                    Modifier,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        leadingBody()
+                    }
+                } else {
                     leadingBody()
                 }
-            } else {
-                leadingBody()
-            }
 
-            if (trailingContent != null) {
-                ConstraintLayout(
-                    modifier = Modifier
-                        .constrainAs(trailing) {
-                            top link parent.top
-                            bottom link
-                                    if (bottomContent != null) btm.top
-                                    else parent.bottom
-                            right link parent.right
-                            left link listItem.right
-                        }
-                        .padding(
-                            end = 16.dp,
-                            top = 8.dp,
-                            bottom = 8.dp
-                        ),
-                    content = trailingContent
-                )
-            }
-            if (bottomContent != null) {
-                ConstraintLayout(
-                    modifier = Modifier
-                        .constrainAs(btm) {
-                            bottom link parent.bottom
-                            left link parent.left
-                            right link parent.right
-                            width = Dimension.fillToConstraints
-                        }
-                        .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
-                    content = bottomContent
-                )
+                if (trailingContent != null) {
+                    ConstraintLayout(
+                        modifier = Modifier
+                            .constrainAs(trailing) {
+                                top link parent.top
+                                bottom link
+                                        if (bottomContent != null) btm.top
+                                        else parent.bottom
+                                right link parent.right
+                                left link listItem.right
+                            }
+                            .padding(
+                                end = 16.dp,
+                                top = 8.dp,
+                                bottom = 8.dp
+                            ),
+                        content = trailingContent
+                    )
+                }
+                if (bottomContent != null) {
+                    ConstraintLayout(
+                        modifier = Modifier
+                            .constrainAs(btm) {
+                                bottom link parent.bottom
+                                left link parent.left
+                                right link parent.right
+                                width = Dimension.fillToConstraints
+                            }
+                            .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+                        content = bottomContent
+                    )
+                }
             }
         }
         if (divider) {
@@ -291,7 +316,8 @@ inline fun SwitchListItem(
         },
         divider = divider,
         dividerColor = dividerColor,
-        dividerThickness = dividerThickness
+        dividerThickness = dividerThickness,
+        enabled = enabled
     )
 }
 
@@ -346,7 +372,8 @@ inline fun SeparatedSwitchListItem(
         divider = divider,
         dividerColor = dividerColor,
         dividerThickness = dividerThickness,
-        leadingAndBodyShared = true
+        leadingAndBodyShared = true,
+        enabled = enabled
     )
 }
 

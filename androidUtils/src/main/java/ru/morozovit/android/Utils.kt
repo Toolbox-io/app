@@ -71,7 +71,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -603,30 +602,6 @@ inline infix fun VerticalAnchorable.link(
 ) = linkTo(anchor)
 
 inline operator fun Modifier.plus(other: Modifier) = then(other)
-
-data class PreviewUtils(
-    val valueOrFalse: (() -> Boolean) -> Boolean,
-    val runOrNoop: (() -> Unit) -> Unit,
-    val isPreview: Boolean,
-    val valueOrTrue: (() -> Boolean) -> Boolean
-)
-
-@Composable
-inline fun previewUtils(): PreviewUtils {
-    val isPreview = LocalInspectionMode()
-    return PreviewUtils(
-        valueOrFalse = { value ->
-            if (isPreview) false else value()
-        },
-        runOrNoop = { block ->
-            if (!isPreview) block()
-        },
-        isPreview = isPreview,
-        valueOrTrue = { value ->
-            if (isPreview) true else value()
-        },
-    )
-}
 
 @OptIn(ExperimentalLayoutApi::class)
 fun Modifier.clearFocusOnKeyboardDismiss() = composed {
