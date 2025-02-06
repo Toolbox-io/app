@@ -280,22 +280,14 @@ fun ApplockerScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScr
                                 radioOptions += PRESS_TITLE
                                 val (selectedOption, onOptionSelected) = remember {
                                     mutableIntStateOf(
-                                        radioOptions[
-                                            if (false)
-                                                0
-                                            else
-                                                radioOptions.indexOf(unlockMode)
-                                        ]
+                                        radioOptions[radioOptions.indexOf(unlockMode)]
                                     )
                                 }
                                 // Note that Modifier.selectableGroup() is essential to ensure correct accessibility behavior
                                 Column(Modifier.selectableGroup()) {
                                     radioOptions.forEach { num ->
-                                        val text =
-                                            if (!false)
-                                                getUnlockModeDescription(num, context.resources)
-                                            else
-                                                stringResource(R.string.lp_ai)
+                                        val text = getUnlockModeDescription(num, context.resources)
+
                                         Row(
                                             Modifier
                                                 .fillMaxWidth()
@@ -377,42 +369,40 @@ fun ApplockerScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScr
 
                 // Main switch
                 val mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@{
-                    if (!false) {
-                        if (it) {
-                            openPermissionDialog = true
-                            return@sw
-                        } else {
-                            var error = false
-                            try {
-                                Accessibility.instance!!.disable()
-                            } catch (e: Exception) {
-                                error = true
-                            }
+                    if (it) {
+                        openPermissionDialog = true
+                        return@sw
+                    } else {
+                        var error = false
+                        try {
+                            Accessibility.instance!!.disable()
+                        } catch (e: Exception) {
+                            error = true
+                        }
 
-                            if (accessibility || error) {
-                                scope.launch {
-                                    val result = snackbarHostState
-                                        .showSnackbar(
-                                            message = errorDisablingService,
-                                            actionLabel = settings,
-                                            duration = SnackbarDuration.Short
-                                        )
-                                    when (result) {
-                                        SnackbarResult.ActionPerformed -> {
-                                            val intent =
-                                                Intent(ACTION_ACCESSIBILITY_SETTINGS)
-                                            intent.flags = FLAG_ACTIVITY_NEW_TASK
-                                            context.startActivity(intent)
-                                        }
-
-                                        SnackbarResult.Dismissed -> {}
+                        if (accessibility || error) {
+                            scope.launch {
+                                val result = snackbarHostState
+                                    .showSnackbar(
+                                        message = errorDisablingService,
+                                        actionLabel = settings,
+                                        duration = SnackbarDuration.Short
+                                    )
+                                when (result) {
+                                    SnackbarResult.ActionPerformed -> {
+                                        val intent =
+                                            Intent(ACTION_ACCESSIBILITY_SETTINGS)
+                                        intent.flags = FLAG_ACTIVITY_NEW_TASK
+                                        context.startActivity(intent)
                                     }
+
+                                    SnackbarResult.Dismissed -> {}
                                 }
-                                return@sw
                             }
+                            return@sw
                         }
                     }
-                    mainSwitch = it
+                    mainSwitch = false
                 }
 
                 // Foreground service switch

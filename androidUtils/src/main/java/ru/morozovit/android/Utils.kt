@@ -734,7 +734,7 @@ inline fun <reified F, reified S : F> Collection<F>.contentEqualsIgnoringOrder(o
     if (size != other.size) return false
     val list1 = toMutableList()
     val list2 = other.toMutableList()
-    list1.removeAll(list2)
+    list1.removeAll(list2.toSet())
     return list1.size == 0
 }
 

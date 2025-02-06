@@ -33,9 +33,7 @@ import ru.morozovit.ultimatesecurity.ui.Theme
 import ru.morozovit.utils.ExceptionParser.Companion.eToString
 import java.lang.Thread.sleep
 
-@Suppress("unused")
 abstract class BaseActivity(
-    @Suppress("MemberVisibilityCanBePrivate")
     protected var authEnabled: Boolean = true,
     private val savedInstanceStateEnabled: Boolean = true,
     private var backButtonBehavior: BackButtonBehavior = BackButtonBehavior.DEFAULT,
@@ -112,8 +110,7 @@ abstract class BaseActivity(
     private var transitionExit = 0
     private var transitionCalled = false
 
-    var isActive = false
-        private set
+    private var isActive = false
 
     private var onPause = mutableListOf<() -> Unit>()
     private var onResume = mutableListOf<() -> Unit>()
@@ -253,6 +250,7 @@ abstract class BaseActivity(
         if (configTheme) configureTheme()
     }
 
+    @Suppress("SameParameterValue")
     protected fun auth(noAnim: Boolean = true, setPendingAuth: Boolean = false) {
         if (currentActivity?.authEnabled == true && Settings.Keys.App.isSet && !authenticated) {
             authenticated = false

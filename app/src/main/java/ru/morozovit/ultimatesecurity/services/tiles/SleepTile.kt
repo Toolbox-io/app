@@ -35,13 +35,6 @@ class SleepTile: TileService() {
 
         private var scheduledConfig: (Tile.() -> Unit)? = null
 
-        fun scheduleConfig(config: Tile.() -> Unit) {
-            if (canUpdate && instance != null) {
-                instance!!.qsTile?.configure(config)
-            } else {
-                scheduledConfig = config
-            }
-        }
     }
 
     override fun onCreate() {

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Theme.UltimateSecurity" parent="Theme.Material3.DynamicColors.DayNight">
         <item name="android:statusBarColor">@android:color/transparent</item>
@@ -15,7 +15,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoDynamicColor" />
+    <style name="Theme.UltimateSecurity.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoDynamicColor" tools:keep="@style/Theme_UltimateSecurity_NoDynamicColor" />
     <style name="Theme.UltimateSecurity.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoActionBar.NoDynamicColor">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -23,7 +23,7 @@
 
     <style name="Theme.UltimateSecurity.SplashScreen" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#FCF5FD</item>
-        <item name="windowSplashScreenAnimatedIcon">@mipmap/app_icon_2</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/app_icon_3</item>
         <!-- <item name="android:windowSplashScreenBackground">#FCF5FD / #141218</item> | api 31 -->
         <item name="postSplashScreenTheme">@style/Theme.UltimateSecurity.NoActionBar</item>
     </style>
@@ -139,12 +139,6 @@
     <style name="Theme.UltimateSecurity.Light.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoDynamicColor">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="Theme.UltimateSecurity.ImageViewer" parent="Theme.UltimateSecurity.Night.NoActionBar">
-        <item name="android:windowSharedElementEnterTransition">@transition/img</item>
-        <item name="android:windowSharedElementExitTransition">@transition/img</item>
-        <item name="android:statusBarColor">?attr/colorSurface</item>
     </style>
 
     <style name="Theme.FakeCrash" parent="Theme.Material3.DayNight.NoActionBar">

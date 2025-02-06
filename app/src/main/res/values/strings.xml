@@ -226,7 +226,7 @@
     <string name="choose_activity">Choose activity</string>
     <string name="im_sorry">I\'m sorry :(</string>
     <string name="crash_d">This app has recovered from an error and restarted automatically. \nYou can view the error and report it by pressing "Details".</string>
-    <string name="issuecreated">Issue #%1$d has been successfully created.</string>
+    <string name="issuecreated" tools:ignore="PluralsCandidate">Issue #%1$d has been successfully created.</string>
     <string name="details">Details</string>
     <string name="error_info">Error info</string>
     <string name="report">Report</string>

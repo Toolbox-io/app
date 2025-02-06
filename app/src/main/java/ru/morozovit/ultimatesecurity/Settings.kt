@@ -414,7 +414,7 @@ object Settings {
             if (!init) {
                 sharedPref =
                     App.context.getSharedPreferences("unlockProtection", Context.MODE_PRIVATE)
-                Settings.Actions.init()
+                Actions.init()
                 init = true
             }
         }
