@@ -79,7 +79,7 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
 import ru.morozovit.ultimatesecurity.Settings.Applocker.getUnlockModeDescription
 import ru.morozovit.ultimatesecurity.Settings.Applocker.unlockMode
 import ru.morozovit.ultimatesecurity.Settings.accessibility
-import ru.morozovit.ultimatesecurity.crashreporter.IssueReporter
+import ru.morozovit.ultimatesecurity.IssueReporter
 import ru.morozovit.ultimatesecurity.services.Accessibility
 import ru.morozovit.ultimatesecurity.services.Accessibility.Companion.waitingForAccessibility
 import ru.morozovit.ultimatesecurity.services.AccessibilityKeeperService

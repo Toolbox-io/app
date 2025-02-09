@@ -36,6 +36,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.biometric)
+    implementation(libs.gson)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)

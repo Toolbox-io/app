@@ -56,6 +56,7 @@
         <activity
             android:name=".ui.main.DeveloperOptionsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+        <activity android:name=".ui.main.GreenScreenActivity" />
 
         <activity
             android:name="ru.morozovit.ultimatesecurity.ui.protection.applocker.SelectAppsActivity"
@@ -131,11 +132,11 @@
         <activity android:name="ru.morozovit.android.ui.IntentActivity" />
 
         <activity
-            android:name=".crashreporter.IssueReporter$ExceptionDetailsActivity"
+            android:name=".IssueReporter$ExceptionDetailsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar"
             android:exported="false" />
         <activity
-            android:name=".crashreporter.IssueReporter$OneQuestionActivity"
+            android:name=".IssueReporter$OneQuestionActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar"
             android:exported="false" />
 

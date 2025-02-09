@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.crashreporter
+package ru.morozovit.ultimatesecurity
 
 import android.content.Context
 import android.content.Intent
@@ -55,12 +55,8 @@ import ru.morozovit.android.getSerializableExtraAs
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.CategoryDefaults
 import ru.morozovit.android.ui.DialogActivity
-import ru.morozovit.ultimatesecurity.App
 import ru.morozovit.ultimatesecurity.App.Companion.context
 import ru.morozovit.ultimatesecurity.App.Companion.githubRateLimitRemaining
-import ru.morozovit.ultimatesecurity.BaseActivity
-import ru.morozovit.ultimatesecurity.BuildConfig
-import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.ui.AppTheme
 import ru.morozovit.ultimatesecurity.ui.MainActivity
 import ru.morozovit.utils.EParser

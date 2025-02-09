@@ -94,6 +94,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.IOException
 import java.io.InputStream
 import java.io.Serializable
+import java.lang.ref.WeakReference
 import java.security.SecureRandom
 import java.util.regex.Pattern
 import javax.crypto.Cipher
@@ -103,6 +104,7 @@ import javax.crypto.spec.PBEKeySpec
 import kotlin.random.Random
 import kotlin.random.nextInt
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 
 
 val screenWidth: Int inline get() = Resources.getSystem().displayMetrics.widthPixels
@@ -991,3 +993,5 @@ fun String.encodeJSON(): String {
     }
     return "$out"
 }
+
+operator fun <T> WeakReference<T>.getValue(thisRef: Any?, property: KProperty<*>) = get()!!

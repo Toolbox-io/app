@@ -234,4 +234,5 @@
     <string name="one_question">One question</string>
     <string name="one_question_d">What have you done before this error happened?\n\nYou can skip this if you want.</string>
     <string name="save_file">Save file</string>
+    <string name="developer_options">Developer options</string>
 </resources>

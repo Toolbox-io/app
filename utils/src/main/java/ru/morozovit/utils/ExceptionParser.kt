@@ -35,11 +35,10 @@ class ExceptionParser(val exception: Throwable) {
         val visitedExceptions: MutableSet<Throwable> = Collections.newSetFromMap(IdentityHashMap())
         visitedExceptions.add(this)
         writer.println(this)
-        val trace: Array<StackTraceElement> = this.stackTrace
-        var size = trace.size
+        var size = stackTrace.size
         var counter = 0
         while (counter < size) {
-            val traceElement = trace[counter]
+            val traceElement = stackTrace[counter]
             writer.println("\tat $traceElement")
             ++counter
         }
@@ -51,7 +50,7 @@ class ExceptionParser(val exception: Throwable) {
             val suppressedException = suppressed[counter]
             suppressedException.printEnclosedStackTrace(
                 writer,
-                trace,
+                stackTrace,
                 "Suppressed: ",
                 "\t",
                 visitedExceptions
@@ -61,7 +60,7 @@ class ExceptionParser(val exception: Throwable) {
 
         this.cause?.printEnclosedStackTrace(
             writer,
-            trace,
+            stackTrace,
             "Caused by: ",
             "",
             visitedExceptions
@@ -148,14 +147,14 @@ class ExceptionParser(val exception: Throwable) {
                 }
                 return if (exceptionStr != null) {
                     """
-                    |Cannot show exception details, because another exception occurred.
-                    |
-                    |$exceptionStr
-                """.trimMargin()
+                        |Cannot show exception details, because another exception occurred.
+                        |
+                        |$exceptionStr
+                    """.trimMargin()
                 } else {
                     """
-                    Cannot show exception details, because another exception occurred.
-                """.trimIndent()
+                        Cannot show exception details, because another exception occurred.
+                    """.trimIndent()
                 }
             }
         }

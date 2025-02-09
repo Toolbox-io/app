@@ -10,15 +10,16 @@ import androidx.annotation.RequiresApi
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.DynamicColorsOptions
 import ru.morozovit.android.NotificationIdManager
+import ru.morozovit.android.getValue
 import ru.morozovit.ultimatesecurity.Settings.materialYouEnabled
-import ru.morozovit.ultimatesecurity.crashreporter.IssueReporter
+import java.lang.ref.WeakReference
 
 
 class App : Application() {
     companion object {
         @SuppressLint("StaticFieldLeak")
-        private var mContext: Context? = null
-        val context get() = mContext ?: throw IllegalStateException("Context hasn't been initialized")
+        private lateinit var mContext: WeakReference<Context>
+        val context by mContext
 
         var authenticated = false
 
@@ -45,7 +46,7 @@ class App : Application() {
         const val GITHUB_TOKEN =
             "gi" + "thu" + "b_p" + "at_11BESRTY" + "Y0HeC2oP" + "pTaKsh_gb" + "XRwE7RbFHT6" +
             "sxFpi5akLoEtn9" + "OMkkrZv0rUNSjO" + "yvTXR55PL41FLcPgWU"
-        var githubRateLimitRemaining: Long = -1L
+        var githubRateLimitRemaining: Long = -1
     }
 
     private lateinit var notificationManager: NotificationManager
@@ -70,7 +71,7 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         // Variables
-        mContext = applicationContext
+        mContext = WeakReference(applicationContext)
         notificationManager =
             getSystemService(
                 Context.NOTIFICATION_SERVICE
