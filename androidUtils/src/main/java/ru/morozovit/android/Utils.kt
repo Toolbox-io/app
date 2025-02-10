@@ -26,6 +26,7 @@ import android.provider.OpenableColumns
 import android.service.quicksettings.Tile
 import android.text.Editable
 import android.util.Base64
+import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
@@ -995,3 +996,15 @@ fun String.encodeJSON(): String {
 }
 
 operator fun <T> WeakReference<T>.getValue(thisRef: Any?, property: KProperty<*>) = get()!!
+
+inline fun runOrLog(
+    tag: String,
+    message: String = "An error occurred:",
+    crossinline block: () -> Unit
+) {
+    try {
+        block()
+    } catch (e: Exception) {
+        Log.e(tag, message, e)
+    }
+}

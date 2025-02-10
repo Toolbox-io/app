@@ -10,7 +10,6 @@ import androidx.annotation.RequiresApi
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.DynamicColorsOptions
 import ru.morozovit.android.NotificationIdManager
-import ru.morozovit.android.getValue
 import ru.morozovit.ultimatesecurity.Settings.materialYouEnabled
 import java.lang.ref.WeakReference
 
@@ -19,7 +18,7 @@ class App : Application() {
     companion object {
         @SuppressLint("StaticFieldLeak")
         private lateinit var mContext: WeakReference<Context>
-        val context by mContext
+        val context get() = mContext.get()!!
 
         var authenticated = false
 
@@ -142,7 +141,10 @@ class App : Application() {
         runCatching {
             for (file in cacheDir.listFiles()!!) {
                 runCatching {
-                    file.delete()
+                    // older than 1 day (in millis)
+                    if (System.currentTimeMillis() - file.lastModified() > 86400000L) {
+                        file.delete()
+                    }
                 }
             }
         }
