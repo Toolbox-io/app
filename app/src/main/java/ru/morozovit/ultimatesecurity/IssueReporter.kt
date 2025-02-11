@@ -72,14 +72,20 @@ object IssueReporter {
             field = value
             Thread.setDefaultUncaughtExceptionHandler(if (value) DEFAULT_HANDLER else DISABLED_HANDLER)
         }
+    private var crashes = 0
+    private const val CRASHES_LIMIT = 2
 
-    val DEFAULT_HANDLER = { _: Thread, exception: Throwable ->
+    val DEFAULT_HANDLER = { t: Thread, exception: Throwable ->
+        crashes++
+        if (crashes > CRASHES_LIMIT) {
+            enabled = false
+            DISABLED_HANDLER(t, exception)
+        }
         runCatching {
             Log.e("App", "EXCEPTION CAUGHT:\n${EParser(exception)}")
         }
         startCrashedActivity(exception, context)
     }
-
     private val DISABLED_HANDLER = { _: Thread, _: Throwable ->
         exitProcess(10)
     }
@@ -101,10 +107,12 @@ object IssueReporter {
                     body = context.resources.getString(R.string.crash_d),
                     positiveButtonText = context.resources.getString(R.string.continue1),
                     positiveButtonOnClick = {
+                        crashes--
                         finish()
                     },
                     negativeButtonText = context.resources.getString(R.string.details),
                     negativeButtonOnClick = {
+                        crashes--
                         context.startActivity(
                             Intent(context, ExceptionDetailsActivity::class.java).apply {
                                 putExtra("exception", exception)

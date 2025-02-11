@@ -145,6 +145,7 @@ interface WindowInsetsScope {
 @Suppress("AnimateAsStateLabel")
 @Composable
 fun AppTheme(
+    modifier: Modifier = Modifier,
     darkTheme: Boolean = when (theme) {
         Theme.AsSystem -> isSystemInDarkTheme()
         Theme.Light -> false
@@ -265,7 +266,7 @@ fun AppTheme(
             WindowInsets.safeDrawing.getBottom(LocalDensity())
         )
 
-        WindowInsetsHandler(!consumeLeftInsets, !consumeRightInsets) {
+        WindowInsetsHandler(modifier, !consumeLeftInsets, !consumeRightInsets) {
             Surface(
                 contentColor = colorScheme.onSurface,
                 modifier = Modifier
@@ -318,6 +319,7 @@ fun AppTheme(
 
 @Composable
 inline fun WindowInsetsHandler(
+    modifier: Modifier = Modifier,
     handleLeft: Boolean = true,
     handleRight: Boolean = true,
     content: @Composable () -> Unit
@@ -337,7 +339,7 @@ inline fun WindowInsetsHandler(
             } else {
                 it
             }
-        }
+        } + modifier
     ) {
         content()
     }
