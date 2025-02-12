@@ -1,5 +1,6 @@
 package ru.morozovit.ultimatesecurity.ui.main
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
@@ -533,15 +534,20 @@ fun HomeScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) {
                                             player = this
                                             addListener(
                                                 object: Player.Listener {
+                                                    @SuppressLint("SwitchIntDef")
                                                     override fun onPlaybackStateChanged(state: Int) {
                                                         super.onPlaybackStateChanged(playbackState)
-                                                        if (state == ExoPlayer.STATE_ENDED && page == pagerState.currentPage) {
-                                                            if (pagerState.currentPage + 1 < story.parts.size) {
-                                                                coroutineScope.launch {
-                                                                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                                        when (state) {
+                                                            ExoPlayer.STATE_ENDED -> {
+                                                                if (page == pagerState.currentPage) {
+                                                                    if (pagerState.currentPage + 1 < story.parts.size) {
+                                                                        coroutineScope.launch {
+                                                                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                                                        }
+                                                                    } else {
+                                                                        navController.navigateUp()
+                                                                    }
                                                                 }
-                                                            } else {
-                                                                navController.navigateUp()
                                                             }
                                                         }
                                                     }
@@ -572,6 +578,8 @@ fun HomeScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) {
                                         ) {
                                             Box(
                                                 modifier = Modifier
+                                                    // TODO listen for currentPosition changes
+                                                    // TODO fix
                                                     .fillMaxWidth(
                                                         when {
                                                             pagerState.currentPage > i -> 1f
