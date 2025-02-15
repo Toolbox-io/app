@@ -1051,7 +1051,7 @@ inline fun ColumnScope.Category(
     modifier: Modifier = Modifier,
     title: String? = null,
     margin: PaddingValues = CategoryDefaults.margin,
-    crossinline content: @Composable () -> Unit
+    crossinline content: @Composable ColumnScope.() -> Unit
 ) {
     if (title != null) {
         Text(
@@ -1068,6 +1068,6 @@ inline fun ColumnScope.Category(
         shape = MaterialTheme.shapes.extraLarge,
         colors = cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     ) {
-        content()
+        content(this)
     }
 }

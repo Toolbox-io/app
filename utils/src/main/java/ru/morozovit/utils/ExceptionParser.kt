@@ -92,7 +92,7 @@ class ExceptionParser(val exception: Throwable) {
                 writer.println(prefix + caption + this)
 
                 for (i in 0..m) {
-                    writer.println(prefix + "\tat " + trace[i])
+                    writer.println("${prefix}\tat ${trace[i]}")
                 }
 
                 if (framesInCommon != 0) {

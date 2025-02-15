@@ -61,7 +61,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import ru.morozovit.android.BetterActivityResult
-import ru.morozovit.android.BetterActivityResult.registerActivityForResult
+import ru.morozovit.android.activityResultLauncher
 import ru.morozovit.android.copy
 import ru.morozovit.android.getFileName
 import ru.morozovit.android.test
@@ -444,7 +444,7 @@ class AlarmSettingsActivity: BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activityLauncher = registerActivityForResult(this)
+        activityLauncher = activityResultLauncher
         enableEdgeToEdge()
         setContent {
             AlarmSettingsScreen()

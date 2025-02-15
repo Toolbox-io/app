@@ -36,7 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import ru.morozovit.android.BetterActivityResult
-import ru.morozovit.android.BetterActivityResult.registerActivityForResult
+import ru.morozovit.android.activityResultLauncher
 import ru.morozovit.android.copy
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.CategoryDefaults
@@ -170,7 +170,7 @@ class ActionsActivity: BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(null)
-        activityLauncher = registerActivityForResult(this)
+        activityLauncher = activityResultLauncher
         enableEdgeToEdge()
         setContent {
             ActionsScreen()

@@ -66,16 +66,15 @@ class App : Application() {
         notificationManager.createNotificationChannel(channel)
     }
 
-    @Suppress("DEPRECATION")
     override fun onCreate() {
         super.onCreate()
         // Variables
-        mContext = WeakReference(applicationContext)
+        mContext = WeakReference(this)
         notificationManager =
             getSystemService(
                 Context.NOTIFICATION_SERVICE
             ) as NotificationManager
-        Settings.init()
+        Settings.init(this)
 
         // Material You support for views
         if (materialYouEnabled)
@@ -88,19 +87,6 @@ class App : Application() {
                     )
                     .build()
             )
-
-        // Migrate settings
-        val applockerPassword = Settings.Applocker.password
-        if (applockerPassword != "") {
-            Settings.Keys.Applocker.set(applockerPassword)
-            Settings.Applocker.password = ""
-        }
-
-        val appPassword = Settings.globalPassword
-        if (appPassword != "") {
-            Settings.Keys.App.set(appPassword)
-            Settings.globalPassword = ""
-        }
 
         // Create notification channels
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

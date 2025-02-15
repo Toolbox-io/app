@@ -77,8 +77,8 @@ import com.skydoves.cloudy.cloudy
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.morozovit.android.BetterActivityResult
-import ru.morozovit.android.BetterActivityResult.registerActivityForResult
 import ru.morozovit.android.ComposeView
+import ru.morozovit.android.activityResultLauncher
 import ru.morozovit.android.addOneTimeOnPreDrawListener
 import ru.morozovit.android.async
 import ru.morozovit.android.homeScreen
@@ -585,7 +585,7 @@ class AuthActivity: BaseActivity(false) {
         isSecure = true
         launchingIntent = intent
         /*uses++*/
-        activityLauncher = registerActivityForResult(this)
+        activityLauncher = activityResultLauncher
 
         if ((!Settings.Keys.App.isSet || authenticated) && !isSetOrConfirm) {
             finish()

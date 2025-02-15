@@ -47,7 +47,7 @@ import androidx.core.os.postDelayed
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import ru.morozovit.android.ActivityLauncher
-import ru.morozovit.android.BetterActivityResult
+import ru.morozovit.android.activityResultLauncher
 import ru.morozovit.android.async
 import ru.morozovit.android.copy
 import ru.morozovit.android.encodeJSON
@@ -332,7 +332,7 @@ object IssueReporter {
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            activityLauncher = BetterActivityResult.registerActivityForResult(this)
+            activityLauncher = activityResultLauncher
             enableEdgeToEdge()
             setContent {
                 ExceptionDetailsScreen()

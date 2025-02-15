@@ -235,4 +235,13 @@
     <string name="one_question_d">What have you done before this error happened?\n\nYou can skip this if you want.</string>
     <string name="save_file">Save file</string>
     <string name="developer_options">Developer options</string>
+    <string name="check_for_updates">Check for updates</string>
+    <string name="check_for_updates_d">The app will check for updates in the background each 1 minute</string>
+    <string name="export_settings">Save settings</string>
+    <string name="export_settings_d">Saves the settings into a \"dd.mm.yyyy_HH:MM.tiosettings.zip\" file. Passwords and device-specific settings are not saved</string>
+    <string name="import_settings">Restore settings</string>
+    <string name="import_settings_d">Import the settings from a \"dd.mm.yyyy_MM:SS.tiosettings.zip\" file. Warning: the previous settings are overwritten. This cannot be undone. The app will restart to prevent conflicts with the previous settings.</string>
+    <string name="settings_exported_successfully">Settings exported successfully</string>
+    <string name="settings_imported_successfully">Settings imported successfully, restarting…</string>
+    <string name="notifications">Notifications</string>
 </resources>

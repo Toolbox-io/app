@@ -1,4 +1,4 @@
-@file:Suppress("unused", "NOTHING_TO_INLINE")
+@file:Suppress( "NOTHING_TO_INLINE")
 package ru.morozovit.android
 
 import android.app.Activity
@@ -24,27 +24,21 @@ import android.os.Build
 import android.os.Parcelable
 import android.provider.OpenableColumns
 import android.service.quicksettings.Tile
-import android.text.Editable
 import android.util.Base64
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.MarginLayoutParams
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.ViewTreeObserver.OnPreDrawListener
-import android.view.Window
-import android.view.animation.AnimationUtils.loadAnimation
-import android.widget.EditText
 import android.widget.ImageView.ScaleType
+import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResult
-import androidx.annotation.AnimRes
+import androidx.activity.result.ActivityResultCaller
 import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -53,7 +47,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocal
@@ -61,37 +54,26 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.constraintlayout.compose.ConstrainScope
 import androidx.constraintlayout.compose.ConstrainedLayoutReference
 import androidx.constraintlayout.compose.ConstraintLayoutBaseScope
 import androidx.constraintlayout.compose.HorizontalAnchorable
 import androidx.constraintlayout.compose.VerticalAnchorable
 import androidx.core.content.ContextCompat
-import androidx.core.view.updateLayoutParams
-import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.navigation.NavController
 import androidx.window.core.layout.WindowHeightSizeClass
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.IOException
 import java.io.InputStream
@@ -132,114 +114,12 @@ fun Context.homeScreen() {
     startActivity(intentHome)
 }
 
-fun Context.fileExists(contentUri: Uri): Boolean {
-    try {
-        val file = DocumentFile.fromTreeUri(this, contentUri)!!
-        return file.exists()
-    } catch (_: Exception) {
-        return false
-    }
-}
 
-inline fun Context.fileExists(contentUri: String) = fileExists(Uri.parse(contentUri))
-
-inline fun Fragment.homeScreen() = requireActivity().homeScreen()
-
-inline fun Editable?.toInt() = toString().toInt()
-inline fun EditText.toInt() = text.toInt()
-
-val View.screenX: Int get() {
-    val arr = intArrayOf(0, 0)
-    getLocationOnScreen(arr)
-    return arr[0]
-}
-
-val View.screenY: Int get() {
-    val arr = intArrayOf(0, 0)
-    getLocationOnScreen(arr)
-    return arr[1]
-}
-
-val View.relativeX: Int
-    inline get() = (parent as ViewGroup).screenX - screenX
-
-
-val View.relativeY: Int
-    inline get() = (parent as ViewGroup).screenY - screenY
-
-fun Activity.setWindowFlag(bits: Int, on: Boolean) {
-    val win = window
-    val winParams = win.attributes
-    if (on) {
-        winParams.flags = winParams.flags or bits
-    } else {
-        winParams.flags = winParams.flags and bits.inv()
-    }
-    win.attributes = winParams
-}
-
-fun async(exec: () -> Unit) = Thread(exec).apply {start()}
-
-inline fun MaterialAlertDialogBuilder.setNeutralButton(text: CharSequence)
-    = setNeutralButton(text, null)
-inline fun MaterialAlertDialogBuilder.setNeutralButton(@StringRes textRes: Int)
-    = setNeutralButton(textRes, null)
-
-inline fun MaterialAlertDialogBuilder.setNegativeButton(text: CharSequence)
-        = setNegativeButton(text, null)
-inline fun MaterialAlertDialogBuilder.setNegativeButton(@StringRes textRes: Int)
-        = setNegativeButton(textRes, null)
-
-inline fun MaterialAlertDialogBuilder.setPositiveButton(text: CharSequence)
-        = setPositiveButton(text, null)
-inline fun MaterialAlertDialogBuilder.setPositiveButton(@StringRes textRes: Int)
-        = setPositiveButton(textRes, null)
-
-inline fun View.startAnimation(@AnimRes animRes: Int) = startAnimation(loadAnimation(context, animRes))
+inline fun async(noinline exec: () -> Unit) = Thread(exec).apply { start() }
 
 inline fun Tile.configure(apply: Tile.() -> Unit) {
     apply.invoke(this)
     updateTile()
-}
-
-fun View.createBlankClone(
-    includeMargins: Boolean = true,
-    fixedWidth: Boolean = false
-): View {
-    val v = View(context)
-
-
-    var width = width
-    var height = height
-
-    fun setParams() {
-        if (layoutParams is MarginLayoutParams && includeMargins) {
-            val p = layoutParams as MarginLayoutParams
-            width += p.leftMargin + p.rightMargin
-            height += p.topMargin + p.bottomMargin
-        }
-        if (!fixedWidth) {
-            if (layoutParams.width == MATCH_PARENT) {
-                width = MATCH_PARENT
-            }
-            if (layoutParams.height == MATCH_PARENT) {
-                height = MATCH_PARENT
-            }
-        }
-    }
-
-    if (layoutParams == null)
-        addOneTimeOnGlobalLayoutListener(::setParams)
-    else
-        setParams()
-
-    v.addOneTimeOnGlobalLayoutListener {
-        updateLayoutParams {
-            this.width = width
-            this.height = height
-        }
-    }
-    return v
 }
 
 inline fun View.addOneTimeOnGlobalLayoutListener(crossinline listener: () -> Unit) {
@@ -269,21 +149,18 @@ fun Context.launchFiles(): Boolean {
     val primaryStorageUri = Uri.parse(
         "content://com.android.externalstorage.documents/root/primary"
     )
-    fun launchIntent(intent: Intent): Boolean {
+
+    fun launchIntentWithComponent(action: String, componentName: ComponentName? = null): Boolean {
+        val intent = Intent(action, primaryStorageUri)
+        if (componentName != null) {
+            intent.setComponent(componentName)
+        }
         try {
             startActivity(intent)
             return true
         } catch (th: Throwable) {
             return false
         }
-    }
-    fun launchIntentWithComponent(action: String, componentName: ComponentName? = null):
-            Boolean {
-        val intent = Intent(action, primaryStorageUri)
-        if (componentName != null) {
-            intent.setComponent(componentName)
-        }
-        return launchIntent(intent)
     }
     fun intent1() = launchIntentWithComponent(
         Intent.ACTION_VIEW,
@@ -312,7 +189,6 @@ fun Context.launchFiles(): Boolean {
 
     return intent1() || intent2() || intent3() || intent4() || intent5() || intent6()
 }
-inline fun Fragment.launchFiles() = requireActivity().launchFiles()
 
 inline fun Fragment.getSystemService(name: String): Any? = requireActivity().getSystemService(name)
 inline fun <T> Fragment.getSystemService(cls: Class<T>): T? = requireActivity().getSystemService(cls)
@@ -320,15 +196,11 @@ inline fun <T> Fragment.getSystemService(cls: Class<T>): T? = requireActivity().
 inline fun <T: Any> Context.getSystemService(cls: KClass<T>): T? = getSystemService(cls.java)
 inline fun <T: Any> Fragment.getSystemService(cls: KClass<T>): T? = requireActivity().getSystemService(cls)
 
-inline val Fragment.supportFragmentManager get() = requireActivity().supportFragmentManager
-
 typealias ActivityLauncher = BetterActivityResult<Intent, ActivityResult>
-typealias ActivityResultLauncher = ActivityLauncher
 
-val AppCompatActivity.activityResultLauncher get() = BetterActivityResult.registerActivityForResult(this)
+val ActivityResultCaller.activityResultLauncher get() = BetterActivityResult.registerActivityForResult(this)
 
-
-
+@Suppress("unused")
 fun getOpenDocumentIntent(vararg fileTypes: String) =
     Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
         addCategory(Intent.CATEGORY_OPENABLE)
@@ -367,8 +239,10 @@ fun Context.getFileName(uri: Uri): String {
     }
 }
 
+@Suppress("unused")
 inline fun Fragment.getFileName(uri: Uri) = requireActivity().getFileName(uri)
 
+@Suppress("unused")
 val UsbInterface.endpointList: List<UsbEndpoint> get() {
     val list = mutableListOf<UsbEndpoint>()
     for (i in 0 until endpointCount) {
@@ -376,10 +250,6 @@ val UsbInterface.endpointList: List<UsbEndpoint> get() {
     }
     return list.toList()
 }
-
-fun Int.toDp(resources: Resources) = this * resources.displayMetrics.density
-
-val Fragment.window: Window? get() = requireActivity().window
 
 fun Activity.resolveAttr(@AttrRes attr: Int): Int? {
     val typedValue = TypedValue()
@@ -390,17 +260,6 @@ fun Activity.resolveAttr(@AttrRes attr: Int): Int? {
     } else {
         return null
     }
-}
-
-fun Fragment.resolveAttr(@AttrRes attr: Int) = requireActivity().resolveAttr(attr)
-
-val Fragment.packageManager: PackageManager get() = requireActivity().packageManager
-
-fun PackageManager.canRequestPackageInstallsOrFalse()
-= if (Build.VERSION.SDK_INT >= 26) {
-    canRequestPackageInstalls()
-} else {
-    false
 }
 
 @Suppress("UNUSED_PARAMETER")
@@ -497,6 +356,7 @@ inline fun Activity.alertDialog(crossinline config: QuickAlertDialogBuilder.() -
     return builder.show()
 }
 
+@Suppress("unused")
 inline fun Fragment.alertDialog(crossinline config: QuickAlertDialogBuilder.() -> Unit)
     = requireActivity().alertDialog(config)
 
@@ -571,26 +431,6 @@ inline fun FragmentActivity.requestAuthentication(crossinline callback: Authenti
     return biometricPrompt
 }
 
-inline fun <T> applyAll(vararg items: T, callback: T.(Int) -> Unit) {
-    items.forEach {
-        it.apply {
-            callback(this, items.indexOf(it))
-        }
-    }
-}
-
-inline fun BottomSheetBehavior<*>.addBottomSheetCallback(crossinline callback: (Int) -> Unit) {
-    addBottomSheetCallback(object: BottomSheetCallback() {
-        override fun onStateChanged(bottomSheet: View, newState: Int) {
-            callback(newState)
-        }
-        override fun onSlide(bottomSheet: View, slideOffset: Float) {}
-    })
-}
-
-@Composable
-inline fun TextUnit.toDp() = with(LocalDensity()) { toDp() }
-
 val ConstrainScope.left get() = absoluteLeft
 val ConstrainScope.right get() = absoluteRight
 
@@ -660,10 +500,6 @@ val WindowSizeClass.height get() = windowHeightSizeClass
 val WindowAdaptiveInfo.widthSizeClass get() = windowSizeClass.width
 val WindowAdaptiveInfo.heightSizeClass get() = windowSizeClass.height
 
-typealias WidthSizeClass = WindowWidthSizeClass
-typealias HeightSizeClass = WindowHeightSizeClass
-typealias SizeClass = WindowSizeClass
-
 @Composable
 operator fun <T> CompositionLocal<T>.invoke() = current
 
@@ -693,21 +529,7 @@ fun Context.openUrl(url: String) {
     )
 }
 
-val NavController.isBackStackEmpty get() = currentBackStackEntry != null
-
-@Composable
-fun <T: Any> rememberMutableStateListOf(vararg elements: T): SnapshotStateList<T> {
-    return rememberSaveable(saver = snapshotStateListSaver()) {
-        elements.toList().toMutableStateList()
-    }
-}
-
-private fun <T : Any> snapshotStateListSaver() = listSaver<SnapshotStateList<T>, T>(
-    save = { stateList -> stateList.toList() },
-    restore = { it.toMutableStateList() },
-)
-
-inline fun Activity.ComposeView(crossinline init: @Composable () -> Unit) =
+inline fun ComponentActivity.ComposeView(crossinline init: @Composable () -> Unit) =
     ComposeView(this).apply {
         setContent {
             init()
@@ -721,27 +543,6 @@ inline fun backCallback(enabled: Boolean = true, crossinline callback: OnBackPre
         }
     }
 
-inline fun <F, S> Collection<F>.contentEquals(other: Collection<S>): Boolean {
-    if (size != other.size) return false
-    val list1 = toList()
-    val list2 = other.toList()
-
-    for (i in indices) {
-        if (list1[i] != list2[i]) return false
-    }
-    return true
-}
-
-inline fun <reified F, reified S : F> Collection<F>.contentEqualsIgnoringOrder(other: Collection<S>): Boolean {
-    if (F::class != S::class) return false
-
-    if (size != other.size) return false
-    val list1 = toMutableList()
-    val list2 = other.toMutableList()
-    list1.removeAll(list2.toSet())
-    return list1.size == 0
-}
-
 fun String.encrypt(password: String): String {
     val salt = ByteArray(16).also { SecureRandom().nextBytes(it) }
     val spec = PBEKeySpec(password.toCharArray(), salt, 65536, 256)
@@ -754,7 +555,7 @@ fun String.encrypt(password: String): String {
     cipher.init(Cipher.ENCRYPT_MODE, secretKey, params)
 
     val encryptedBytes = cipher.doFinal(this.toByteArray())
-    return Base64.encodeToString(salt, Base64.DEFAULT) + ":" + Base64.encodeToString(iv, Base64.DEFAULT) + ":" + Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+    return "${Base64.encodeToString(salt, Base64.DEFAULT)}:${Base64.encodeToString(iv, Base64.DEFAULT)}:${Base64.encodeToString(encryptedBytes, Base64.DEFAULT)}"
 }
 
 fun String.decrypt(password: String): String {
@@ -775,6 +576,7 @@ fun String.decrypt(password: String): String {
     return String(decryptedBytes)
 }
 
+@Suppress("unused")
 inline fun waitUntil(timeout: Long = 0, condition: () -> Boolean): Boolean {
     val time = System.currentTimeMillis()
     while (!condition()) {
@@ -795,46 +597,43 @@ inline fun waitWhile(timeout: Long = 0, condition: () -> Boolean): Boolean {
     return true
 }
 
-inline fun orientationSensorEventListener(crossinline callback: (Float, Float, Float) -> Unit): SensorEventListener {
-    return object: SensorEventListener {
-        private var accelerometerData: FloatArray? = null
-        private var geomagneticData: FloatArray? = null
+inline fun orientationSensorEventListener(
+    crossinline callback: (Float, Float, Float) -> Unit
+) = object: SensorEventListener {
+    private var accelerometerData: FloatArray? = null
+    private var geomagneticData: FloatArray? = null
 
-        override fun onSensorChanged(event: SensorEvent) {
-            if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) accelerometerData = event.values
-            if (event.sensor.type == Sensor.TYPE_MAGNETIC_FIELD) geomagneticData = event.values
-            if (accelerometerData != null && geomagneticData != null) {
-                val R = FloatArray(9)
-                val success = SensorManager.getRotationMatrix(
-                    R,
-                    FloatArray(9),
-                    accelerometerData,
-                    geomagneticData
+    override fun onSensorChanged(event: SensorEvent) {
+        if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) accelerometerData = event.values
+        if (event.sensor.type == Sensor.TYPE_MAGNETIC_FIELD) geomagneticData = event.values
+        if (accelerometerData != null && geomagneticData != null) {
+            val R = FloatArray(9)
+            val success = SensorManager.getRotationMatrix(
+                R,
+                FloatArray(9),
+                accelerometerData,
+                geomagneticData
+            )
+            if (success) {
+                val orientationData = FloatArray(3)
+                SensorManager.getOrientation(R, orientationData)
+                callback(
+                    orientationData[0],
+                    orientationData[1],
+                    orientationData[2]
                 )
-                if (success) {
-                    val orientationData = FloatArray(3)
-                    SensorManager.getOrientation(R, orientationData)
-                    callback(
-                        orientationData[0],
-                        orientationData[1],
-                        orientationData[2]
-                    )
-                }
             }
         }
-
-        override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
     }
+
+    override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
 }
 
-inline fun SensorEventListener(crossinline callback: (SensorEvent) -> Unit): SensorEventListener {
-    return object: SensorEventListener {
-        override fun onSensorChanged(event: SensorEvent) {
-            callback(event)
-        }
-
-        override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
+inline fun SensorEventListener(crossinline callback: (SensorEvent) -> Unit) = object: SensorEventListener {
+    override fun onSensorChanged(event: SensorEvent) {
+        callback(event)
     }
+    override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
 }
 
 inline val Context.isScreenLocked get() = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isKeyguardLocked
@@ -873,6 +672,7 @@ fun PaddingValues.copy(
     bottom = bottom ?: calculateBottomPadding()
 )
 
+@Suppress("unused")
 @Composable
 fun PaddingValues.copy(
     horizontal: Dp? = null,
@@ -998,6 +798,7 @@ fun String.encodeJSON(): String {
 
 operator fun <T> WeakReference<T>.getValue(thisRef: Any?, property: KProperty<*>) = get()!!
 
+@Suppress("unused")
 inline fun runOrLog(
     tag: String,
     message: String = "An error occurred:",
@@ -1009,3 +810,7 @@ inline fun runOrLog(
         Log.e(tag, message, e)
     }
 }
+
+typealias WidthSizeClass = WindowWidthSizeClass
+typealias HeightSizeClass = WindowHeightSizeClass
+typealias SizeClass = WindowSizeClass

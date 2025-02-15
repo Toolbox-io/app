@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import ru.morozovit.android.BetterActivityResult
-import ru.morozovit.android.BetterActivityResult.registerActivityForResult
+import ru.morozovit.android.activityResultLauncher
 import ru.morozovit.android.invoke
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.SwitchCard
@@ -218,7 +218,7 @@ class IntruderPhotoSettingsActivity: BaseActivity(false) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activityLauncher = registerActivityForResult(this)
+        activityLauncher = activityResultLauncher
         enableEdgeToEdge()
         setContent {
             IntruderPhotoScreen()

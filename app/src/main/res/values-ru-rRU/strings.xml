@@ -223,4 +223,14 @@
     <string name="one_question">Один вопрос</string>
     <string name="one_question_d">Что Вы делали перед тем, как возникла эта ошибка?\nЭтот вопрос необязателен, вы можете пропустить его.</string>
     <string name="save_file">Сохранить файл</string>
+    <string name="developer_options">Для разработчиков</string>
+    <string name="check_for_updates">Проверять обновления</string>
+    <string name="check_for_updates_d">Приложение будет проверять на наличие обновлений каждую минуту в фоновом режиме</string>
+    <string name="export_settings">Сохранить настройки</string>
+    <string name="export_settings_d">Сохранить настройки приложения в файл формата \"dd.mm.yyyy_HH:MM.tiosettings.zip\". Пароли и настройки, зависящие от устройства не включены</string>
+    <string name="import_settings">Восстановить настройки</string>
+    <string name="import_settings_d">Восстановить настройки из файла формата \"dd.mm.yyyy_MM:SS.tiosettings.zip\". Внимание: предыдущие настройки будут перезаписаны. Это нельзя отменить. Приложение будет перезапущено, чтобы предотвратить конфликты с предыдущими настройками.</string>
+    <string name="settings_exported_successfully">Настройки успешно сохранены</string>
+    <string name="settings_imported_successfully">Настройки успешно восстановлены, перезапуск...</string>
+    <string name="notifications">Уведомления</string>
 </resources>

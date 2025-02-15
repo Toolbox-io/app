@@ -25,138 +25,154 @@ import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphot
 import java.io.IOException
 import kotlin.random.Random
 
+@Suppress("MemberVisibilityCanBePrivate")
 object Settings {
-    private lateinit var sharedPref: SharedPreferences
+    private lateinit var global_sharedPref: SharedPreferences
     private var init = false
 
-    private interface SettingsObj {
-        fun init()
-    }
+    const val KEYS_LABEL = "gwegnagjh"
+    const val MAIN_LABEL = "wshobjnwh"
+    const val ACTIONS_LABEL = "rhnklahen"
+    const val APPLOCKER_LABEL = "whnerhoerh"
+    const val UNLOCK_PROTECTION_LABEL = "gewbnewrnh"
+    const val TILES_LABEL = "ehnbgedkjhn"
 
-    fun init() {
+    const val ALLOW_BIOMETRIC_LABEL = "erjgeskh"
+    const val APPLOCKER_RANDOM_KEY_LABEL = "ejn"
+    const val APPLOCKER_ENCRYPTED_PASSWORD_LABEL = "hedrh"
+    const val APP_RANDOM_KEY_LABEL = "soeitge"
+    const val APP_ENCRYPTED_PASSWORD_LABEL = "waegnwg"
+
+    const val UPDATE_DSA_LABEL = "gsmwsojgnwg"
+    const val DONT_SHOW_IN_RECENTS_LABEL = "grehbes"
+    const val MATERIAL_YOU_ENABLED_LABEL = "vghwsjkrgn"
+    const val APP_THEME_LABEL = "hgebngahnbe"
+    const val ALARM_LABEL = "hbhnli"
+    const val CURRENT_CUSTOM_ALARM_LABEL = "nghworhn"
+    const val CUSTOM_ALARMS_LABEL = "qwaeftgn"
+    const val INTRUDER_PHOTO_LABEL = "gwrsgbn"
+    const val INTRUDER_PHOTO_NOPT_LABEL = "qglnqnegf"
+    const val SELECTED_APPS_LABEL = "gnwlisohnrsb"
+    const val UNLOCK_MODE_LABEL = "bnsrllhw"
+    const val ENABLED_LABEL = "whgbnwrohn"
+    const val UNLOCK_ATTEMPTS_LABEL = "gewrnwh"
+    const val FG_SERVICE_ENABLED_LABEL = "hbjnwsokehgr"
+    const val SLEEP_LABEL = "hbgewsrjkhn"
+
+    fun init(context: Context) {
         if (!init) {
-            sharedPref = App.context.getSharedPreferences("main", Context.MODE_PRIVATE)
+            global_sharedPref = context.getSharedPreferences(MAIN_LABEL, Context.MODE_PRIVATE)
             // Init sub-objects
-            Keys.init()
-            Applocker.init()
-            UnlockProtection.init()
-            Tiles.init()
+            Keys.init(context)
+            Applocker.init(context)
+            UnlockProtection.init(context)
+            Tiles.init(context)
             init = true
         }
     }
 
     var update_dsa
-        get() = sharedPref.getBoolean("update_dsa", false)
+        get() = global_sharedPref.getBoolean(UPDATE_DSA_LABEL, false)
         set(value) {
-            with(sharedPref.edit()) {
-                putBoolean("update_dsa", value)
+            with(global_sharedPref.edit()) {
+                putBoolean(UPDATE_DSA_LABEL, value)
                 apply()
             }
         }
 
     val accessibility get() = Accessibility.instance != null
 
-    @Deprecated("")
-    var globalPassword
-        get() = sharedPref.getString("globalPassword", "")!!
-        set(value) {
-            with(sharedPref.edit()) {
-                putString("globalPassword", value)
-                apply()
-            }
-        }
-
     var allowBiometric
-        get() = sharedPref.getBoolean("allowBiometric", false)
+        get() = global_sharedPref.getBoolean(ALLOW_BIOMETRIC_LABEL, false)
         set(value) {
-            with(sharedPref.edit()) {
-                putBoolean("allowBiometric", value)
+            with(global_sharedPref.edit()) {
+                putBoolean(ALLOW_BIOMETRIC_LABEL, value)
                 apply()
             }
         }
 
     var dontShowInRecents
-        get() = sharedPref.getBoolean("dontShowInRecents", false)
+        get() = global_sharedPref.getBoolean(DONT_SHOW_IN_RECENTS_LABEL, false)
         set(value) {
-            with(sharedPref.edit()) {
-                putBoolean("dontShowInRecents", value)
+            with(global_sharedPref.edit()) {
+                putBoolean(DONT_SHOW_IN_RECENTS_LABEL, value)
                 apply()
             }
         }
 
     var materialYouEnabled
-        get() = sharedPref.getBoolean("materialYouEnabled", Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+        get() = global_sharedPref.getBoolean(MATERIAL_YOU_ENABLED_LABEL, Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
         set(value) {
-            with(sharedPref.edit()) {
-                putBoolean("materialYouEnabled", value)
+            with(global_sharedPref.edit()) {
+                putBoolean(MATERIAL_YOU_ENABLED_LABEL, value)
                 apply()
             }
         }
 
     var appTheme: Theme
-        get() = Theme.entries[sharedPref.getInt("appTheme", Theme.AsSystem.ordinal)]
+        get() = Theme.entries[global_sharedPref.getInt(APP_THEME_LABEL, Theme.AsSystem.ordinal)]
         set(value) {
-            with(sharedPref.edit()) {
-                putInt("appTheme", value.ordinal)
+            with(global_sharedPref.edit()) {
+                putInt(APP_THEME_LABEL, value.ordinal)
                 apply()
             }
         }
 
-    object Actions: SettingsObj {
-        private lateinit var sharedPref: SharedPreferences
+    object Actions {
+        private lateinit var actions_sharedPref: SharedPreferences
         private var init = false
 
-        override fun init() {
+        fun init(context: Context) {
             if (!init) {
-                sharedPref =
-                    App.context.getSharedPreferences("unlockProtection.actions", Context.MODE_PRIVATE)
+                actions_sharedPref =
+                    context.getSharedPreferences(ACTIONS_LABEL, Context.MODE_PRIVATE)
                 init = true
             }
         }
 
         object Alarm {
             var enabled
-                get() = sharedPref.getBoolean("alarm", false)
+                get() = actions_sharedPref.getBoolean(ALARM_LABEL, false)
                 set(value) {
-                    with(sharedPref.edit()) {
-                        putBoolean("alarm", value)
+                    with(actions_sharedPref.edit()) {
+                        putBoolean(ALARM_LABEL, value)
                         commit()
                     }
                 }
 
             var current
-                get() = sharedPref.getString("currentCustomAlarm", "")!!
+                get() = actions_sharedPref.getString(CURRENT_CUSTOM_ALARM_LABEL, "")!!
                 set(value) {
-                    with(sharedPref.edit()) {
-                        putString("currentCustomAlarm", value)
+                    with(actions_sharedPref.edit()) {
+                        putString(CURRENT_CUSTOM_ALARM_LABEL, value)
                         commit()
                     }
                 }
 
             var customAlarms: Set<String>
-                get() = sharedPref.getStringSet("customAlarms", setOf())!!
+                get() = actions_sharedPref.getStringSet(CUSTOM_ALARMS_LABEL, setOf())!!
                 set(value) {
-                    with(sharedPref.edit()) {
-                        putStringSet("customAlarms", value)
+                    with(actions_sharedPref.edit()) {
+                        putStringSet(CUSTOM_ALARMS_LABEL, value)
                         commit()
                     }
                 }
         }
         object IntruderPhoto {
             var enabled
-                get() = sharedPref.getBoolean("intruderPhoto", false)
+                get() = actions_sharedPref.getBoolean(INTRUDER_PHOTO_LABEL, false)
                 set(value) {
-                    with(sharedPref.edit()) {
-                        putBoolean("intruderPhoto", value)
+                    with(actions_sharedPref.edit()) {
+                        putBoolean(INTRUDER_PHOTO_LABEL, value)
                         commit()
                     }
                 }
 
             var nopt
-                get() = sharedPref.getBoolean("intruderPhoto.nopt", false)
+                get() = actions_sharedPref.getBoolean(INTRUDER_PHOTO_NOPT_LABEL, false)
                 set(value) {
-                    with(sharedPref.edit()) {
-                        putBoolean("intruderPhoto.nopt", value)
+                    with(actions_sharedPref.edit()) {
+                        putBoolean(INTRUDER_PHOTO_NOPT_LABEL, value)
                         commit()
                     }
                 }
@@ -176,7 +192,7 @@ object Settings {
                     )
                     if (UnlockProtection.Alarm.current == "") {
                         val afd: AssetFileDescriptor =
-                            App.context.assets.openFd("alarm.mp3")
+                            context.assets.openFd("alarm.mp3")
                         setDataSource(
                             afd.fileDescriptor,
                             afd.startOffset,
@@ -184,12 +200,12 @@ object Settings {
                         )
                     } else {
                         try {
-                            setDataSource(App.context, Uri.parse(UnlockProtection.Alarm.current))
+                            setDataSource(context, Uri.parse(UnlockProtection.Alarm.current))
                         } catch (e: IOException) {
                             Log.w("DeviceAdmin", "Invalid custom alarm URI, falling back to default")
                             UnlockProtection.Alarm.current = ""
                             val afd: AssetFileDescriptor =
-                                App.context.assets.openFd("alarm.mp3")
+                                context.assets.openFd("alarm.mp3")
                             setDataSource(
                                 afd.fileDescriptor,
                                 afd.startOffset,
@@ -214,13 +230,13 @@ object Settings {
         }
     }
 
-    object Keys: SettingsObj {
-        private lateinit var sharedPref: SharedPreferences
+    object Keys {
+        private lateinit var keys_sharedPref: SharedPreferences
         private var init = false
 
-        override fun init() {
+        fun init(context: Context) {
             if (!init) {
-                sharedPref = ru.morozovit.ultimatesecurity.App.context.getSharedPreferences("keys", Context.MODE_PRIVATE)
+                keys_sharedPref = context.getSharedPreferences(KEYS_LABEL, Context.MODE_PRIVATE)
                 init = true
             }
         }
@@ -243,7 +259,7 @@ object Settings {
         object Applocker: Key {
             private var randomKey: String
                 get() {
-                    var result = Settings.sharedPref.getString("applockerRandomKey", null)
+                    var result = keys_sharedPref.getString(APPLOCKER_RANDOM_KEY_LABEL, null)
                     if (result == null) {
                         result = generateKey()
                         randomKey = result
@@ -251,17 +267,17 @@ object Settings {
                     return result
                 }
                 set(value) {
-                    with(Settings.sharedPref.edit()) {
-                        putString("applockerRandomKey", value)
+                    with(keys_sharedPref.edit()) {
+                        putString(APPLOCKER_RANDOM_KEY_LABEL, value)
                         apply()
                     }
                 }
 
             private var encryptedPassword
-                get() = Settings.sharedPref.getString("applockerEncryptedPassoword", "")!!
+                get() = keys_sharedPref.getString(APPLOCKER_ENCRYPTED_PASSWORD_LABEL, "")!!
                 set(value) {
-                    with(Settings.sharedPref.edit()) {
-                        putString("applockerEncryptedPassoword", value)
+                    with(keys_sharedPref.edit()) {
+                        putString(APPLOCKER_ENCRYPTED_PASSWORD_LABEL, value)
                         apply()
                     }
                 }
@@ -291,7 +307,7 @@ object Settings {
         object App: Key {
             private var randomKey: String
                 get() {
-                    var result = Settings.sharedPref.getString("authRandomKey", null)
+                    var result = keys_sharedPref.getString(APP_RANDOM_KEY_LABEL, null)
                     if (result == null) {
                         result = generateKey()
                         randomKey = result
@@ -299,17 +315,17 @@ object Settings {
                     return result
                 }
                 set(value) {
-                    with(Settings.sharedPref.edit()) {
-                        putString("authRandomKey", value)
+                    with(keys_sharedPref.edit()) {
+                        putString(APP_RANDOM_KEY_LABEL, value)
                         apply()
                     }
                 }
 
             private var encryptedPassword
-                get() = Settings.sharedPref.getString("authEncryptedPassoword", "")!!
+                get() = keys_sharedPref.getString(APP_ENCRYPTED_PASSWORD_LABEL, "")!!
                 set(value) {
-                    with(Settings.sharedPref.edit()) {
-                        putString("authEncryptedPassoword", value)
+                    with(keys_sharedPref.edit()) {
+                        putString(APP_ENCRYPTED_PASSWORD_LABEL, value)
                         apply()
                     }
                 }
@@ -337,14 +353,14 @@ object Settings {
         }
     }
 
-    object Applocker: SettingsObj {
-        private lateinit var sharedPref: SharedPreferences
+    object Applocker {
+        private lateinit var applocker_sharedPref: SharedPreferences
         private var init = false
 
-        override fun init() {
+        fun init(context: Context) {
             if (!init) {
-                sharedPref =
-                    App.context.getSharedPreferences("applocker", Context.MODE_PRIVATE)
+                applocker_sharedPref =
+                    context.getSharedPreferences(APPLOCKER_LABEL, Context.MODE_PRIVATE)
                 init = true
             }
         }
@@ -359,20 +375,10 @@ object Settings {
         }
 
         var apps: Set<String>
-            get() = sharedPref.getStringSet("selectedApps", setOf())!!
+            get() = applocker_sharedPref.getStringSet(SELECTED_APPS_LABEL, setOf())!!
             set(value) {
-                with(sharedPref.edit()) {
-                    putStringSet("selectedApps", value)
-                    apply()
-                }
-            }
-
-        @Deprecated("Use Settings.Keys.Applocker instead.")
-        var password
-            get() = sharedPref.getString("password", "")!!
-            set(value) {
-                with(sharedPref.edit()) {
-                    putString("password", value)
+                with(applocker_sharedPref.edit()) {
+                    putStringSet(SELECTED_APPS_LABEL, value)
                     apply()
                 }
             }
@@ -384,12 +390,12 @@ object Settings {
                 LONG_PRESS_OPEN_APP_AGAIN
 
         var unlockMode: Int
-            get() = sharedPref.getInt("unlockMode", DEFAULT_UNLOCK_MODE).let {
+            get() = applocker_sharedPref.getInt(UNLOCK_MODE_LABEL, DEFAULT_UNLOCK_MODE).let {
                 return if (it == NOTHING_SELECTED) DEFAULT_UNLOCK_MODE else it
             }
             set(value) {
-                if (value in 0..LONG_PRESS_OPEN_APP_AGAIN) with(sharedPref.edit()) {
-                    putInt("unlockMode", value)
+                if (value in 0..LONG_PRESS_OPEN_APP_AGAIN) with(applocker_sharedPref.edit()) {
+                    putInt(UNLOCK_MODE_LABEL, value)
                     apply()
                 } else {
                     throw IllegalArgumentException("The argument must be from 0 to PRESS_TITLE.")
@@ -406,40 +412,40 @@ object Settings {
         }
     }
 
-    object UnlockProtection: SettingsObj {
-        private lateinit var sharedPref: SharedPreferences
+    object UnlockProtection {
+        private lateinit var unlockProtection_sharedPref: SharedPreferences
         private var init = false
 
-        override fun init() {
+        fun init(context: Context) {
             if (!init) {
-                sharedPref =
-                    App.context.getSharedPreferences("unlockProtection", Context.MODE_PRIVATE)
-                Actions.init()
+                unlockProtection_sharedPref =
+                    context.getSharedPreferences(UNLOCK_PROTECTION_LABEL, Context.MODE_PRIVATE)
+                Actions.init(context)
                 init = true
             }
         }
 
         var enabled
-            get() = sharedPref.getBoolean("enabled", false)
+            get() = unlockProtection_sharedPref.getBoolean(ENABLED_LABEL, false)
             set(value) {
-                with(sharedPref.edit()) {
-                    putBoolean("enabled", value)
+                with(unlockProtection_sharedPref.edit()) {
+                    putBoolean(ENABLED_LABEL, value)
                     apply()
                 }
             }
 
         var unlockAttempts
-            get() = sharedPref.getInt("unlockAttempts", 2)
-            set(value) = with(sharedPref.edit()) {
-                putInt("unlockAttempts", value)
+            get() = unlockProtection_sharedPref.getInt(UNLOCK_ATTEMPTS_LABEL, 2)
+            set(value) = with(unlockProtection_sharedPref.edit()) {
+                putInt(UNLOCK_ATTEMPTS_LABEL, value)
                 apply()
             }
 
         var fgServiceEnabled
-            get() = sharedPref.getBoolean("fgServiceEnabled", true)
+            get() = unlockProtection_sharedPref.getBoolean(FG_SERVICE_ENABLED_LABEL, true)
             set(value) {
-                with(sharedPref.edit()) {
-                    putBoolean("fgServiceEnabled", value)
+                with(unlockProtection_sharedPref.edit()) {
+                    putBoolean(FG_SERVICE_ENABLED_LABEL, value)
                     apply()
                 }
             }
@@ -448,24 +454,24 @@ object Settings {
         val IntruderPhoto = Settings.Actions.IntruderPhoto
     }
 
-    object Tiles: SettingsObj {
+    object Tiles {
+        private lateinit var tiles_sharedPref: SharedPreferences
         private var init = false
 
-        override fun init() {
+        fun init(context: Context) {
             if (!init) {
-                sharedPref = App.context.getSharedPreferences("tiles", Context.MODE_PRIVATE)
+                tiles_sharedPref = context.getSharedPreferences(TILES_LABEL, Context.MODE_PRIVATE)
                 init = true
             }
         }
 
         var sleep
-            get() = sharedPref.getBoolean("sleep", false)
+            get() = tiles_sharedPref.getBoolean(SLEEP_LABEL, false)
             set(value) {
-                with(sharedPref.edit()) {
-                    putBoolean("sleep", value)
+                with(tiles_sharedPref.edit()) {
+                    putBoolean(SLEEP_LABEL, value)
                     apply()
                 }
             }
     }
-
 }

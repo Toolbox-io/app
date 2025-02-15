@@ -82,8 +82,7 @@ class UpdateChecker: JobService() {
 
         private val TASK_EXECUTOR = NoParallelExecutor()
 
-        const val ACTION_START_UPDATE_CHECKER = "ru.morozovit.ultimatesecurity." +
-                "UpdateChecker.START"
+        const val ACTION_START_UPDATE_CHECKER = "ru.morozovit.ultimatesecurity.UpdateChecker.START"
 
         const val DOWNLOAD_BROADCAST = "UpdateChecker.DOWNLOAD"
 
@@ -427,8 +426,8 @@ class UpdateChecker: JobService() {
             if (info != null && info.available && info != prevInfo) {
                 val text =
                     "${info.version.major}." +
-                            "${info.version.minor}." +
-                            "${info.version.patch}"
+                    "${info.version.minor}." +
+                    "${info.version.patch}"
 
                 // Notification
                 val downloadIntent =

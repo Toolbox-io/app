@@ -1,10 +1,7 @@
 package ru.morozovit.ultimatesecurity.ui
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.ViewTreeObserver
@@ -51,10 +48,6 @@ import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.PermanentDrawerSheet
 import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -89,6 +82,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import ru.morozovit.android.ActivityLauncher
 import ru.morozovit.android.WidthSizeClass
+import ru.morozovit.android.activityResultLauncher
 import ru.morozovit.android.compareTo
 import ru.morozovit.android.invoke
 import ru.morozovit.android.left
@@ -234,7 +228,6 @@ class MainActivity : BaseActivity(
             val scope = rememberCoroutineScope()
             var selectedItem by rememberSaveable { mutableStateOf(HOME) }
             val navController = rememberNavController()
-            val snackbarHostState = remember { SnackbarHostState() }
 
             val currentEntry = navController.currentBackStackEntryAsState()
 
@@ -412,55 +405,25 @@ class MainActivity : BaseActivity(
                     }
                 }
 
-                Scaffold(
-                    snackbarHost = {
-                        SnackbarHost(hostState = snackbarHostState)
-                    },
-                    contentWindowInsets = WindowInsets(0, 0, 0, 0)
+                val start by remember { mutableStateOf(selectedItem) }
+                NavHost(
+                    navController = navController,
+                    startDestination = start,
+                    modifier = Modifier
+                        .consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Left))
                 ) {
-                    val start by remember { mutableStateOf(selectedItem) }
-                    NavHost(
-                        navController = navController,
-                        startDestination = start,
-                        modifier = Modifier
-                            .consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Left))
-                    ) {
-                        composable(route = HOME) { HomeScreen(EdgeToEdgeBar) }
-                        composable(route = SETTINGS) { SettingsScreen(EdgeToEdgeBar) }
-                        composable(route = ABOUT) { AboutScreen(EdgeToEdgeBar) }
+                    composable(route = HOME) { HomeScreen(bar, scrollBehavior) }
+                    composable(route = SETTINGS) { SettingsScreen(EdgeToEdgeBar) }
+                    composable(route = ABOUT) { AboutScreen(EdgeToEdgeBar) }
 
-                        composable(route = APP_LOCKER) { ApplockerScreen(bar, scrollBehavior) }
-                        composable(route = UNLOCK_PROTECTION) { UnlockProtectionScreen(EdgeToEdgeBar) }
+                    composable(route = APP_LOCKER) { ApplockerScreen(bar, scrollBehavior) }
+                    composable(route = UNLOCK_PROTECTION) { UnlockProtectionScreen(EdgeToEdgeBar) }
 
-                        composable(route = TILES) { TilesScreen(EdgeToEdgeBar) }
-                        composable(route = SHORTCUTS) { ShortcutsScreen(EdgeToEdgeBar) }
+                    composable(route = TILES) { TilesScreen(EdgeToEdgeBar) }
+                    composable(route = SHORTCUTS) { ShortcutsScreen(EdgeToEdgeBar) }
 
-                        composable(route = APK_EXTRACTOR) { AppManagerScreen(actions, navigation) }
-                        composable(route = DONT_TOUCH_MY_PHONE) { DontTouchMyPhoneScreen(EdgeToEdgeBar) }
-                    }
-                }
-
-                val grant_notification = stringResource(R.string.grant_notification)
-                val grant = stringResource(R.string.grant)
-
-                LaunchedEffect(Unit) {
-                    if (Build.VERSION.SDK_INT >= 33) {
-                        if (
-                            checkSelfPermission(
-                                Manifest.permission.POST_NOTIFICATIONS
-                            ) != PackageManager.PERMISSION_GRANTED
-                        ) {
-                            val result = snackbarHostState.showSnackbar(
-                                message = grant_notification,
-                                actionLabel = grant,
-                                duration = SnackbarDuration.Long
-                            )
-                            when (result) {
-                                SnackbarResult.ActionPerformed -> requestPermission(Manifest.permission.POST_NOTIFICATIONS)
-                                SnackbarResult.Dismissed -> {}
-                            }
-                        }
-                    }
+                    composable(route = APK_EXTRACTOR) { AppManagerScreen(actions, navigation) }
+                    composable(route = DONT_TOUCH_MY_PHONE) { DontTouchMyPhoneScreen(EdgeToEdgeBar) }
                 }
             }
 
@@ -515,7 +478,7 @@ class MainActivity : BaseActivity(
             overridePendingTransition(R.anim.scale_down, R.anim.alpha_down)
         }*/
 
-        activityLauncher = ActivityLauncher.registerActivityForResult(this)
+        activityLauncher = activityResultLauncher
         updateLock()
         enableEdgeToEdge()
 

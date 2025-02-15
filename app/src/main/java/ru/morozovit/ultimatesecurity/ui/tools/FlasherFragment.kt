@@ -42,7 +42,7 @@ package ru.morozovit.ultimatesecurity.ui.tools
     @SuppressLint("SetTextI18n", "UnspecifiedRegisterReceiverFlag")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activityLauncher = registerActivityForResult(this)
+        activityLauncher = activityResultLauncher
         binding.flasherStart.shrink()
         val rbs = mutableListOf<RadioButton>()
         controller = RadioButtonController(rbs)

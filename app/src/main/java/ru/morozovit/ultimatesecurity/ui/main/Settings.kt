@@ -1,12 +1,16 @@
 package ru.morozovit.ultimatesecurity.ui.main
 
 import android.app.Activity.RESULT_OK
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.util.Log
+import android.widget.Toast
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.DeleteForever
@@ -26,6 +31,7 @@ import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material.icons.filled.Warning
@@ -52,6 +58,10 @@ import ru.morozovit.android.ui.SimpleAlertDialog
 import ru.morozovit.android.ui.SwitchListItem
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
+import ru.morozovit.ultimatesecurity.Settings.ACTIONS_LABEL
+import ru.morozovit.ultimatesecurity.Settings.CURRENT_CUSTOM_ALARM_LABEL
+import ru.morozovit.ultimatesecurity.Settings.CUSTOM_ALARMS_LABEL
+import ru.morozovit.ultimatesecurity.Settings.KEYS_LABEL
 import ru.morozovit.ultimatesecurity.Settings.allowBiometric
 import ru.morozovit.ultimatesecurity.Settings.appTheme
 import ru.morozovit.ultimatesecurity.Settings.dontShowInRecents
@@ -64,6 +74,18 @@ import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 import ru.morozovit.ultimatesecurity.ui.dynamicThemeEnabled
 import ru.morozovit.ultimatesecurity.ui.protection.ActionsActivity
 import ru.morozovit.ultimatesecurity.ui.theme
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
+import java.io.File
+import java.io.FileInputStream
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.regex.Pattern
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
+import kotlin.system.exitProcess
+
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -220,6 +242,13 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) 
         negativeButtonText = stringResource(R.string.no),
         onNegativeButtonClick = ::deleteAppDialogOnDismiss
     )
+
+    // Check for updates
+    var checkForUpdatesSwitch by remember { mutableStateOf(!Settings.update_dsa) }
+    val checkForUpdatesOnCheckedChanged: (Boolean) -> Unit = {
+        checkForUpdatesSwitch = it
+        Settings.update_dsa = !it
+    }
 
     // Main content
     WindowInsetsHandler {
@@ -387,7 +416,199 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) 
                 }
 
                 Category {
-                    // Delete app
+                    SwitchListItem(
+                        headline = stringResource(R.string.check_for_updates),
+                        supportingText = stringResource(R.string.check_for_updates_d),
+                        checked = checkForUpdatesSwitch,
+                        onCheckedChange = checkForUpdatesOnCheckedChanged,
+                        divider = true,
+                        dividerColor = MaterialTheme.colorScheme.surface,
+                        dividerThickness = 2.dp,
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Filled.SystemUpdate,
+                                contentDescription = null
+                            )
+                        }
+                    )
+                    ListItem(
+                        headline = stringResource(R.string.export_settings),
+                        supportingText = stringResource(R.string.export_settings_d),
+                        onClick = {
+                            fun onError() {
+                                Toast.makeText(context, R.string.smthwentwrong, Toast.LENGTH_SHORT).show()
+                            }
+
+                            try {
+                                val sharedPrefs = File("${context.dataDir.absolutePath}/shared_prefs")
+                                val sharedPrefsCache = File("${context.cacheDir.absolutePath}/shared_prefs")
+                                sharedPrefs.copyRecursively(
+                                    target = sharedPrefsCache,
+                                    overwrite = true
+                                )
+                                sharedPrefsCache.listFiles()?.forEach {
+                                    if (it.isFile) {
+                                        when (it.nameWithoutExtension) {
+                                            KEYS_LABEL -> it.delete()
+                                            ACTIONS_LABEL -> {
+                                                // Remove custom alarms
+                                                val contents = it.inputStream().use { inp ->
+                                                    String(inp.readBytes())
+                                                }
+
+                                                fun String.remove(regex: String) =
+                                                    Pattern
+                                                        .compile(regex, Pattern.MULTILINE)
+                                                        .matcher(this)
+                                                        .replaceAll("")
+
+                                                val replaced =
+                                                    contents
+                                                        .remove("<set\\s*name=\"$CUSTOM_ALARMS_LABEL\"\\s*>(?>.|\\s)*</set>")
+                                                        .remove("<string\\s+name=\\\"$CURRENT_CUSTOM_ALARM_LABEL\\\"\\s*>(?>.|\\s)*</string>")
+                                                it.outputStream().use { out ->
+                                                    out.write(replaced.toByteArray())
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                val name = if (Build.VERSION.SDK_INT >= 26) {
+                                    val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy_HH:mm")
+                                    val date = LocalDateTime.now()
+                                    "${date.format(formatter)}.tiosettings"
+                                } else {
+                                    "settings.tiosettings"
+                                }
+                                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+                                intent.addCategory(Intent.CATEGORY_OPENABLE)
+                                intent.setType("application/zip")
+                                intent.putExtra(Intent.EXTRA_TITLE, name)
+                                activityLauncher.launch(intent) {
+                                    try {
+                                        if (it.resultCode == RESULT_OK && it.data != null && it.data!!.data != null) {
+                                            ZipOutputStream(
+                                                BufferedOutputStream(
+                                                    context.contentResolver.openOutputStream(it.data!!.data!!)
+                                                )
+                                            ).use { out ->
+                                                for (file in sharedPrefsCache.listFiles()!!) {
+                                                    FileInputStream(file).use { fi ->
+                                                        BufferedInputStream(fi).use { origin ->
+                                                            out.putNextEntry(ZipEntry(file.name))
+                                                            origin.copyTo(out, 1024)
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            Toast.makeText(
+                                                context,
+                                                R.string.settings_exported_successfully,
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        } else {
+                                            error("")
+                                        }
+                                    } catch (e: Exception) {
+                                        onError()
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                onError()
+                            }
+                        },
+                        divider = true,
+                        dividerColor = MaterialTheme.colorScheme.surface,
+                        dividerThickness = 2.dp,
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Filled.Backup,
+                                contentDescription = null
+                            )
+                        }
+                    )
+                    ListItem(
+                        headline = stringResource(R.string.import_settings),
+                        supportingText = stringResource(R.string.import_settings_d),
+                        onClick = {
+                            fun onError(e: Exception) {
+                                Log.e("Settings", "An error occurred", e)
+                                Toast.makeText(context, R.string.smthwentwrong, Toast.LENGTH_SHORT).show()
+                            }
+
+                            try {
+                                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                                    addCategory(Intent.CATEGORY_OPENABLE)
+                                    type = "application/zip"
+                                }
+                                activityLauncher.launch(intent) {
+                                    try {
+                                        Log.d("Settings", "Importing settings")
+                                        if (it.resultCode == RESULT_OK && it.data != null && it.data!!.data != null) {
+                                            Log.d("Settings", "Data not null")
+                                            val uri = it.data!!.data!!
+                                            Log.d("Settings", "Caching imported settings into app dir")
+                                            val cachedZip = File(context.cacheDir.absolutePath + "/settings.zip")
+                                            cachedZip.outputStream().use { zip ->
+                                                context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                                                    BufferedInputStream(inputStream).use { srcZip ->
+                                                        srcZip.copyTo(zip)
+                                                    }
+                                                }
+                                            }
+                                            Log.d("Settings", "Unzipping settings to the shared_prefs folder")
+                                            ZipFile(cachedZip).use { zip ->
+                                                zip.entries().asSequence().forEach { entry ->
+                                                    zip.getInputStream(entry).use { input ->
+                                                        File(
+                                                            "${context.dataDir.absolutePath}/shared_prefs/${entry.name}"
+                                                        ).outputStream().use { output ->
+                                                            input.copyTo(output)
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            Log.d("Settings", "Scheduling start of MainActivity")
+                                            (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager)[
+                                                AlarmManager.RTC,
+                                                System.currentTimeMillis() + 1000
+                                            ] = PendingIntent.getActivity(
+                                                context,
+                                                123456,
+                                                Intent(context, MainActivity::class.java).apply {
+                                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                                },
+                                                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                                            )
+                                            Toast.makeText(
+                                                context,
+                                                R.string.settings_imported_successfully,
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            Log.d("Settings", "Exiting")
+                                            exitProcess(0)
+                                        } else {
+                                            Log.e("Settings", "Data is null")
+                                            throw NullPointerException("data is null")
+                                        }
+                                    } catch (e: Exception) {
+                                        onError(e)
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                onError(e)
+                            }
+                        },
+                        divider = true,
+                        dividerColor = MaterialTheme.colorScheme.surface,
+                        dividerThickness = 2.dp,
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Filled.Backup,
+                                contentDescription = null
+                            )
+                        }
+                    )
                     ListItem(
                         headline = stringResource(R.string.delete),
                         supportingText = stringResource(R.string.delete_d),

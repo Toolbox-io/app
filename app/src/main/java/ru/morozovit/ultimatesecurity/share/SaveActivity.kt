@@ -6,7 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import ru.morozovit.android.BetterActivityResult.registerActivityForResult
+import ru.morozovit.android.activityResultLauncher
 import ru.morozovit.android.getFileName
 import ru.morozovit.android.getParcelableExtraAs
 
@@ -19,7 +19,7 @@ class SaveActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val activityLauncher = registerActivityForResult(this)
+        val activityLauncher = activityResultLauncher
 
         val dataType = run t@ {
             runCatching {

@@ -130,7 +130,12 @@ var theme by mutableStateOf(
 
 interface WindowInsetsScope {
     val safeDrawingInsets: WindowInsets
-    val isWindowInsetsConsumed: Boolean
+    val isWindowInsetsConsumed get() =
+        isTopInsetConsumed &&
+        isBottomInsetConsumed &&
+        isLeftInsetConsumed &&
+        isRightInsetConsumed
+
     val isTopInsetConsumed: Boolean
     val isBottomInsetConsumed: Boolean
     val isLeftInsetConsumed: Boolean
@@ -303,9 +308,9 @@ fun AppTheme(
                         override val isWindowInsetsConsumed
                             get() =
                                 consumeTopInsets &&
-                                        consumeBottomInsets &&
-                                        consumeLeftInsets &&
-                                        consumeRightInsets
+                                consumeBottomInsets &&
+                                consumeLeftInsets &&
+                                consumeRightInsets
                         override val topInset: Int get() = topInset
                         override val bottomInset: Int get() = bottomInset
                         override val leftInset: Int get() = leftInset
