@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SystemUpdate
@@ -604,7 +605,7 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) 
                         dividerThickness = 2.dp,
                         leadingContent = {
                             Icon(
-                                imageVector = Icons.Filled.Backup,
+                                imageVector = Icons.Filled.Restore,
                                 contentDescription = null
                             )
                         }

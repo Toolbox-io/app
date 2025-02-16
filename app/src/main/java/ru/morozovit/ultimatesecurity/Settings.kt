@@ -58,6 +58,8 @@ object Settings {
     const val UNLOCK_ATTEMPTS_LABEL = "gewrnwh"
     const val FG_SERVICE_ENABLED_LABEL = "hbjnwsokehgr"
     const val SLEEP_LABEL = "hbgewsrjkhn"
+    const val MIGRATED_LABEL = "wgjkgnbjkghnw"
+    const val APPLOCKER_USED_LABEL = "jtesnhjsertjsr"
 
     fun init(context: Context) {
         if (!init) {
@@ -114,6 +116,15 @@ object Settings {
         set(value) {
             with(global_sharedPref.edit()) {
                 putInt(APP_THEME_LABEL, value.ordinal)
+                apply()
+            }
+        }
+
+    var migratedFromOldSettings
+        get() = global_sharedPref.getBoolean(MIGRATED_LABEL, false)
+        set(value) {
+            with(global_sharedPref.edit()) {
+                putBoolean(MIGRATED_LABEL, value)
                 apply()
             }
         }
@@ -410,6 +421,8 @@ object Settings {
             LONG_PRESS_OPEN_APP_AGAIN -> resources.getString(R.string.lp_oaa)
             else -> ""
         }
+
+
     }
 
     object UnlockProtection {

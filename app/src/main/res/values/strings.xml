@@ -244,4 +244,6 @@
     <string name="settings_exported_successfully">Settings exported successfully</string>
     <string name="settings_imported_successfully">Settings imported successfully, restarting…</string>
     <string name="notifications">Notifications</string>
+    <string name="enable_accessibility">Enable accessibility</string>
+    <string name="enable_accessibility_d">Enable accessibility to make App Locker work again</string>
 </resources>

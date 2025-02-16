@@ -4,6 +4,9 @@ package ru.morozovit.android.ui
 
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
@@ -125,6 +128,7 @@ fun ListItem(
     divider: Boolean = false,
     dividerColor: Color = DividerDefaults.color,
     dividerThickness: Dp = DividerDefaults.Thickness,
+    dividerAnimated: Boolean = false,
     onClick: (() -> Unit)? = null,
     bodyOnClick: (() -> Unit)? = null,
     leadingAndBodyShared: Boolean = false,
@@ -273,7 +277,18 @@ fun ListItem(
                 }
             }
         }
-        if (divider) {
+        if (dividerAnimated) {
+            AnimatedVisibility(
+                visible = divider,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                HorizontalDivider(
+                    color = dividerColor,
+                    thickness = dividerThickness
+                )
+            }
+        } else if (divider) {
             HorizontalDivider(
                 color = dividerColor,
                 thickness = dividerThickness
@@ -294,6 +309,7 @@ inline fun SwitchListItem(
     divider: Boolean = false,
     dividerColor: Color = DividerDefaults.color,
     dividerThickness: Dp = DividerDefaults.Thickness,
+    dividerAnimated: Boolean = false,
     enabled: Boolean = true
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -317,6 +333,7 @@ inline fun SwitchListItem(
         divider = divider,
         dividerColor = dividerColor,
         dividerThickness = dividerThickness,
+        dividerAnimated = dividerAnimated,
         enabled = enabled
     )
 }
@@ -334,6 +351,7 @@ inline fun SeparatedSwitchListItem(
     divider: Boolean = false,
     dividerColor: Color = DividerDefaults.color,
     dividerThickness: Dp = DividerDefaults.Thickness,
+    dividerAnimated: Boolean = false,
     enabled: Boolean = true
 ) {
     ListItem(
@@ -372,6 +390,7 @@ inline fun SeparatedSwitchListItem(
         divider = divider,
         dividerColor = dividerColor,
         dividerThickness = dividerThickness,
+        dividerAnimated = dividerAnimated,
         leadingAndBodyShared = true,
         enabled = enabled
     )
@@ -1051,6 +1070,7 @@ inline fun ColumnScope.Category(
     modifier: Modifier = Modifier,
     title: String? = null,
     margin: PaddingValues = CategoryDefaults.margin,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
     crossinline content: @Composable ColumnScope.() -> Unit
 ) {
     if (title != null) {
@@ -1066,7 +1086,7 @@ inline fun ColumnScope.Category(
             .padding(margin)
             .fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
-        colors = cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+        colors = cardColors(containerColor = containerColor)
     ) {
         content(this)
     }
