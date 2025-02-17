@@ -43,10 +43,8 @@ class App : Application() {
         const val ACCESSIBILITY_NOTIFICATION_ID = 4
 
         // Other constants
-        const val GITHUB_TOKEN =
-            "gi" + "thu" + "b_p" + "at_11BESRTY" + "Y0HeC2oP" + "pTaKsh_gb" + "XRwE7RbFHT6" +
-            "sxFpi5akLoEtn9" + "OMkkrZv0rUNSjO" + "yvTXR55PL41FLcPgWU"
         var githubRateLimitRemaining: Long = -1
+        val GITHUB_TOKEN = SensitiveConstants.GITHUB_TOKEN
     }
 
     private lateinit var notificationManager: NotificationManager
