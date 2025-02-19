@@ -39,6 +39,13 @@ import ru.morozovit.ultimatesecurity.App.Companion.UPDATE_CHANNEL_ID
 import ru.morozovit.ultimatesecurity.App.Companion.UPDATE_NOTIFICATION_ID
 import ru.morozovit.ultimatesecurity.App.Companion.githubRateLimitRemaining
 import ru.morozovit.ultimatesecurity.R
+import ru.morozovit.ultimatesecurity.SensitiveConstants.APPLICATION_VND_GITHUB_JSON
+import ru.morozovit.ultimatesecurity.SensitiveConstants.BEARER
+import ru.morozovit.ultimatesecurity.SensitiveConstants.GITHUB_API_VERSION
+import ru.morozovit.ultimatesecurity.SensitiveConstants.HEADER_ACCEPT
+import ru.morozovit.ultimatesecurity.SensitiveConstants.HEADER_AUTHORIZATION
+import ru.morozovit.ultimatesecurity.SensitiveConstants.HEADER_X_GITHUB_API_VERSION
+import ru.morozovit.ultimatesecurity.SensitiveConstants.RELEASES_URL
 import ru.morozovit.ultimatesecurity.ui.MainActivity
 import java.io.BufferedInputStream
 import java.io.File
@@ -145,12 +152,12 @@ class UpdateChecker: JobService() {
             }
             with (App.context) {
                 Log.d("UpdateChecker", "Checking for updates")
-                val request = URL("https://api.github.com/repos/denis0001-dev/Toolbox-io/releases")
+                val request = URL(RELEASES_URL)
                     .openConnection() as HttpsURLConnection
                 request.requestMethod = "GET";
-                request.setRequestProperty("Accept", "application/vnd.github+json")
-                request.setRequestProperty("X-GitHub-Api-Version", "2022-11-28")
-                request.setRequestProperty("Authorization", "Bearer ${App.GITHUB_TOKEN}")
+                request.setRequestProperty(HEADER_ACCEPT, APPLICATION_VND_GITHUB_JSON)
+                request.setRequestProperty(HEADER_X_GITHUB_API_VERSION, GITHUB_API_VERSION)
+                request.setRequestProperty(HEADER_AUTHORIZATION, "${BEARER}${App.GITHUB_TOKEN}")
 
                 try {
                     request.connect()
