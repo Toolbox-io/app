@@ -1,22 +1,5 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "modernize-loop-convert"
-// Write C++ code here.
-//
-// Do not forget to dynamically load the C++ library into your application.
-//
-// For instance,
-//
-// In MainActivity.java:
-//    static {
-//       System.loadLibrary("ultimatesecurity");
-//    }
-//
-// Or, in MainActivity.kt:
-//    companion object {
-//      init {
-//         System.loadLibrary("ultimatesecurity")
-//      }
-//    }
 
 #include <jni.h>
 #include <__fwd/string.h>
