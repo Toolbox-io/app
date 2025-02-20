@@ -69,6 +69,7 @@ import ru.morozovit.android.ui.SecureTextField
 import ru.morozovit.android.ui.SimpleAlertDialog
 import ru.morozovit.android.ui.SwitchCard
 import ru.morozovit.android.ui.SwitchListItem
+import ru.morozovit.ultimatesecurity.IssueReporter
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.LONG_PRESS_APP_INFO
@@ -79,7 +80,6 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
 import ru.morozovit.ultimatesecurity.Settings.Applocker.getUnlockModeDescription
 import ru.morozovit.ultimatesecurity.Settings.Applocker.unlockMode
 import ru.morozovit.ultimatesecurity.Settings.accessibility
-import ru.morozovit.ultimatesecurity.IssueReporter
 import ru.morozovit.ultimatesecurity.services.Accessibility
 import ru.morozovit.ultimatesecurity.services.Accessibility.Companion.waitingForAccessibility
 import ru.morozovit.ultimatesecurity.services.AccessibilityKeeperService
@@ -355,6 +355,7 @@ fun ApplockerScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScr
                         handler = {
                             if (accessibility) {
                                 mainSwitch = true
+                                Settings.Applocker.used = true
                             }
                             waitingForAccessibility = false
                             context.resumeHandlers.remove(handler)
@@ -403,6 +404,7 @@ fun ApplockerScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScr
                         }
                     }
                     mainSwitch = false
+                    Settings.Applocker.used = false
                 }
 
                 // Foreground service switch

@@ -59,7 +59,7 @@ object Settings {
     const val FG_SERVICE_ENABLED_LABEL = "hbjnwsokehgr"
     const val SLEEP_LABEL = "hbgewsrjkhn"
     const val MIGRATED_LABEL = "wgjkgnbjkghnw"
-    const val APPLOCKER_USED_LABEL = "jtesnhjsertjsr"
+    const val USED_LABEL = "jtesnhjsertjsr"
 
     fun init(context: Context) {
         if (!init) {
@@ -422,7 +422,14 @@ object Settings {
             else -> ""
         }
 
-
+        var used: Boolean
+            get() = applocker_sharedPref.getBoolean(USED_LABEL, false)
+            set(value) {
+                with(applocker_sharedPref.edit()) {
+                    putBoolean(USED_LABEL, value)
+                    apply()
+                }
+            }
     }
 
     object UnlockProtection {

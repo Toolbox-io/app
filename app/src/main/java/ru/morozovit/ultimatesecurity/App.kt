@@ -44,7 +44,8 @@ class App : Application() {
 
         // Other constants
         var githubRateLimitRemaining: Long = -1
-        val GITHUB_TOKEN = SensitiveConstants.GITHUB_TOKEN
+        const val GITHUB_TOKEN = "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"
+        const val GITHUB_API_VERSION = "2022-11-28"
     }
 
     private lateinit var notificationManager: NotificationManager

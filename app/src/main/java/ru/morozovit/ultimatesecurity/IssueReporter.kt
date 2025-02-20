@@ -55,15 +55,9 @@ import ru.morozovit.android.getSerializableExtraAs
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.CategoryDefaults
 import ru.morozovit.android.ui.DialogActivity
+import ru.morozovit.ultimatesecurity.App.Companion.GITHUB_API_VERSION
 import ru.morozovit.ultimatesecurity.App.Companion.context
 import ru.morozovit.ultimatesecurity.App.Companion.githubRateLimitRemaining
-import ru.morozovit.ultimatesecurity.SensitiveConstants.APPLICATION_VND_GITHUB_RAW_JSON
-import ru.morozovit.ultimatesecurity.SensitiveConstants.BEARER
-import ru.morozovit.ultimatesecurity.SensitiveConstants.GITHUB_API_VERSION
-import ru.morozovit.ultimatesecurity.SensitiveConstants.HEADER_ACCEPT
-import ru.morozovit.ultimatesecurity.SensitiveConstants.HEADER_AUTHORIZATION
-import ru.morozovit.ultimatesecurity.SensitiveConstants.HEADER_X_GITHUB_API_VERSION
-import ru.morozovit.ultimatesecurity.SensitiveConstants.ISSUES_URL
 import ru.morozovit.ultimatesecurity.ui.AppTheme
 import ru.morozovit.ultimatesecurity.ui.MainActivity
 import ru.morozovit.utils.EParser
@@ -137,12 +131,12 @@ object IssueReporter {
             async {
                 with(context) {
                     Log.d("IssueReporter", "Reporting an issue")
-                    val request = URL(ISSUES_URL)
+                    val request = URL("https://api.github.com/repos/Toolbox-io/Toolbox-io/issues")
                         .openConnection() as HttpsURLConnection
                     request.requestMethod = "POST";
-                    request.setRequestProperty(HEADER_ACCEPT, APPLICATION_VND_GITHUB_RAW_JSON)
-                    request.setRequestProperty(HEADER_X_GITHUB_API_VERSION, GITHUB_API_VERSION)
-                    request.setRequestProperty(HEADER_AUTHORIZATION, "$BEARER${App.GITHUB_TOKEN}")
+                    request.setRequestProperty("Accept", "application/vnd.github.raw+json")
+                    request.setRequestProperty("X-Github-Api-Version", GITHUB_API_VERSION)
+                    request.setRequestProperty("Authorization", "Bearer ${App.GITHUB_TOKEN}")
 
                     try {
                         request.connect()

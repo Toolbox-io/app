@@ -35,17 +35,11 @@ import ru.morozovit.android.NoParallelExecutor
 import ru.morozovit.android.SimpleAsyncTask
 import ru.morozovit.android.ui.DialogActivity
 import ru.morozovit.ultimatesecurity.App
+import ru.morozovit.ultimatesecurity.App.Companion.GITHUB_API_VERSION
 import ru.morozovit.ultimatesecurity.App.Companion.UPDATE_CHANNEL_ID
 import ru.morozovit.ultimatesecurity.App.Companion.UPDATE_NOTIFICATION_ID
 import ru.morozovit.ultimatesecurity.App.Companion.githubRateLimitRemaining
 import ru.morozovit.ultimatesecurity.R
-import ru.morozovit.ultimatesecurity.SensitiveConstants.APPLICATION_VND_GITHUB_JSON
-import ru.morozovit.ultimatesecurity.SensitiveConstants.BEARER
-import ru.morozovit.ultimatesecurity.SensitiveConstants.GITHUB_API_VERSION
-import ru.morozovit.ultimatesecurity.SensitiveConstants.HEADER_ACCEPT
-import ru.morozovit.ultimatesecurity.SensitiveConstants.HEADER_AUTHORIZATION
-import ru.morozovit.ultimatesecurity.SensitiveConstants.HEADER_X_GITHUB_API_VERSION
-import ru.morozovit.ultimatesecurity.SensitiveConstants.RELEASES_URL
 import ru.morozovit.ultimatesecurity.ui.MainActivity
 import java.io.BufferedInputStream
 import java.io.File
@@ -152,12 +146,12 @@ class UpdateChecker: JobService() {
             }
             with (App.context) {
                 Log.d("UpdateChecker", "Checking for updates")
-                val request = URL(RELEASES_URL)
+                val request = URL("https://api.github.com/repos/Toolbox-io/Toolbox-io/releases")
                     .openConnection() as HttpsURLConnection
                 request.requestMethod = "GET";
-                request.setRequestProperty(HEADER_ACCEPT, APPLICATION_VND_GITHUB_JSON)
-                request.setRequestProperty(HEADER_X_GITHUB_API_VERSION, GITHUB_API_VERSION)
-                request.setRequestProperty(HEADER_AUTHORIZATION, "${BEARER}${App.GITHUB_TOKEN}")
+                request.setRequestProperty("Accept", "application/vnd.github+json")
+                request.setRequestProperty("X-Github-Api-Version", GITHUB_API_VERSION)
+                request.setRequestProperty("Authorization", "Bearer ${App.GITHUB_TOKEN}")
 
                 try {
                     request.connect()
