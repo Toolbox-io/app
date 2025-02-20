@@ -9,7 +9,6 @@
 -keepattributes LineNumberTable,SourceFile
 -repackageclasses
 -keep public class ru.morozovit.ultimatesecurity.ui.MainActivity
--keep public class e1.GnbwIEGHiuawg
 -assumenosideeffects class android.util.Log {
     public static int d(...);
     public static int w(...);

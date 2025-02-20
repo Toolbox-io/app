@@ -657,6 +657,12 @@ class NotificationIdManager(vararg reservedIds: Int) {
             }
         }
     }
+
+    fun getAndReserve(): Int {
+        val id = get()
+        reserve(id)
+        return id
+    }
 }
 
 @Composable

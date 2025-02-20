@@ -33,18 +33,16 @@ class App : Application() {
         const val IP_FG_SERVICE_NOTIFICATION_ID = 2
 
         const val IP_PHOTO_TAKEN_CHANNEL_ID = "photo_taken"
-        val IP_PHOTO_TAKEN_NOTIFICATION_ID: Int get() {
-            val id = NotificationIdManager.get()
-            NotificationIdManager.reserve(id)
-            return id
-        }
+        val IP_PHOTO_TAKEN_NOTIFICATION_ID = NotificationIdManager.getAndReserve()
 
         const val ACCESSIBILITY_CHANNEL_ID = "accessibility"
         const val ACCESSIBILITY_NOTIFICATION_ID = 4
 
         // Other constants
         var githubRateLimitRemaining: Long = -1
-        const val GITHUB_TOKEN = "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"
+        const val GITHUB_TOKEN =
+            /*"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"*/
+            "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"
         const val GITHUB_API_VERSION = "2022-11-28"
     }
 
