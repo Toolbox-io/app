@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -40,13 +41,17 @@ private const val FILES_SHORTCUT = "files-shortcut"
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ShortcutsScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) {
+fun ShortcutsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
     WindowInsetsHandler {
-        EdgeToEdgeBar {
+        EdgeToEdgeBar { innerPadding ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val context = LocalContext()
 
-                Box(Modifier.verticalScroll(rememberScrollState())) {
+                Box(
+                    Modifier
+                        .verticalScroll(rememberScrollState())
+                        .padding(innerPadding)
+                ) {
                     FlowRow(
                         Modifier
                             .padding(10.dp)

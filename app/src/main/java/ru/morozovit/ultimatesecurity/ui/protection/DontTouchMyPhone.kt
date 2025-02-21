@@ -9,6 +9,7 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.util.Log
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Button
@@ -43,7 +44,7 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @Composable
-fun DontTouchMyPhoneScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) {
+fun DontTouchMyPhoneScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
     WindowInsetsHandler {
         EdgeToEdgeBar {
             Column {

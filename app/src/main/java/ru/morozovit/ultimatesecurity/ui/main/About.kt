@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -42,15 +43,16 @@ import ru.morozovit.ultimatesecurity.ui.AppIcon
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 
 @Composable
-fun AboutScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) {
+fun AboutScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
     val context = LocalContext()
 
     WindowInsetsHandler {
-        EdgeToEdgeBar {
+        EdgeToEdgeBar { innerPadding ->
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
+                    .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
             ) {
                 Box(Modifier.padding(top = 20.dp)) {

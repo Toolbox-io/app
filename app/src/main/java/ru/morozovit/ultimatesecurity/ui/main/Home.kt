@@ -2,10 +2,15 @@ package ru.morozovit.ultimatesecurity.ui.main
 
 import android.Manifest
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -53,6 +58,7 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -67,6 +73,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.postDelayed
 import ru.morozovit.android.async
 import ru.morozovit.android.invoke
 import ru.morozovit.android.plus
@@ -74,22 +81,37 @@ import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.ultimatesecurity.App
 import ru.morozovit.ultimatesecurity.R
+import ru.morozovit.ultimatesecurity.Settings
+import ru.morozovit.ultimatesecurity.Settings.accessibility
 import ru.morozovit.ultimatesecurity.Settings.update_dsa
+import ru.morozovit.ultimatesecurity.services.Accessibility.Companion.waitingForAccessibility
 import ru.morozovit.ultimatesecurity.services.UpdateChecker.Companion.DOWNLOAD_BROADCAST
 import ru.morozovit.ultimatesecurity.services.UpdateChecker.Companion.DownloadBroadcastReceiver
 import ru.morozovit.ultimatesecurity.services.UpdateChecker.Companion.checkForUpdates
 import ru.morozovit.ultimatesecurity.ui.MainActivity
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
+import kotlin.reflect.KMutableProperty0
 
 @OptIn(ExperimentalLayoutApi::class)
 private data class NotificationData(
     val title: String,
     val message: String,
     val onClick: (() -> Unit)? = null,
-    val divider: Boolean,
     val bottomContent: (@Composable FlowRowScope.() -> Unit)? = null,
     val type: NotificationType
-)
+) {
+    var onVisibilityChange: (KMutableProperty0<Boolean>.(Boolean) -> Unit)? = null
+    private var _visible by mutableStateOf(true)
+    var visible: Boolean
+        get() = _visible
+        set(value) {
+            if (onVisibilityChange != null) {
+                onVisibilityChange!!(::_visible, value)
+            } else {
+                _visible = value
+            }
+        }
+}
 
 private enum class NotificationSource(
     @StringRes val label: Int,
@@ -111,8 +133,9 @@ private enum class NotificationType(val source: NotificationSource) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun HomeScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
+fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
     val context = LocalContext() as MainActivity
+    val handler = remember { Handler(Looper.getMainLooper()) }
     WindowInsetsHandler {
         val snackbarHostState = remember { SnackbarHostState() }
         Scaffold(
@@ -120,7 +143,7 @@ fun HomeScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScrollBe
             snackbarHost = {
                 SnackbarHost(hostState = snackbarHostState)
             },
-            topBar = topBar
+            topBar = { topBar(scrollBehavior) }
         ) { innerPadding ->
             Column(
                 Modifier
@@ -136,47 +159,49 @@ fun HomeScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScrollBe
                     var body by remember { mutableStateOf("") }
                     var downloadOnClick by remember { mutableStateOf({}) }
 
-                    AnimatedVisibility(
-                        visible = isUpdateCardVisible,
-                        enter = fadeIn() + scaleIn(initialScale = 0.7f),
-                        exit = fadeOut() + scaleOut(targetScale = 0.7f)
-                    ) {
-                        Card(
-                            modifier = Modifier
-                                .padding()
-                                .padding(16.dp)
-                                .fillMaxWidth(),
-                            colors = cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainer
-                            )
+                    Column(Modifier.animateContentSize()) {
+                        AnimatedVisibility(
+                            visible = isUpdateCardVisible,
+                            enter = fadeIn() + scaleIn(initialScale = 0.7f),
+                            exit = fadeOut() + scaleOut(targetScale = 0.7f),
                         ) {
-                            Column(Modifier.padding(16.dp)) {
-                                Text(
-                                    text = stringResource(R.string.update),
-                                    style = MaterialTheme.typography.titleMedium
+                            Card(
+                                modifier = Modifier
+                                    .padding()
+                                    .padding(16.dp)
+                                    .fillMaxWidth(),
+                                colors = cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
                                 )
-                                Text(
-                                    text = version,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    modifier = Modifier.padding(bottom = 10.dp)
-                                )
-                                HorizontalDivider()
-                                Text(
-                                    text = body,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)
-                                )
-                                Row {
-                                    TextButton(onClick = downloadOnClick) {
-                                        Text(text = stringResource(R.string.download))
-                                    }
-                                    TextButton(
-                                        onClick = {
-                                            update_dsa = true
-                                            isUpdateCardVisible = false
+                            ) {
+                                Column(Modifier.padding(16.dp)) {
+                                    Text(
+                                        text = stringResource(R.string.update),
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Text(
+                                        text = version,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        modifier = Modifier.padding(bottom = 10.dp)
+                                    )
+                                    HorizontalDivider()
+                                    Text(
+                                        text = body,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)
+                                    )
+                                    Row {
+                                        TextButton(onClick = downloadOnClick) {
+                                            Text(text = stringResource(R.string.download))
                                         }
-                                    ) {
-                                        Text(text = stringResource(R.string.dsa))
+                                        TextButton(
+                                            onClick = {
+                                                update_dsa = true
+                                                isUpdateCardVisible = false
+                                            }
+                                        ) {
+                                            Text(text = stringResource(R.string.dsa))
+                                        }
                                     }
                                 }
                             }
@@ -237,16 +262,16 @@ fun HomeScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScrollBe
                     onClick: (() -> Unit)? = null,
                     divider: Boolean,
                     bottomContent: (@Composable FlowRowScope.() -> Unit)? = null,
+                    visible: Boolean,
+                    onVisibilityChange: ((Boolean) -> Unit),
                     type: NotificationType
                 ) {
-                    var visible by remember { mutableStateOf(true) }
-
                     val dismissState = rememberSwipeToDismissBoxState(
                         confirmValueChange = {
                             when(it) {
                                 SwipeToDismissBoxValue.StartToEnd,
                                 SwipeToDismissBoxValue.EndToStart -> {
-                                    visible = false
+                                    onVisibilityChange(false)
                                 }
                                 SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
                             }
@@ -370,19 +395,61 @@ fun HomeScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScrollBe
                     }
                 }
 
-                val notifications = mutableListOf<NotificationData>()
-
+                val notifications = remember { mutableStateListOf<NotificationData>() }
+                LaunchedEffect(Unit) {
+                    if (Settings.Applocker.used && !accessibility) {
+                        var notification: NotificationData? = null
+                        notification = NotificationData(
+                            title = "Re-enable accessibility to continue using App Locker",
+                            message = "You've used App Locker and the accessibility service suddenly stopped working. " +
+                                    "Enable accessibility to enable App Locker again.",
+                            onClick = { Settings.Applocker.used = false },
+                            bottomContent = {
+                                TextButton(
+                                    onClick = {
+                                        val intent = Intent(ACTION_ACCESSIBILITY_SETTINGS)
+                                        intent.flags = FLAG_ACTIVITY_NEW_TASK
+                                        var resumeHandler: (() -> Unit)? = null
+                                        resumeHandler = {
+                                            if (accessibility) {
+                                                notification!!.visible = false
+                                                Settings.Applocker.used = true
+                                            }
+                                            waitingForAccessibility = false
+                                            context.resumeHandlers.remove(resumeHandler)
+                                        }
+                                        context.resumeHandlers.add(resumeHandler)
+                                        waitingForAccessibility = true
+                                        context.startActivity(intent)
+                                    }
+                                ) {
+                                    Text(text = "Enable")
+                                }
+                            },
+                            type = NotificationType.ENABLE_ACCESSIBILITY
+                        )
+                        notifications += notification
+                    }
+                }
 
                 // Notifications
                 Category(containerColor = MaterialTheme.colorScheme.surface) {
-                    notifications.forEachIndexed { index, it ->
+                    notifications.forEachIndexed { index, notification ->
+                        notification.onVisibilityChange = {
+                            set(it)
+                            handler.postDelayed(1000) {
+                                notifications.remove(notification)
+                            }
+                        }
                         Notification(
-                            title = it.title,
-                            message = it.message,
-                            onClick = it.onClick,
+                            title = notification.title,
+                            message = notification.message,
+                            onClick = notification.onClick,
                             divider = index != notifications.size - 1,
-                            bottomContent = it.bottomContent,
-                            type = it.type
+                            bottomContent = notification.bottomContent,
+                            type = notification.type,
+                            visible = notification.visible,
+                            onVisibilityChange = { notification.visible = it }
                         )
                     }
                 }

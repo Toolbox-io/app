@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -47,10 +48,14 @@ import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 import ru.morozovit.ultimatesecurity.ui.protection.ActionsActivity
 
 @Composable
-fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) {
+fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
     WindowInsetsHandler {
-        EdgeToEdgeBar {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
+        EdgeToEdgeBar { innerPadding ->
+            Column(
+                Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(innerPadding)
+            ) {
                 val context = LocalContext() as MainActivity
                 val activityLauncher = context.activityLauncher
                 val dpm =

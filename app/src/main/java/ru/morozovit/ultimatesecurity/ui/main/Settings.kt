@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -90,7 +92,7 @@ import kotlin.system.exitProcess
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) {
+fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
     val c = LocalContext()
     val context by lazy { c as MainActivity }
     val dpm by lazy {
@@ -253,8 +255,12 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable () -> Unit) -> Unit) 
 
     // Main content
     WindowInsetsHandler {
-        EdgeToEdgeBar {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
+        EdgeToEdgeBar { innerPadding ->
+            Column(
+                Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(innerPadding)
+            ) {
                 Category(title = stringResource(R.string.security)) {
                     // Device admin
                     SwitchListItem(

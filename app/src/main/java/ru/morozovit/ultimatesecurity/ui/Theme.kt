@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeContent
@@ -333,13 +334,13 @@ inline fun WindowInsetsHandler(
         Modifier.let {
             if (handleLeft || handleRight) {
                 it.windowInsetsPadding(
-                    WindowInsets.safeDrawing.only(
+                    WindowInsets.displayCutout.only(
                         when {
                             handleLeft && !handleRight -> WindowInsetsSides.Left
                             !handleLeft -> WindowInsetsSides.Right
                             else -> WindowInsetsSides.Left + WindowInsetsSides.Right
                         }
-                    )
+                    ),
                 )
             } else {
                 it

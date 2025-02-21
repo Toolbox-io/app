@@ -24,7 +24,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -60,10 +60,9 @@ import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppManagerScreen(actions: @Composable RowScope.() -> Unit, navigation: @Composable () -> Unit) {
+fun AppManagerScreen(actions: @Composable RowScope.() -> Unit, navigation: @Composable () -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
     WindowInsetsHandler {
         with (LocalContext()) {
-            val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
             val coroutineScope = rememberCoroutineScope()
             val navController = rememberNavController()
 

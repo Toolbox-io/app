@@ -7,9 +7,9 @@ import android.util.Log
 import android.view.ViewTreeObserver
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
@@ -51,6 +52,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberTopAppBarState
@@ -367,9 +369,7 @@ class MainActivity : BaseActivity(
                     }
                 }
 
-                val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-
-                val bar = @Composable {
+                val bar: @Composable (TopAppBarScrollBehavior) -> Unit = { scrollBehavior ->
                     TopAppBar(
                         title = {
                             val titleRes = Screen[selectedItem]?.displayName
@@ -392,16 +392,14 @@ class MainActivity : BaseActivity(
                     )
                 }
 
-                val EdgeToEdgeBar = @Composable { content: @Composable () -> Unit ->
+                val EdgeToEdgeBar = @Composable { content: @Composable (PaddingValues) -> Unit ->
+                    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
                     Scaffold(
                         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                        topBar = bar
+                        topBar = { bar(scrollBehavior) },
+                        contentWindowInsets = WindowInsets.systemBars
                     ) {
-                        Box(
-                            modifier = Modifier.padding(it)
-                        ) {
-                            content()
-                        }
+                        content(it)
                     }
                 }
 
@@ -412,17 +410,17 @@ class MainActivity : BaseActivity(
                     modifier = Modifier
                         .consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Left))
                 ) {
-                    composable(route = HOME) { HomeScreen(bar, scrollBehavior) }
+                    composable(route = HOME) { HomeScreen(bar, TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())) }
                     composable(route = SETTINGS) { SettingsScreen(EdgeToEdgeBar) }
                     composable(route = ABOUT) { AboutScreen(EdgeToEdgeBar) }
 
-                    composable(route = APP_LOCKER) { ApplockerScreen(bar, scrollBehavior) }
+                    composable(route = APP_LOCKER) { ApplockerScreen(bar, TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())) }
                     composable(route = UNLOCK_PROTECTION) { UnlockProtectionScreen(EdgeToEdgeBar) }
 
                     composable(route = TILES) { TilesScreen(EdgeToEdgeBar) }
                     composable(route = SHORTCUTS) { ShortcutsScreen(EdgeToEdgeBar) }
 
-                    composable(route = APK_EXTRACTOR) { AppManagerScreen(actions, navigation) }
+                    composable(route = APK_EXTRACTOR) { AppManagerScreen(actions, navigation, TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())) }
                     composable(route = DONT_TOUCH_MY_PHONE) { DontTouchMyPhoneScreen(EdgeToEdgeBar) }
                 }
             }

@@ -89,7 +89,7 @@ import java.lang.Thread.sleep
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ApplockerScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
+fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
     WindowInsetsHandler {
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
@@ -98,7 +98,7 @@ fun ApplockerScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScr
             snackbarHost = {
                 SnackbarHost(hostState = snackbarHostState)
             },
-            topBar = topBar
+            topBar = { topBar(scrollBehavior) }
         ) { innerPadding ->
             Column(
                 Modifier
@@ -350,7 +350,6 @@ fun ApplockerScreen(topBar: @Composable () -> Unit, scrollBehavior: TopAppBarScr
                     onPositiveButtonClick = {
                         val intent = Intent(ACTION_ACCESSIBILITY_SETTINGS)
                         intent.flags = FLAG_ACTIVITY_NEW_TASK
-                        context.resumeHandlers.size
                         var handler: (() -> Unit)? = null
                         handler = {
                             if (accessibility) {
