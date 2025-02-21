@@ -67,6 +67,8 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchColors
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -880,16 +882,15 @@ inline fun CheckboxWithText(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
+            .padding(contentPadding)
             +
-                if (enabled)
-                    Modifier.toggleable(
-                        value = checked,
-                        onValueChange = { onCheckedChange(!checked) },
-                        role = Role.Checkbox
-                    )
-                else Modifier
-            +
-            Modifier.padding(contentPadding)
+            if (enabled)
+                Modifier.toggleable(
+                    value = checked,
+                    onValueChange = { onCheckedChange(!checked) },
+                    role = Role.Checkbox
+                )
+            else Modifier
             + modifier,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -901,6 +902,43 @@ inline fun CheckboxWithText(
         )
         Spacer(modifier = Modifier.width(8.dp))
         content()
+    }
+}
+
+@Composable
+inline fun SwitchWithText(
+    checked: Boolean,
+    crossinline onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: SwitchColors = SwitchDefaults.colors(),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp),
+    content: @Composable () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .padding(contentPadding)
+            +
+            if (enabled)
+                Modifier.toggleable(
+                    value = checked,
+                    onValueChange = { onCheckedChange(!checked) },
+                    role = Role.Switch
+                )
+            else Modifier
+            + modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        content()
+        Spacer(modifier = Modifier.weight(1f))
+        Switch(
+            checked = checked,
+            onCheckedChange = null,
+            enabled = enabled,
+            colors = colors,
+        )
     }
 }
 

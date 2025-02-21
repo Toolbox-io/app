@@ -246,4 +246,17 @@
     <string name="notifications">Notifications</string>
     <string name="enable_accessibility">Enable accessibility</string>
     <string name="enable_accessibility_d">Enable accessibility to make App Locker work again</string>
+    <string name="set_password">Set password</string>
+    <string name="eaof">Enable at least one feature</string>
+    <string name="reenable_accessibility">Re-enable accessibility to continue using App Locker</string>
+    <string name="reenable_accessibility_d">You\'ve used App Locker and the accessibility service suddenly stopped working. Enable accessibility to enable App Locker again.</string>
+    <string name="turn_on_at_least_one_action">Turn on at least one action</string>
+    <string name="turn_on_at_least_one_action_d">You\'ve turned on Unlock Protection, but didn\'t select any actions. Enable them to secure your device better!</string>
+    <string name="set_password_1">Set password</string>
+    <string name="set_password_1_d">Set a password for App Locker to better secure your apps</string>
+    <string name="invalid_uri">Invalid URI</string>
+    <string name="select_apps_1">Select apps</string>
+    <string name="select_apps_1_d">Select apps for App Locker to protect</string>
+    <string name="no_notifications">No notifications. Have a good day!</string>
+    <string name="ycaeuats">You can always enable updates again through settings</string>
 </resources>

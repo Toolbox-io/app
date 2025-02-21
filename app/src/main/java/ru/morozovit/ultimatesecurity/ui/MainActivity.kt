@@ -1,10 +1,12 @@
 package ru.morozovit.ultimatesecurity.ui
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.ViewTreeObserver
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
@@ -57,7 +59,10 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,6 +80,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -117,6 +123,8 @@ import ru.morozovit.ultimatesecurity.ui.protection.applocker.ApplockerScreen
 import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.UnlockProtectionScreen
 import ru.morozovit.ultimatesecurity.ui.tools.appmanager.AppManagerScreen
 
+val LocalNavController: ProvidableCompositionLocal<NavController> = compositionLocalOf { throw IllegalStateException("Uninitialized") }
+
 class MainActivity : BaseActivity(
     backButtonBehavior = Companion.BackButtonBehavior.DEFAULT,
     savedInstanceStateEnabled = true
@@ -125,6 +133,7 @@ class MainActivity : BaseActivity(
     lateinit var activityLauncher: ActivityLauncher
     val resumeHandlers = mutableListOf<() -> Unit>()
     private var isLockVisible by mutableStateOf(false)
+    private var uriIntent by mutableStateOf(intent)
 
     sealed class BaseScreen
 
@@ -165,7 +174,7 @@ class MainActivity : BaseActivity(
      *    )
      *    ```
      */
-    @Serializable sealed class Screen(
+    @Serializable private sealed class Screen(
         val internalName: String,
         @StringRes val displayName: Int,
         @Transient val icon: ImageVector = unsupported
@@ -237,6 +246,28 @@ class MainActivity : BaseActivity(
                 snapshotFlow { currentEntry.value }.collect {
                     runCatching {
                         selectedItem = it!!.destination.route!!
+                    }
+                }
+            }
+
+            LaunchedEffect(uriIntent) {
+                val data = intent.data
+                Log.d("MainActivity", data.toString())
+                Log.d("MainActivity", data?.pathSegments.toString())
+                if (
+                    data != null &&
+                    data.scheme == "toolbox-io" &&
+                    data.host == "page" &&
+                    data.pathSegments.size == 1
+                ) {
+                    try {
+                        navController.navigate(data.pathSegments[0])
+                    } catch (e: Exception) {
+                        Toast.makeText(
+                            this@MainActivity,
+                            R.string.invalid_uri,
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
@@ -404,24 +435,28 @@ class MainActivity : BaseActivity(
                 }
 
                 val start by remember { mutableStateOf(selectedItem) }
-                NavHost(
-                    navController = navController,
-                    startDestination = start,
-                    modifier = Modifier
-                        .consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Left))
+                CompositionLocalProvider(
+                    value = LocalNavController provides navController
                 ) {
-                    composable(route = HOME) { HomeScreen(bar, TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())) }
-                    composable(route = SETTINGS) { SettingsScreen(EdgeToEdgeBar) }
-                    composable(route = ABOUT) { AboutScreen(EdgeToEdgeBar) }
+                    NavHost(
+                        navController = navController,
+                        startDestination = start,
+                        modifier = Modifier
+                            .consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Left))
+                    ) {
+                        composable(route = HOME) { HomeScreen(bar, TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())) }
+                        composable(route = SETTINGS) { SettingsScreen(EdgeToEdgeBar) }
+                        composable(route = ABOUT) { AboutScreen(EdgeToEdgeBar) }
 
-                    composable(route = APP_LOCKER) { ApplockerScreen(bar, TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())) }
-                    composable(route = UNLOCK_PROTECTION) { UnlockProtectionScreen(EdgeToEdgeBar) }
+                        composable(route = APP_LOCKER) { ApplockerScreen(bar, TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())) }
+                        composable(route = UNLOCK_PROTECTION) { UnlockProtectionScreen(EdgeToEdgeBar) }
 
-                    composable(route = TILES) { TilesScreen(EdgeToEdgeBar) }
-                    composable(route = SHORTCUTS) { ShortcutsScreen(EdgeToEdgeBar) }
+                        composable(route = TILES) { TilesScreen(EdgeToEdgeBar) }
+                        composable(route = SHORTCUTS) { ShortcutsScreen(EdgeToEdgeBar) }
 
-                    composable(route = APK_EXTRACTOR) { AppManagerScreen(actions, navigation, TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())) }
-                    composable(route = DONT_TOUCH_MY_PHONE) { DontTouchMyPhoneScreen(EdgeToEdgeBar) }
+                        composable(route = APK_EXTRACTOR) { AppManagerScreen(actions, navigation, TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())) }
+                        composable(route = DONT_TOUCH_MY_PHONE) { DontTouchMyPhoneScreen(EdgeToEdgeBar) }
+                    }
                 }
             }
 
@@ -524,7 +559,6 @@ class MainActivity : BaseActivity(
         }
     }
 
-
     fun updateLock() {
         isLockVisible = Settings.Keys.App.isSet
         interactionDetector()
@@ -537,5 +571,10 @@ class MainActivity : BaseActivity(
             splashScreenDisplayed = false
             isSplashScreenVisible = true
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        uriIntent = intent
     }
 }

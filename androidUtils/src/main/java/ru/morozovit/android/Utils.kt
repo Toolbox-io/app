@@ -515,17 +515,22 @@ fun ContentScale.asAndroidScaleType(): ScaleType? {
     }
 }
 
+fun Context.openUrl(url: Uri) {
+    startActivity(Intent(Intent.ACTION_VIEW, url))
+}
+
 fun Context.openUrl(url: String) {
-    startActivity(
-        Intent(Intent.ACTION_VIEW, Uri.parse(
+    openUrl(
+        Uri.parse(
             url.let {
+                val regex = "^[\\w-_]://".toRegex()
                 var th = it
-                if (!th.startsWith("http://") && !th.startsWith("https://")) {
+                if (!regex.containsMatchIn(th)) {
                     th = "https://$th"
                 }
                 th
             }
-        ))
+        )
     )
 }
 

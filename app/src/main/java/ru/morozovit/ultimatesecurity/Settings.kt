@@ -36,6 +36,7 @@ object Settings {
     const val APPLOCKER_LABEL = "whnerhoerh"
     const val UNLOCK_PROTECTION_LABEL = "gewbnewrnh"
     const val TILES_LABEL = "ehnbgedkjhn"
+    const val NOTIFICATIONS_LABEL = "notificationTypes"
 
     const val ALLOW_BIOMETRIC_LABEL = "erjgeskh"
     const val APPLOCKER_RANDOM_KEY_LABEL = "ejn"
@@ -69,6 +70,7 @@ object Settings {
             Applocker.init(context)
             UnlockProtection.init(context)
             Tiles.init(context)
+            Notifications.init(context)
             init = true
         }
     }
@@ -493,5 +495,28 @@ object Settings {
                     apply()
                 }
             }
+    }
+
+    object Notifications {
+        private lateinit var notifications_sharedPref: SharedPreferences
+        private var init = false
+
+        fun init(context: Context) {
+            if (!init) {
+                notifications_sharedPref = context.getSharedPreferences(NOTIFICATIONS_LABEL, Context.MODE_PRIVATE)
+                init = true
+            }
+        }
+
+        operator fun get(type: String): Boolean {
+            return notifications_sharedPref.getBoolean(type, true)
+        }
+
+        operator fun set(type: String, value: Boolean) {
+            with(notifications_sharedPref.edit()) {
+                putBoolean(type, value)
+                apply()
+            }
+        }
     }
 }
