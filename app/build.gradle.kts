@@ -51,18 +51,14 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.lifecycle.livedata.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.gson)
     implementation(libs.androidx.exifinterface)
     implementation(libs.core)
-    implementation(libs.shimmer)
     implementation(libs.biometric)
     implementation(kotlin("reflect"))
-    implementation(libs.jasypt)
     implementation(libs.cloudy)
     // compose
     implementation(platform(libs.androidx.compose.bom))
@@ -78,9 +74,6 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.accompanist.drawablepainter)
     implementation(libs.compose.video)
-    implementation(libs.androidx.media3.exoplayer)
-    implementation(libs.androidx.media3.session)
-    implementation(libs.androidx.media3.ui)
 
     implementation(libs.play.services.oss.licenses)
 

@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
-import android.util.TypedValue
 import android.view.View
 import android.view.ViewTreeObserver.OnPreDrawListener
 import android.view.WindowManager.LayoutParams.FLAG_SECURE
@@ -22,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import ru.morozovit.android.NoParallelExecutor
 import ru.morozovit.android.homeScreen
+import ru.morozovit.android.resolveAttr
 import ru.morozovit.ultimatesecurity.App.Companion.authenticated
 import ru.morozovit.ultimatesecurity.Settings.appTheme
 import ru.morozovit.ultimatesecurity.Settings.dontShowInRecents
@@ -375,24 +375,9 @@ abstract class BaseActivity(
                 TAG,
                 "Splash screen is already initialized, setting theme to postSplashScreenTheme"
             )
-            val typedValue = TypedValue()
-            if (
-                theme.resolveAttribute(
-                    androidx.core.splashscreen.R.attr.postSplashScreenTheme,
-                    typedValue,
-                    true
-                )
-            ) {
-                val themeId = typedValue.resourceId
-                if (themeId != 0) {
-                    setTheme(themeId)
-                    Log.d(TAG, "Theme set successfully")
-                }
-            } else {
-                Log.wtf(
-                    TAG, "Error setting theme. Attribute androidx.core.splashscreen.R.attr" +
-                            ".postSplashScreenTheme wasn't resolved."
-                )
+            resolveAttr(androidx.core.splashscreen.R.attr.postSplashScreenTheme)?.let {
+                setTheme(it)
+                Log.d(TAG, "Theme set successfully")
             }
         }
     }

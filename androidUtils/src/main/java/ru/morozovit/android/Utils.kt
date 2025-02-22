@@ -1,4 +1,4 @@
-@file:Suppress( "NOTHING_TO_INLINE")
+@file:Suppress( "NOTHING_TO_INLINE", "SameParameterValue")
 package ru.morozovit.android
 
 import android.app.Activity
@@ -28,8 +28,6 @@ import android.util.Base64
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.ViewTreeObserver.OnPreDrawListener
 import android.widget.ImageView.ScaleType
 import androidx.activity.ComponentActivity
@@ -92,6 +90,7 @@ import kotlin.reflect.KProperty
 
 
 val screenWidth: Int inline get() = Resources.getSystem().displayMetrics.widthPixels
+@Suppress("unused")
 val screenHeight: Int inline get() = Resources.getSystem().displayMetrics.heightPixels
 
 fun appName(context: Context, packageName: String): String? {
@@ -122,15 +121,6 @@ inline fun Tile.configure(apply: Tile.() -> Unit) {
     updateTile()
 }
 
-inline fun View.addOneTimeOnGlobalLayoutListener(crossinline listener: () -> Unit) {
-    viewTreeObserver.addOnGlobalLayoutListener(object: OnGlobalLayoutListener {
-        override fun onGlobalLayout() {
-            listener()
-            viewTreeObserver.removeOnGlobalLayoutListener(this)
-        }
-    })
-}
-
 inline fun View.addOneTimeOnPreDrawListener(crossinline listener: () -> Boolean) {
     viewTreeObserver.addOnPreDrawListener(object: OnPreDrawListener {
         override fun onPreDraw(): Boolean {
@@ -139,11 +129,6 @@ inline fun View.addOneTimeOnPreDrawListener(crossinline listener: () -> Boolean)
         }
     })
 }
-
-inline val View.parentViewGroup get() = parent as ViewGroup
-
-inline fun View.removeSelf() = parentViewGroup.removeView(this)
-inline val View.pos get() = parentViewGroup.indexOfChild(this)
 
 fun Context.launchFiles(): Boolean {
     val primaryStorageUri = Uri.parse(
@@ -262,7 +247,7 @@ fun Activity.resolveAttr(@AttrRes attr: Int): Int? {
     }
 }
 
-@Suppress("UNUSED_PARAMETER")
+@Suppress("UNUSED_PARAMETER", "unused")
 class QuickAlertDialogBuilder(context: Context): MaterialAlertDialogBuilder(context) {
     fun title(title: CharSequence): QuickAlertDialogBuilder {
         setTitle(title)
@@ -360,6 +345,7 @@ inline fun Activity.alertDialog(crossinline config: QuickAlertDialogBuilder.() -
 inline fun Fragment.alertDialog(crossinline config: QuickAlertDialogBuilder.() -> Unit)
     = requireActivity().alertDialog(config)
 
+@Suppress("unused")
 class AuthenticationConfig {
     var success: ((BiometricPrompt.AuthenticationResult) -> Unit)? = null
     var fail: (() -> Unit)? = null
@@ -370,7 +356,7 @@ class AuthenticationConfig {
         success = block
     }
 
-    inline fun fail(noinline block: () -> Unit) {
+    inline fun ail(noinline block: () -> Unit) {
         fail = block
     }
 
@@ -498,6 +484,7 @@ val WindowSizeClass.width get() = windowWidthSizeClass
 val WindowSizeClass.height get() = windowHeightSizeClass
 
 val WindowAdaptiveInfo.widthSizeClass get() = windowSizeClass.width
+@Suppress("unused")
 val WindowAdaptiveInfo.heightSizeClass get() = windowSizeClass.height
 
 @Composable
@@ -643,6 +630,7 @@ inline fun SensorEventListener(crossinline callback: (SensorEvent) -> Unit) = ob
 
 inline val Context.isScreenLocked get() = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isKeyguardLocked
 
+@Suppress("MemberVisibilityCanBePrivate")
 class NotificationIdManager(vararg reservedIds: Int) {
     private val reserved = reservedIds.toMutableList()
 
@@ -807,6 +795,7 @@ fun String.encodeJSON(): String {
     return "$out"
 }
 
+@Suppress("unused", "RedundantSuppression")
 operator fun <T> WeakReference<T>.getValue(thisRef: Any?, property: KProperty<*>) = get()!!
 
 @Suppress("unused")
@@ -822,6 +811,9 @@ inline fun runOrLog(
     }
 }
 
+@Suppress("unused")
 typealias WidthSizeClass = WindowWidthSizeClass
+@Suppress("unused")
 typealias HeightSizeClass = WindowHeightSizeClass
+@Suppress("unused")
 typealias SizeClass = WindowSizeClass

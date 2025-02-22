@@ -231,6 +231,21 @@
     <string name="import_settings">Восстановить настройки</string>
     <string name="import_settings_d">Восстановить настройки из файла формата \"dd.mm.yyyy_MM:SS.tiosettings.zip\". Внимание: предыдущие настройки будут перезаписаны. Это нельзя отменить. Приложение будет перезапущено, чтобы предотвратить конфликты с предыдущими настройками.</string>
     <string name="settings_exported_successfully">Настройки успешно сохранены</string>
-    <string name="settings_imported_successfully">Настройки успешно восстановлены, перезапуск...</string>
+    <string name="settings_imported_successfully">Настройки успешно восстановлены, перезапуск…</string>
     <string name="notifications">Уведомления</string>
+    <string name="enable_accessibility">Включите спец. возможности</string>
+    <string name="enable_accessibility_d">Включите службу спец. возможностей, чтобы продолжить использование Блокировки приложений</string>
+    <string name="set_password">Установите пароль</string>
+    <string name="eaof">Включите хотя бы одну функцию</string>
+    <string name="reenable_accessibility">@string/enable_accessibility</string>
+    <string name="reenable_accessibility_d">@string/enable_accessibility_d</string>
+    <string name="turn_on_at_least_one_action">@string/eaof</string>
+    <string name="turn_on_at_least_one_action_d">wert</string>
+    <string name="set_password_1">Установите пароль</string>
+    <string name="set_password_1_d">Установите пароль для Блокировки приложений, чтобы лучше защитить ваши приложения</string>
+    <string name="invalid_uri">Неправильный URI</string>
+    <string name="select_apps_1">Выберите приложения</string>
+    <string name="select_apps_1_d">Выберите приложения, которые Блокировка приложений будет защищать</string>
+    <string name="no_notifications">Нет уведомлений. Хорошего дня!</string>
+    <string name="ycaeuats">Вы всегда можете включить обновления снова в настройках</string>
 </resources>
