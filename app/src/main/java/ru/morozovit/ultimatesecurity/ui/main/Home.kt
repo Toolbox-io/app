@@ -4,10 +4,12 @@ import android.Manifest
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -21,6 +23,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -38,6 +41,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PhonelinkLock
 import androidx.compose.material3.Card
@@ -81,6 +85,7 @@ import androidx.core.os.postDelayed
 import kotlinx.coroutines.launch
 import ru.morozovit.android.async
 import ru.morozovit.android.invoke
+import ru.morozovit.android.openUrl
 import ru.morozovit.android.plus
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
@@ -90,16 +95,21 @@ import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.Settings.accessibility
 import ru.morozovit.ultimatesecurity.Settings.update_dsa
+import ru.morozovit.ultimatesecurity.download
+import ru.morozovit.ultimatesecurity.getContents
 import ru.morozovit.ultimatesecurity.services.Accessibility.Companion.waitingForAccessibility
 import ru.morozovit.ultimatesecurity.services.UpdateChecker.Companion.DOWNLOAD_BROADCAST
 import ru.morozovit.ultimatesecurity.services.UpdateChecker.Companion.DownloadBroadcastReceiver
 import ru.morozovit.ultimatesecurity.services.UpdateChecker.Companion.checkForUpdates
 import ru.morozovit.ultimatesecurity.ui.LocalNavController
 import ru.morozovit.ultimatesecurity.ui.MainActivity
+import ru.morozovit.ultimatesecurity.ui.Theme
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 import ru.morozovit.ultimatesecurity.ui.protection.ActionsActivity
 import ru.morozovit.ultimatesecurity.ui.protection.applocker.SelectAppsActivity
+import ru.morozovit.utils.MarkdownHeaderParser
 import kotlin.reflect.KMutableProperty0
+
 
 @OptIn(ExperimentalLayoutApi::class)
 private data class NotificationData(
@@ -121,7 +131,6 @@ private data class NotificationData(
             }
         }
 }
-
 private enum class NotificationSource(
     @StringRes val label: Int,
     val icon: ImageVector
@@ -129,7 +138,6 @@ private enum class NotificationSource(
     APP_LOCKER(R.string.applocker, Icons.Filled.PhonelinkLock),
     UNLOCK_PROTECTION(R.string.unlock_protection, Icons.Filled.Lock)
 }
-
 private enum class NotificationType(
     val source: NotificationSource,
     @StringRes val label: Int
@@ -142,12 +150,18 @@ private enum class NotificationType(
     // Unlock Protection
     ENABLE_AT_LEAST_ONE_FEATURE(NotificationSource.UNLOCK_PROTECTION, R.string.eaof)
 }
-
 private var NotificationType.isEnabled
     get() = Settings.Notifications[name]
     set(value) {
         Settings.Notifications[name] = value
     }
+
+private data class Guide(
+    val name: String,
+    val title: String,
+    val htmlFile: Uri,
+    val icon: ImageVector = Icons.Filled.Description,
+)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -157,6 +171,7 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
     val mainNavController = LocalNavController()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    val isSystemInDarkTheme = isSystemInDarkTheme()
 
     val ycaeuats = stringResource(R.string.ycaeuats)
 
@@ -283,79 +298,160 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                     }
                 }
 
-                @Composable
-                fun Notification(
-                    modifier: Modifier = Modifier,
-                    title: String,
-                    message: String,
-                    onClick: (() -> Unit)? = null,
-                    divider: Boolean,
-                    bottomContent: (@Composable FlowRowScope.() -> Unit)? = null,
-                    visible: Boolean,
-                    onVisibilityChange: ((Boolean) -> Unit),
-                    type: NotificationType
-                ) {
-                    var state by remember { mutableIntStateOf(0) }
-                    val dismissState = rememberSwipeToDismissBoxState(
-                        confirmValueChange = {
-                            when(it) {
-                                SwipeToDismissBoxValue.StartToEnd,
-                                SwipeToDismissBoxValue.EndToStart -> {
-                                    onVisibilityChange(false)
-                                }
-                                SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
-                            }
-                            return@rememberSwipeToDismissBoxState true
-                        },
-                        // positional threshold of 25%
-                        positionalThreshold = { it * .5f }
-                    )
-
-                    AnimatedVisibility(
-                        visible = visible,
-                        exit = fadeOut() + shrinkVertically()
+                // In-app notifications
+                Category(containerColor = MaterialTheme.colorScheme.surface, title = stringResource(R.string.notifications)) {
+                    @Composable
+                    fun Notification(
+                        modifier: Modifier = Modifier,
+                        title: String,
+                        message: String,
+                        onClick: (() -> Unit)? = null,
+                        divider: Boolean,
+                        bottomContent: (@Composable FlowRowScope.() -> Unit)? = null,
+                        visible: Boolean,
+                        onVisibilityChange: ((Boolean) -> Unit),
+                        type: NotificationType
                     ) {
-                        SwipeToDismissBox(
-                            state = dismissState,
-                            modifier = modifier,
-                            backgroundContent = {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .background(
-                                            when (dismissState.dismissDirection) {
-                                                SwipeToDismissBoxValue.StartToEnd,
-                                                SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.surface
-
-                                                SwipeToDismissBoxValue.Settled -> Color.Transparent
-                                            }
-                                        )
-                                        .padding(12.dp, 8.dp)
-                                )
+                        var state by remember { mutableIntStateOf(0) }
+                        val dismissState = rememberSwipeToDismissBoxState(
+                            confirmValueChange = {
+                                when(it) {
+                                    SwipeToDismissBoxValue.StartToEnd,
+                                    SwipeToDismissBoxValue.EndToStart -> {
+                                        onVisibilityChange(false)
+                                    }
+                                    SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
+                                }
+                                return@rememberSwipeToDismissBoxState true
                             },
-                            content = {
-                                val computedAlpha = if (
-                                    dismissState.targetValue == SwipeToDismissBoxValue.Settled &&
-                                    dismissState.progress == 1f
-                                ) 1f
-                                else 1f - dismissState.progress
-                                val round by animateDpAsState(
-                                    targetValue =
+                            // positional threshold of 25%
+                            positionalThreshold = { it * .5f }
+                        )
+
+                        AnimatedVisibility(
+                            visible = visible,
+                            exit = fadeOut() + shrinkVertically()
+                        ) {
+                            SwipeToDismissBox(
+                                state = dismissState,
+                                modifier = modifier,
+                                backgroundContent = {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(
+                                                when (dismissState.dismissDirection) {
+                                                    SwipeToDismissBoxValue.StartToEnd,
+                                                    SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.surface
+
+                                                    SwipeToDismissBoxValue.Settled -> Color.Transparent
+                                                }
+                                            )
+                                            .padding(12.dp, 8.dp)
+                                    )
+                                },
+                                content = {
+                                    val computedAlpha = if (
+                                        dismissState.targetValue == SwipeToDismissBoxValue.Settled &&
+                                        dismissState.progress == 1f
+                                    ) 1f
+                                    else 1f - dismissState.progress
+                                    val round by animateDpAsState(
+                                        targetValue =
                                         if (
                                             computedAlpha != 1f
                                         ) 28.dp
                                         else 0.dp,
-                                    label = ""
-                                )
+                                        label = ""
+                                    )
 
-                                Crossfade(
-                                    targetState = state,
-                                    modifier = Modifier.animateContentSize(),
-                                    label = ""
-                                ) {
-                                    when (it) {
-                                        0 /* main content */ -> {
-                                            Column {
+                                    Crossfade(
+                                        targetState = state,
+                                        modifier = Modifier.animateContentSize(),
+                                        label = ""
+                                    ) {
+                                        when (it) {
+                                            0 /* main content */ -> {
+                                                Column {
+                                                    Column(
+                                                        modifier = modifier
+                                                            .background(
+                                                                MaterialTheme.colorScheme.surfaceContainer,
+                                                                RoundedCornerShape(round)
+                                                            )
+                                                            .clip(
+                                                                RoundedCornerShape(round)
+                                                            )
+                                                            .alpha(computedAlpha) +
+                                                                if (onClick != null)
+                                                                    Modifier
+                                                                        .combinedClickable(
+                                                                            onClick = onClick,
+                                                                            onLongClick = {
+                                                                                state = 1
+                                                                            }
+                                                                        )
+                                                                else
+                                                                    Modifier
+                                                    ) {
+                                                        Row(
+                                                            modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
+                                                            verticalAlignment = Alignment.CenterVertically
+                                                        ) {
+                                                            Box(
+                                                                modifier =
+                                                                Modifier
+                                                                    .background(
+                                                                        MaterialTheme.colorScheme.primary,
+                                                                        RoundedCornerShape(50)
+                                                                    )
+                                                                    .size(24.dp),
+                                                                contentAlignment = Alignment.Center
+                                                            ) {
+                                                                Icon(
+                                                                    imageVector = type.source.icon,
+                                                                    contentDescription = null,
+                                                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                                                    modifier = Modifier.size(18.dp)
+                                                                )
+                                                            }
+                                                            Spacer(Modifier.width(16.dp))
+                                                            Text(
+                                                                text = stringResource(type.source.label),
+                                                                style = MaterialTheme.typography.bodySmall,
+                                                                color = MaterialTheme.colorScheme.onSurface,
+                                                                fontSize = 13.sp
+                                                            )
+                                                        }
+                                                        ListItem(
+                                                            headline = title,
+                                                            supportingText = message,
+                                                            leadingContent = {
+                                                                Spacer(Modifier.width(24.dp))
+                                                            },
+                                                            bottomContent = if (bottomContent != null) {
+                                                                {
+                                                                    FlowRow(
+                                                                        modifier = Modifier.padding(start = (24 + 16 - 12).dp, end = 16.dp),
+                                                                        content = bottomContent
+                                                                    )
+                                                                }
+                                                            } else null
+                                                        )
+                                                    }
+                                                    AnimatedVisibility(
+                                                        visible = divider,
+                                                        enter = expandVertically(),
+                                                        exit = shrinkVertically()
+                                                    ) {
+                                                        HorizontalDivider(
+                                                            color = MaterialTheme.colorScheme.surface,
+                                                            thickness = 2.dp
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                            1 /* settings */ -> {
                                                 Column(
                                                     modifier = modifier
                                                         .background(
@@ -365,7 +461,9 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                                         .clip(
                                                             RoundedCornerShape(round)
                                                         )
-                                                        .alpha(computedAlpha) +
+                                                        .alpha(computedAlpha)
+                                                        .padding(16.dp)
+                                                            +
                                                             if (onClick != null)
                                                                 Modifier
                                                                     .combinedClickable(
@@ -377,233 +475,150 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                                             else
                                                                 Modifier
                                                 ) {
-                                                    Row(
-                                                        modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
-                                                        verticalAlignment = Alignment.CenterVertically
-                                                    ) {
-                                                        Box(
-                                                            modifier =
-                                                            Modifier
-                                                                .background(
-                                                                    MaterialTheme.colorScheme.primary,
-                                                                    RoundedCornerShape(50)
-                                                                )
-                                                                .size(24.dp),
-                                                            contentAlignment = Alignment.Center
-                                                        ) {
-                                                            Icon(
-                                                                imageVector = type.source.icon,
-                                                                contentDescription = null,
-                                                                tint = MaterialTheme.colorScheme.onPrimary,
-                                                                modifier = Modifier.size(18.dp)
-                                                            )
+                                                    var enabled by remember { mutableStateOf(type.isEnabled) }
+                                                    SwitchWithText(
+                                                        checked = enabled,
+                                                        onCheckedChange = { v ->
+                                                            enabled = v
+                                                            type.isEnabled = v
                                                         }
-                                                        Spacer(Modifier.width(16.dp))
+                                                    ) {
                                                         Text(
-                                                            text = stringResource(type.source.label),
-                                                            style = MaterialTheme.typography.bodySmall,
-                                                            color = MaterialTheme.colorScheme.onSurface,
-                                                            fontSize = 13.sp
+                                                            text = stringResource(type.label),
                                                         )
                                                     }
-                                                    ListItem(
-                                                        headline = title,
-                                                        supportingText = message,
-                                                        leadingContent = {
-                                                            Spacer(Modifier.width(24.dp))
-                                                        },
-                                                        bottomContent = if (bottomContent != null) {
-                                                            {
-                                                                FlowRow(
-                                                                    modifier = Modifier.padding(start = (24 + 16 - 12).dp, end = 16.dp),
-                                                                    content = bottomContent
-                                                                )
-                                                            }
-                                                        } else null
-                                                    )
-                                                }
-                                                AnimatedVisibility(
-                                                    visible = divider,
-                                                    enter = expandVertically(),
-                                                    exit = shrinkVertically()
-                                                ) {
-                                                    HorizontalDivider(
-                                                        color = MaterialTheme.colorScheme.surface,
-                                                        thickness = 2.dp
-                                                    )
-                                                }
-                                            }
-                                        }
-                                        1 /* settings */ -> {
-                                            Column(
-                                                modifier = modifier
-                                                    .background(
-                                                        MaterialTheme.colorScheme.surfaceContainer,
-                                                        RoundedCornerShape(round)
-                                                    )
-                                                    .clip(
-                                                        RoundedCornerShape(round)
-                                                    )
-                                                    .alpha(computedAlpha)
-                                                    .padding(16.dp)
-                                                    +
-                                                    if (onClick != null)
-                                                        Modifier
-                                                            .combinedClickable(
-                                                                onClick = onClick,
-                                                                onLongClick = {
-                                                                    state = 1
-                                                                }
-                                                            )
-                                                    else
-                                                        Modifier
-                                            ) {
-                                                var enabled by remember { mutableStateOf(type.isEnabled) }
-                                                SwitchWithText(
-                                                    checked = enabled,
-                                                    onCheckedChange = { v ->
-                                                        enabled = v
-                                                        type.isEnabled = v
+                                                    TextButton(
+                                                        onClick = {
+                                                            onVisibilityChange(enabled)
+                                                            state = 0
+                                                        }
+                                                    ) {
+                                                        Text(text = stringResource(R.string.save))
                                                     }
-                                                ) {
-                                                    Text(
-                                                        text = stringResource(type.label),
-                                                    )
-                                                }
-                                                TextButton(
-                                                    onClick = {
-                                                        onVisibilityChange(enabled)
-                                                        state = 0
-                                                    }
-                                                ) {
-                                                    Text(text = stringResource(R.string.save))
                                                 }
                                             }
                                         }
                                     }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
-                }
 
-                val notifications = remember { mutableStateListOf<NotificationData>() }
-                LaunchedEffect(Unit) {
-                    if (
-                        Settings.UnlockProtection.enabled &&
-                        !(
-                            Settings.Actions.Alarm.enabled ||
-                            Settings.Actions.IntruderPhoto.enabled
-                        )
-                    ) {
-                        var notification: NotificationData? = null
-                        notification = NotificationData(
-                            title = R.string.turn_on_at_least_one_action,
-                            message = R.string.turn_on_at_least_one_action_d,
-                            bottomContent = {
-                                TextButton(
-                                    onClick = {
-                                        Intent(context, ActionsActivity::class.java).let {
-                                            context.activityLauncher.launch(it) {
-                                                if (
-                                                    !(
-                                                        Settings.UnlockProtection.enabled &&
+                    val notifications = remember { mutableStateListOf<NotificationData>() }
+                    LaunchedEffect(Unit) {
+                        if (
+                            Settings.UnlockProtection.enabled &&
+                            !(
+                                    Settings.Actions.Alarm.enabled ||
+                                            Settings.Actions.IntruderPhoto.enabled
+                                    )
+                        ) {
+                            var notification: NotificationData? = null
+                            notification = NotificationData(
+                                title = R.string.turn_on_at_least_one_action,
+                                message = R.string.turn_on_at_least_one_action_d,
+                                bottomContent = {
+                                    TextButton(
+                                        onClick = {
+                                            Intent(context, ActionsActivity::class.java).let {
+                                                context.activityLauncher.launch(it) {
+                                                    if (
                                                         !(
-                                                            Settings.Actions.Alarm.enabled ||
-                                                            Settings.Actions.IntruderPhoto.enabled
-                                                        )
-                                                    )
+                                                                Settings.UnlockProtection.enabled &&
+                                                                        !(
+                                                                                Settings.Actions.Alarm.enabled ||
+                                                                                        Settings.Actions.IntruderPhoto.enabled
+                                                                                )
+                                                                )
+                                                    ) {
+                                                        notification!!.visible = false
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ) {
+                                        Text(text = "View actions")
+                                    }
+                                },
+                                type = NotificationType.ENABLE_AT_LEAST_ONE_FEATURE
+                            )
+                            notifications += notification
+                        }
+                        if (Settings.Applocker.used) {
+                            if (!accessibility) {
+                                var notification: NotificationData? = null
+                                notification = NotificationData(
+                                    title = R.string.reenable_accessibility,
+                                    message = R.string.reenable_accessibility_d,
+                                    bottomContent = {
+                                        TextButton(
+                                            onClick = {
+                                                val intent = Intent(ACTION_ACCESSIBILITY_SETTINGS)
+                                                intent.flags = FLAG_ACTIVITY_NEW_TASK
+                                                var resumeHandler: (() -> Unit)? = null
+                                                resumeHandler = {
+                                                    if (accessibility) {
+                                                        notification!!.visible = false
+                                                        Settings.Applocker.used = true
+                                                    }
+                                                    waitingForAccessibility = false
+                                                    context.resumeHandlers.remove(resumeHandler)
+                                                }
+                                                context.resumeHandlers.add(resumeHandler)
+                                                waitingForAccessibility = true
+                                                context.startActivity(intent)
+                                            }
+                                        ) {
+                                            Text(text = "Enable")
+                                        }
+                                    },
+                                    type = NotificationType.ENABLE_ACCESSIBILITY
+                                )
+                                notifications += notification
+                            }
+                            if (!Settings.Keys.Applocker.isSet) {
+                                notifications += NotificationData(
+                                    title = R.string.set_password_1,
+                                    message = R.string.set_password_1_d,
+                                    bottomContent = {
+                                        TextButton(
+                                            onClick = {
+                                                mainNavController.navigate("applocker")
+                                            }
+                                        ) {
+                                            Text(text = "Set password")
+                                        }
+                                    },
+                                    type = NotificationType.SET_PASSWORD
+                                )
+                            }
+                            if (Settings.Applocker.apps.isEmpty()) {
+                                var notification: NotificationData? = null
+                                notification = NotificationData(
+                                    title = R.string.select_apps_1,
+                                    message = R.string.select_apps_1_d,
+                                    bottomContent = {
+                                        TextButton(
+                                            onClick = {
+                                                context.activityLauncher.launch(
+                                                    Intent(context, SelectAppsActivity::class.java)
                                                 ) {
-                                                    notification!!.visible = false
+                                                    if (Settings.Applocker.apps.isNotEmpty()) {
+                                                        notification!!.visible = false
+                                                    }
                                                 }
                                             }
+                                        ) {
+                                            Text(text = "Select")
                                         }
-                                    }
-                                ) {
-                                    Text(text = "View actions")
-                                }
-                            },
-                            type = NotificationType.ENABLE_AT_LEAST_ONE_FEATURE
-                        )
-                        notifications += notification
-                    }
-                    if (Settings.Applocker.used) {
-                        if (!accessibility) {
-                            var notification: NotificationData? = null
-                            notification = NotificationData(
-                                title = R.string.reenable_accessibility,
-                                message = R.string.reenable_accessibility_d,
-                                bottomContent = {
-                                    TextButton(
-                                        onClick = {
-                                            val intent = Intent(ACTION_ACCESSIBILITY_SETTINGS)
-                                            intent.flags = FLAG_ACTIVITY_NEW_TASK
-                                            var resumeHandler: (() -> Unit)? = null
-                                            resumeHandler = {
-                                                if (accessibility) {
-                                                    notification!!.visible = false
-                                                    Settings.Applocker.used = true
-                                                }
-                                                waitingForAccessibility = false
-                                                context.resumeHandlers.remove(resumeHandler)
-                                            }
-                                            context.resumeHandlers.add(resumeHandler)
-                                            waitingForAccessibility = true
-                                            context.startActivity(intent)
-                                        }
-                                    ) {
-                                        Text(text = "Enable")
-                                    }
-                                },
-                                type = NotificationType.ENABLE_ACCESSIBILITY
-                            )
-                            notifications += notification
-                        }
-                        if (!Settings.Keys.Applocker.isSet) {
-                            notifications += NotificationData(
-                                title = R.string.set_password_1,
-                                message = R.string.set_password_1_d,
-                                bottomContent = {
-                                    TextButton(
-                                        onClick = {
-                                            mainNavController.navigate("applocker")
-                                        }
-                                    ) {
-                                        Text(text = "Set password")
-                                    }
-                                },
-                                type = NotificationType.SET_PASSWORD
-                            )
-                        }
-                        if (Settings.Applocker.apps.isEmpty()) {
-                            var notification: NotificationData? = null
-                            notification = NotificationData(
-                                title = R.string.select_apps_1,
-                                message = R.string.select_apps_1_d,
-                                bottomContent = {
-                                    TextButton(
-                                        onClick = {
-                                            context.activityLauncher.launch(
-                                                Intent(context, SelectAppsActivity::class.java)
-                                            ) {
-                                                if (Settings.Applocker.apps.isNotEmpty()) {
-                                                    notification!!.visible = false
-                                                }
-                                            }
-                                        }
-                                    ) {
-                                        Text(text = "Select")
-                                    }
-                                },
-                                type = NotificationType.SELECT_APPS
-                            )
-                            notifications += notification
+                                    },
+                                    type = NotificationType.SELECT_APPS
+                                )
+                                notifications += notification
+                            }
                         }
                     }
-                }
 
-                // Notifications
-                Category(containerColor = MaterialTheme.colorScheme.surface, title = stringResource(R.string.notifications)) {
                     Crossfade(
                         targetState = notifications.isNotEmpty(),
                         label = ""
@@ -655,6 +670,114 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                     modifier = Modifier.padding(top = 16.dp)
                                 )
                             }
+                        }
+                    }
+                }
+
+                // Guides
+                Category(title = stringResource(R.string.guides)) {
+                    val guides = remember { mutableStateListOf<Guide>() }
+
+                    LaunchedEffect(Unit) {
+                        async {
+                            Log.d("Guides", "Loading guides")
+                            try {
+                                // TODO fix
+                                val guidesDir = getContents("guides")!!.asJsonArray
+
+                                val theme = when (Settings.appTheme) {
+                                    Theme.AsSystem -> if (isSystemInDarkTheme) "dark" else "light"
+                                    Theme.Light -> "light"
+                                    Theme.Dark -> "dark"
+                                }.uppercase()
+                                val validFileRegex = "[\\w_]*_${theme}\\.html".toRegex()
+
+                                for (it in guidesDir) {
+                                    try {
+                                        val entry = it.asJsonObject
+
+                                        val name0 = entry["name"].asString
+                                        Log.d("Guides", name0)
+
+                                        if (
+                                            !(
+                                                name0.endsWith(".md") ||
+                                                name0 == "README.md"
+                                            )
+                                        ) {
+                                            Log.d("Guides", "File doesn't meet the requirements")
+                                            continue
+                                        }
+
+                                        val contents = String(
+                                            download(entry["download_url"].asString)!!.toByteArray(Charsets.ISO_8859_1),
+                                            Charsets.UTF_8
+                                        )
+                                        Log.d("Guides", contents)
+                                        val header = MarkdownHeaderParser.parseHeader(contents)
+                                        Log.d("Guides", header.toString())
+
+                                        val name = name0.replace("\\.md$".toRegex(), "")
+                                        val title = if (header != null) header["DisplayName"] as String else name
+                                        val htmlFile =
+                                            Uri.parse(
+                                                "https://toolbox-io.ru/guides/${
+                                                guidesDir
+                                                    .filter {
+                                                        validFileRegex.matches(it.asJsonObject["name"].asString)
+                                                    }[0]
+                                                    .asJsonObject["name"]
+                                                    .asString
+                                                }"
+                                            )
+
+                                        guides += Guide(
+                                            title = title,
+                                            name = name,
+                                            htmlFile = htmlFile
+                                        ).also { Log.d("Guides", "$it") }
+                                    } catch (e: Exception) {
+                                        Log.e("Guides", "An error occurred: ", e)
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                Log.e("Guides", "An error occurred: ", e)
+                            }
+                        }
+                    }
+
+                    for (i in guides.indices) {
+                        val guide = guides[i]
+
+                        val onClick = {
+                            context.openUrl(guide.htmlFile)
+                        }
+
+                        if (i == guides.size - 1) {
+                            ListItem(
+                                headline = guide.title,
+                                leadingContent = {
+                                    Icon(
+                                        imageVector = guide.icon,
+                                        contentDescription = null
+                                    )
+                                },
+                                onClick = onClick,
+                                divider = true,
+                                dividerColor = MaterialTheme.colorScheme.surface,
+                                dividerThickness = 2.dp
+                            )
+                        } else {
+                            ListItem(
+                                headline = guide.title,
+                                leadingContent = {
+                                    Icon(
+                                        imageVector = guide.icon,
+                                        contentDescription = null
+                                    )
+                                },
+                                onClick = onClick
+                            )
                         }
                     }
                 }
