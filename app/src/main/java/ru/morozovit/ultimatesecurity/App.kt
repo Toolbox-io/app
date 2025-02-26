@@ -40,7 +40,7 @@ class App : Application() {
 
         // Other constants
         var githubRateLimitRemaining: Long = -1
-        const val GITHUB_TOKEN = "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"
+        const val GITHUB_TOKEN = "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"
         const val GITHUB_API_VERSION = "2022-11-28"
     }
 

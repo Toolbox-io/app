@@ -1,6 +1,7 @@
 package ru.morozovit.ultimatesecurity.ui.main
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
@@ -10,6 +11,10 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS
 import android.util.Log
+import android.view.ViewGroup
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -23,7 +28,6 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -36,6 +40,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -50,6 +57,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -60,6 +68,7 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -81,6 +90,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.postDelayed
 import kotlinx.coroutines.launch
 import ru.morozovit.android.async
@@ -103,7 +113,6 @@ import ru.morozovit.ultimatesecurity.services.UpdateChecker.Companion.DownloadBr
 import ru.morozovit.ultimatesecurity.services.UpdateChecker.Companion.checkForUpdates
 import ru.morozovit.ultimatesecurity.ui.LocalNavController
 import ru.morozovit.ultimatesecurity.ui.MainActivity
-import ru.morozovit.ultimatesecurity.ui.Theme
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 import ru.morozovit.ultimatesecurity.ui.protection.ActionsActivity
 import ru.morozovit.ultimatesecurity.ui.protection.applocker.SelectAppsActivity
@@ -163,6 +172,7 @@ private data class Guide(
     val icon: ImageVector = Icons.Filled.Description,
 )
 
+@SuppressLint("SetJavaScriptEnabled")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
@@ -171,7 +181,6 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
     val mainNavController = LocalNavController()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    val isSystemInDarkTheme = isSystemInDarkTheme()
 
     val ycaeuats = stringResource(R.string.ycaeuats)
 
@@ -677,6 +686,17 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                 // Guides
                 Category(title = stringResource(R.string.guides)) {
                     val guides = remember { mutableStateListOf<Guide>() }
+                    val sheetState = rememberModalBottomSheetState()
+                    var showBottomSheet by remember { mutableStateOf(false) }
+                    var uri: Uri? by remember { mutableStateOf(null) }
+
+                    fun hideBottomSheet() {
+                        coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                showBottomSheet = false
+                            }
+                        }
+                    }
 
                     LaunchedEffect(Unit) {
                         async {
@@ -684,13 +704,6 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                             try {
                                 // TODO fix
                                 val guidesDir = getContents("guides")!!.asJsonArray
-
-                                val theme = when (Settings.appTheme) {
-                                    Theme.AsSystem -> if (isSystemInDarkTheme) "dark" else "light"
-                                    Theme.Light -> "light"
-                                    Theme.Dark -> "dark"
-                                }.uppercase()
-                                val validFileRegex = "[\\w_]*_${theme}\\.html".toRegex()
 
                                 for (it in guidesDir) {
                                     try {
@@ -700,10 +713,8 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                         Log.d("Guides", name0)
 
                                         if (
-                                            !(
-                                                name0.endsWith(".md") ||
-                                                name0 == "README.md"
-                                            )
+                                            name0 == "README.md" ||
+                                            !name0.endsWith(".md")
                                         ) {
                                             Log.d("Guides", "File doesn't meet the requirements")
                                             continue
@@ -721,14 +732,7 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                         val title = if (header != null) header["DisplayName"] as String else name
                                         val htmlFile =
                                             Uri.parse(
-                                                "https://toolbox-io.ru/guides/${
-                                                guidesDir
-                                                    .filter {
-                                                        validFileRegex.matches(it.asJsonObject["name"].asString)
-                                                    }[0]
-                                                    .asJsonObject["name"]
-                                                    .asString
-                                                }"
+                                                "https://toolbox-io.ru/guides/${name.lowercase()}_raw.html"
                                             )
 
                                         guides += Guide(
@@ -750,7 +754,8 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                         val guide = guides[i]
 
                         val onClick = {
-                            context.openUrl(guide.htmlFile)
+                            uri = guide.htmlFile
+                            showBottomSheet = true
                         }
 
                         if (i == guides.size - 1) {
@@ -778,6 +783,46 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                 },
                                 onClick = onClick
                             )
+                        }
+                    }
+
+                    if (showBottomSheet) {
+                        ModalBottomSheet(
+                            onDismissRequest = {
+                                showBottomSheet = false
+                            },
+                            sheetState = sheetState
+                        ) {
+                            LazyVerticalGrid(columns = GridCells.Fixed(1)) {
+                                item(span = { GridItemSpan(1) }) {
+                                    AndroidView(
+                                        factory = {
+                                            WebView(it).apply {
+                                                layoutParams = ViewGroup.LayoutParams(
+                                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                                    ViewGroup.LayoutParams.WRAP_CONTENT
+                                                )
+                                                webViewClient = object : WebViewClient() {
+                                                    override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                                                        if (request.url != uri) {
+                                                            context.openUrl(request.url)
+                                                            return true
+                                                        } else {
+                                                            return false
+                                                        }
+                                                    }
+                                                }
+                                                settings.javaScriptEnabled = true
+                                                settings.useWideViewPort = true
+                                                loadUrl(uri.toString())
+                                            }
+                                        },
+                                        update = {
+                                            it.loadUrl(uri.toString())
+                                        }
+                                    )
+                                }
+                            }
                         }
                     }
                 }
