@@ -281,9 +281,10 @@ abstract class BaseActivity(
         interacted = true
     }
 
+    @SuppressLint("InlinedApi")
     @Suppress("OVERRIDE_DEPRECATION")
     override fun overridePendingTransition(@AnimRes enterAnim: Int, @AnimRes exitAnim: Int) {
-        overridePendingTransition(0, enterAnim, exitAnim)
+        overridePendingTransition(OVERRIDE_TRANSITION_OPEN, enterAnim, exitAnim)
     }
 
     @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")

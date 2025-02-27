@@ -60,6 +60,9 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".ui.main.GuideActivity"
+            android:theme="@style/Theme.UltimateSecurity.ToolboxIOWebsite" />
+        <activity
             android:name=".ui.main.DeveloperOptionsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
         <activity android:name=".ui.main.GreenScreenActivity" />

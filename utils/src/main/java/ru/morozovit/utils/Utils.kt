@@ -10,7 +10,7 @@ fun String.shorten(chars: Int) =
         substring(0, chars - 3) + "..."
 
 object MarkdownHeaderParser {
-    fun findHeader(markdown: String): String? {
+    private fun findHeader(markdown: String): String? {
         var header = ""
         var started = false
         var secondTime = false
@@ -74,4 +74,13 @@ object MarkdownHeaderParser {
 
         return result
     }
+}
+
+fun String.toCamelCase(): String {
+    val words = this.split(" ", "_", "-")
+    val camelCase = StringBuilder()
+    for ((index, word) in words.withIndex()) {
+        camelCase.append(if (index == 0) word.lowercase() else word.replaceFirstChar { it.uppercase() })
+    }
+    return "$camelCase"
 }

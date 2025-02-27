@@ -17,10 +17,7 @@
     <string name="test_crash_d">This app will crash by dividing by 0</string>
     <string name="test_fake_crash">Test fake crash</string>
     <string name="test_fake_crash_d">Show a fake crash dialog</string>
-    <string name="select_apps1">Select applications</string>
-    <string name="selall">Select all</string>
     <string name="done">Done</string>
-    <string name="sel" tools:ignore="PluralsCandidate">%1$d selected</string>
     <string name="clear">Clear</string>
     <string name="enter_password">Enter password</string>
     <string name="password">Password</string>
@@ -67,33 +64,14 @@
     <string name="alarm_d">An alarm sound will be played at 100% volume, and any attempts to change it will be prevented</string>
     <string name="intruderphoto">Intruder photo</string>
     <string name="intruderphoto_d">Take a photo without the intruder knowing</string>
-    <string name="notification">Notification</string>
-    <string name="notification_d">A notification saying that the security was triggered. It\'s recommended to disable this notification on the lock screen</string>
-    <string name="sms">SMS message</string>
-    <string name="sms_d">An SMS message will be sent to the selected numbers. Requires a SIM card</string>
-    <string name="voice">Voice</string>
-    <string name="voice_d">The device will say \"Don\'t touch my phone!\" or something else.</string>
     <string name="enable">Enable</string>
     <string name="add">Add</string>
-    <string name="takefromfrontcam">Take picture from frontal camera</string>
-    <string name="takefrombackcam">Take picture from back camera</string>
-    <string name="all">All</string>
-    <string name="backcam">Back camera</string>
-    <string name="frontcam">Front camera</string>
-    <string name="photodir" translatable="false">External photo folder</string>
-    <string name="photodir_d" translatable="false">Select the folder in which the photos will be saved</string>
-    <string name="rotate90">Rotate 90°</string>
-    <string name="rotaten90">Rotate -90°</string>
     <string name="website">Website</string>
-    <string name="nothing">No intruders :)</string>
-    <string name="camrestriction">It is not recommended to select both because of strange Android restrictions, which can cause unexpected behavior and crashes.</string>
     <string name="erase">Erase</string>
     <string name="locked">Locked</string>
     <string name="lockapp">Password lock</string>
     <string name="lockapp_d">Lock this app with a PIN code.</string>
     <string name="enter_old_password">Enter old password</string>
-    <string name="dpw">Delete password?</string>
-    <string name="dpw_d">You can delete the password that is set right now after disabling it.</string>
     <string name="no">No</string>
     <string name="security">Security</string>
     <string name="customization">Customization</string>
@@ -102,24 +80,11 @@
     <string name="sleep">Sleep</string>
     <string name="failed_to_launch_files">Failed to launch the Files app. It may not exist on your device.</string>
     <string name="files">Files</string>
-    <string name="ht_add_sc">How to add the shortcut?</string>
-    <string name="asas">As a shortcut</string>
-    <string name="asasa">As a separate app</string>
     <string name="continue1">Continue</string>
-    <string name="rc">Remember your choice</string>
     <string name="smthwentwrong">Something went wrong</string>
-    <string name="fsh">
-        A \"Files\" icon was created in the launcher. You can always disable it by pressing
-        "Remove icon" on the shortcut in the app.
-    </string>
-    <string name="cr">Your choice was remembered. If you want to change it, long press \"Add\".</string>
-    <string name="ri">Remove icon</string>
-    <string name="ir">The icon was removed. To add it again, press \"Add\" and choose \"As a separate app\".</string>
-    <string name="tiles_beta">Tiles (Beta)</string>
     <string name="install_package">Install package</string>
     <string name="install_package_d">The new version is ready to be installed. Install?\nPlease note that you will need to grant the \"Install unknown apps\" permission to this app in order to continue.</string>
     <string name="tools">Tools</string>
-    <string name="flasher">USB flasher</string>
     <string name="select_device">Select a device</string>
     <string name="select_device_d">Select a device that will be used to flash your image</string>
     <string name="usb_device">USB device</string>
@@ -127,28 +92,7 @@
     <string name="choose_image_d">Choose an image to flash to the selected device from your file system</string>
     <string name="choose">Choose</string>
     <string name="start">Start</string>
-    <string name="flash_error">Can\'t flash</string>
-    <string name="flash_error_d">The image cannot be flashed because of the following reason:</string>
-    <string name="no_image_chosen">No image was chosen.</string>
-    <string name="no_device_selected">No device was selected.</string>
-    <string name="file_bigger_than_device">The image is bigger than the target device.</string>
-    <string name="unknown_error">Unknown error. Try again, and if you get this again, post an issue on GitHub.</string>
-    <string name="file_bigger_than_device_0b">The image is bigger than the target device. The device is 0 B, so it may be a malfunction.</string>
     <string name="apkextractor">APK extractor</string>
-    <string name="search_for_apps">Search for apps</string>
-    <string name="system">System apps</string>
-    <string name="user">User apps</string>
-    <string name="filters">Filters</string>
-    <string name="app_groups">App groups</string>
-    <string name="sorting_order">Sorting order</string>
-    <string name="alphabetically">Alphabetically</string>
-    <string name="recently_used">Recently used</string>
-    <string name="normal">Normal</string>
-    <string name="reverse">Reverse</string>
-    <string name="install_source">Install source</string>
-    <string name="google_play" translatable="false">Google Play</string>
-    <string name="rustore" translatable="false">RuStore</string>
-    <string name="other">Other</string>
     <string name="allow_biometric">Allow biometric authentication</string>
     <string name="allow_biometric_d">Allow unlocking this app with a fingerprint or your face.</string>
     <string name="biometric">Biometrical authentication</string>
@@ -187,7 +131,6 @@
     <string name="notify_on_photo_taken">Notify on photo taken</string>
     <string name="nopt_d">When the screen will be unlocked successfully, you will be notified if there were attempts to unlock your device without permission</string>
     <string name="intruderphotos">Intruder photos</string>
-    <string name="close">Close</string>
     <string name="fgs_ip">Intruder photo: foreground service</string>
     <string name="fgs_ip_d">A blank notification that is required for taking photos of intruders.\nTip: you can disable this notification on the lock screen so the intruder won\'t see this.</string>
     <string name="update_n">Updates</string>
@@ -200,7 +143,6 @@
     <string name="afs_d">A foreground service that does nothing. It is not required, but recommended for stability of security features.</string>
     <string name="devadmin_ed">This permission is needed for the following features:\n- Protect this app from being removed by an intruder\n- Detect failed unlock attempts to take the required actions\n\nThis app NEVER uses this permission for anything not listed above.</string>
     <string name="search">Search</string>
-    <string name="touched" translatable="false">Touched!</string>
     <string name="dont_touch_my_phone">Don\'t touch my phone</string>
     <string name="stop">Stop</string>
     <string name="testing">Testing</string>
@@ -208,7 +150,6 @@
     <string name="share">Share</string>
     <string name="version">Version</string>
     <string name="version_code">Version code</string>
-    <string name="version_info">Version information</string>
     <string name="technical_info">Technical information</string>
     <string name="package_name">Package name</string>
     <string name="package_size">Package size</string>
@@ -216,12 +157,6 @@
     <string name="system_app_info_d">Open the system \"App info\" menu</string>
     <string name="view_in_gplay">View in Google Play (or other store)</string>
     <string name="view_in_gplay_d">View this app in Google Play or other stores if it exists</string>
-    <string name="permissions">Permissions</string>
-    <string name="permissions_d">View permissions declared in the manifest of this app</string>
-    <string name="normalPermissions">Normal permissions</string>
-    <string name="specialPermissions">Special permissions</string>
-    <string name="dangerousPermissions">Dangerous permissions</string>
-    <string name="systemOnlyPermissions">System-only permissions</string>
     <string name="location">Location</string>
     <string name="choose_activity">Choose activity</string>
     <string name="im_sorry">I\'m sorry :(</string>

@@ -11,10 +11,6 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS
 import android.util.Log
-import android.view.ViewGroup
-import android.webkit.WebResourceRequest
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -40,9 +36,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -57,7 +50,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -68,7 +60,6 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -90,12 +81,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.postDelayed
 import kotlinx.coroutines.launch
 import ru.morozovit.android.async
 import ru.morozovit.android.invoke
-import ru.morozovit.android.openUrl
 import ru.morozovit.android.plus
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
@@ -117,8 +106,8 @@ import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 import ru.morozovit.ultimatesecurity.ui.protection.ActionsActivity
 import ru.morozovit.ultimatesecurity.ui.protection.applocker.SelectAppsActivity
 import ru.morozovit.utils.MarkdownHeaderParser
+import ru.morozovit.utils.toCamelCase
 import kotlin.reflect.KMutableProperty0
-
 
 @OptIn(ExperimentalLayoutApi::class)
 private data class NotificationData(
@@ -474,13 +463,12 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                                         .padding(16.dp)
                                                             +
                                                             if (onClick != null)
-                                                                Modifier
-                                                                    .combinedClickable(
-                                                                        onClick = onClick,
-                                                                        onLongClick = {
-                                                                            state = 1
-                                                                        }
-                                                                    )
+                                                                Modifier.combinedClickable(
+                                                                    onClick = onClick,
+                                                                    onLongClick = {
+                                                                        state = 1
+                                                                    }
+                                                                )
                                                             else
                                                                 Modifier
                                                 ) {
@@ -518,9 +506,9 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                         if (
                             Settings.UnlockProtection.enabled &&
                             !(
-                                    Settings.Actions.Alarm.enabled ||
-                                            Settings.Actions.IntruderPhoto.enabled
-                                    )
+                                Settings.Actions.Alarm.enabled ||
+                                Settings.Actions.IntruderPhoto.enabled
+                            )
                         ) {
                             var notification: NotificationData? = null
                             notification = NotificationData(
@@ -533,12 +521,12 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                                 context.activityLauncher.launch(it) {
                                                     if (
                                                         !(
-                                                                Settings.UnlockProtection.enabled &&
-                                                                        !(
-                                                                                Settings.Actions.Alarm.enabled ||
-                                                                                        Settings.Actions.IntruderPhoto.enabled
-                                                                                )
-                                                                )
+                                                            Settings.UnlockProtection.enabled &&
+                                                            !(
+                                                                Settings.Actions.Alarm.enabled ||
+                                                                Settings.Actions.IntruderPhoto.enabled
+                                                            )
+                                                        )
                                                     ) {
                                                         notification!!.visible = false
                                                     }
@@ -686,17 +674,17 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                 // Guides
                 Category(title = stringResource(R.string.guides)) {
                     val guides = remember { mutableStateListOf<Guide>() }
-                    val sheetState = rememberModalBottomSheetState()
-                    var showBottomSheet by remember { mutableStateOf(false) }
+//                    val sheetState = rememberModalBottomSheetState()
+//                    var showBottomSheet by remember { mutableStateOf(false) }
                     var uri: Uri? by remember { mutableStateOf(null) }
 
-                    fun hideBottomSheet() {
+                    /*fun hideBottomSheet() {
                         coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
                             if (!sheetState.isVisible) {
                                 showBottomSheet = false
                             }
                         }
-                    }
+                    }*/
 
                     LaunchedEffect(Unit) {
                         async {
@@ -735,9 +723,28 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                                 "https://toolbox-io.ru/guides/${name.lowercase()}_raw.html"
                                             )
 
+                                        val icon = try {
+                                            val iconName = (header!!["Icon"] as String)
+                                                .toCamelCase()
+                                                .replaceFirstChar { it.uppercase() }
+                                            Class
+                                                .forName(
+                                                    "androidx.compose.material.icons.filled.${iconName}Kt"
+                                                )
+                                                .getMethod(
+                                                    "get${iconName}",
+                                                    Icons.Filled::class.java
+                                                )
+                                                .invoke(null, Icons.Filled) as ImageVector
+                                        } catch (e: Exception) {
+                                            Log.e("Guides", "An error occurred while getting icon: ", e)
+                                            Icons.Filled.Description
+                                        }
+
                                         guides += Guide(
                                             title = title,
                                             name = name,
+                                            icon = icon,
                                             htmlFile = htmlFile
                                         ).also { Log.d("Guides", "$it") }
                                     } catch (e: Exception) {
@@ -755,10 +762,15 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
 
                         val onClick = {
                             uri = guide.htmlFile
-                            showBottomSheet = true
+//                            showBottomSheet = true
+                            context.startActivity(
+                                Intent(context, GuideActivity::class.java).apply {
+                                    data = uri
+                                }
+                            )
                         }
 
-                        if (i == guides.size - 1) {
+                        if (i != guides.size - 1) {
                             ListItem(
                                 headline = guide.title,
                                 leadingContent = {
@@ -786,7 +798,7 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                         }
                     }
 
-                    if (showBottomSheet) {
+                    /*if (showBottomSheet) {
                         ModalBottomSheet(
                             onDismissRequest = {
                                 showBottomSheet = false
@@ -824,7 +836,7 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                 }
                             }
                         }
-                    }
+                    }*/
                 }
             }
         }
