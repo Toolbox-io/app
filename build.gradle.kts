@@ -5,7 +5,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath(libs.oss.licenses.plugin)
+        classpath(libs.oss.licenses.classpath)
     }
 }
 
