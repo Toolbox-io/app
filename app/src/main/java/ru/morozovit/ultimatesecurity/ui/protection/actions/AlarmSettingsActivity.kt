@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.ui.protection.unlockprotection
+package ru.morozovit.ultimatesecurity.ui.protection.actions
 
 import android.content.Intent
 import android.content.res.AssetFileDescriptor
@@ -86,7 +86,7 @@ class AlarmSettingsActivity: BaseActivity() {
     @Composable
     fun AlarmSettingsScreen() {
         AppTheme {
-            val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+            val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
             val scope = rememberCoroutineScope()
             val snackbarHostState = remember { SnackbarHostState() }
@@ -167,7 +167,6 @@ class AlarmSettingsActivity: BaseActivity() {
                     }
 
                     val alarm = stringResource(R.string.default_alarm)
-                    val unknown = stringResource(R.string.unknown)
                     val alarm_deleted = stringResource(R.string.alarm_deleted)
                     val cancel = stringResource(R.string.cancel)
 

@@ -120,7 +120,7 @@ import ru.morozovit.ultimatesecurity.ui.main.HomeScreen
 import ru.morozovit.ultimatesecurity.ui.main.SettingsScreen
 import ru.morozovit.ultimatesecurity.ui.protection.DontTouchMyPhoneScreen
 import ru.morozovit.ultimatesecurity.ui.protection.applocker.ApplockerScreen
-import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.UnlockProtectionScreen
+import ru.morozovit.ultimatesecurity.ui.protection.UnlockProtectionScreen
 import ru.morozovit.ultimatesecurity.ui.tools.appmanager.AppManagerScreen
 
 val LocalNavController: ProvidableCompositionLocal<NavController> = compositionLocalOf { throw IllegalStateException("Uninitialized") }

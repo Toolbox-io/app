@@ -87,11 +87,11 @@
             android:theme="@style/Theme.UltimateSecurity.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.AlarmSettingsActivity"
+            android:name="ru.morozovit.ultimatesecurity.ui.protection.actions.AlarmSettingsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoSettingsActivity"
+            android:name="ru.morozovit.ultimatesecurity.ui.protection.actions.intruderphoto.IntruderPhotoSettingsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <!--<activity
@@ -103,7 +103,7 @@
             android:theme="@style/Theme.UltimateSecurity.SplashScreen"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode" />
         <service
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoService"
+            android:name="ru.morozovit.ultimatesecurity.ui.protection.actions.intruderphoto.IntruderPhotoService"
             android:exported="false"
             android:foregroundServiceType="camera" />
         <activity

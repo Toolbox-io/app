@@ -1,7 +1,9 @@
 package ru.morozovit.ultimatesecurity.ui.protection
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -24,17 +26,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.activityResultLauncher
 import ru.morozovit.android.copy
@@ -46,8 +47,8 @@ import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.ui.AppTheme
-import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.AlarmSettingsActivity
-import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoSettingsActivity
+import ru.morozovit.ultimatesecurity.ui.protection.actions.AlarmSettingsActivity
+import ru.morozovit.ultimatesecurity.ui.protection.actions.intruderphoto.IntruderPhotoSettingsActivity
 
 class ActionsActivity: BaseActivity() {
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
@@ -88,8 +89,6 @@ class ActionsActivity: BaseActivity() {
                         .padding(innerPadding)
                         .verticalScroll(rememberScrollState()),
                 ) {
-                    val coroutineScope = rememberCoroutineScope()
-
                     Category(margin = CategoryDefaults.margin.copy(top = 16.dp)) {
                         var alarm by remember {
                             mutableStateOf(
@@ -98,9 +97,7 @@ class ActionsActivity: BaseActivity() {
                         }
                         val alarmOnCheckedChange: (Boolean) -> Unit = {
                             alarm = it
-                            coroutineScope.launch {
-                                Settings.UnlockProtection.Alarm.enabled = it
-                            }
+                            Settings.UnlockProtection.Alarm.enabled = it
                         }
                         SeparatedSwitchListItem(
                             headline = stringResource(R.string.alarm),
@@ -134,9 +131,26 @@ class ActionsActivity: BaseActivity() {
                             )
                         }
                         val intruderPhotoOnCheckedChange: (Boolean) -> Unit = {
-                            intruderPhoto = it
-                            coroutineScope.launch {
-                                Settings.UnlockProtection.IntruderPhoto.enabled = it
+                            if (it) {
+                                if (checkSelfPermission(Manifest.permission.CAMERA) == PERMISSION_GRANTED) {
+                                    intruderPhoto = true
+                                } else {
+                                    requestPermission(Manifest.permission.CAMERA) { granted ->
+                                        if (granted) {
+                                            intruderPhoto = true
+                                        }
+                                    }
+                                }
+                            } else {
+                                intruderPhoto = false
+                            }
+                            Settings.UnlockProtection.IntruderPhoto.enabled = it
+                        }
+
+                        LaunchedEffect(Unit) {
+                            if (checkSelfPermission(Manifest.permission.CAMERA) != PERMISSION_GRANTED) {
+                                intruderPhoto = false
+                                Settings.UnlockProtection.IntruderPhoto.enabled = false
                             }
                         }
 

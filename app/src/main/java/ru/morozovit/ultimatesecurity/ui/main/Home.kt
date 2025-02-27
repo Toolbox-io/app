@@ -690,7 +690,6 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                         async {
                             Log.d("Guides", "Loading guides")
                             try {
-                                // TODO fix
                                 val guidesDir = getContents("guides")!!.asJsonArray
 
                                 for (it in guidesDir) {

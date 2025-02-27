@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.ui.protection.unlockprotection
+package ru.morozovit.ultimatesecurity.ui.protection
 
 import android.app.Activity.RESULT_OK
 import android.app.admin.DevicePolicyManager
@@ -45,7 +45,6 @@ import ru.morozovit.ultimatesecurity.Settings.UnlockProtection.enabled
 import ru.morozovit.ultimatesecurity.services.DeviceAdmin
 import ru.morozovit.ultimatesecurity.ui.MainActivity
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
-import ru.morozovit.ultimatesecurity.ui.protection.ActionsActivity
 
 @Composable
 fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {

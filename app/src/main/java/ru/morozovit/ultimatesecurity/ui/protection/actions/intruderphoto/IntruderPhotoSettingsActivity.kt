@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto
+package ru.morozovit.ultimatesecurity.ui.protection.actions.intruderphoto
 
 import android.Manifest
 import android.content.Intent
@@ -131,6 +131,14 @@ class IntruderPhotoSettingsActivity: BaseActivity(false) {
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         Column {
                             var mainSwitch by remember { mutableStateOf(Settings.Actions.IntruderPhoto.enabled) }
+
+                            LaunchedEffect(Unit) {
+                                if (checkSelfPermission(Manifest.permission.CAMERA) != PERMISSION_GRANTED) {
+                                    mainSwitch = false
+                                    Settings.UnlockProtection.IntruderPhoto.enabled = false
+                                }
+                            }
+
                             SwitchCard(
                                 text = stringResource(R.string.enable),
                                 checked = mainSwitch,
@@ -191,7 +199,7 @@ class IntruderPhotoSettingsActivity: BaseActivity(false) {
                                 text = stringResource(R.string.intruderphotos),
                                 style = MaterialTheme.typography.titleSmall,
                                 color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 16.dp)
+                                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
                             )
                         }
                     }

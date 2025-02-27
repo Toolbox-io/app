@@ -21,7 +21,7 @@ import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.NOTHING_SELEC
 import ru.morozovit.ultimatesecurity.Settings.Applocker.UnlockMode.PRESS_TITLE
 import ru.morozovit.ultimatesecurity.services.Accessibility
 import ru.morozovit.ultimatesecurity.ui.Theme
-import ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoService.Companion.takePhoto
+import ru.morozovit.ultimatesecurity.ui.protection.actions.intruderphoto.IntruderPhotoService.Companion.takePhoto
 import java.io.IOException
 import kotlin.random.Random
 

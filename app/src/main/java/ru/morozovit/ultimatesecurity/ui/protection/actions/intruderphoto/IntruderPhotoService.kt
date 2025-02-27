@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto
+package ru.morozovit.ultimatesecurity.ui.protection.actions.intruderphoto
 
 import android.Manifest
 import android.app.Notification

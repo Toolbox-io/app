@@ -224,7 +224,6 @@ abstract class BaseActivity(
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         currentActivity = this
-//        overridePendingTransition(R.anim.slide_left, R.anim.scale_down_translate)
         preSplashScreen(!(!(authEnabled && Settings.Keys.App.isSet) || this !is MainActivity))
         if (savedInstanceStateEnabled) {
             super.onCreate(savedInstanceState)
@@ -233,17 +232,6 @@ abstract class BaseActivity(
             super.onCreate(null)
         }
         if (authEnabled && Settings.Keys.App.isSet) {
-//            window.decorView.viewTreeObserver.addOnPreDrawListener(
-//                object: OnPreDrawListener {
-//                    override fun onPreDraw(): Boolean {
-//                        if (started) {
-//                            window.decorView.viewTreeObserver.removeOnPreDrawListener(this)
-//                            return true
-//                        }
-//                        return false
-//                    }
-//                }
-//            )
             auth(noAnim = false, setPendingAuth = true)
         }
         this.savedInstanceState = savedInstanceState
@@ -422,16 +410,6 @@ abstract class BaseActivity(
         if (dontShowInRecents) {
             isSecure = !hasFocus
         }
-//        if (hasFocus) {
-//            for (view in views) {
-//                view.first.visibility = view.second
-//            }
-//        } else {
-//            for (view in (window.decorView as ViewGroup)) {
-//                views.add(Pair(view, view.visibility))
-//                view.visibility = INVISIBLE
-//            }
-//        }
     }
 
     open var isSecure
@@ -501,11 +479,4 @@ abstract class BaseActivity(
         super.onDestroy()
         onDestroy.forEach { it() }
     }
-
-//    override fun finish() {
-//        if (!finishAfterTransitionCalled) {
-//            finishAfterTransition(R.anim.scale_up_translate, R.anim.slide_right)
-//        }
-//        super.finish()
-//    }
 }
