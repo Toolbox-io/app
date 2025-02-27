@@ -1,11 +1,5 @@
 @file:Suppress("UnstableApiUsage")
 
-include(":utils")
-
-
-include(":androidUtils")
-
-
 pluginManagement {
     repositories {
         google {
@@ -28,5 +22,8 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Ultimate Security"
+
 include(":app")
+include(":utils")
+include(":androidUtils")
  
