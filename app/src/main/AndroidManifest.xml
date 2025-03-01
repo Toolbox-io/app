@@ -35,8 +35,8 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/app_icon_3"
-        android:roundIcon="@mipmap/app_icon_3_round"
+        android:icon="@mipmap/app_icon"
+        android:roundIcon="@mipmap/app_icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.UltimateSecurity"

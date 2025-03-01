@@ -2,7 +2,7 @@
 <resources>
     <style name="Theme.UltimateSecurity.SplashScreen" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#FCF5FD</item>
-        <item name="windowSplashScreenAnimatedIcon">@mipmap/app_icon_3</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/app_icon</item>
         <item name="android:windowSplashScreenBackground">#FCF5FD</item>
         <item name="postSplashScreenTheme">@style/Theme.UltimateSecurity.NoActionBar</item>
     </style>
