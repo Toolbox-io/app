@@ -15,7 +15,6 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -90,7 +89,6 @@ import java.util.zip.ZipOutputStream
 import kotlin.system.exitProcess
 
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
     val c = LocalContext()

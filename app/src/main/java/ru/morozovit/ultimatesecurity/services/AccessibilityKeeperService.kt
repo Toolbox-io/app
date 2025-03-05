@@ -9,18 +9,16 @@ import androidx.core.content.ContextCompat
 import ru.morozovit.ultimatesecurity.App.Companion.ACCESSIBILITY_CHANNEL_ID
 import ru.morozovit.ultimatesecurity.App.Companion.ACCESSIBILITY_NOTIFICATION_ID
 import ru.morozovit.ultimatesecurity.R
+import ru.morozovit.utils.add
 
 class AccessibilityKeeperService: Service() {
     companion object {
         var instance: AccessibilityKeeperService? = null
         private val callbacks = mutableListOf<AccessibilityKeeperService.() -> Unit>()
 
-        fun start(context: Context, callback: AccessibilityKeeperService.() -> Unit) {
+        fun start(context: Context, callback: (AccessibilityKeeperService.() -> Unit)? = null) {
             ContextCompat.startForegroundService(context, Intent(context, AccessibilityKeeperService::class.java))
             callbacks.add(callback)
-        }
-        fun start(context: Context) {
-            ContextCompat.startForegroundService(context, Intent(context, AccessibilityKeeperService::class.java))
         }
     }
 

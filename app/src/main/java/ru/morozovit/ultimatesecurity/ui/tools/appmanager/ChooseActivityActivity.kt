@@ -123,40 +123,38 @@ class ChooseActivityActivity: BaseActivity() {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                 IconButton(
                                     onClick = {
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                            val shortcutManager = getSystemService(ShortcutManager::class)!!
-                                            if (shortcutManager.isRequestPinShortcutSupported) {
-                                                val shortcutInfo = ShortcutInfo.Builder(
-                                                    this@ChooseActivityActivity,
-                                                    "${activity.packageName}:${activity.name}"
+                                        val shortcutManager = getSystemService(ShortcutManager::class)!!
+                                        if (shortcutManager.isRequestPinShortcutSupported) {
+                                            val shortcutInfo = ShortcutInfo.Builder(
+                                                this@ChooseActivityActivity,
+                                                "${activity.packageName}:${activity.name}"
+                                            )
+                                                .setShortLabel(activity.loadLabel(packageManager))
+                                                .setLongLabel(activity.loadLabel(packageManager))
+                                                .setIcon(
+                                                    try {
+                                                        android.graphics.drawable.Icon.createWithAdaptiveBitmap(
+                                                            activity.loadIcon(packageManager).toBitmap()
+                                                        )
+                                                    } catch (e: Exception) {
+                                                        android.graphics.drawable.Icon.createWithBitmap(
+                                                            activity.loadIcon(packageManager).toBitmap()
+                                                        )
+                                                    }
                                                 )
-                                                    .setShortLabel(activity.loadLabel(packageManager))
-                                                    .setLongLabel(activity.loadLabel(packageManager))
-                                                    .setIcon(
-                                                        try {
-                                                            android.graphics.drawable.Icon.createWithAdaptiveBitmap(
-                                                                activity.loadIcon(packageManager).toBitmap()
-                                                            )
-                                                        } catch (e: Exception) {
-                                                            android.graphics.drawable.Icon.createWithBitmap(
-                                                                activity.loadIcon(packageManager).toBitmap()
-                                                            )
-                                                        }
-                                                    )
-                                                    .setIntent(
-                                                        Intent(
-                                                            this@ChooseActivityActivity,
-                                                            IntentActivity::class.java
-                                                        ).apply {
-                                                            val component = ComponentName(activity.packageName, activity.name)
-                                                            putExtra(IntentActivity.EXTRA_PACKAGE_NAME, component.packageName)
-                                                            putExtra(IntentActivity.EXTRA_CLASS_NAME, component.className)
-                                                            action = ACTION_MAIN
-                                                        }
-                                                    )
-                                                    .build()
-                                                shortcutManager.requestPinShortcut(shortcutInfo, null)
-                                            }
+                                                .setIntent(
+                                                    Intent(
+                                                        this@ChooseActivityActivity,
+                                                        IntentActivity::class.java
+                                                    ).apply {
+                                                        val component = ComponentName(activity.packageName, activity.name)
+                                                        putExtra(IntentActivity.EXTRA_PACKAGE_NAME, component.packageName)
+                                                        putExtra(IntentActivity.EXTRA_CLASS_NAME, component.className)
+                                                        action = ACTION_MAIN
+                                                    }
+                                                )
+                                                .build()
+                                            shortcutManager.requestPinShortcut(shortcutInfo, null)
                                         }
                                     }
                                 ) {

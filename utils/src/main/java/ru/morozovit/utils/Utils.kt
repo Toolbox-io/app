@@ -84,3 +84,7 @@ fun String.toCamelCase(): String {
     }
     return "$camelCase"
 }
+
+fun <T> MutableList<T>.add(element: T?): Boolean {
+    return if (element == null) false else add(element)
+}

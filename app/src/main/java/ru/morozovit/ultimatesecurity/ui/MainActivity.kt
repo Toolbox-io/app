@@ -74,7 +74,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -119,8 +119,8 @@ import ru.morozovit.ultimatesecurity.ui.main.AboutScreen
 import ru.morozovit.ultimatesecurity.ui.main.HomeScreen
 import ru.morozovit.ultimatesecurity.ui.main.SettingsScreen
 import ru.morozovit.ultimatesecurity.ui.protection.DontTouchMyPhoneScreen
-import ru.morozovit.ultimatesecurity.ui.protection.applocker.ApplockerScreen
 import ru.morozovit.ultimatesecurity.ui.protection.UnlockProtectionScreen
+import ru.morozovit.ultimatesecurity.ui.protection.applocker.ApplockerScreen
 import ru.morozovit.ultimatesecurity.ui.tools.appmanager.AppManagerScreen
 
 val LocalNavController: ProvidableCompositionLocal<NavController> = compositionLocalOf { throw IllegalStateException("Uninitialized") }
@@ -470,7 +470,7 @@ class MainActivity : BaseActivity(
                             modifier = Modifier.widthIn(
                                 max =
                                     (
-                                        if (360 > LocalConfiguration().screenWidthDp * 0.5)
+                                        if (360 > LocalWindowInfo().containerSize.width * 0.5)
                                             300
                                         else
                                             360
@@ -484,7 +484,7 @@ class MainActivity : BaseActivity(
                 ModalNavigationDrawer(
                     drawerState = drawerState,
                     drawerContent = {
-                        val max0 = LocalConfiguration().screenWidthDp * 0.9
+                        val max0 = LocalWindowInfo().containerSize.width * 0.9
                         val max = when {
                             max0 > 360.0 -> 360.0
                             max0 < 300.0 -> 300.0

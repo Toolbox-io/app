@@ -85,12 +85,6 @@
     <string name="install_package">Install package</string>
     <string name="install_package_d">The new version is ready to be installed. Install?\nPlease note that you will need to grant the \"Install unknown apps\" permission to this app in order to continue.</string>
     <string name="tools">Tools</string>
-    <string name="select_device">Select a device</string>
-    <string name="select_device_d">Select a device that will be used to flash your image</string>
-    <string name="usb_device">USB device</string>
-    <string name="choose_image">Choose an image</string>
-    <string name="choose_image_d">Choose an image to flash to the selected device from your file system</string>
-    <string name="choose">Choose</string>
     <string name="start">Start</string>
     <string name="apkextractor">APK extractor</string>
     <string name="allow_biometric">Allow biometric authentication</string>

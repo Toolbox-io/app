@@ -2,7 +2,6 @@ package ru.morozovit.ultimatesecurity.ui.customization
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,7 +32,6 @@ import ru.morozovit.ultimatesecurity.Settings.Tiles.sleep
 import ru.morozovit.ultimatesecurity.services.tiles.SleepTile
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TilesScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
     WindowInsetsHandler {

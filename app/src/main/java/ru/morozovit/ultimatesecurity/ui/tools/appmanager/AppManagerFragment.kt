@@ -135,7 +135,7 @@ fun AppManagerScreen(actions: @Composable RowScope.() -> Unit, navigation: @Comp
                     val toRemove = mutableListOf<PackageInfo>()
 
                     apps.forEach { app ->
-                        if (app.activities.let { it.isNullOrEmpty() }) {
+                        if (app.activities.isNullOrEmpty()) {
                             toRemove += app
                         }
                     }

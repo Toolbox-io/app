@@ -23,7 +23,6 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -68,6 +67,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -178,7 +178,7 @@ class AuthActivity: BaseActivity(false) {
     }
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-    @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun AuthScreen(mode: Int) {
         AppTheme {
@@ -542,7 +542,7 @@ class AuthActivity: BaseActivity(false) {
 
                     if (
                         config.orientation == Configuration.ORIENTATION_LANDSCAPE &&
-                        config.screenHeightDp < 600
+                        LocalWindowInfo().containerSize.height < 600
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
