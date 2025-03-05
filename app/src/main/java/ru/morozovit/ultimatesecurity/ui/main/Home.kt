@@ -26,7 +26,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.foundation.layout.Row
@@ -109,7 +108,6 @@ import ru.morozovit.utils.MarkdownHeaderParser
 import ru.morozovit.utils.toCamelCase
 import kotlin.reflect.KMutableProperty0
 
-@OptIn(ExperimentalLayoutApi::class)
 private data class NotificationData(
     @StringRes val title: Int,
     @StringRes val message: Int,
@@ -162,7 +160,7 @@ private data class Guide(
 )
 
 @SuppressLint("SetJavaScriptEnabled")
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
     val context = LocalContext() as MainActivity
