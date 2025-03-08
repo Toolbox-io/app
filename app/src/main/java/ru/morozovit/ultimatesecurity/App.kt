@@ -33,7 +33,7 @@ class App : Application() {
         const val IP_FG_SERVICE_NOTIFICATION_ID = 2
 
         const val IP_PHOTO_TAKEN_CHANNEL_ID = "photo_taken"
-        val IP_PHOTO_TAKEN_NOTIFICATION_ID = NotificationIdManager.getAndReserve()
+        val IP_PHOTO_TAKEN_NOTIFICATION_ID get() = NotificationIdManager.getAndReserve()
 
         const val ACCESSIBILITY_CHANNEL_ID = "accessibility"
         const val ACCESSIBILITY_NOTIFICATION_ID = 4
