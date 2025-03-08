@@ -1,5 +1,8 @@
+@file:Suppress("unused")
+
 package ru.morozovit.utils
 
+import java.io.File
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -87,4 +90,36 @@ fun String.toCamelCase(): String {
 
 fun <T> MutableList<T>.add(element: T?): Boolean {
     return if (element == null) false else add(element)
+}
+
+fun Collection<File>.delete(): Boolean {
+    if (isNullOrEmpty()) {
+        return false
+    }
+    var result = true
+    for (file in this) {
+        if (!file.delete()) {
+            result = false
+        }
+    }
+    return result
+}
+
+fun File.safeDelete() = try {
+    delete()
+} catch (e: Exception) {
+    false
+}
+
+fun Collection<File>.safeDelete(): Boolean {
+    if (isNullOrEmpty()) {
+        return false
+    }
+    var result = true
+    for (file in this) {
+        if (!file.safeDelete()) {
+            result = false
+        }
+    }
+    return result
 }

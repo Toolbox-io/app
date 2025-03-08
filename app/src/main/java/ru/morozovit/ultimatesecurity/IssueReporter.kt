@@ -91,6 +91,10 @@ object IssueReporter {
         exitProcess(10)
     }
 
+    init {
+        Thread.setDefaultUncaughtExceptionHandler(DEFAULT_HANDLER)
+    }
+
     @Suppress("NOTHING_TO_INLINE")
     private inline fun startCrashedActivity(exception: Throwable, context: Context) {
         if (enabled) {
@@ -133,7 +137,7 @@ object IssueReporter {
                     Log.d("IssueReporter", "Reporting an issue")
                     val request = URL("https://api.github.com/repos/Toolbox-io/Toolbox-io/issues")
                         .openConnection() as HttpsURLConnection
-                    request.requestMethod = "POST";
+                    request.requestMethod = "POST"
                     request.setRequestProperty("Accept", "application/vnd.github.raw+json")
                     request.setRequestProperty("X-Github-Api-Version", GITHUB_API_VERSION)
                     request.setRequestProperty("Authorization", "Bearer ${App.GITHUB_TOKEN}")
@@ -185,13 +189,13 @@ object IssueReporter {
                         }
                         if (request.responseCode == 201) {
                             val input = BufferedInputStream(request.inputStream)
-                            var c: Char;
+                            var c: Char
 
                             val chars: MutableList<Char> = mutableListOf()
 
                             while (true) {
                                 c = input.read().toChar()
-                                if (c == 0.toChar() || c == '\uFFFF') break;
+                                if (c == 0.toChar() || c == '\uFFFF') break
                                 chars.add(c)
                             }
                             val response = String(chars.toCharArray())
@@ -207,13 +211,13 @@ object IssueReporter {
                         } else {
                             Log.d("IssueReporter", "Error. HTTP response code: ${request.responseCode}")
                             val errorInput = request.errorStream!!
-                            var c: Char;
+                            var c: Char
 
                             val chars: MutableList<Char> = mutableListOf()
 
                             while (true) {
                                 c = errorInput.read().toChar()
-                                if (c == 0.toChar() || c == '\uFFFF') break;
+                                if (c == 0.toChar() || c == '\uFFFF') break
                                 chars.add(c)
                             }
                             val response = String(chars.toCharArray())

@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package ru.morozovit.ultimatesecurity
 
 import android.annotation.SuppressLint
@@ -11,6 +13,7 @@ import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.DynamicColorsOptions
 import ru.morozovit.android.NotificationIdManager
 import ru.morozovit.ultimatesecurity.Settings.materialYouEnabled
+import ru.morozovit.utils.safeDelete
 import java.io.File
 import java.lang.ref.WeakReference
 
@@ -62,18 +65,7 @@ class App : Application() {
         notificationManager.createNotificationChannel(channel)
     }
 
-    override fun onCreate() {
-        super.onCreate()
-
-        // Variables
-        mContext = WeakReference(this)
-        notificationManager =
-            getSystemService(
-                Context.NOTIFICATION_SERVICE
-            ) as NotificationManager
-        Settings.init(this)
-
-        // Migrate settings
+    private inline fun migrateSettings() {
         if (!Settings.migratedFromOldSettings) {
             SettingsV1.init()
             // Passwords
@@ -100,20 +92,17 @@ class App : Application() {
             Settings.migratedFromOldSettings = true
 
             // Delete old settings
-            arrayOf(
+            listOf(
                 File("$dataDir/shared_prefs/main.xml"),
                 File("$dataDir/shared_prefs/applocker.xml"),
                 File("$dataDir/shared_prefs/unlockProtection.xml"),
                 File("$dataDir/shared_prefs/unlockProtection.actions.xml"),
                 File("$dataDir/shared_prefs/tiles.xml")
-            ).forEach {
-                runCatching {
-                    it.delete()
-                }
-            }
+            ).safeDelete()
         }
+    }
 
-        // Material You support for views
+    private inline fun materialYouForViews() {
         if (materialYouEnabled)
             DynamicColors.applyToActivitiesIfAvailable(
                 this,
@@ -124,8 +113,9 @@ class App : Application() {
                     )
                     .build()
             )
+    }
 
-        // Create notification channels
+    private inline fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // Intruder Photo foreground service
             createNotificationChannel(
@@ -159,8 +149,9 @@ class App : Application() {
                 id = ACCESSIBILITY_CHANNEL_ID
             )
         }
+    }
 
-        // Clean up the cache
+    private fun cleanCache() {
         runCatching {
             for (file in cacheDir.listFiles()!!) {
                 runCatching {
@@ -171,8 +162,19 @@ class App : Application() {
                 }
             }
         }
+    }
 
-        // Register exception handler
-        Thread.setDefaultUncaughtExceptionHandler(IssueReporter.DEFAULT_HANDLER)
+    override fun onCreate() {
+        super.onCreate()
+
+        // Variables
+        mContext = WeakReference(this)
+        notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        Settings.init(this)
+
+        migrateSettings()
+        materialYouForViews()
+        createNotificationChannels()
+        cleanCache()
     }
 }
