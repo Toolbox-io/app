@@ -176,5 +176,6 @@ class App : Application() {
         materialYouForViews()
         createNotificationChannels()
         cleanCache()
+        IssueReporter.init()
     }
 }

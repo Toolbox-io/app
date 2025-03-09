@@ -189,4 +189,5 @@
     <string name="no_notifications">No notifications. Have a good day!</string>
     <string name="ycaeuats">You can always enable updates again through settings</string>
     <string name="guides">Guides</string>
+    <string name="fatal_error">The app has encountered a fatal error and shut down.</string>
 </resources>

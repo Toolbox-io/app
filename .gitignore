@@ -18,3 +18,4 @@ local.properties
 /releases
 tmp
 .kotlin
+keystore.properties

@@ -76,7 +76,7 @@ object IssueReporter {
     private var crashes = 0
     private const val CRASHES_LIMIT = 2
 
-    val DEFAULT_HANDLER = { t: Thread, exception: Throwable ->
+    private val DEFAULT_HANDLER = { t: Thread, exception: Throwable ->
         crashes++
         if (crashes > CRASHES_LIMIT) {
             enabled = false
@@ -88,10 +88,17 @@ object IssueReporter {
         startCrashedActivity(exception, context)
     }
     private val DISABLED_HANDLER = { _: Thread, _: Throwable ->
+        runCatching {
+            Toast.makeText(
+                context,
+                R.string.fatal_error,
+                Toast.LENGTH_SHORT
+            )
+        }
         exitProcess(10)
     }
 
-    init {
+    fun init() {
         Thread.setDefaultUncaughtExceptionHandler(DEFAULT_HANDLER)
     }
 

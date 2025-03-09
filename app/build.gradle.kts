@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -18,6 +21,19 @@ android {
         versionName = "2.0"
     }
 
+    signingConfigs {
+        create("release") {
+            val keystoreProperties = Properties().apply {
+                load(FileInputStream(rootProject.file("keystore.properties")))
+            }
+            storeFile = rootProject.file("keys/release.jks")
+            keyAlias = "release"
+            storePassword = keystoreProperties["storePassword"].toString()
+            keyPassword = keystoreProperties["keyPassword"].toString()
+            enableV3Signing = true
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -26,9 +42,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug").apply {
-                enableV3Signing = true
-            }
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
