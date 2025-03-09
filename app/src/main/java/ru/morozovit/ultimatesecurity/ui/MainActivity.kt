@@ -31,12 +31,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Shortcut
 import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.DoNotTouch
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.NotificationsActive
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.PhonelinkLock
 import androidx.compose.material3.DrawerValue
@@ -105,8 +105,8 @@ import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.services.UpdateChecker
 import ru.morozovit.ultimatesecurity.ui.AuthActivity.Companion.started
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.ABOUT
-import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.APP_MANAGER
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.APP_LOCKER
+import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.APP_MANAGER
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.DONT_TOUCH_MY_PHONE
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.HOME
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.NOTIFICATION_HISTORY
@@ -231,7 +231,7 @@ class MainActivity : BaseActivity(
         @Serializable data object Shortcuts: Screen(SHORTCUTS, R.string.shortcuts, Icons.AutoMirrored.Filled.Shortcut)
 
         @Serializable data object AppManager: Screen(APP_MANAGER, R.string.app_manager, Icons.Filled.Apps)
-        @Serializable data object DontTouchMyPhone: Screen(DONT_TOUCH_MY_PHONE, R.string.dont_touch_my_phone, Icons.Filled.Phone)
+        @Serializable data object DontTouchMyPhone: Screen(DONT_TOUCH_MY_PHONE, R.string.dont_touch_my_phone, Icons.Filled.DoNotTouch)
         @Serializable data object NotificationHistory: Screen(
             NOTIFICATION_HISTORY,
             R.string.notification_history,

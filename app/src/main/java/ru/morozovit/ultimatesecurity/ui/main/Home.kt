@@ -80,6 +80,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.core.os.postDelayed
 import kotlinx.coroutines.launch
 import ru.morozovit.android.async
@@ -672,17 +673,7 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                 // Guides
                 Category(title = stringResource(R.string.guides)) {
                     val guides = remember { mutableStateListOf<Guide>() }
-//                    val sheetState = rememberModalBottomSheetState()
-//                    var showBottomSheet by remember { mutableStateOf(false) }
                     var uri: Uri? by remember { mutableStateOf(null) }
-
-                    /*fun hideBottomSheet() {
-                        coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
-                            if (!sheetState.isVisible) {
-                                showBottomSheet = false
-                            }
-                        }
-                    }*/
 
                     LaunchedEffect(Unit) {
                         async {
@@ -715,10 +706,7 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
 
                                         val name = name0.replace("\\.md$".toRegex(), "")
                                         val title = if (header != null) header["DisplayName"] as String else name
-                                        val htmlFile =
-                                            Uri.parse(
-                                                "https://toolbox-io.ru/guides/${name.lowercase()}_raw.html"
-                                            )
+                                        val htmlFile = "https://toolbox-io.ru/guides/${name.lowercase()}_raw.html".toUri()
 
                                         val icon = try {
                                             val iconName = (header!!["Icon"] as String)
@@ -759,7 +747,6 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
 
                         val onClick = {
                             uri = guide.htmlFile
-//                            showBottomSheet = true
                             context.startActivity(
                                 Intent(context, GuideActivity::class.java).apply {
                                     data = uri
@@ -794,46 +781,6 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                             )
                         }
                     }
-
-                    /*if (showBottomSheet) {
-                        ModalBottomSheet(
-                            onDismissRequest = {
-                                showBottomSheet = false
-                            },
-                            sheetState = sheetState
-                        ) {
-                            LazyVerticalGrid(columns = GridCells.Fixed(1)) {
-                                item(span = { GridItemSpan(1) }) {
-                                    AndroidView(
-                                        factory = {
-                                            WebView(it).apply {
-                                                layoutParams = ViewGroup.LayoutParams(
-                                                    ViewGroup.LayoutParams.MATCH_PARENT,
-                                                    ViewGroup.LayoutParams.WRAP_CONTENT
-                                                )
-                                                webViewClient = object : WebViewClient() {
-                                                    override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-                                                        if (request.url != uri) {
-                                                            context.openUrl(request.url)
-                                                            return true
-                                                        } else {
-                                                            return false
-                                                        }
-                                                    }
-                                                }
-                                                settings.javaScriptEnabled = true
-                                                settings.useWideViewPort = true
-                                                loadUrl(uri.toString())
-                                            }
-                                        },
-                                        update = {
-                                            it.loadUrl(uri.toString())
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    }*/
                 }
             }
         }
