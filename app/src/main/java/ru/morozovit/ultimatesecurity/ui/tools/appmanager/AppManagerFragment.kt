@@ -159,7 +159,7 @@ fun AppManagerScreen(actions: @Composable RowScope.() -> Unit, navigation: @Comp
                             TopAppBar(
                                 title = {
                                     Text(
-                                        stringResource(R.string.apkextractor),
+                                        stringResource(R.string.app_manager),
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
