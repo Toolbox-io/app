@@ -54,13 +54,13 @@ fun DontTouchMyPhoneScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValue
 
                 var touched by remember { mutableStateOf(false) }
                 var started by remember { mutableStateOf(false) }
-                var accelerometerListener: SensorEventListener? = null
-                var orientationListener: SensorEventListener? = null
+                var accelerometerListener: SensorEventListener?
+                var orientationListener: SensorEventListener?
 
                 var currentRoll by remember { mutableFloatStateOf(0f) }
                 var currentPitch by remember { mutableFloatStateOf(0f) }
 
-                LaunchedEffect(Unit) {
+                DisposableEffect(Unit) {
                     var lastData = Pair(0f, 0f)
 
                     accelerometerListener = SensorEventListener { event ->
@@ -85,9 +85,9 @@ fun DontTouchMyPhoneScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValue
 
                         if (
                             (
-                                pitchTest >= 0.01 ||
-                                rollTest >= 0.01
-                            ) && started
+                                    pitchTest >= 0.01 ||
+                                            rollTest >= 0.01
+                                    ) && started
                         ) {
                             touched = true
                         }
@@ -121,9 +121,7 @@ fun DontTouchMyPhoneScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValue
                         sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
                         orientationListener!!
                     )
-                }
 
-                DisposableEffect(Unit) {
                     onDispose {
                         sensorManager?.unregisterListener(accelerometerListener)
                         sensorManager?.unregisterListener(orientationListener)

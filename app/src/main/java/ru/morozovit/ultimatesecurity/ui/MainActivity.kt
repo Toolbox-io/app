@@ -330,12 +330,12 @@ class MainActivity : BaseActivity(
                         Screen.Label(R.string.security),
                         Screen.AppLocker,
                         Screen.UnlockProtection,
+                        Screen.DontTouchMyPhone,
                         Screen.Label(R.string.customization),
                         Screen.Tiles,
                         Screen.Shortcuts,
                         Screen.Label(R.string.tools),
-                        Screen.APKExtractor,
-                        Screen.DontTouchMyPhone
+                        Screen.APKExtractor
                     )
                     items.forEach { item ->
                         when (item) {
