@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.UltimateSecurity.SplashScreen" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">#FCF5FD</item>
+        <item name="windowSplashScreenBackground">#FFFFF8F6</item>
         <item name="windowSplashScreenAnimatedIcon">@mipmap/app_icon</item>
-        <item name="android:windowSplashScreenBackground">#FCF5FD</item>
+        <item name="android:windowSplashScreenBackground">#FFFFF8F6</item>
         <item name="postSplashScreenTheme">@style/Theme.UltimateSecurity.NoActionBar</item>
     </style>
 </resources>

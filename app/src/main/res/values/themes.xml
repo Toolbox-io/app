@@ -22,7 +22,7 @@
     </style>
 
     <style name="Theme.UltimateSecurity.SplashScreen" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">#FCF5FD</item>
+        <item name="windowSplashScreenBackground">#FFFFF8F6</item>
         <item name="windowSplashScreenAnimatedIcon">@mipmap/app_icon</item>
         <!-- <item name="android:windowSplashScreenBackground">#FCF5FD / #141218</item> | api 31 -->
         <item name="postSplashScreenTheme">@style/Theme.UltimateSecurity.NoActionBar</item>
