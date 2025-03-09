@@ -30,12 +30,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Shortcut
-import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.PhonelinkLock
@@ -105,10 +105,11 @@ import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.services.UpdateChecker
 import ru.morozovit.ultimatesecurity.ui.AuthActivity.Companion.started
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.ABOUT
-import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.APK_EXTRACTOR
+import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.APP_MANAGER
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.APP_LOCKER
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.DONT_TOUCH_MY_PHONE
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.HOME
+import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.NOTIFICATION_HISTORY
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.SETTINGS
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.SHORTCUTS
 import ru.morozovit.ultimatesecurity.ui.MainActivity.Screen.Companion.TILES
@@ -122,6 +123,7 @@ import ru.morozovit.ultimatesecurity.ui.protection.DontTouchMyPhoneScreen
 import ru.morozovit.ultimatesecurity.ui.protection.UnlockProtectionScreen
 import ru.morozovit.ultimatesecurity.ui.protection.applocker.ApplockerScreen
 import ru.morozovit.ultimatesecurity.ui.tools.appmanager.AppManagerScreen
+import ru.morozovit.ultimatesecurity.ui.tools.notificationhistory.NotificationHistoryScreen
 
 val LocalNavController: ProvidableCompositionLocal<NavController> = compositionLocalOf { throw IllegalStateException("Uninitialized") }
 
@@ -188,8 +190,9 @@ class MainActivity : BaseActivity(
                 UNLOCK_PROTECTION -> UnlockProtection
                 TILES -> Tiles
                 SHORTCUTS -> Shortcuts
-                APK_EXTRACTOR -> APKExtractor
+                APP_MANAGER -> AppManager
                 DONT_TOUCH_MY_PHONE -> DontTouchMyPhone
+                NOTIFICATION_HISTORY -> NotificationHistory
                 else -> {
                     Log.e("MainActivity", "Unknown screen index: $name")
                     null
@@ -206,8 +209,9 @@ class MainActivity : BaseActivity(
             const val TILES = "tiles"
             const val SHORTCUTS = "shortcuts"
 
-            const val APK_EXTRACTOR = "apkExtractor"
+            const val APP_MANAGER = "appManager"
             const val DONT_TOUCH_MY_PHONE = "dontTouchMyPhone"
+            const val NOTIFICATION_HISTORY = "notificationHistory"
         }
 
         override fun equals(other: Any?) = other is Screen && displayName == other.displayName
@@ -226,8 +230,13 @@ class MainActivity : BaseActivity(
         @Serializable data object Tiles: Screen(TILES, R.string.tiles, Icons.Filled.Apps)
         @Serializable data object Shortcuts: Screen(SHORTCUTS, R.string.shortcuts, Icons.AutoMirrored.Filled.Shortcut)
 
-        @Serializable data object APKExtractor: Screen(APK_EXTRACTOR, R.string.apkextractor, Icons.Filled.Android)
+        @Serializable data object AppManager: Screen(APP_MANAGER, R.string.app_manager, Icons.Filled.Apps)
         @Serializable data object DontTouchMyPhone: Screen(DONT_TOUCH_MY_PHONE, R.string.dont_touch_my_phone, Icons.Filled.Phone)
+        @Serializable data object NotificationHistory: Screen(
+            NOTIFICATION_HISTORY,
+            R.string.notification_history,
+            Icons.Filled.NotificationsActive
+        )
     }
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -335,7 +344,8 @@ class MainActivity : BaseActivity(
                         Screen.Tiles,
                         Screen.Shortcuts,
                         Screen.Label(R.string.tools),
-                        Screen.APKExtractor
+                        Screen.AppManager,
+                        Screen.NotificationHistory
                     )
                     items.forEach { item ->
                         when (item) {
@@ -454,8 +464,21 @@ class MainActivity : BaseActivity(
                         composable(route = TILES) { TilesScreen(EdgeToEdgeBar) }
                         composable(route = SHORTCUTS) { ShortcutsScreen(EdgeToEdgeBar) }
 
-                        composable(route = APK_EXTRACTOR) { AppManagerScreen(actions, navigation, TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())) }
+                        composable(route = APP_MANAGER) {
+                            AppManagerScreen(
+                                actions,
+                                navigation,
+                                TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+                            )
+                        }
                         composable(route = DONT_TOUCH_MY_PHONE) { DontTouchMyPhoneScreen(EdgeToEdgeBar) }
+                        composable(route = NOTIFICATION_HISTORY) {
+                            NotificationHistoryScreen(
+                                actions,
+                                navigation,
+                                TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+                            )
+                        }
                     }
                 }
             }

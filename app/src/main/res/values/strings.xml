@@ -190,4 +190,6 @@
     <string name="ycaeuats">You can always enable updates again through settings</string>
     <string name="guides">Guides</string>
     <string name="fatal_error">The app has encountered a fatal error and shut down.</string>
+    <string name="notification_history">Notification history</string>
+    <string name="app_manager">App manager\n</string>
 </resources>
