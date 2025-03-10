@@ -1,4 +1,4 @@
-package ru.morozovit.android
+package io.toolbox.services
 
 import android.Manifest
 import android.content.Context
@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
-import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
@@ -14,7 +13,6 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
 import android.media.Image
 import android.media.ImageReader
-import android.media.ImageReader.OnImageAvailableListener
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
@@ -23,6 +21,7 @@ import android.util.Size
 import androidx.core.content.ContextCompat
 import androidx.core.os.postDelayed
 import androidx.documentfile.provider.DocumentFile
+import io.toolbox.Settings
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -70,13 +69,15 @@ class CameraController(val context: Context) {
         }
     }
     private val mOnImageAvailableListener =
-        OnImageAvailableListener { reader ->
+        ImageReader.OnImageAvailableListener { reader ->
             Log.d(TAG, "ImageAvailable")
-            backgroundHandler!!.post(when (file) {
-                is File -> ImageSaver(reader.acquireNextImage(), file = file as File)
-                is DocumentFile -> ImageSaver(reader.acquireNextImage(), documentFile = file as DocumentFile)
-                else -> throw IllegalStateException()
-            })
+            backgroundHandler!!.post(
+                when (file) {
+                    is File -> ImageSaver(reader.acquireNextImage(), file = file as File)
+                    is DocumentFile -> ImageSaver(reader.acquireNextImage(), documentFile = file as DocumentFile)
+                    else -> throw IllegalStateException()
+                }
+            )
             waitingForImage = false
         }
 
@@ -100,15 +101,14 @@ class CameraController(val context: Context) {
         } catch (e: CameraAccessException) {
             e.printStackTrace()
             return false
-        } catch (e: InterruptedException) {
+        } catch (_: InterruptedException) {
             return false
         }
         return true
     }
 
     private fun setUpCameraOutputs() {
-        val manager =
-            context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val manager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
             for (cameraId in manager.cameraIdList) {
                 val characteristics = manager.getCameraCharacteristics(cameraId)
@@ -256,7 +256,7 @@ class CameraController(val context: Context) {
                 CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
             )
 
-            val captureCallback: CaptureCallback = object : CaptureCallback() {
+            val captureCallback: CameraCaptureSession.CaptureCallback = object : CameraCaptureSession.CaptureCallback() {
                 override fun onCaptureCompleted(
                     session: CameraCaptureSession,
                     request: CaptureRequest,
@@ -315,7 +315,13 @@ class CameraController(val context: Context) {
                             .openOutputStream(
                                 documentFile!!.uri
                             )!!
-                output.write(bytes)
+                if (Settings.Developer.replacePhotosWithIntruder) {
+                    context.assets.open("intruder.png").use { inputStream ->
+                        inputStream.copyTo(output)
+                    }
+                } else {
+                    output.write(bytes)
+                }
             } catch (e: IOException) {
                 e.printStackTrace()
             } finally {

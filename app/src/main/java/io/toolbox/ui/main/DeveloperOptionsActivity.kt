@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material.icons.filled.Screenshot
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -23,16 +24,23 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.toolbox.BaseActivity
+import io.toolbox.BuildConfig
 import io.toolbox.R
+import io.toolbox.Settings
 import io.toolbox.ui.AppTheme
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
+import ru.morozovit.android.ui.SwitchListItem
 
 class DeveloperOptionsActivity: BaseActivity(authEnabled = false) {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -71,6 +79,16 @@ class DeveloperOptionsActivity: BaseActivity(authEnabled = false) {
                         .verticalScroll(rememberScrollState())
                 ) {
                     Category {
+                        var replacePhotosWithIntruderSwitch by remember {
+                            mutableStateOf(
+                                Settings.Developer.replacePhotosWithIntruder
+                            )
+                        }
+                        val replacePhotosWithIntruderOnCheckedChange: (Boolean) -> Unit = {
+                            replacePhotosWithIntruderSwitch = it
+                            Settings.Developer.replacePhotosWithIntruder = it
+                        }
+
                         ListItem(
                             headline = "Crash the app",
                             supportingText = "Forcefully crash the app to test crash reports",
@@ -102,7 +120,23 @@ class DeveloperOptionsActivity: BaseActivity(authEnabled = false) {
                                 startActivity(
                                     Intent(this@DeveloperOptionsActivity, GreenScreenActivity::class.java)
                                 )
-                            }
+                            },
+                            divider = true,
+                            dividerThickness = 2.dp,
+                            dividerColor = MaterialTheme.colorScheme.surface
+                        )
+                        SwitchListItem(
+                            headline = "Replace photos with intruder photos",
+                            supportingText = "All photos will be replaced with intruders",
+                            checked = replacePhotosWithIntruderSwitch,
+                            onCheckedChange = replacePhotosWithIntruderOnCheckedChange,
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.Photo,
+                                    contentDescription = null
+                                )
+                            },
+                            enabled = BuildConfig.DEBUG
                         )
                     }
                 }

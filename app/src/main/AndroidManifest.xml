@@ -68,42 +68,38 @@
         <activity android:name=".ui.main.GreenScreenActivity" />
 
         <activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.applocker.SelectAppsActivity"
+            android:name=".ui.protection.applocker.SelectAppsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.applocker.FakeCrashActivity"
+            android:name=".ui.protection.applocker.FakeCrashActivity"
             android:excludeFromRecents="true"
             android:theme="@style/Theme.FakeCrash"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode" />
         <activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.applocker.PasswordInputActivity"
+            android:name=".ui.protection.applocker.PasswordInputActivity"
             android:excludeFromRecents="true"
             android:theme="@style/Theme.FakeCrash"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
             android:exported="false" />
         <activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.actions.ActionsActivity"
+            android:name=".ui.protection.actions.ActionsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.actions.AlarmSettingsActivity"
+            android:name=".ui.protection.actions.AlarmSettingsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.actions.intruderphoto.IntruderPhotoSettingsActivity"
+            android:name=".ui.protection.actions.intruderphoto.IntruderPhotoSettingsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
-        <!--<activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoActivity"
-            android:theme="@style/Theme.UltimateSecurity.ImageViewer"
-            android:configChanges="orientation|keyboardHidden|screenSize" />-->
         <activity
             android:name=".ui.AuthActivity"
             android:theme="@style/Theme.UltimateSecurity.SplashScreen"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode" />
         <service
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.actions.intruderphoto.IntruderPhotoService"
+            android:name=".ui.protection.actions.intruderphoto.IntruderPhotoService"
             android:exported="false"
             android:foregroundServiceType="camera" />
         <activity
@@ -154,7 +150,7 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="ru.morozovit.ultimatesecurity.UpdateChecker.START" />
+                <action android:name="io.toolbox.UpdateChecker.START" />
                 <action android:name="android.intent.action.PACKAGE_REPLACED" />
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
             </intent-filter>

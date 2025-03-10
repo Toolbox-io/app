@@ -19,8 +19,8 @@ import io.toolbox.App.Companion.IP_FG_SERVICE_NOTIFICATION_ID
 import io.toolbox.App.Companion.IP_PHOTO_TAKEN_CHANNEL_ID
 import io.toolbox.R
 import io.toolbox.Settings
+import io.toolbox.services.CameraController
 import io.toolbox.services.DeviceAdmin.Companion.intruderPhotoNotifications
-import ru.morozovit.android.CameraController
 import ru.morozovit.android.async
 import ru.morozovit.android.isScreenLocked
 import ru.morozovit.android.notifyIfAllowed

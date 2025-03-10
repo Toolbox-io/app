@@ -8,16 +8,14 @@ import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.AudioManager.STREAM_ALARM
 import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Build
 import android.util.Log
+import androidx.core.net.toUri
 import io.toolbox.services.Accessibility
 import io.toolbox.ui.Theme
-import io.toolbox.ui.protection.actions.intruderphoto.IntruderPhotoService
+import io.toolbox.ui.protection.actions.intruderphoto.IntruderPhotoService.Companion.takePhoto
 import ru.morozovit.android.decrypt
 import ru.morozovit.android.encrypt
-import io.toolbox.R
-import io.toolbox.ui.protection.actions.intruderphoto.IntruderPhotoService.Companion.takePhoto
 import java.io.IOException
 import kotlin.random.Random
 
@@ -33,6 +31,7 @@ object Settings {
     const val UNLOCK_PROTECTION_LABEL = "gewbnewrnh"
     const val TILES_LABEL = "ehnbgedkjhn"
     const val NOTIFICATIONS_LABEL = "notificationTypes"
+    const val DEVELOPER_LABEL = "developer"
 
     const val ALLOW_BIOMETRIC_LABEL = "erjgeskh"
     const val APPLOCKER_RANDOM_KEY_LABEL = "ejn"
@@ -55,8 +54,8 @@ object Settings {
     const val UNLOCK_ATTEMPTS_LABEL = "gewrnwh"
     const val FG_SERVICE_ENABLED_LABEL = "hbjnwsokehgr"
     const val SLEEP_LABEL = "hbgewsrjkhn"
-    const val MIGRATED_LABEL = "wgjkgnbjkghnw"
     const val USED_LABEL = "jtesnhjsertjsr"
+    const val REPLACE_PHOTOS_WITH_INTRUDER_LABEL = "replacePhotosWithIntruder"
 
     fun init(context: Context) {
         if (!init) {
@@ -67,6 +66,7 @@ object Settings {
             UnlockProtection.init(context)
             Tiles.init(context)
             Notifications.init(context)
+            Developer.init(context)
             init = true
         }
     }
@@ -114,15 +114,6 @@ object Settings {
         set(value) {
             with(global_sharedPref.edit()) {
                 putInt(APP_THEME_LABEL, value.ordinal)
-                apply()
-            }
-        }
-
-    var migratedFromOldSettings
-        get() = global_sharedPref.getBoolean(MIGRATED_LABEL, false)
-        set(value) {
-            with(global_sharedPref.edit()) {
-                putBoolean(MIGRATED_LABEL, value)
                 apply()
             }
         }
@@ -209,8 +200,8 @@ object Settings {
                         )
                     } else {
                         try {
-                            setDataSource(context, Uri.parse(UnlockProtection.Alarm.current))
-                        } catch (e: IOException) {
+                            setDataSource(context, UnlockProtection.Alarm.current.toUri())
+                        } catch (_: IOException) {
                             Log.w("DeviceAdmin", "Invalid custom alarm URI, falling back to default")
                             UnlockProtection.Alarm.current = ""
                             val afd: AssetFileDescriptor =
@@ -227,7 +218,7 @@ object Settings {
 
                     Thread {
                         while (mediaPlayer.isPlaying) {
-                            audioManager.setStreamVolume(STREAM_ALARM, audioManager.getStreamMaxVolume(STREAM_ALARM), 0);
+                            audioManager.setStreamVolume(STREAM_ALARM, audioManager.getStreamMaxVolume(STREAM_ALARM), 0)
                             Thread.sleep(100)
                         }
                     }.start()
@@ -304,7 +295,7 @@ object Settings {
                 }
                 val decryptedPassword = try {
                     encryptedPassword.decrypt(password)
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     null
                 }
                 return decryptedPassword != null && decryptedPassword == randomKey
@@ -352,7 +343,7 @@ object Settings {
                 }
                 val decryptedPassword = try {
                     encryptedPassword.decrypt(password)
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     null
                 }
                 return decryptedPassword != null && decryptedPassword == randomKey
@@ -514,5 +505,27 @@ object Settings {
                 apply()
             }
         }
+    }
+
+    object Developer {
+        private lateinit var developer_sharedPref: SharedPreferences
+        private var init = false
+
+        fun init(context: Context) {
+            if (!init) {
+                developer_sharedPref =
+                    context.getSharedPreferences(DEVELOPER_LABEL, Context.MODE_PRIVATE)
+                init = true
+            }
+        }
+
+        var replacePhotosWithIntruder
+            get() = developer_sharedPref.getBoolean(REPLACE_PHOTOS_WITH_INTRUDER_LABEL, false)
+            set(value) {
+                with(developer_sharedPref.edit()) {
+                    putBoolean(REPLACE_PHOTOS_WITH_INTRUDER_LABEL, value)
+                    apply()
+                }
+            }
     }
 }
