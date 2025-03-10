@@ -630,7 +630,7 @@ inline fun SensorEventListener(crossinline callback: (SensorEvent) -> Unit) = ob
 
 inline val Context.isScreenLocked get() = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isKeyguardLocked
 
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("MemberVisibilityCanBePrivate", "unused")
 class NotificationIdManager(vararg reservedIds: Int) {
     private val reserved = reservedIds.toMutableList()
 

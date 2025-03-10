@@ -84,7 +84,6 @@
     <string name="install_package_d">Новая версия готова к установке. Установить?\nВам будет необходимо предоставить разрешение "Установка из неизвестных источников", чтобы продолжить.</string>
     <string name="tools">Инструменты</string>
     <string name="start">Начать</string>
-    <string name="apkextractor">Извлечение APK</string>
     <string name="allow_biometric">Разрешить разблокировку по биометрии</string>
     <string name="allow_biometric_d">Разрежить разблокировку этого приложения с помощью отпечатка пальца или лица.</string>
     <string name="biometric">Разблокировка по биометрии</string>
@@ -186,4 +185,7 @@
     <string name="no_notifications">Нет уведомлений. Хорошего дня!</string>
     <string name="ycaeuats">Вы всегда можете включить обновления снова в настройках</string>
     <string name="guides">Гайды</string>
+    <string name="fatal_error">В приложении произошла критическая ошибка и оно остановилось.</string>
+    <string name="notification_history">История уведомлений</string>
+    <string name="app_manager">Менеджер приложений</string>
 </resources>

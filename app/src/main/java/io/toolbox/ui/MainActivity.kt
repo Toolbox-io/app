@@ -85,7 +85,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import io.toolbox.App
 import io.toolbox.App.Companion.authenticated
 import io.toolbox.BaseActivity
 import io.toolbox.R
@@ -247,7 +246,7 @@ class MainActivity : BaseActivity(
         AppTheme(consumeLeftInsets = true, consumeRightInsets = true) {
             val drawerState = rememberDrawerState(DrawerValue.Closed)
             val scope = rememberCoroutineScope()
-            var selectedItem by rememberSaveable { mutableStateOf(Screen.HOME) }
+            var selectedItem by rememberSaveable { mutableStateOf(HOME) }
             val navController = rememberNavController()
 
             val currentEntry = navController.currentBackStackEntryAsState()

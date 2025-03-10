@@ -148,7 +148,7 @@ object IssueReporter {
                     request.requestMethod = "POST"
                     request.setRequestProperty("Accept", "application/vnd.github.raw+json")
                     request.setRequestProperty("X-Github-Api-Version", GITHUB_API_VERSION)
-                    request.setRequestProperty("Authorization", "Bearer ${GITHUB_TOKEN}")
+                    request.setRequestProperty("Authorization", "Bearer $GITHUB_TOKEN")
 
                     try {
                         request.connect()

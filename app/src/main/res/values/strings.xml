@@ -86,7 +86,6 @@
     <string name="install_package_d">The new version is ready to be installed. Install?\nPlease note that you will need to grant the \"Install unknown apps\" permission to this app in order to continue.</string>
     <string name="tools">Tools</string>
     <string name="start">Start</string>
-    <string name="apkextractor">APK extractor</string>
     <string name="allow_biometric">Allow biometric authentication</string>
     <string name="allow_biometric_d">Allow unlocking this app with a fingerprint or your face.</string>
     <string name="biometric">Biometrical authentication</string>

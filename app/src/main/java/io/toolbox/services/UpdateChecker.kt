@@ -27,7 +27,6 @@ import androidx.core.content.FileProvider
 import androidx.core.os.postDelayed
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
-import io.toolbox.App
 import io.toolbox.App.Companion.GITHUB_API_VERSION
 import io.toolbox.App.Companion.GITHUB_TOKEN
 import io.toolbox.App.Companion.UPDATE_CHANNEL_ID
@@ -149,29 +148,29 @@ class UpdateChecker: JobService() {
                 Log.d("UpdateChecker", "Checking for updates")
                 val request = URL("https://api.github.com/repos/Toolbox-io/Toolbox-io/releases")
                     .openConnection() as HttpsURLConnection
-                request.requestMethod = "GET";
+                request.requestMethod = "GET"
                 request.setRequestProperty("Accept", "application/vnd.github+json")
                 request.setRequestProperty("X-Github-Api-Version", GITHUB_API_VERSION)
-                request.setRequestProperty("Authorization", "Bearer ${GITHUB_TOKEN}")
+                request.setRequestProperty("Authorization", "Bearer $GITHUB_TOKEN")
 
                 try {
                     request.connect()
                     if (request.responseCode == HttpsURLConnection.HTTP_OK) {
                         val input = BufferedInputStream(request.inputStream)
-                        var c: Char;
+                        var c: Char
 
                         val chars: MutableList<Char> = mutableListOf()
 
                         while (true) {
                             c = input.read().toChar()
-                            if (c == 0.toChar() || c == '\uFFFF') break;
+                            if (c == 0.toChar() || c == '\uFFFF') break
                             chars.add(c)
                         }
                         val response = String(chars.toCharArray())
                         val parsedResponse = JsonParser.parseString(response) as JsonArray
 
                         val latestRelease = parsedResponse[0].asJsonObject
-                        val name = latestRelease["name"].asString;
+                        val name = latestRelease["name"].asString
                         val description = latestRelease["body"].asString
 
                         val asset = latestRelease["assets"].asJsonArray[0].asJsonObject["browser_download_url"].asString
@@ -225,13 +224,13 @@ class UpdateChecker: JobService() {
                     } else {
                         Log.d("UpdateChecker", "Error. HTTP response code: ${request.responseCode}")
                         val errorInput = request.errorStream!!
-                        var c: Char;
+                        var c: Char
 
                         val chars: MutableList<Char> = mutableListOf()
 
                         while (true) {
                             c = errorInput.read().toChar()
-                            if (c == 0.toChar() || c == '\uFFFF') break;
+                            if (c == 0.toChar() || c == '\uFFFF') break
                             chars.add(c)
                         }
                         val response = String(chars.toCharArray())
