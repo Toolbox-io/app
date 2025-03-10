@@ -33,6 +33,7 @@ import com.google.gson.JsonParser
 import ru.morozovit.android.JobIdManager
 import ru.morozovit.android.NoParallelExecutor
 import ru.morozovit.android.SimpleAsyncTask
+import ru.morozovit.android.notifyIfAllowed
 import ru.morozovit.android.ui.DialogActivity
 import ru.morozovit.ultimatesecurity.App
 import ru.morozovit.ultimatesecurity.App.Companion.GITHUB_API_VERSION
@@ -270,15 +271,10 @@ class UpdateChecker: JobService() {
                         .setPriority(PRIORITY_DEFAULT)
                         .setSilent(true)
                         .setOngoing(false)
-                    with(NotificationManagerCompat.from(App.context)) notification@ {
-                        if (ActivityCompat.checkSelfPermission(
-                                App.context,
-                                Manifest.permission.POST_NOTIFICATIONS
-                            ) != PackageManager.PERMISSION_GRANTED
-                        ) return@notification
-
-                        notify(UPDATE_NOTIFICATION_ID, builder.build())
-                    }
+                    App.context.notifyIfAllowed(
+                        UPDATE_NOTIFICATION_ID,
+                        builder.build()
+                    )
                 }
 
                 override fun doInBackground(vararg params: String?) {
@@ -337,13 +333,7 @@ class UpdateChecker: JobService() {
                     builder.setProgress(100, progress[0].toInt(), false)
                         .setSilent(true)
                         .setOngoing(true)
-                    if (ActivityCompat.checkSelfPermission(
-                            App.context,
-                            Manifest.permission.POST_NOTIFICATIONS
-                        ) != PackageManager.PERMISSION_GRANTED
-                    ) return
-
-                    NotificationManagerCompat.from(App.context).notify(
+                    App.context.notifyIfAllowed(
                         UPDATE_NOTIFICATION_ID, builder.build()
                     )
                 }
@@ -383,14 +373,8 @@ class UpdateChecker: JobService() {
                             .setSilent(false)
                             .setOngoing(false)
 
-                        if (ActivityCompat.checkSelfPermission(
-                                this,
-                                Manifest.permission.POST_NOTIFICATIONS
-                            ) != PackageManager.PERMISSION_GRANTED
-                        ) return
-
                         Handler(Looper.getMainLooper()).postDelayed(1000) {
-                            NotificationManagerCompat.from(this).notify(
+                            notifyIfAllowed(
                                 UPDATE_NOTIFICATION_ID, builder.build()
                             )
                         }
@@ -461,22 +445,18 @@ class UpdateChecker: JobService() {
                     .addAction(R.drawable.primitive_icon, "Download", downloadPendingIntent)
                     .setAutoCancel(true)
 
-                with(NotificationManagerCompat.from(App.context)) notification@{
-                    if (ActivityCompat.checkSelfPermission(
-                            App.context,
-                            Manifest.permission.POST_NOTIFICATIONS
-                        ) != PackageManager.PERMISSION_GRANTED
-                    ) return@notification
 
-                    // notificationId is a unique int for each notification that you must define.
-                    notify(UPDATE_NOTIFICATION_ID, builder.build())
-                }
+                // notificationId is a unique int for each notification that you must define.
+                notifyIfAllowed(UPDATE_NOTIFICATION_ID, builder.build())
                 prevInfo = info
             } else {
-                Log.d("UpdateChecker", "Conditions are not met. (info != null) = ${info != null}," +
+                Log.d(
+                    "UpdateChecker",
+                    "Conditions are not met. (info != null) = ${info != null}," +
                         " (info.available) = ${info?.available}, (info != prevInfo) = ${info !=
                                 prevInfo
-                        } ")
+                        } "
+                )
             }
         }
 

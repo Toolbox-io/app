@@ -1,8 +1,10 @@
 @file:Suppress( "NOTHING_TO_INLINE", "SameParameterValue")
 package ru.morozovit.android
 
+import android.Manifest
 import android.app.Activity
 import android.app.KeyguardManager
+import android.app.Notification
 import android.content.ComponentName
 import android.content.ContentResolver
 import android.content.Context
@@ -66,7 +68,9 @@ import androidx.constraintlayout.compose.ConstrainedLayoutReference
 import androidx.constraintlayout.compose.ConstraintLayoutBaseScope
 import androidx.constraintlayout.compose.HorizontalAnchorable
 import androidx.constraintlayout.compose.VerticalAnchorable
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.window.core.layout.WindowHeightSizeClass
@@ -131,9 +135,7 @@ inline fun View.addOneTimeOnPreDrawListener(crossinline listener: () -> Boolean)
 }
 
 fun Context.launchFiles(): Boolean {
-    val primaryStorageUri = Uri.parse(
-        "content://com.android.externalstorage.documents/root/primary"
-    )
+    val primaryStorageUri = "content://com.android.externalstorage.documents/root/primary".toUri()
 
     fun launchIntentWithComponent(action: String, componentName: ComponentName? = null): Boolean {
         val intent = Intent(action, primaryStorageUri)
@@ -502,22 +504,20 @@ fun ContentScale.asAndroidScaleType(): ScaleType? {
     }
 }
 
-fun Context.openUrl(url: Uri) {
+inline fun Context.openUrl(url: Uri) {
     startActivity(Intent(Intent.ACTION_VIEW, url))
 }
 
-fun Context.openUrl(url: String) {
+inline fun Context.openUrl(url: String) {
     openUrl(
-        Uri.parse(
-            url.let {
-                val regex = "^[\\w-_]://".toRegex()
-                var th = it
-                if (!regex.containsMatchIn(th)) {
-                    th = "https://$th"
-                }
-                th
+        url.let {
+            val regex = "^[\\w-_]://".toRegex()
+            var th = it
+            if (!regex.containsMatchIn(th)) {
+                th = "https://$th"
             }
-        )
+            th
+        }.toUri()
     )
 }
 
@@ -817,3 +817,19 @@ typealias WidthSizeClass = WindowWidthSizeClass
 typealias HeightSizeClass = WindowHeightSizeClass
 @Suppress("unused")
 typealias SizeClass = WindowSizeClass
+
+inline fun Context.notifyIfAllowed(
+    id: Int,
+    notification: Notification
+) {
+    with (NotificationManagerCompat.from(this)) {
+        if (
+            checkSelfPermission(
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return@with
+        }
+        notify(id, notification)
+    }
+}

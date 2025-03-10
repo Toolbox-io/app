@@ -1,24 +1,23 @@
 package ru.morozovit.ultimatesecurity.ui.protection.actions.intruderphoto
 
-import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.PRIORITY_LOW
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.toBitmap
 import ru.morozovit.android.CameraController
 import ru.morozovit.android.async
 import ru.morozovit.android.isScreenLocked
+import ru.morozovit.android.notifyIfAllowed
 import ru.morozovit.android.waitWhile
 import ru.morozovit.ultimatesecurity.App
 import ru.morozovit.ultimatesecurity.App.Companion.IP_FG_SERVICE_CHANNEL_ID
@@ -42,6 +41,7 @@ class IntruderPhotoService: Service() {
             }
         private var nullCallback: (() -> Unit)? = null
 
+        @SuppressLint("ImplicitSamInstance")
         fun takePhoto(context: Context, name: String) {
             filename = name
             runCatching {
@@ -126,7 +126,7 @@ class IntruderPhotoService: Service() {
                                                 setSmallIcon(R.drawable.priority_high)
                                                 setContentTitle(resources.getString(R.string.i_f))
                                                 setContentText(resources.getString(R.string.i_f_d))
-                                                setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                                                setPriority(NotificationCompat.PRIORITY_MAX)
                                                 setContentIntent(pendingIntent)
                                                 setAutoCancel(true)
                                                 if (drawable != null) {
@@ -136,19 +136,10 @@ class IntruderPhotoService: Service() {
                                         if (isScreenLocked) {
                                             intruderPhotoNotifications += notification
                                         } else {
-                                            with (NotificationManagerCompat.from(App.context)) {
-                                                if (
-                                                    checkSelfPermission(
-                                                        Manifest.permission.POST_NOTIFICATIONS
-                                                    ) != PackageManager.PERMISSION_GRANTED
-                                                ) {
-                                                    return@with
-                                                }
-                                                notify(
-                                                    IP_FG_SERVICE_NOTIFICATION_ID,
-                                                    notification
-                                                )
-                                            }
+                                            notifyIfAllowed(
+                                                IP_FG_SERVICE_NOTIFICATION_ID,
+                                                notification
+                                            )
                                         }
                                     }
 
