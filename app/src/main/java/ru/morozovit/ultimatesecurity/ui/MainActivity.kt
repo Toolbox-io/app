@@ -433,6 +433,7 @@ class MainActivity : BaseActivity(
                     )
                 }
 
+                @Suppress("LocalVariableName")
                 val EdgeToEdgeBar = @Composable { content: @Composable (PaddingValues) -> Unit ->
                     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
                     Scaffold(

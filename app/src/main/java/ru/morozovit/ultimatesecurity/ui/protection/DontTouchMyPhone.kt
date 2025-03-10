@@ -10,6 +10,7 @@ import android.media.MediaPlayer
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Button
@@ -44,10 +45,10 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @Composable
-fun DontTouchMyPhoneScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
+fun DontTouchMyPhoneScreen(@Suppress("LocalVariableName") EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
     WindowInsetsHandler {
-        EdgeToEdgeBar {
-            Column {
+        EdgeToEdgeBar { innerPadding ->
+            Column(Modifier.padding(innerPadding)) {
                 val context = LocalContext()
                 val sensorManager = remember { context.getSystemService(SensorManager::class.java) }
                 val mediaPlayer = remember { MediaPlayer() }
