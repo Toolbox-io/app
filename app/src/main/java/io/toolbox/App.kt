@@ -13,8 +13,6 @@ import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.DynamicColorsOptions
 import io.toolbox.Settings.materialYouEnabled
 import ru.morozovit.android.NotificationIdManager
-import ru.morozovit.utils.safeDelete
-import java.io.File
 import java.lang.ref.WeakReference
 
 
@@ -63,43 +61,6 @@ class App : Application() {
         )
         channel.description = description
         notificationManager.createNotificationChannel(channel)
-    }
-
-    private inline fun migrateSettings() {
-        if (!Settings.migratedFromOldSettings) {
-            SettingsV1.init()
-            // Passwords
-            if (SettingsV1.globalPasswordEnabled)
-                Settings.Keys.App.set(SettingsV1.globalPassword)
-            Settings.Keys.Applocker.set(SettingsV1.Applocker.password)
-            // Global
-            Settings.update_dsa = SettingsV1.update_dsa
-            // App Locker
-            Settings.Applocker.apps = SettingsV1.Applocker.apps
-            Settings.Applocker.unlockMode = SettingsV1.Applocker.unlockMode
-            // Unlock Protection
-            Settings.UnlockProtection.enabled = SettingsV1.UnlockProtection.enabled
-            Settings.UnlockProtection.unlockAttempts = SettingsV1.UnlockProtection.unlockAttempts
-            // Actions
-            Settings.Actions.Alarm.enabled = SettingsV1.UnlockProtection.Actions.alarm
-            Settings.Actions.Alarm.customAlarms = SettingsV1.UnlockProtection.Actions.customAlarms
-            Settings.Actions.Alarm.current = SettingsV1.UnlockProtection.Actions.currentCustomAlarm
-            Settings.Actions.IntruderPhoto.enabled = SettingsV1.UnlockProtection.Actions.intruderPhoto
-            // Tiles
-            Settings.Tiles.sleep = SettingsV1.Tiles.sleep
-
-            // Flag that migrated
-            Settings.migratedFromOldSettings = true
-
-            // Delete old settings
-            listOf(
-                File("$dataDir/shared_prefs/main.xml"),
-                File("$dataDir/shared_prefs/applocker.xml"),
-                File("$dataDir/shared_prefs/unlockProtection.xml"),
-                File("$dataDir/shared_prefs/unlockProtection.actions.xml"),
-                File("$dataDir/shared_prefs/tiles.xml")
-            ).safeDelete()
-        }
     }
 
     private inline fun materialYouForViews() {
@@ -172,7 +133,6 @@ class App : Application() {
         notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         Settings.init(this)
 
-        migrateSettings()
         materialYouForViews()
         createNotificationChannels()
         cleanCache()
