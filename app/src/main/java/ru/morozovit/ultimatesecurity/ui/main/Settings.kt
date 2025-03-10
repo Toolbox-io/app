@@ -74,7 +74,7 @@ import ru.morozovit.ultimatesecurity.ui.MainActivity
 import ru.morozovit.ultimatesecurity.ui.Theme
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
 import ru.morozovit.ultimatesecurity.ui.dynamicThemeEnabled
-import ru.morozovit.ultimatesecurity.ui.protection.ActionsActivity
+import ru.morozovit.ultimatesecurity.ui.protection.actions.ActionsActivity
 import ru.morozovit.ultimatesecurity.ui.theme
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream

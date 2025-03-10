@@ -103,7 +103,7 @@ import ru.morozovit.ultimatesecurity.services.UpdateChecker.Companion.checkForUp
 import ru.morozovit.ultimatesecurity.ui.LocalNavController
 import ru.morozovit.ultimatesecurity.ui.MainActivity
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
-import ru.morozovit.ultimatesecurity.ui.protection.ActionsActivity
+import ru.morozovit.ultimatesecurity.ui.protection.actions.ActionsActivity
 import ru.morozovit.ultimatesecurity.ui.protection.applocker.SelectAppsActivity
 import ru.morozovit.utils.MarkdownHeaderParser
 import ru.morozovit.utils.toCamelCase

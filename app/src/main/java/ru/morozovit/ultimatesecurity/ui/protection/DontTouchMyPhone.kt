@@ -40,6 +40,7 @@ import ru.morozovit.android.ui.ListItem
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.ui.WindowInsetsHandler
+import ru.morozovit.ultimatesecurity.ui.protection.actions.ActionsActivity
 import ru.morozovit.utils.EParser
 import kotlin.math.abs
 import kotlin.math.roundToInt

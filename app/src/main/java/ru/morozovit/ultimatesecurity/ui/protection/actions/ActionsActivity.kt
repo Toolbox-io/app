@@ -1,4 +1,4 @@
-package ru.morozovit.ultimatesecurity.ui.protection
+package ru.morozovit.ultimatesecurity.ui.protection.actions
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -47,7 +47,6 @@ import ru.morozovit.ultimatesecurity.BaseActivity
 import ru.morozovit.ultimatesecurity.R
 import ru.morozovit.ultimatesecurity.Settings
 import ru.morozovit.ultimatesecurity.ui.AppTheme
-import ru.morozovit.ultimatesecurity.ui.protection.actions.AlarmSettingsActivity
 import ru.morozovit.ultimatesecurity.ui.protection.actions.intruderphoto.IntruderPhotoSettingsActivity
 
 class ActionsActivity: BaseActivity() {

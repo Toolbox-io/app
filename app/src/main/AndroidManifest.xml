@@ -83,7 +83,7 @@
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
             android:exported="false" />
         <activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.ActionsActivity"
+            android:name="ru.morozovit.ultimatesecurity.ui.protection.actions.ActionsActivity"
             android:theme="@style/Theme.UltimateSecurity.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
