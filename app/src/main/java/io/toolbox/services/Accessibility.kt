@@ -15,7 +15,6 @@ import ru.morozovit.android.homeScreen
 import java.lang.Thread.sleep
 
 class Accessibility: AccessibilityService() {
-    private var interrupted = false
     var lock = false
     private var prevApp: String? = null
 
@@ -73,7 +72,6 @@ class Accessibility: AccessibilityService() {
     }
 
     override fun onInterrupt() {
-        interrupted = true
         instance = null
         if (Settings.UnlockProtection.fgServiceEnabled)
             AccessibilityKeeperService.instance?.stopSelf()

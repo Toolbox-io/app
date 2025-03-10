@@ -122,7 +122,7 @@ enum class Theme {
 }
 
 var dynamicThemeEnabled by mutableStateOf(
-    runCatching { Settings.materialYouEnabled }.getOrNull() ?: false
+    runCatching { Settings.materialYouEnabled }.getOrNull() == true
 )
 var theme by mutableStateOf(
     runCatching { Settings.appTheme }.getOrNull() ?: Theme.AsSystem

@@ -9,7 +9,6 @@ import android.service.quicksettings.Tile.STATE_INACTIVE
 import android.service.quicksettings.Tile.STATE_UNAVAILABLE
 import android.service.quicksettings.TileService
 import android.util.Log
-import io.toolbox.App
 import io.toolbox.App.Companion.context
 import io.toolbox.Settings
 import ru.morozovit.android.configure

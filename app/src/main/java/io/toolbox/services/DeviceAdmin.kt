@@ -10,7 +10,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.UserHandle
 import androidx.core.os.postDelayed
-import io.toolbox.App
 import io.toolbox.App.Companion.IP_PHOTO_TAKEN_NOTIFICATION_ID
 import io.toolbox.App.Companion.context
 import io.toolbox.Settings
