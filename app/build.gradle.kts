@@ -10,11 +10,11 @@ plugins {
 }
 
 android {
-    namespace = "ru.morozovit.ultimatesecurity"
+    namespace = "io.toolbox"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "ru.morozovit.ultimatesecurity"
+        applicationId = "io.toolbox"
         minSdk = 24
         targetSdk = 35
         versionCode = 27
