@@ -13,9 +13,6 @@
 # Hide original package names for classes
 -repackageclasses
 
-# Keep the MainActivity
--keep public class ru.morozovit.ultimatesecurity.ui.MainActivity
-
 # Remove all log calls
 -assumenosideeffects class android.util.Log {
     public static int d(...);
