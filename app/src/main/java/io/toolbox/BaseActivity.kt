@@ -447,25 +447,25 @@ abstract class BaseActivity(
         if (Settings.materialYouEnabled) {
             when (Settings.appTheme) {
                 Theme.AsSystem -> {
-                    setTheme(R.style.Theme_UltimateSecurity_NoActionBar)
+                    setTheme(R.style.Theme_Toolbox_io_NoActionBar)
                 }
                 Theme.Light -> {
-                    setTheme(R.style.Theme_UltimateSecurity_Light_NoActionBar)
+                    setTheme(R.style.Theme_Toolbox_io_Light_NoActionBar)
                 }
                 Theme.Dark -> {
-                    setTheme(R.style.Theme_UltimateSecurity_Night_NoActionBar)
+                    setTheme(R.style.Theme_Toolbox_io_Night_NoActionBar)
                 }
             }
         } else {
             when (Settings.appTheme) {
                 Theme.AsSystem -> {
-                    setTheme(R.style.Theme_UltimateSecurity_NoActionBar_NoDynamicColor)
+                    setTheme(R.style.Theme_Toolbox_io_NoActionBar_NoDynamicColor)
                 }
                 Theme.Light -> {
-                    setTheme(R.style.Theme_UltimateSecurity_Light_NoActionBar_NoDynamicColor)
+                    setTheme(R.style.Theme_Toolbox_io_Light_NoActionBar_NoDynamicColor)
                 }
                 Theme.Dark -> {
-                    setTheme(R.style.Theme_UltimateSecurity_Night_NoActionBar_NoDynamicColor)
+                    setTheme(R.style.Theme_Toolbox_io_Night_NoActionBar_NoDynamicColor)
                 }
             }
         }
