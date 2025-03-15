@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.UltimateSecurity.Licenses">
+    <style name="Theme.Toolbox_io.Licenses">
         <item name="android:statusBarColor">?attr/colorSurfaceContainer</item>
         <item name="android:windowFullscreen">false</item>
         <item name="android:enforceNavigationBarContrast">false</item>

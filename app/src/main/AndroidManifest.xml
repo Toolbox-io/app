@@ -39,14 +39,14 @@
         android:roundIcon="@mipmap/app_icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.UltimateSecurity"
+        android:theme="@style/Theme.Toolbox_io"
         tools:targetApi="35"
         android:name=".App"
         android:enableOnBackInvokedCallback="true">
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.UltimateSecurity.SplashScreen"
+            android:theme="@style/Theme.Toolbox_io.SplashScreen"
             android:configChanges="keyboardHidden|navigation|keyboard">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -61,15 +61,15 @@
         </activity>
         <activity
             android:name=".ui.main.GuideActivity"
-            android:theme="@style/Theme.UltimateSecurity.ToolboxIOWebsite" />
+            android:theme="@style/Theme.Toolbox_io.Website" />
         <activity
             android:name=".ui.main.DeveloperOptionsActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+            android:theme="@style/Theme.Toolbox_io.NoActionBar" />
         <activity android:name=".ui.main.GreenScreenActivity" />
 
         <activity
             android:name=".ui.protection.applocker.SelectAppsActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
             android:name=".ui.protection.applocker.FakeCrashActivity"
@@ -84,19 +84,19 @@
             android:exported="false" />
         <activity
             android:name=".ui.protection.actions.ActionsActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
             android:name=".ui.protection.actions.AlarmSettingsActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
             android:name=".ui.protection.actions.intruderphoto.IntruderPhotoSettingsActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
             android:name=".ui.AuthActivity"
-            android:theme="@style/Theme.UltimateSecurity.SplashScreen"
+            android:theme="@style/Theme.Toolbox_io.SplashScreen"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode" />
         <service
             android:name=".ui.protection.actions.intruderphoto.IntruderPhotoService"
@@ -108,18 +108,18 @@
 
         <activity
             android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"
-            android:theme="@style/Theme.UltimateSecurity.Licenses" />
+            android:theme="@style/Theme.Toolbox_io.Licenses" />
         <activity
             android:name="com.google.android.gms.oss.licenses.OssLicensesActivity"
-            android:theme="@style/Theme.UltimateSecurity.Licenses" />
+            android:theme="@style/Theme.Toolbox_io.Licenses" />
 
         <activity
             android:name=".ui.tools.appmanager.AppInfoActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar"
             android:exported="false"  />
         <activity
             android:name=".ui.tools.appmanager.ChooseActivityActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar"
             android:exported="false" />
 
         <activity
@@ -138,11 +138,11 @@
 
         <activity
             android:name=".IssueReporter$ExceptionDetailsActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar"
             android:exported="false" />
         <activity
             android:name=".IssueReporter$OneQuestionActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar"
             android:exported="false" />
 
         <receiver

@@ -1,6 +1,6 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
-    <style name="Theme.UltimateSecurity" parent="Theme.Material3.DynamicColors.DayNight">
+    <style name="Theme.Toolbox_io" parent="Theme.Material3.DynamicColors.DayNight">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
@@ -10,29 +10,29 @@
         <!-- <item name="android:windowLightNavigationBar">?attr/isLightTheme</item> | api 27 -->
     </style>
 
-    <style name="Theme.UltimateSecurity.NoActionBar">
+    <style name="Theme.Toolbox_io.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoDynamicColor" tools:keep="@style/Theme_UltimateSecurity_NoDynamicColor" />
-    <style name="Theme.UltimateSecurity.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoActionBar.NoDynamicColor">
+    <style name="Theme.Toolbox_io.NoDynamicColor" parent="Theme.Toolbox_io.Light.NoDynamicColor" />
+    <style name="Theme.Toolbox_io.NoActionBar.NoDynamicColor" parent="Theme.Toolbox_io.Light.NoActionBar.NoDynamicColor">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.SplashScreen" parent="Theme.SplashScreen">
+    <style name="Theme.Toolbox_io.SplashScreen" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#FFFFF8F6</item>
         <item name="windowSplashScreenAnimatedIcon">@mipmap/app_icon</item>
         <!-- <item name="android:windowSplashScreenBackground">#FCF5FD / #141218</item> | api 31 -->
-        <item name="postSplashScreenTheme">@style/Theme.UltimateSecurity.NoActionBar</item>
+        <item name="postSplashScreenTheme">@style/Theme.Toolbox_io.NoActionBar</item>
     </style>
 
     <style name="Theme.SplashScreen.Files">
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.Night" parent="Theme.Material3.DynamicColors.Dark">
+    <style name="Theme.Toolbox_io.Night" parent="Theme.Material3.DynamicColors.Dark">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
@@ -40,11 +40,11 @@
         <item name="android:windowLightStatusBar">false</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.Night.NoActionBar">
+    <style name="Theme.Toolbox_io.Night.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-    <style name="Theme.UltimateSecurity.Night.NoDynamicColor" parent="Theme.Material3.Dark">
+    <style name="Theme.Toolbox_io.Night.NoDynamicColor" parent="Theme.Material3.Dark">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
 
@@ -81,23 +81,23 @@
         <item name="colorSurfaceContainerHighest">#FF3D332E</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.Night.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Night.NoDynamicColor">
+    <style name="Theme.Toolbox_io.Night.NoActionBar.NoDynamicColor" parent="Theme.Toolbox_io.Night.NoDynamicColor">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.Light" parent="Theme.Material3.DynamicColors.Light">
+    <style name="Theme.Toolbox_io.Light" parent="Theme.Material3.DynamicColors.Light">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
-    <style name="Theme.UltimateSecurity.Light.NoActionBar">
+    <style name="Theme.Toolbox_io.Light.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-    <style name="Theme.UltimateSecurity.Light.NoDynamicColor" parent="Theme.Material3.Light">
+    <style name="Theme.Toolbox_io.Light.NoDynamicColor" parent="Theme.Material3.Light">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
 
@@ -133,7 +133,7 @@
         <item name="colorSurfaceContainerHigh">#FFF6E5DD</item>
         <item name="colorSurfaceContainerHighest">#FFF0DFD8</item>
     </style>
-    <style name="Theme.UltimateSecurity.Light.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoDynamicColor">
+    <style name="Theme.Toolbox_io.Light.NoActionBar.NoDynamicColor" parent="Theme.Toolbox_io.Light.NoDynamicColor">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
@@ -150,12 +150,12 @@
         <item name="android:windowFullscreen">true</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.Licenses">
+    <style name="Theme.Toolbox_io.Licenses">
         <item name="android:statusBarColor">?attr/colorSurfaceContainer</item>
         <item name="android:windowFullscreen">false</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.ToolboxIOWebsite" parent="Theme.UltimateSecurity.Night.NoActionBar.NoDynamicColor">
+    <style name="Theme.Toolbox_io.Website" parent="Theme.Toolbox_io.Night.NoActionBar.NoDynamicColor">
         <item name="colorSurface">#3A3A3A</item>
         <item name="android:textAppearance">@style/TextAppearance.Material3.TitleMedium</item>
     </style>

@@ -20,7 +20,7 @@
             app:navigationIcon="@drawable/close_menu"
             android:id="@+id/guide_toolbar"
             tools:title="Test"
-            android:theme="@style/Theme.UltimateSecurity.ToolboxIOWebsite" />
+            android:theme="@style/Theme.Toolbox_io.Website" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <WebView
