@@ -40,11 +40,9 @@ dependencies {
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.adaptive)
-    implementation(libs.androidx.navigation.compose)
 }
 
 java {

@@ -2,6 +2,7 @@ package io.toolbox.ui.customization
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,6 +33,7 @@ import io.toolbox.services.tiles.SleepTile
 import io.toolbox.ui.WindowInsetsHandler
 import ru.morozovit.android.ui.ToggleIconButton
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TilesScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
     WindowInsetsHandler {
