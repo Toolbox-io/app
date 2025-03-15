@@ -2,9 +2,11 @@
 package ru.morozovit.android
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.KeyguardManager
 import android.app.Notification
+import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.ContentResolver
 import android.content.Context
@@ -22,8 +24,11 @@ import android.hardware.SensorManager
 import android.hardware.usb.UsbEndpoint
 import android.hardware.usb.UsbInterface
 import android.net.Uri
+import android.os.BaseBundle
 import android.os.Build
+import android.os.Bundle
 import android.os.Parcelable
+import android.os.PersistableBundle
 import android.provider.OpenableColumns
 import android.service.quicksettings.Tile
 import android.util.Base64
@@ -238,10 +243,13 @@ val UsbInterface.endpointList: List<UsbEndpoint> get() {
     return list.toList()
 }
 
-fun Activity.resolveAttr(@AttrRes attr: Int): Int? {
+fun Activity.resolveAttr(@AttrRes id: Int): Int? {
     val typedValue = TypedValue()
-    if (theme.resolveAttribute(attr,
-            typedValue, true)) {
+    if (theme.resolveAttribute(
+            id,
+            typedValue,
+            true
+    )) {
         val resId = typedValue.resourceId
         return if (resId != 0) resId else null
     } else {
@@ -833,3 +841,50 @@ inline fun Context.notifyIfAllowed(
         notify(id, notification)
     }
 }
+
+@Suppress("DEPRECATION")
+fun BaseBundle.toMap(): Map<String, Any> {
+    val map = mutableMapOf<String, Any>()
+    for (key in keySet()) {
+        map[key] = get(key)!!
+    }
+    return map
+}
+
+fun Bundle.toPersistableBundle(): PersistableBundle {
+    val map = toMap()
+    val bundle = PersistableBundle()
+    for ((key, value) in map) {
+        when (value) {
+            is Int -> bundle.putInt(key, value)
+            is Long -> bundle.putLong(key, value)
+            is Double -> bundle.putDouble(key, value)
+            is String -> bundle.putString(key, value)
+            is IntArray -> bundle.putIntArray(key, value)
+            is LongArray -> bundle.putLongArray(key, value)
+            is DoubleArray -> bundle.putDoubleArray(key, value)
+            is PersistableBundle -> bundle.putPersistableBundle(key, value)
+            is Boolean -> bundle.putBoolean(key, value)
+            is BooleanArray -> bundle.putBooleanArray(key, value)
+            is Array<*> -> {
+                if (value.isArrayOf<String>()) {
+                    @Suppress("UNCHECKED_CAST")
+                    bundle.putStringArray(key, value as Array<String>)
+                }
+            }
+        }
+    }
+    return bundle
+}
+
+
+val PendingIntent.intent: Intent?
+    @SuppressLint("PrivateApi")
+    get() {
+        try {
+            val getIntent = PendingIntent::class.java.getDeclaredMethod("getIntent")
+            return getIntent.invoke(this) as Intent
+        } catch (e: Exception) {
+            return null
+        }
+    }

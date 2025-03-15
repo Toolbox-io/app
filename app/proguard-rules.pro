@@ -22,6 +22,9 @@
     public static int i(...);
     public static int v(...);
 }
+-assumenosideeffects class java.lang.System {
+    public static final java.io.PrintStream out;
+}
 
 # Keep icons so they can be used in reflection
 -keep public class androidx.compose.material.icons.Icons$*
