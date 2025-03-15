@@ -968,7 +968,7 @@ inline fun RadioButtonWithText(
     ) {
         RadioButton(
             selected = selected,
-            onClick = null // null recommended for accessibility with screenreaders
+            onClick = null
         )
         Spacer(modifier = Modifier.width(16.dp))
         ProvideTextStyle(value = MaterialTheme.typography.bodyLarge) {
@@ -1070,7 +1070,6 @@ inline fun SwipeToDismissBackground(
     endToStartColor: Color = Color(0xFF1DE9B6),
     endToStartIcon: @Composable () -> Unit = {
         Icon(
-            // make sure add baseline_archive_24 resource to drawable folder
             Icons.Filled.Archive,
             contentDescription = "Archive"
         )

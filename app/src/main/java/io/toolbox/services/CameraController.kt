@@ -130,7 +130,7 @@ class CameraController(val context: Context) {
                 imageReader = ImageReader.newInstance(
                     largest.width,
                     largest.height,
-                    ImageFormat.JPEG,  /*maxImages*/
+                    ImageFormat.JPEG,
                     2
                 )
                 imageReader!!.setOnImageAvailableListener(

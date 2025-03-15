@@ -74,7 +74,7 @@ dependencies {
     implementation(libs.biometric)
     implementation(kotlin("reflect"))
     implementation(libs.cloudy)
-    // compose
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)
     implementation(libs.androidx.ui.tooling.preview)

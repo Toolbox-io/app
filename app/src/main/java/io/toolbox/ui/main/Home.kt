@@ -82,14 +82,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.core.os.postDelayed
-import kotlinx.coroutines.launch
-import ru.morozovit.android.async
-import ru.morozovit.android.invoke
-import ru.morozovit.android.plus
-import ru.morozovit.android.ui.Category
-import ru.morozovit.android.ui.ListItem
-import ru.morozovit.android.ui.SwitchWithText
-import io.toolbox.App
 import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.Settings.accessibility
@@ -105,6 +97,13 @@ import io.toolbox.ui.MainActivity
 import io.toolbox.ui.WindowInsetsHandler
 import io.toolbox.ui.protection.actions.ActionsActivity
 import io.toolbox.ui.protection.applocker.SelectAppsActivity
+import kotlinx.coroutines.launch
+import ru.morozovit.android.async
+import ru.morozovit.android.invoke
+import ru.morozovit.android.plus
+import ru.morozovit.android.ui.Category
+import ru.morozovit.android.ui.ListItem
+import ru.morozovit.android.ui.SwitchWithText
 import ru.morozovit.utils.MarkdownHeaderParser
 import ru.morozovit.utils.toCamelCase
 import kotlin.reflect.KMutableProperty0
@@ -186,7 +185,7 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                     .padding(innerPadding)
             ) {
                 // UPDATE
-                if (!Settings.update_dsa) {
+                if (!update_dsa) {
                     var isUpdateCardVisible by remember { mutableStateOf(false) }
 
                     val versionFormat = stringResource(R.string.update_version)
@@ -546,7 +545,7 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                             notifications += notification
                         }
                         if (Settings.Applocker.used) {
-                            if (!Settings.accessibility) {
+                            if (!accessibility) {
                                 var notification: NotificationData? = null
                                 notification = NotificationData(
                                     title = R.string.reenable_accessibility,

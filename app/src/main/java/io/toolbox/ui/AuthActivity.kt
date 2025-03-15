@@ -351,17 +351,7 @@ class AuthActivity: BaseActivity(false) {
                                 @SuppressLint("SuspiciousIndentation")
                                 if (!isSetOrConfirm && Settings.Keys.App.check(password)) {
                                     authenticated = true
-                                    /*if (uses == 1) {
-                                    startActivity(
-                                        Intent(this@AuthActivity, MainActivity::class.java).apply {
-                                            putExtra("noAnim", true)
-                                            putExtra("anim", true)
-                                        }
-                                    )
-                                } else {*/
                                     finishAfterTransition(R.anim.scale_down, R.anim.alpha_down)
-                                    /*}*/
-                                    /*pendingAuth = false*/
                                 } else if (mode == MODE_ENTER_OLD_PW && Settings.Keys.App.check(password)) {
                                     view.post {
                                         startActivity(Intent(this@AuthActivity, AuthActivity::class.java).apply {
@@ -583,7 +573,6 @@ class AuthActivity: BaseActivity(false) {
         enableEdgeToEdge()
         isSecure = true
         launchingIntent = intent
-        /*uses++*/
         activityLauncher = activityResultLauncher
 
         if ((!Settings.Keys.App.isSet || authenticated) && !isSetOrConfirm) {

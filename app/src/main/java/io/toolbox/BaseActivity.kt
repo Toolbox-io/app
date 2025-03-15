@@ -1,4 +1,4 @@
-@file:Suppress("DEPRECATION", "unused")
+@file:Suppress("DEPRECATION")
 
 package io.toolbox
 
@@ -417,7 +417,7 @@ abstract class BaseActivity(
         }
 
     protected open fun startEnterAnimation(root: View) {
-        if (!intent.getBooleanExtra("noAnim", false)/* && Build.VERSION.SDK_INT >= 31* */ && !splashScreenDisplayed) {
+        if (!intent.getBooleanExtra("noAnim", false) && !splashScreenDisplayed) {
             root.viewTreeObserver.addOnPreDrawListener(object: OnPreDrawListener {
                 override fun onPreDraw(): Boolean {
                     root.apply {
@@ -446,27 +446,15 @@ abstract class BaseActivity(
     fun configureTheme() {
         if (Settings.materialYouEnabled) {
             when (Settings.appTheme) {
-                Theme.AsSystem -> {
-                    setTheme(R.style.Theme_Toolbox_io_NoActionBar)
-                }
-                Theme.Light -> {
-                    setTheme(R.style.Theme_Toolbox_io_Light_NoActionBar)
-                }
-                Theme.Dark -> {
-                    setTheme(R.style.Theme_Toolbox_io_Night_NoActionBar)
-                }
+                Theme.AsSystem -> setTheme(R.style.Theme_Toolbox_io_NoActionBar)
+                Theme.Light -> setTheme(R.style.Theme_Toolbox_io_Light_NoActionBar)
+                Theme.Dark -> setTheme(R.style.Theme_Toolbox_io_Night_NoActionBar)
             }
         } else {
             when (Settings.appTheme) {
-                Theme.AsSystem -> {
-                    setTheme(R.style.Theme_Toolbox_io_NoActionBar_NoDynamicColor)
-                }
-                Theme.Light -> {
-                    setTheme(R.style.Theme_Toolbox_io_Light_NoActionBar_NoDynamicColor)
-                }
-                Theme.Dark -> {
-                    setTheme(R.style.Theme_Toolbox_io_Night_NoActionBar_NoDynamicColor)
-                }
+                Theme.AsSystem -> setTheme(R.style.Theme_Toolbox_io_NoActionBar_NoDynamicColor)
+                Theme.Light -> setTheme(R.style.Theme_Toolbox_io_Light_NoActionBar_NoDynamicColor)
+                Theme.Dark -> setTheme(R.style.Theme_Toolbox_io_Night_NoActionBar_NoDynamicColor)
             }
         }
     }

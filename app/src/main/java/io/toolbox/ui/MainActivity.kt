@@ -541,10 +541,6 @@ class MainActivity : BaseActivity(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        /*if (intent.getBooleanExtra("anim", false)) {
-            overridePendingTransition(R.anim.scale_down, R.anim.alpha_down)
-        }*/
-
         activityLauncher = activityResultLauncher
         updateLock()
         enableEdgeToEdge()
@@ -574,10 +570,9 @@ class MainActivity : BaseActivity(
                     return false
                 }
             })
-            /*finish()*/
         }
 
-        if (!pendingAuth /*&& !intent.getBooleanExtra("noAnim", false)*/) startEnterAnimation(content)
+        if (!pendingAuth) startEnterAnimation(content)
     }
 
     override fun finish() {

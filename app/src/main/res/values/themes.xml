@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Theme.Toolbox_io" parent="Theme.Material3.DynamicColors.DayNight">
         <item name="android:statusBarColor">@android:color/transparent</item>
@@ -15,7 +15,10 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.Toolbox_io.NoDynamicColor" parent="Theme.Toolbox_io.Light.NoDynamicColor" />
+    <style
+        name="Theme.Toolbox_io.NoDynamicColor"
+        parent="Theme.Toolbox_io.Light.NoDynamicColor"
+        tools:keep="@style/Theme_Toolbox_io_NoDynamicColor" />
     <style name="Theme.Toolbox_io.NoActionBar.NoDynamicColor" parent="Theme.Toolbox_io.Light.NoActionBar.NoDynamicColor">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
