@@ -1,7 +1,6 @@
 package io.toolbox.ui.tools.notificationhistory
 
 import android.graphics.drawable.Drawable
-import android.os.Bundle
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
@@ -10,8 +9,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -31,14 +28,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -51,103 +46,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
-import io.toolbox.App.Companion.context
 import io.toolbox.R
 import io.toolbox.ui.WindowInsetsHandler
-import ru.morozovit.android.SerializableIntent
 import ru.morozovit.android.invoke
 import ru.morozovit.android.plus
+import ru.morozovit.android.runOrLog
 import ru.morozovit.android.ui.ListItem
-import ru.morozovit.utils.safeDelete
-import java.io.File
-import java.io.FileInputStream
-import java.io.ObjectInputStream
-import java.io.Serial
-import java.io.Serializable
-
-enum class ActionType {
-    ACTIVITY,
-    BROADCAST,
-    SERVICE,
-    FOREGROUND_SERVICE,
-    UNKNOWN
-}
-
-data class ActionData(
-    val label: String,
-    val intent: SerializableIntent? = null,
-    val type: ActionType
-): Serializable {
-    companion object {
-        @Serial
-        const val serialVersionUID = 23452368204683467L
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-data class NotificationData(
-    val title: String,
-    val message: String,
-    val onClickIntent: SerializableIntent? = null,
-    val divider: Boolean = true,
-    val actions: List<ActionData> = mutableListOf(),
-    val bottomContent: (@Composable FlowRowScope.() -> Unit)? = {
-        for ((label, _intent, type) in actions) {
-            val intent = _intent?.toIntent()
-            TextButton(
-                onClick = {
-                    if (intent == null) return@TextButton
-                    when (type) {
-                        ActionType.ACTIVITY -> context.startActivity(intent)
-                        ActionType.BROADCAST -> context.sendBroadcast(intent)
-                        ActionType.SERVICE -> context.startService(intent)
-                        ActionType.FOREGROUND_SERVICE -> ContextCompat.startForegroundService(context, intent)
-                        ActionType.UNKNOWN -> {}
-                    }
-                }
-            ) {
-                Text(label)
-            }
-        }
-    },
-    val sourcePackageName: String,
-    @Transient
-    val icon: Drawable? = null
-): Serializable {
-    companion object {
-        @Serial
-        const val serialVersionUID = 23592935634587396L
-    }
-    @Transient
-    var _visible: MutableState<Boolean>? = mutableStateOf(true)
-
-    var visible: Boolean
-        get() {
-            if (_visible == null) {
-                _visible = mutableStateOf(true)
-            }
-            return _visible!!.value
-        }
-        set(value) {
-            if (_visible == null) {
-                _visible = mutableStateOf(true)
-            }
-            _visible!!.value = value
-        }
-
-    @Transient
-    var file: File? = null
-}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigation: @Composable () -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
     WindowInsetsHandler {
-        with(LocalContext()) {
+        with(LocalContext()) context@ {
             rememberCoroutineScope()
-            Bundle().keySet()
 
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -161,10 +73,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                             )
                         },
                         navigationIcon = navigation,
-                        actions = {
-                            // TODO add actions
-                            actions()
-                        },
+                        actions = actions /* TODO actions */,
                         scrollBehavior = scrollBehavior
                     )
                 }
@@ -176,7 +85,6 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                     message: String,
                     onClick: (() -> Unit)? = null,
                     divider: Boolean,
-                    bottomContent: (@Composable FlowRowScope.() -> Unit)? = null,
                     visible: Boolean,
                     onVisibilityChange: ((Boolean) -> Unit),
                     sourcePackageName: String,
@@ -282,15 +190,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                                             supportingText = message,
                                             leadingContent = {
                                                 Spacer(Modifier.width(24.dp))
-                                            },
-                                            bottomContent = if (bottomContent != null) {
-                                                {
-                                                    FlowRow(
-                                                        modifier = Modifier.padding(start = (24 + 16 - 12).dp, end = 16.dp),
-                                                        content = bottomContent
-                                                    )
-                                                }
-                                            } else null
+                                            }
                                         )
                                     }
                                     if (divider) {
@@ -303,63 +203,8 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                 }
                 val notifications = remember { mutableStateListOf<NotificationData>() }
 
-                // --- TEST ---
-                /*notifications += NotificationData(
-                    title = "Notification 1",
-                    message = "This is a notification message.",
-                    sourcePackageName = "com.example.app1",
-                    bottomContent = {
-                        TextButton(onClick = {}) {
-                            Text(text = "Action 1")
-                        }
-                        TextButton(onClick = {}) {
-                            Text(text = "Action 2")
-                        }
-                    }
-                )
-                notifications += NotificationData(
-                    title = "Notification 2",
-                    message = "This is a notification message.",
-                    sourcePackageName = "com.example.app1",
-                    bottomContent = {
-                        TextButton(onClick = {}) {
-                            Text(text = "Action 1")
-                        }
-                        TextButton(onClick = {}) {
-                            Text(text = "Action 2")
-                        }
-                    }
-                )
-                notifications += NotificationData(
-                    title = "Notification 3",
-                    message = "This is a notification message.",
-                    sourcePackageName = "com.example.app1",
-                    bottomContent = {
-                        TextButton(onClick = {}) {
-                            Text(text = "Action 1")
-                        }
-                        TextButton(onClick = {}) {
-                            Text(text = "Action 2")
-                        }
-                    }
-                )*/
-                // --- TEST ---
-
-                val notificationHistoryDir = File(filesDir, "notification_history")
-                if (notificationHistoryDir.exists()) {
-                    notificationHistoryDir.listFiles()?.sortedBy { it.name }?.forEach { file ->
-                        try {
-                            val inputStream = FileInputStream(file)
-                            val objectInputStream = ObjectInputStream(inputStream)
-                            val notificationData = objectInputStream.readObject() as NotificationData
-                            notificationData.file = file
-                            notifications += notificationData
-                            objectInputStream.close()
-                            inputStream.close()
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    }
+                LaunchedEffect(Unit) {
+                    notifications += NotificationDatabase.list
                 }
 
                 LazyColumn(contentPadding = innerPadding) {
@@ -368,17 +213,21 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                             Notification(
                                 title = title,
                                 message = message,
-                                onClick = null,
+                                onClick = {
+                                    runOrLog("NotificationHistory") {
+                                        startActivity(packageManager.getLaunchIntentForPackage(sourcePackageName))
+                                    }
+                                },
                                 divider = index != notifications.size - 1,
-                                bottomContent = bottomContent,
                                 visible = visible,
                                 onVisibilityChange = {
                                     visible = it
                                     if (!visible) {
-                                        file?.safeDelete()
+                                        NotificationDatabase -= this
                                     }
                                 },
-                                sourcePackageName = sourcePackageName
+                                sourcePackageName = sourcePackageName,
+                                icon = icon
                             )
                         }
                     }

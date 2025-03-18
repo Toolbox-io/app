@@ -2,11 +2,9 @@
 package ru.morozovit.android
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.KeyguardManager
 import android.app.Notification
-import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.ContentResolver
 import android.content.Context
@@ -97,7 +95,6 @@ import kotlin.random.nextInt
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
-
 val screenWidth: Int inline get() = Resources.getSystem().displayMetrics.widthPixels
 @Suppress("unused")
 val screenHeight: Int inline get() = Resources.getSystem().displayMetrics.heightPixels
@@ -110,7 +107,7 @@ fun appName(context: Context, packageName: String): String? {
         )
         val appName = packageManager.getApplicationLabel(applicationInfo) as String
         return appName
-    } catch (e: PackageManager.NameNotFoundException) {
+    } catch (_: PackageManager.NameNotFoundException) {
         return null
     }
 }
@@ -150,7 +147,7 @@ fun Context.launchFiles(): Boolean {
         try {
             startActivity(intent)
             return true
-        } catch (th: Throwable) {
+        } catch (_: Throwable) {
             return false
         }
     }
@@ -389,7 +386,7 @@ inline fun FragmentActivity.requestAuthentication(crossinline callback: Authenti
     try {
         config.title
         config.negativeButtonText
-    } catch (e: UninitializedPropertyAccessException) {
+    } catch (_: UninitializedPropertyAccessException) {
         throw IllegalStateException("Required fields haven't been set")
     }
     val executor = ContextCompat.getMainExecutor(this)
@@ -696,14 +693,14 @@ inline fun InputStream.test() =
         read()
         close()
         true
-    } catch (e: IOException) {
+    } catch (_: IOException) {
         false
     }
 
 inline fun ContentResolver.test(item: Uri) =
     try {
         openInputStream(item)!!.test()
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         false
     }
 
@@ -876,15 +873,3 @@ fun Bundle.toPersistableBundle(): PersistableBundle {
     }
     return bundle
 }
-
-
-val PendingIntent.intent: Intent?
-    @SuppressLint("PrivateApi")
-    get() {
-        try {
-            val getIntent = PendingIntent::class.java.getDeclaredMethod("getIntent")
-            return getIntent.invoke(this) as Intent
-        } catch (e: Exception) {
-            return null
-        }
-    }

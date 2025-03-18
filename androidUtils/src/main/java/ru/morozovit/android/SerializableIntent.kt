@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
+import android.os.PersistableBundle
 import java.io.InputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
@@ -65,7 +66,9 @@ class SerializableIntent(): Intent(), Serializable {
     var _component: ComponentName? = null
     private var __component_packageName: String? = null
     private var __component_className: String? = null
+    @Transient
     var _extras: Bundle? = null
+    private var __extras_persistableBundle: PersistableBundle? = null
     var _identifier: String? = null
     @Transient
     var _sourceBounds: Rect? = null
@@ -76,6 +79,7 @@ class SerializableIntent(): Intent(), Serializable {
 
     fun prepareSerialize() {
         __data = _data?.toString()
+        __extras_persistableBundle = _extras?.toPersistableBundle()
         __component_packageName = _component?.packageName
         __component_className = _component?.className
         __sourceBounds_top = _sourceBounds?.top
