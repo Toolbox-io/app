@@ -191,4 +191,6 @@
     <string name="fatal_error">The app has encountered a fatal error and shut down.</string>
     <string name="notification_history">Notification history</string>
     <string name="app_manager">App manager</string>
+    <string name="lock_app">Lock app</string>
+    <string name="lock_app_d">Lock this app using App Locker</string>
 </resources>

@@ -28,6 +28,7 @@ import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FilePresent
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PermDeviceInformation
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Storage
@@ -44,7 +45,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -59,9 +63,11 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.core.net.toUri
 import io.toolbox.BaseActivity
 import io.toolbox.R
+import io.toolbox.Settings
 import io.toolbox.ui.AppTheme
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
+import ru.morozovit.android.ui.SwitchListItem
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -307,7 +313,37 @@ class AppInfoActivity: BaseActivity() {
                         )
                     }
 
-                    // TODO lock app switch
+                    Category {
+                        var lockSwitch by remember { mutableStateOf(Settings.Applocker.apps.contains(appPackage)) }
+                        var lockSwitchOnCheckedChange = { it: Boolean ->
+                            lockSwitch = it
+                            Settings.Applocker.apps = Settings
+                                .Applocker
+                                .apps
+                                .toMutableSet()
+                                .apply {
+                                    if (it) {
+                                        add(appPackage)
+                                    } else {
+                                        remove(appPackage)
+                                    }
+                                }
+                                .toSet()
+                        }
+
+                        SwitchListItem(
+                            headline = stringResource(R.string.lock_app),
+                            supportingText = stringResource(R.string.lock_app_d),
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.Lock,
+                                    contentDescription = null
+                                )
+                            },
+                            checked = lockSwitch,
+                            onCheckedChange = lockSwitchOnCheckedChange
+                        )
+                    }
 
                     // Technical information
                     Category(title = stringResource(R.string.technical_info)) {

@@ -1101,14 +1101,13 @@ object CategoryDefaults {
     val dividerThickness: Dp = 2.dp
 }
 
-@Suppress("UnusedReceiverParameter")
 @Composable
 inline fun ColumnScope.Category(
     modifier: Modifier = Modifier,
     title: String? = null,
     margin: PaddingValues = CategoryDefaults.margin,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
-    crossinline content: @Composable ColumnScope.() -> Unit
+    noinline content: @Composable ColumnScope.() -> Unit
 ) {
     if (title != null) {
         Text(
@@ -1123,8 +1122,7 @@ inline fun ColumnScope.Category(
             .padding(margin)
             .fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
-        colors = cardColors(containerColor = containerColor)
-    ) {
-        content(this)
-    }
+        colors = cardColors(containerColor = containerColor),
+        content = content
+    )
 }
