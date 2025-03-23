@@ -307,6 +307,8 @@ class AppInfoActivity: BaseActivity() {
                         )
                     }
 
+                    // TODO lock app switch
+
                     // Technical information
                     Category(title = stringResource(R.string.technical_info)) {
                         ListItem(

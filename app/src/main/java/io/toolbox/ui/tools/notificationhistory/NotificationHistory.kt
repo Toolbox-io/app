@@ -73,7 +73,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                             )
                         },
                         navigationIcon = navigation,
-                        actions = actions /* TODO actions */,
+                        actions = actions,
                         scrollBehavior = scrollBehavior
                     )
                 }
@@ -207,7 +207,10 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                     notifications += NotificationDatabase.list
                 }
 
+                // TODO date markers and separators
                 LazyColumn(contentPadding = innerPadding) {
+                    // TODO switch
+
                     items(notifications.size) { index ->
                         with (notifications[index]) {
                             Notification(
