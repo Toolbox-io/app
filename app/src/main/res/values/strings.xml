@@ -193,4 +193,5 @@
     <string name="app_manager">App manager</string>
     <string name="lock_app">Lock app</string>
     <string name="lock_app_d">Lock this app using App Locker</string>
+    <string name="loading">Loading, please wait</string>
 </resources>

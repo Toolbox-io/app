@@ -4,8 +4,11 @@ import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager.GET_ACTIVITIES
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -18,8 +21,11 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -33,6 +39,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -63,11 +70,16 @@ import ru.morozovit.android.ui.ListItem
 fun AppManagerScreen(actions: @Composable RowScope.() -> Unit, navigation: @Composable () -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
     WindowInsetsHandler {
         with(LocalContext()) {
+            val loadingStr = stringResource(R.string.loading)
+
             val coroutineScope = rememberCoroutineScope()
             val navController = rememberNavController()
+            val focusRequester = remember { FocusRequester() }
 
             val apps = remember { mutableStateListOf<PackageInfo>() }
             var searchInputState by remember { mutableStateOf("") }
+
+            var loading by remember { mutableStateOf(true) }
 
             fun LazyListScope.apps(list: List<PackageInfo>, container: Boolean = false) {
                 items(list.size) {
@@ -143,18 +155,23 @@ fun AppManagerScreen(actions: @Composable RowScope.() -> Unit, navigation: @Comp
                     toRemove.forEach {
                         apps.remove(it)
                     }
+
+                    loading = false
                 }
             }
-
-            val focusRequester = remember { FocusRequester() }
 
             NavHost(
                 navController = navController,
                 startDestination = "main"
             ) {
                 composable("main") {
+                    val snackbarHostState = remember { SnackbarHostState() }
+
                     Scaffold(
                         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                        snackbarHost = {
+                            SnackbarHost(hostState = snackbarHostState)
+                        },
                         topBar = {
                             TopAppBar(
                                 title = {
@@ -168,7 +185,13 @@ fun AppManagerScreen(actions: @Composable RowScope.() -> Unit, navigation: @Comp
                                 actions = {
                                     IconButton(
                                         onClick = {
-                                            navController.navigate("search")
+                                            if (loading) {
+                                                coroutineScope.launch {
+                                                    snackbarHostState.showSnackbar(loadingStr)
+                                                }
+                                            } else {
+                                                navController.navigate("search")
+                                            }
                                         }
                                     ) {
                                         Icon(
@@ -182,10 +205,17 @@ fun AppManagerScreen(actions: @Composable RowScope.() -> Unit, navigation: @Comp
                             )
                         }
                     ) { innerPadding ->
-                        LazyColumn(
-                            contentPadding = innerPadding
-                        ) {
-                            apps(apps)
+                        Box(Modifier.padding(innerPadding)) {
+                            if (loading) {
+                                LinearProgressIndicator(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .align(Alignment.TopStart)
+                                )
+                            }
+                            LazyColumn {
+                                apps(apps)
+                            }
                         }
                     }
                 }

@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -314,12 +315,13 @@ inline fun WindowInsetsHandler(
     modifier: Modifier = Modifier,
     handleLeft: Boolean = true,
     handleRight: Boolean = true,
-    content: @Composable () -> Unit
+    content: @Composable BoxScope.() -> Unit
 ) {
     Box(
-        Modifier.let {
+        modifier = Modifier.let {
+            var mod: Modifier = it
             if (handleLeft || handleRight) {
-                it.windowInsetsPadding(
+                mod += Modifier.windowInsetsPadding(
                     WindowInsets.displayCutout.only(
                         when {
                             handleLeft && !handleRight -> WindowInsetsSides.Left
@@ -328,11 +330,11 @@ inline fun WindowInsetsHandler(
                         }
                     ),
                 )
-            } else {
-                it
             }
-        } + modifier
-    ) {
-        content()
-    }
+            mod += modifier
+
+            mod
+        },
+        content = content
+    )
 }
