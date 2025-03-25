@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose)
-    id("com.google.android.gms.oss-licenses-plugin")
+    // id("com.google.android.gms.oss-licenses-plugin")
     kotlin("plugin.serialization") version "2.1.10"
 }
 
@@ -43,6 +43,12 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
+        }
+
+        create("releaseTest") {
+            initWith(getByName("release"))
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
     compileOptions {

@@ -29,7 +29,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import io.toolbox.BuildConfig
 import io.toolbox.R
 import io.toolbox.ui.AppIcon
@@ -64,6 +63,7 @@ fun AboutScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit)
                     style = MaterialTheme.typography.headlineLarge,
                     modifier = Modifier.padding(top = 20.dp)
                 )
+                @Suppress("KotlinConstantConditions", "RedundantSuppression")
                 Text(
                     text = "${stringResource(R.string.version_app)}${BuildConfig.VERSION_NAME}${if (BuildConfig.DEBUG) " (DEBUG)" else ""}",
                     textAlign = TextAlign.Center
@@ -80,9 +80,8 @@ fun AboutScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit)
                 Column(Modifier.width(IntrinsicSize.Max)) {
                     Button(
                         onClick = {
-                            OssLicensesMenuActivity.setActivityTitle(osl)
                             context.startActivity(
-                                Intent(context, OssLicensesMenuActivity::class.java)
+                                Intent(context, OSSLicensesActivity::class.java)
                             )
                         },
                         icon = {

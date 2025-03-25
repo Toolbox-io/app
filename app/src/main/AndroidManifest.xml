@@ -66,6 +66,7 @@
             android:name=".ui.main.DeveloperOptionsActivity"
             android:theme="@style/Theme.Toolbox_io.NoActionBar" />
         <activity android:name=".ui.main.GreenScreenActivity" />
+        <activity android:name=".ui.main.OSSLicensesActivity" />
 
         <activity
             android:name=".ui.protection.applocker.SelectAppsActivity"

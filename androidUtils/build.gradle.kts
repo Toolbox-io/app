@@ -16,6 +16,12 @@ android {
         release {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
         }
+
+        create("releaseTest") {
+            initWith(getByName("release"))
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

@@ -8,48 +8,60 @@ import io.toolbox.App.Companion.GITHUB_TOKEN
 import io.toolbox.App.Companion.githubRateLimitRemaining
 import ru.morozovit.utils.EParser
 import java.io.BufferedInputStream
+import java.io.IOException
+import java.net.HttpURLConnection
 import java.net.URL
-import javax.net.ssl.HttpsURLConnection
 
 fun download(url: String): String? {
-    val request = URL(url).openConnection() as HttpsURLConnection
-    request.requestMethod = "GET"
+    var retryWithHttps = false
+    while (true) {
+        var request: HttpURLConnection? = null
+        try {
+            request = URL(
+                if (retryWithHttps)
+                    url.replace("http://", "https://")
+                else url
+            ).openConnection() as HttpURLConnection
+            request.requestMethod = "GET"
+            request.connect()
+            if (request.responseCode == 200) {
+                val input = BufferedInputStream(request.inputStream)
+                var c: Char
 
-    try {
-        request.connect()
-        if (request.responseCode == 200) {
-            val input = BufferedInputStream(request.inputStream)
-            var c: Char
+                val chars: MutableList<Char> = mutableListOf()
 
-            val chars: MutableList<Char> = mutableListOf()
+                while (true) {
+                    c = input.read().toChar()
+                    if (c == 0.toChar() || c == '\uFFFF') break
+                    chars.add(c)
+                }
+                return String(chars.toCharArray())
+            } else {
+                Log.d("IssueReporter", "Error. HTTP response code: ${request.responseCode}")
+                val errorInput = request.errorStream!!
+                var c: Char
 
-            while (true) {
-                c = input.read().toChar()
-                if (c == 0.toChar() || c == '\uFFFF') break
-                chars.add(c)
+                val chars: MutableList<Char> = mutableListOf()
+
+                while (true) {
+                    c = errorInput.read().toChar()
+                    if (c == 0.toChar() || c == '\uFFFF') break
+                    chars.add(c)
+                }
+                val response = String(chars.toCharArray())
+                Log.d("Download", "Error response: $response")
+                error("")
             }
-            return String(chars.toCharArray())
-        } else {
-            Log.d("IssueReporter", "Error. HTTP response code: ${request.responseCode}")
-            val errorInput = request.errorStream!!
-            var c: Char
-
-            val chars: MutableList<Char> = mutableListOf()
-
-            while (true) {
-                c = errorInput.read().toChar()
-                if (c == 0.toChar() || c == '\uFFFF') break
-                chars.add(c)
+        } catch (e: Exception) {
+            Log.d("Download", "Error. \n${EParser(e)}")
+            if (e is IOException && e.message?.startsWith("Cleartext HTTP traffic to ") == true) {
+                retryWithHttps = true
+                continue
             }
-            val response = String(chars.toCharArray())
-            Log.d("Download", "Error response: $response")
-            error("")
+            return null
+        } finally {
+            request?.disconnect()
         }
-    } catch (e: Exception) {
-        Log.d("Download", "Error. \n${EParser(e)}")
-        return null
-    } finally {
-        request.disconnect()
     }
 }
 
@@ -65,7 +77,7 @@ fun getContents(
         } else {
             "https://api.github.com/repos/$owner/$repo/contents/$dir"
         }
-    ).openConnection() as HttpsURLConnection
+    ).openConnection() as HttpURLConnection
     request.requestMethod = "GET"
     request.setRequestProperty("Accept", "application/vnd.github+json")
     request.setRequestProperty("X-GitHub-Api-Version", GITHUB_API_VERSION)
