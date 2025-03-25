@@ -873,3 +873,8 @@ fun Bundle.toPersistableBundle(): PersistableBundle {
     }
     return bundle
 }
+
+inline fun String.decodeWindows1251() = String(
+    toByteArray(Charsets.ISO_8859_1),
+    Charsets.UTF_8
+)

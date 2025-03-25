@@ -103,6 +103,7 @@ import io.toolbox.ui.protection.actions.ActionsActivity
 import io.toolbox.ui.protection.applocker.SelectAppsActivity
 import kotlinx.coroutines.launch
 import ru.morozovit.android.async
+import ru.morozovit.android.decodeWindows1251
 import ru.morozovit.android.invoke
 import ru.morozovit.android.plus
 import ru.morozovit.android.ui.Category
@@ -704,10 +705,7 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                             continue
                                         }
 
-                                        val contents = String(
-                                            download(entry["download_url"].asString)!!.toByteArray(Charsets.ISO_8859_1),
-                                            Charsets.UTF_8
-                                        )
+                                        val contents = download(entry["download_url"].asString)!!.decodeWindows1251()
                                         Log.d("Guides", contents)
                                         val header = MarkdownHeaderParser.parseHeader(contents)
                                         Log.d("Guides", header.toString())

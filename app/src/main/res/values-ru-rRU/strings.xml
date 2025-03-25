@@ -188,4 +188,8 @@
     <string name="fatal_error">В приложении произошла критическая ошибка и оно остановилось.</string>
     <string name="notification_history">История уведомлений</string>
     <string name="app_manager">Менеджер приложений</string>
+    <string name="lock_app">Заблокировать</string>
+    <string name="lock_app_d">Заблокировать это приложение с помощью Блокировки приложений</string>
+    <string name="loading">Загрузка, пожалуйста подождите</string>
+    <string name="version_app">"Версия "</string>
 </resources>

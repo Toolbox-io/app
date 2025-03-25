@@ -33,10 +33,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -46,7 +44,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -68,12 +65,11 @@ import io.toolbox.Settings.Applocker.UnlockMode.LONG_PRESS_OPEN_APP_AGAIN
 import io.toolbox.Settings.Applocker.UnlockMode.LONG_PRESS_TITLE
 import io.toolbox.Settings.Applocker.UnlockMode.PRESS_TITLE
 import io.toolbox.Settings.Applocker.unlockMode
-import io.toolbox.services.Accessibility
+import io.toolbox.Settings.accessibility
 import io.toolbox.services.Accessibility.Companion.waitingForAccessibility
 import io.toolbox.services.AccessibilityKeeperService
 import io.toolbox.ui.MainActivity
 import io.toolbox.ui.WindowInsetsHandler
-import kotlinx.coroutines.launch
 import ru.morozovit.android.clearFocusOnKeyboardDismiss
 import ru.morozovit.android.homeScreen
 import ru.morozovit.android.invoke
@@ -89,7 +85,6 @@ import java.lang.Thread.sleep
 @Composable
 fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
     WindowInsetsHandler {
-        val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
         Scaffold(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -115,13 +110,15 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                     )
                 }
 
-                val errorDisablingService = stringResource(R.string.error_disabling_service)
-                val settings = stringResource(R.string.settings)
+                if (!accessibility) Settings.Applocker.enabled = false
 
                 // Main switch
                 var mainSwitch by remember {
                     mutableStateOf(
-                        Settings.accessibility
+                        if (!accessibility)
+                            false
+                        else
+                            Settings.Applocker.enabled
                     )
                 }
 
@@ -350,8 +347,9 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                         intent.flags = FLAG_ACTIVITY_NEW_TASK
                         var handler: (() -> Unit)? = null
                         handler = {
-                            if (Settings.accessibility) {
+                            if (accessibility) {
                                 mainSwitch = true
+                                Settings.Applocker.enabled = true
                                 Settings.Applocker.used = true
                             }
                             waitingForAccessibility = false
@@ -367,40 +365,12 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
 
                 // Main switch
                 val mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@{
-                    if (it) {
+                    if (it && !accessibility) {
                         openPermissionDialog = true
                         return@sw
-                    } else {
-                        var error = false
-                        try {
-                            Accessibility.instance!!.disable()
-                        } catch (_: Exception) {
-                            error = true
-                        }
-
-                        if (Settings.accessibility || error) {
-                            scope.launch {
-                                val result = snackbarHostState
-                                    .showSnackbar(
-                                        message = errorDisablingService,
-                                        actionLabel = settings,
-                                        duration = SnackbarDuration.Short
-                                    )
-                                when (result) {
-                                    SnackbarResult.ActionPerformed -> {
-                                        val intent =
-                                            Intent(ACTION_ACCESSIBILITY_SETTINGS)
-                                        intent.flags = FLAG_ACTIVITY_NEW_TASK
-                                        context.startActivity(intent)
-                                    }
-
-                                    SnackbarResult.Dismissed -> {}
-                                }
-                            }
-                            return@sw
-                        }
                     }
-                    mainSwitch = false
+                    mainSwitch = it
+                    Settings.Applocker.enabled = it
                     Settings.Applocker.used = false
                 }
 

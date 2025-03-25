@@ -65,7 +65,7 @@ fun AboutScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit)
                     modifier = Modifier.padding(top = 20.dp)
                 )
                 Text(
-                    text = "Version ${BuildConfig.VERSION_NAME}",
+                    text = "${stringResource(R.string.version_app)}${BuildConfig.VERSION_NAME}${if (BuildConfig.DEBUG) " (DEBUG)" else ""}",
                     textAlign = TextAlign.Center
                 )
                 Text(

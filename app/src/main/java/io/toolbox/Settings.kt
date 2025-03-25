@@ -32,6 +32,7 @@ object Settings {
     const val TILES_LABEL = "ehnbgedkjhn"
     const val NOTIFICATIONS_LABEL = "notificationTypes"
     const val DEVELOPER_LABEL = "developer"
+    const val NOTIFICATION_HISTORY_LABEL = "notificationHistory"
 
     const val ALLOW_BIOMETRIC_LABEL = "erjgeskh"
     const val APPLOCKER_RANDOM_KEY_LABEL = "ejn"
@@ -364,6 +365,15 @@ object Settings {
                 init = true
             }
         }
+
+        var enabled
+            get() = applocker_sharedPref.getBoolean(ENABLED_LABEL, false)
+            set(value) {
+                with(applocker_sharedPref.edit()) {
+                    putBoolean(ENABLED_LABEL, value)
+                    apply()
+                }
+            }
 
         object UnlockMode {
             const val NOTHING_SELECTED = -1
