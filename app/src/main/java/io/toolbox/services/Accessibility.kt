@@ -9,7 +9,7 @@ import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
 import android.view.accessibility.AccessibilityEvent
 import io.toolbox.Settings
-import io.toolbox.ui.MainActivity
+import io.toolbox.mainActivity
 import io.toolbox.ui.protection.applocker.FakeCrashActivity
 import ru.morozovit.android.homeScreen
 import java.lang.Thread.sleep
@@ -21,19 +21,14 @@ class Accessibility: AccessibilityService() {
     @SuppressLint("StaticFieldLeak")
     companion object {
         var instance: Accessibility? = null
-        var waitingForAccessibility = false
+        inline val running get() = instance != null
+        var returnBack = false
     }
 
     override fun onServiceConnected() {
         super.onServiceConnected()
         instance = this
-        if (waitingForAccessibility) {
-            val intent = Intent(applicationContext, MainActivity::class.java)
-            intent.flags = FLAG_ACTIVITY_NEW_TASK
-            intent.action = Intent.ACTION_MAIN
-            intent.addCategory(Intent.CATEGORY_LAUNCHER)
-            startActivity(intent)
-        }
+        if (returnBack) mainActivity()
         if (Settings.UnlockProtection.fgServiceEnabled)
             AccessibilityKeeperService.start(this)
     }

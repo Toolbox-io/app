@@ -65,8 +65,8 @@ import io.toolbox.Settings.Applocker.UnlockMode.LONG_PRESS_OPEN_APP_AGAIN
 import io.toolbox.Settings.Applocker.UnlockMode.LONG_PRESS_TITLE
 import io.toolbox.Settings.Applocker.UnlockMode.PRESS_TITLE
 import io.toolbox.Settings.Applocker.unlockMode
-import io.toolbox.Settings.accessibility
-import io.toolbox.services.Accessibility.Companion.waitingForAccessibility
+import io.toolbox.services.Accessibility
+import io.toolbox.services.Accessibility.Companion.returnBack
 import io.toolbox.services.AccessibilityKeeperService
 import io.toolbox.ui.MainActivity
 import io.toolbox.ui.WindowInsetsHandler
@@ -110,12 +110,12 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                     )
                 }
 
-                if (!accessibility) Settings.Applocker.enabled = false
+                if (!Accessibility.running) Settings.Applocker.enabled = false
 
                 // Main switch
                 var mainSwitch by remember {
                     mutableStateOf(
-                        if (!accessibility)
+                        if (!Accessibility.running)
                             false
                         else
                             Settings.Applocker.enabled
@@ -347,16 +347,16 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                         intent.flags = FLAG_ACTIVITY_NEW_TASK
                         var handler: (() -> Unit)? = null
                         handler = {
-                            if (accessibility) {
+                            if (Accessibility.running) {
                                 mainSwitch = true
                                 Settings.Applocker.enabled = true
                                 Settings.Applocker.used = true
                             }
-                            waitingForAccessibility = false
+                            returnBack = false
                             context.resumeHandlers.remove(handler)
                         }
                         context.resumeHandlers.add(handler)
-                        waitingForAccessibility = true
+                        returnBack = true
                         context.startActivity(intent)
                     },
                     negativeButtonText = stringResource(R.string.cancel),
@@ -365,7 +365,7 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
 
                 // Main switch
                 val mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@{
-                    if (it && !accessibility) {
+                    if (it && !Accessibility.running) {
                         openPermissionDialog = true
                         return@sw
                     }

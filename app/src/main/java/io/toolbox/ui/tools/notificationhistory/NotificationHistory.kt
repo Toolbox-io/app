@@ -1,6 +1,9 @@
 package io.toolbox.ui.tools.notificationhistory
 
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.graphics.drawable.Drawable
+import android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
@@ -13,6 +16,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,6 +27,7 @@ import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
@@ -33,9 +38,11 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -48,19 +55,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import io.toolbox.R
+import io.toolbox.Settings.NotificationHistory.enabled
+import io.toolbox.services.NotificationService
+import io.toolbox.ui.MainActivity
 import io.toolbox.ui.WindowInsetsHandler
 import ru.morozovit.android.invoke
 import ru.morozovit.android.plus
 import ru.morozovit.android.runOrLog
 import ru.morozovit.android.ui.ListItem
+import ru.morozovit.android.ui.SimpleAlertDialog
+import ru.morozovit.android.ui.SwitchCard
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigation: @Composable () -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
     WindowInsetsHandler {
-        with(LocalContext()) context@ {
-            rememberCoroutineScope()
-
+        with(LocalContext() as MainActivity) context@ {
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
@@ -78,160 +88,244 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                     )
                 }
             ) { innerPadding ->
-                @Composable
-                fun Notification(
-                    modifier: Modifier = Modifier,
-                    title: String,
-                    message: String,
-                    onClick: (() -> Unit)? = null,
-                    divider: Boolean,
-                    visible: Boolean,
-                    onVisibilityChange: ((Boolean) -> Unit),
-                    sourcePackageName: String,
-                    icon: Drawable? = null
-                ) {
-                    val appInfo = packageManager.getApplicationInfo(sourcePackageName, 0)
-                    val appName = appInfo.loadLabel(packageManager).toString()
+                var loading by remember { mutableStateOf(true) }
 
-                    val dismissState = rememberSwipeToDismissBoxState(
-                        confirmValueChange = {
-                            when (it) {
-                                SwipeToDismissBoxValue.StartToEnd,
-                                SwipeToDismissBoxValue.EndToStart -> {
-                                    onVisibilityChange(false)
-                                }
-
-                                SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
-                            }
-                            return@rememberSwipeToDismissBoxState true
-                        },
-                        // positional threshold of 25%
-                        positionalThreshold = { it * .5f }
-                    )
-
-                    AnimatedVisibility(
-                        visible = visible,
-                        exit = fadeOut() + shrinkVertically()
-                    ) {
-                        SwipeToDismissBox(
-                            state = dismissState,
-                            modifier = modifier,
-                            backgroundContent = {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .background(
-                                            when (dismissState.dismissDirection) {
-                                                SwipeToDismissBoxValue.StartToEnd,
-                                                SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.surface
-
-                                                SwipeToDismissBoxValue.Settled -> Color.Transparent
-                                            }
-                                        )
-                                        .padding(12.dp, 8.dp)
-                                )
-                            },
-                            content = {
-                                val computedAlpha = if (
-                                    dismissState.targetValue == SwipeToDismissBoxValue.Settled &&
-                                    dismissState.progress == 1f
-                                ) 1f
-                                else 1f - dismissState.progress
-
-                                Column {
-                                    Column(
-                                        modifier = modifier
-                                            .alpha(computedAlpha) +
-                                                if (onClick != null)
-                                                    Modifier.clickable(onClick = onClick)
-                                                else
-                                                    Modifier
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Box(
-                                                modifier =
-                                                    Modifier
-                                                        .background(
-                                                            MaterialTheme.colorScheme.primary,
-                                                            RoundedCornerShape(50)
-                                                        )
-                                                        .size(24.dp),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                if (icon != null) {
-                                                    Icon(
-                                                        painter = rememberDrawablePainter(icon),
-                                                        contentDescription = null,
-                                                        tint = MaterialTheme.colorScheme.onPrimary,
-                                                        modifier = Modifier.size(18.dp)
-                                                    )
-                                                } else {
-                                                    Icon(
-                                                        imageVector = Icons.Filled.QuestionMark,
-                                                        contentDescription = null,
-                                                        tint = MaterialTheme.colorScheme.onPrimary,
-                                                        modifier = Modifier.size(18.dp)
-                                                    )
-                                                }
-                                            }
-                                            Spacer(Modifier.width(16.dp))
-                                            Text(
-                                                text = appName,
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = MaterialTheme.colorScheme.onSurface,
-                                                fontSize = 13.sp
-                                            )
-                                        }
-                                        ListItem(
-                                            headline = title,
-                                            supportingText = message,
-                                            leadingContent = {
-                                                Spacer(Modifier.width(24.dp))
-                                            }
-                                        )
-                                    }
-                                    if (divider) {
-                                        HorizontalDivider()
-                                    }
-                                }
-                            }
+                Box(modifier = Modifier.padding(innerPadding)) {
+                    if (loading) {
+                        LinearProgressIndicator(
+                            Modifier.fillMaxWidth()
                         )
                     }
-                }
-                val notifications = remember { mutableStateListOf<NotificationData>() }
 
-                LaunchedEffect(Unit) {
-                    notifications += NotificationDatabase.list
-                }
+                    @Composable
+                    fun Notification(
+                        modifier: Modifier = Modifier,
+                        title: String,
+                        message: String,
+                        onClick: (() -> Unit)? = null,
+                        divider: Boolean,
+                        visible: Boolean,
+                        onVisibilityChange: ((Boolean) -> Unit),
+                        sourcePackageName: String,
+                        icon: Drawable? = null
+                    ) {
+                        val appInfo = packageManager.getApplicationInfo(sourcePackageName, 0)
+                        val appName = appInfo.loadLabel(packageManager).toString()
 
-                // TODO date markers and separators
-                LazyColumn(contentPadding = innerPadding) {
-                    // TODO switch
-
-                    items(notifications.size) { index ->
-                        with (notifications[index]) {
-                            Notification(
-                                title = title,
-                                message = message,
-                                onClick = {
-                                    runOrLog("NotificationHistory") {
-                                        startActivity(packageManager.getLaunchIntentForPackage(sourcePackageName))
+                        val dismissState = rememberSwipeToDismissBoxState(
+                            confirmValueChange = {
+                                when (it) {
+                                    SwipeToDismissBoxValue.StartToEnd,
+                                    SwipeToDismissBoxValue.EndToStart -> {
+                                        onVisibilityChange(false)
                                     }
+
+                                    SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
+                                }
+                                return@rememberSwipeToDismissBoxState true
+                            },
+                            // positional threshold of 25%
+                            positionalThreshold = { it * .5f }
+                        )
+
+                        AnimatedVisibility(
+                            visible = visible,
+                            exit = fadeOut() + shrinkVertically()
+                        ) {
+                            SwipeToDismissBox(
+                                state = dismissState,
+                                modifier = modifier,
+                                backgroundContent = {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(
+                                                when (dismissState.dismissDirection) {
+                                                    SwipeToDismissBoxValue.StartToEnd,
+                                                    SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.surface
+
+                                                    SwipeToDismissBoxValue.Settled -> Color.Transparent
+                                                }
+                                            )
+                                            .padding(12.dp, 8.dp)
+                                    )
                                 },
-                                divider = index != notifications.size - 1,
-                                visible = visible,
-                                onVisibilityChange = {
-                                    visible = it
-                                    if (!visible) {
-                                        NotificationDatabase -= this
+                                content = {
+                                    val computedAlpha = if (
+                                        dismissState.targetValue == SwipeToDismissBoxValue.Settled &&
+                                        dismissState.progress == 1f
+                                    ) 1f
+                                    else 1f - dismissState.progress
+
+                                    Column {
+                                        Column(
+                                            modifier = modifier
+                                                .alpha(computedAlpha) +
+                                                    if (onClick != null)
+                                                        Modifier.clickable(onClick = onClick)
+                                                    else
+                                                        Modifier
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Box(
+                                                    modifier =
+                                                        Modifier
+                                                            .background(
+                                                                MaterialTheme.colorScheme.primary,
+                                                                RoundedCornerShape(50)
+                                                            )
+                                                            .size(24.dp),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    if (icon != null) {
+                                                        Icon(
+                                                            painter = rememberDrawablePainter(icon),
+                                                            contentDescription = null,
+                                                            tint = MaterialTheme.colorScheme.onPrimary,
+                                                            modifier = Modifier.size(18.dp)
+                                                        )
+                                                    } else {
+                                                        Icon(
+                                                            imageVector = Icons.Filled.QuestionMark,
+                                                            contentDescription = null,
+                                                            tint = MaterialTheme.colorScheme.onPrimary,
+                                                            modifier = Modifier.size(18.dp)
+                                                        )
+                                                    }
+                                                }
+                                                Spacer(Modifier.width(16.dp))
+                                                Text(
+                                                    text = appName,
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MaterialTheme.colorScheme.onSurface,
+                                                    fontSize = 13.sp
+                                                )
+                                            }
+                                            ListItem(
+                                                headline = title,
+                                                supportingText = message,
+                                                leadingContent = {
+                                                    Spacer(Modifier.width(24.dp))
+                                                }
+                                            )
+                                        }
+                                        if (divider) {
+                                            HorizontalDivider()
+                                        }
                                     }
-                                },
-                                sourcePackageName = sourcePackageName,
-                                icon = icon
+                                }
                             )
+                        }
+                    }
+
+                    val notifications = remember { mutableStateListOf<NotificationData>() }
+
+                    LaunchedEffect(NotificationService.lastNotification) {
+                        notifications += NotificationDatabase.list
+                        loading = false
+                    }
+
+                    @Composable
+                    fun MainSwitch() {
+                        var openPermissionDialog by remember { mutableStateOf(false) }
+                        fun onPermissionDialogDismiss() {
+                            openPermissionDialog = false
+                        }
+
+                        if (!NotificationService.running) enabled = false
+                        var mainSwitch by remember { mutableStateOf(enabled && NotificationService.running) }
+                        var mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@{
+                            if (it && !NotificationService.running) {
+                                openPermissionDialog = true
+                                return@sw
+                            }
+                            mainSwitch = it
+                            enabled = it
+                        }
+
+                        SimpleAlertDialog(
+                            open = openPermissionDialog,
+                            onDismissRequest = ::onPermissionDialogDismiss,
+                            title = stringResource(R.string.permissions_required),
+                            body = stringResource(R.string.nh_permissions),
+                            positiveButtonText = stringResource(R.string.ok),
+                            onPositiveButtonClick = {
+                                val intent = Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                                intent.flags = FLAG_ACTIVITY_NEW_TASK
+                                var handler: (() -> Unit)? = null
+                                handler = {
+                                    if (NotificationService.running) {
+                                        mainSwitch = true
+                                        enabled = true
+                                    }
+                                    NotificationService.returnBack = false
+                                    resumeHandlers.remove(handler)
+                                }
+                                resumeHandlers.add(handler)
+                                NotificationService.returnBack = true
+                                startActivity(intent)
+                            },
+                            negativeButtonText = stringResource(R.string.cancel),
+                            onNegativeButtonClick = ::onPermissionDialogDismiss
+                        )
+
+                        SwitchCard(
+                            text = stringResource(R.string.enable),
+                            checked = mainSwitch,
+                            onCheckedChange = mainSwitchOnCheckedChange,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
+                    }
+
+                    // TODO date markers and separators
+                    if (notifications.isNotEmpty() || loading) {
+                        LazyColumn {
+                            item {
+                                MainSwitch()
+                            }
+
+                            items(notifications.size) { index ->
+                                with(notifications[index]) {
+                                    Notification(
+                                        title = title,
+                                        message = message,
+                                        onClick = {
+                                            runOrLog("NotificationHistory") {
+                                                startActivity(packageManager.getLaunchIntentForPackage(sourcePackageName))
+                                            }
+                                        },
+                                        divider = index != notifications.size - 1,
+                                        visible = visible,
+                                        onVisibilityChange = {
+                                            visible = it
+                                            if (!visible) {
+                                                NotificationDatabase -= this
+                                            }
+                                        },
+                                        sourcePackageName = sourcePackageName,
+                                        icon = icon
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        Column {
+                            MainSwitch()
+                            Box(
+                                Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.no_notifications),
+                                    modifier = Modifier
+                                        .padding(16.dp)
+                                        .align(Alignment.Center)
+                                )
+                            }
                         }
                     }
                 }

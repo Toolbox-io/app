@@ -1,11 +1,15 @@
 package io.toolbox
 
+import android.content.Context
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.util.Log
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import io.toolbox.App.Companion.GITHUB_API_VERSION
 import io.toolbox.App.Companion.GITHUB_TOKEN
 import io.toolbox.App.Companion.githubRateLimitRemaining
+import io.toolbox.ui.MainActivity
 import ru.morozovit.utils.EParser
 import java.io.BufferedInputStream
 import java.io.IOException
@@ -123,4 +127,14 @@ fun getContents(
         }
         request.disconnect()
     }
+}
+
+fun Context.mainActivity() {
+    startActivity(
+        Intent(this, MainActivity::class.java).apply {
+            flags = FLAG_ACTIVITY_NEW_TASK
+            action = Intent.ACTION_MAIN
+            addCategory(Intent.CATEGORY_LAUNCHER)
+        }
+    )
 }

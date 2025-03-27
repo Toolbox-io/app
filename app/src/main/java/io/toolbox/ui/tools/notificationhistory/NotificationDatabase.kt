@@ -39,13 +39,20 @@ object NotificationDatabase {
             if (notificationHistoryDir.exists()) {
                 val files = notificationHistoryDir.listFiles()
                 val needsPair = mutableMapOf<String, NotificationData>()
-                files?.sortedBy { it.name }?.forEach { file ->
+
+                val processLater = mutableListOf<File>()
+
+                fun callback(file: File) {
                     try {
-                        if (file.nameWithoutExtension in needsPair.keys && file.extension == "png") {
-                            needsPair[file.nameWithoutExtension]!!.notificationIconFile = file
-                            needsPair.remove(file.nameWithoutExtension)
+                        if (file.nameWithoutExtension.substringBeforeLast(".") in needsPair.keys && file.extension == "png") {
+                            needsPair[file.nameWithoutExtension.substringBeforeLast(".")]!!.notificationIconFile = file
+                            needsPair.remove(file.nameWithoutExtension.substringBeforeLast("."))
+                            return
                         }
-                        if (file.extension != "notification") return
+                        if (file.extension != "notification") {
+                            if (file !in processLater) processLater += file
+                            return
+                        }
                         val inputStream = FileInputStream(file)
                         val objectInputStream = ObjectInputStream(inputStream)
                         val notificationData = objectInputStream.readObject() as NotificationData
@@ -58,6 +65,9 @@ object NotificationDatabase {
                         e.printStackTrace()
                     }
                 }
+
+                files?.sortedBy { it.name }?.forEach(::callback)
+                processLater.forEach(::callback)
             }
         }
     }

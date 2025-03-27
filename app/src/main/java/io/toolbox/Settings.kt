@@ -11,7 +11,6 @@ import android.media.MediaPlayer
 import android.os.Build
 import android.util.Log
 import androidx.core.net.toUri
-import io.toolbox.services.Accessibility
 import io.toolbox.ui.Theme
 import io.toolbox.ui.protection.actions.intruderphoto.IntruderPhotoService.Companion.takePhoto
 import ru.morozovit.android.decrypt
@@ -61,12 +60,14 @@ object Settings {
     fun init(context: Context) {
         if (!init) {
             global_sharedPref = context.getSharedPreferences(MAIN_LABEL, Context.MODE_PRIVATE)
+
             // Init sub-objects
             Keys.init(context)
             Applocker.init(context)
             UnlockProtection.init(context)
             Tiles.init(context)
             Notifications.init(context)
+            NotificationHistory.init(context)
             Developer.init(context)
             init = true
         }
@@ -80,8 +81,6 @@ object Settings {
                 apply()
             }
         }
-
-    val accessibility get() = Accessibility.instance != null
 
     var allowBiometric
         get() = global_sharedPref.getBoolean(ALLOW_BIOMETRIC_LABEL, false)
@@ -517,14 +516,37 @@ object Settings {
         }
     }
 
+    object NotificationHistory {
+        private lateinit var notificationHistory_sharedPref: SharedPreferences
+        private var init = false
+
+        fun init(context: Context) {
+            if (!init) {
+                notificationHistory_sharedPref = context.getSharedPreferences(
+                    NOTIFICATION_HISTORY_LABEL,
+                    Context.MODE_PRIVATE
+                )
+                init = true
+            }
+        }
+
+        var enabled
+            get() = notificationHistory_sharedPref.getBoolean(ENABLED_LABEL, false)
+            set(value) {
+                with(notificationHistory_sharedPref.edit()) {
+                    putBoolean(ENABLED_LABEL, value)
+                    apply()
+                }
+            }
+    }
+
     object Developer {
         private lateinit var developer_sharedPref: SharedPreferences
         private var init = false
 
         fun init(context: Context) {
             if (!init) {
-                developer_sharedPref =
-                    context.getSharedPreferences(DEVELOPER_LABEL, Context.MODE_PRIVATE)
+                developer_sharedPref = context.getSharedPreferences(DEVELOPER_LABEL, Context.MODE_PRIVATE)
                 init = true
             }
         }

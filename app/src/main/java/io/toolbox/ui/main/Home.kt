@@ -88,11 +88,11 @@ import androidx.core.net.toUri
 import androidx.core.os.postDelayed
 import io.toolbox.R
 import io.toolbox.Settings
-import io.toolbox.Settings.accessibility
 import io.toolbox.Settings.update_dsa
 import io.toolbox.download
 import io.toolbox.getContents
-import io.toolbox.services.Accessibility.Companion.waitingForAccessibility
+import io.toolbox.services.Accessibility
+import io.toolbox.services.Accessibility.Companion.returnBack
 import io.toolbox.services.UpdateChecker.Companion.DOWNLOAD_BROADCAST
 import io.toolbox.services.UpdateChecker.Companion.DownloadBroadcastReceiver
 import io.toolbox.services.UpdateChecker.Companion.checkForUpdates
@@ -550,7 +550,7 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                             notifications += notification
                         }
                         if (Settings.Applocker.used) {
-                            if (!accessibility) {
+                            if (!Accessibility.running) {
                                 var notification: NotificationData? = null
                                 notification = NotificationData(
                                     title = R.string.reenable_accessibility,
@@ -562,15 +562,15 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                                 intent.flags = FLAG_ACTIVITY_NEW_TASK
                                                 var resumeHandler: (() -> Unit)? = null
                                                 resumeHandler = {
-                                                    if (accessibility) {
+                                                    if (Accessibility.running) {
                                                         notification!!.visible = false
                                                         Settings.Applocker.used = true
                                                     }
-                                                    waitingForAccessibility = false
+                                                    returnBack = false
                                                     context.resumeHandlers.remove(resumeHandler)
                                                 }
                                                 context.resumeHandlers.add(resumeHandler)
-                                                waitingForAccessibility = true
+                                                returnBack = true
                                                 context.startActivity(intent)
                                             }
                                         ) {
