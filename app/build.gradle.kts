@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose)
     id("com.google.android.gms.oss-licenses-plugin")
-    kotlin("plugin.serialization") version "2.1.10"
+    kotlin("plugin.serialization") version "2.1.20"
 }
 
 android {
@@ -88,6 +88,8 @@ dependencies {
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.accompanist.drawablepainter)
+
+    implementation(libs.play.services.oss.licenses)
 
     implementation(project(":androidUtils"))
     implementation(project(":utils"))
