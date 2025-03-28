@@ -224,6 +224,8 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                     val notifications = remember { mutableStateListOf<NotificationData>() }
 
                     LaunchedEffect(NotificationService.lastNotification) {
+                        loading = true
+                        notifications.clear()
                         notifications += NotificationDatabase.list
                         loading = false
                     }

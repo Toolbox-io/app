@@ -29,8 +29,3 @@
 # Keep icons so they can be used in reflection
 -keep public class androidx.compose.material.icons.Icons$*
 -keep public class androidx.compose.material.icons.filled.*
--keep public class androidx.compose.material.icons.outlined.*
--keep public class androidx.compose.material.icons.rounded.*
--keep public class androidx.compose.material.icons.sharp.*
--keep public class androidx.compose.material.icons.twotone.*
--keep public class androidx.compose.material.icons.automirrored.*
