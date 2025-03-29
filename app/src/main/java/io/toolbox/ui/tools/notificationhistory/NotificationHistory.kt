@@ -226,7 +226,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                     LaunchedEffect(NotificationService.lastNotification) {
                         loading = true
                         notifications.clear()
-                        notifications += NotificationDatabase.list
+                        notifications += NotificationDatabase.list.asReversed()
                         loading = false
                     }
 
@@ -289,27 +289,29 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                                 MainSwitch()
                             }
 
-                            items(notifications.size) { index ->
-                                with(notifications[index]) {
-                                    Notification(
-                                        title = title,
-                                        message = message,
-                                        onClick = {
-                                            runOrLog("NotificationHistory") {
-                                                startActivity(packageManager.getLaunchIntentForPackage(sourcePackageName))
-                                            }
-                                        },
-                                        divider = index != notifications.size - 1,
-                                        visible = visible,
-                                        onVisibilityChange = {
-                                            visible = it
-                                            if (!visible) {
-                                                NotificationDatabase -= this
-                                            }
-                                        },
-                                        sourcePackageName = sourcePackageName,
-                                        icon = icon
-                                    )
+                            for (index in notifications.indices) {
+                                item {
+                                    with(notifications[index]) {
+                                        Notification(
+                                            title = title,
+                                            message = message,
+                                            onClick = {
+                                                runOrLog("NotificationHistory") {
+                                                    startActivity(packageManager.getLaunchIntentForPackage(sourcePackageName))
+                                                }
+                                            },
+                                            divider = index != notifications.size - 1,
+                                            visible = visible,
+                                            onVisibilityChange = {
+                                                visible = it
+                                                if (!visible) {
+                                                    NotificationDatabase -= this
+                                                }
+                                            },
+                                            sourcePackageName = sourcePackageName,
+                                            icon = icon
+                                        )
+                                    }
                                 }
                             }
                         }
