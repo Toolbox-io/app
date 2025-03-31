@@ -226,7 +226,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                     LaunchedEffect(NotificationService.lastNotification) {
                         loading = true
                         notifications.clear()
-                        notifications += NotificationDatabase.list.asReversed()
+                        notifications += NotificationDatabase.list
                         loading = false
                     }
 
@@ -289,7 +289,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                                 MainSwitch()
                             }
 
-                            for (index in notifications.indices) {
+                            for (index in notifications.indices.reversed()) {
                                 item {
                                     with(notifications[index]) {
                                         Notification(

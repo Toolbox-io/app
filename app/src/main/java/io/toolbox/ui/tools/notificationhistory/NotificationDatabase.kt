@@ -26,9 +26,27 @@ object NotificationDatabase {
         File(context.filesDir, "notification_history").also { it.mkdir() }
     }
 
+    private inline fun optimize() {
+        val delete = mutableListOf<NotificationData>()
+
+        _notifications.forEach action@ { n ->
+            if (n in delete) return@action
+            delete += _notifications.filter {
+                it !== n &&
+                it.title == n.title &&
+                it.message == n.message &&
+                it.sourcePackageName == n.sourcePackageName
+            }
+        }
+        delete.forEach {
+            _notifications -= it
+        }
+    }
+
     private fun init() {
         if (!init) {
             load()
+            optimize()
             init = true
         }
     }
@@ -87,8 +105,7 @@ object NotificationDatabase {
                     _notifications.find {
                         it.title == title &&
                         it.message == message &&
-                        it.sourcePackageName == sourcePackageName &&
-                        it.date == date
+                        it.sourcePackageName == sourcePackageName
                     } != null
                 ) return
 
