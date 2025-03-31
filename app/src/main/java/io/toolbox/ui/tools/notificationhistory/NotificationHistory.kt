@@ -4,9 +4,13 @@ import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.graphics.drawable.Drawable
 import android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -30,18 +34,25 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxState.Companion.Saver
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +60,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -59,6 +71,7 @@ import io.toolbox.Settings.NotificationHistory.enabled
 import io.toolbox.services.NotificationService
 import io.toolbox.ui.MainActivity
 import io.toolbox.ui.WindowInsetsHandler
+import kotlinx.coroutines.launch
 import ru.morozovit.android.invoke
 import ru.morozovit.android.plus
 import ru.morozovit.android.runOrLog
@@ -71,6 +84,14 @@ import ru.morozovit.android.ui.SwitchCard
 fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigation: @Composable () -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
     WindowInsetsHandler {
         with(LocalContext() as MainActivity) context@ {
+            val snackbarHostState = remember { SnackbarHostState() }
+            val coroutineScope = rememberCoroutineScope()
+
+            val notification_deleted = stringResource(R.string.notification_deleted)
+            val undo = stringResource(R.string.undo)
+
+            // TODO settings & search
+
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
@@ -86,6 +107,9 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                         actions = actions,
                         scrollBehavior = scrollBehavior
                     )
+                },
+                snackbarHost = {
+                    SnackbarHost(snackbarHostState)
                 }
             ) { innerPadding ->
                 var loading by remember { mutableStateOf(true) }
@@ -112,24 +136,55 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                         val appInfo = packageManager.getApplicationInfo(sourcePackageName, 0)
                         val appName = appInfo.loadLabel(packageManager).toString()
 
-                        val dismissState = rememberSwipeToDismissBoxState(
-                            confirmValueChange = {
-                                when (it) {
-                                    SwipeToDismissBoxValue.StartToEnd,
-                                    SwipeToDismissBoxValue.EndToStart -> {
-                                        onVisibilityChange(false)
-                                    }
+                        var prevValue by remember { mutableStateOf<Boolean?>(null) }
+                        var resetState by remember { mutableStateOf(false) }
 
-                                    SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
+                        fun callOnVisibilityChange(value: Boolean) {
+                            if (value != prevValue) {
+                                onVisibilityChange(value)
+                                prevValue = value
+                            }
+                        }
+
+                        val density = LocalDensity()
+                        val confirmValueChange: (SwipeToDismissBoxValue) -> Boolean = v@ {
+                            when (it) {
+                                SwipeToDismissBoxValue.StartToEnd,
+                                SwipeToDismissBoxValue.EndToStart -> {
+                                    callOnVisibilityChange(false)
                                 }
-                                return@rememberSwipeToDismissBoxState true
-                            },
-                            // positional threshold of 25%
-                            positionalThreshold = { it * .5f }
-                        )
+                                SwipeToDismissBoxValue.Settled -> return@v false
+                            }
+                            return@v true
+                        }
+                        val positionalThreshold: (Float) -> Float = { it * .5f }
+
+                        val dismissState = rememberSaveable(
+                            resetState,
+                            saver = Saver(
+                                confirmValueChange = confirmValueChange,
+                                density = density,
+                                positionalThreshold = positionalThreshold
+                            )
+                        ) {
+                            resetState = false
+                            prevValue = null
+                            SwipeToDismissBoxState(
+                                SwipeToDismissBoxValue.Settled,
+                                density,
+                                confirmValueChange,
+                                positionalThreshold
+                            )
+                        }
+
+                        LaunchedEffect(visible) {
+                            if (visible)
+                                resetState = true
+                        }
 
                         AnimatedVisibility(
                             visible = visible,
+                            enter = fadeIn() + expandVertically() + slideInHorizontally(),
                             exit = fadeOut() + shrinkVertically()
                         ) {
                             SwipeToDismissBox(
@@ -156,15 +211,16 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                                         dismissState.progress == 1f
                                     ) 1f
                                     else 1f - dismissState.progress
+                                    Log.d("NotificationHistory", computedAlpha.toString())
 
                                     Column {
                                         Column(
                                             modifier = modifier
                                                 .alpha(computedAlpha) +
-                                                    if (onClick != null)
-                                                        Modifier.clickable(onClick = onClick)
-                                                    else
-                                                        Modifier
+                                                if (onClick != null)
+                                                    Modifier.clickable(onClick = onClick)
+                                                else
+                                                    Modifier
                                         ) {
                                             Row(
                                                 modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
@@ -289,9 +345,11 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                                 MainSwitch()
                             }
 
+                            // TODO sorting order sticky header
+
                             for (index in notifications.indices.reversed()) {
                                 item {
-                                    with(notifications[index]) {
+                                    with(notifications[index]) notification@ {
                                         Notification(
                                             title = title,
                                             message = message,
@@ -303,9 +361,24 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                                             divider = index != notifications.size - 1,
                                             visible = visible,
                                             onVisibilityChange = {
+                                                Log.d("NotificationHistory", "visibility for $this changed to $it")
                                                 visible = it
                                                 if (!visible) {
-                                                    NotificationDatabase -= this
+                                                    coroutineScope.launch {
+                                                        val result = snackbarHostState.showSnackbar(
+                                                            message = notification_deleted,
+                                                            actionLabel = undo,
+                                                            duration = SnackbarDuration.Long,
+                                                        )
+                                                        when (result) {
+                                                            SnackbarResult.Dismissed -> {
+                                                                NotificationDatabase -= this@notification
+                                                            }
+                                                            SnackbarResult.ActionPerformed -> {
+                                                                visible = true
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             },
                                             sourcePackageName = sourcePackageName,

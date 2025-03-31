@@ -32,6 +32,8 @@ object NotificationDatabase {
         _notifications.forEach action@ { n ->
             if (n in delete) return@action
             delete += _notifications.filter {
+                // TODO filter useless messages by regex
+                //      "^\s*(\d+\s+)?(new)?\s+messages?(\s+from\s+\d+\s+chats?)?\s*$"
                 it !== n &&
                 it.title == n.title &&
                 it.message == n.message &&
