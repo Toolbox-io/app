@@ -198,4 +198,9 @@
     <string name="nh_permissions">This feature requires the notification access permission in order to work. This permission is needed to detect and save all notifications that are posted on your device.\nThis permission is NEVER used for anything not listed here.</string>
     <string name="notification_deleted">Notification deleted</string>
     <string name="undo">Undo</string>
+    <string name="remove_duplicates">Remove duplicates</string>
+    <string name="remove_duplicates_d">Removes all duplicate notifications from the same app and with the same title and body</string>
+    <string name="remove_useless_notifications">Remove useless notifications</string>
+    <string name="remove_useless_notifications_d">Remove useless notifications like \"12 new messages from 5 chats\"</string>
+    <string name="select_apps_2_d">Select the applications from which the notifications will be saved</string>
 </resources>

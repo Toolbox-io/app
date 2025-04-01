@@ -251,11 +251,9 @@ class MainActivity : BaseActivity(
 
             val currentEntry = navController.currentBackStackEntryAsState()
 
-            LaunchedEffect(Unit) {
-                snapshotFlow { currentEntry.value }.collect {
-                    runCatching {
-                        selectedItem = it!!.destination.route!!
-                    }
+            LaunchedEffect(currentEntry.value) {
+                runCatching {
+                    selectedItem = currentEntry.value!!.destination.route!!
                 }
             }
 

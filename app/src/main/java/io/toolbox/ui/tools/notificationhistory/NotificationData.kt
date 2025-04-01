@@ -22,21 +22,24 @@ data class NotificationData(
         @Serial
         const val serialVersionUID = 23592935634587396L
     }
+    @Suppress("KotlinConstantConditions")
     @Transient
-    var _visible: MutableState<Boolean>? = mutableStateOf(true)
-
-    var visible: Boolean
+    var visible: MutableState<Boolean> = mutableStateOf(true)
         get() {
-            if (_visible == null) {
-                _visible = mutableStateOf(true)
+            if (field as MutableState<Boolean>? == null) {
+                field = mutableStateOf(true)
             }
-            return _visible!!.value
+            return field
         }
-        set(value) {
-            if (_visible == null) {
-                _visible = mutableStateOf(true)
+
+    @Suppress("KotlinConstantConditions")
+    @Transient
+    var visibleInSearch: MutableState<Boolean> = mutableStateOf(true)
+        get() {
+            if (field as MutableState<Boolean>? == null) {
+                field = mutableStateOf(true)
             }
-            _visible!!.value = value
+            return field
         }
 
     @Transient
@@ -76,15 +79,20 @@ data class NotificationData(
             icon == other.icon
     }
 
+    @Suppress("UNNECESSARY_SAFE_CALL")
     override fun hashCode(): Int {
         var result = title.hashCode()
         result = 31 * result + message.hashCode()
         result = 31 * result + sourcePackageName.hashCode()
         result = 31 * result + (icon?.hashCode() ?: 0)
-        result = 31 * result + (_visible?.hashCode() ?: 0)
+        result = 31 * result + (visible?.hashCode() ?: 0)
+        result = 31 * result + (visibleInSearch?.hashCode() ?: 0)
         result = 31 * result + (notificationFile?.hashCode() ?: 0)
         result = 31 * result + (notificationIconFile?.hashCode() ?: 0)
         result = 31 * result + visible.hashCode()
+        result = 31 * result + visibleInSearch.hashCode()
+        result = 31 * result + (date?.hashCode() ?: 0)
+        result = 31 * result + (time?.hashCode() ?: 0)
         return result
     }
 }

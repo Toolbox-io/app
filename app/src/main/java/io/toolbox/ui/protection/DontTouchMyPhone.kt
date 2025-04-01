@@ -133,17 +133,15 @@ fun DontTouchMyPhoneScreen(@Suppress("LocalVariableName") EdgeToEdgeBar: @Compos
                     }
                 }
 
-                LaunchedEffect(Unit) {
-                    snapshotFlow { touched }.collect {
-                        if (it) {
-                            started = false
-                            touched = false
-                            Settings.Actions.run(
-                                context,
-                                mediaPlayer,
-                                context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                            )
-                        }
+                LaunchedEffect(touched) {
+                    if (touched) {
+                        started = false
+                        touched = false
+                        Settings.Actions.run(
+                            context,
+                            mediaPlayer,
+                            context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                        )
                     }
                 }
 

@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
 import io.toolbox.App.Companion.context
+import io.toolbox.Settings
 import ru.morozovit.android.async
 import ru.morozovit.android.runOrLog
 import java.io.File
@@ -26,18 +27,28 @@ object NotificationDatabase {
         File(context.filesDir, "notification_history").also { it.mkdir() }
     }
 
-    private inline fun optimize() {
+    fun optimize() {
         val delete = mutableListOf<NotificationData>()
 
         _notifications.forEach action@ { n ->
             if (n in delete) return@action
             delete += _notifications.filter {
-                // TODO filter useless messages by regex
-                //      "^\s*(\d+\s+)?(new)?\s+messages?(\s+from\s+\d+\s+chats?)?\s*$"
-                it !== n &&
-                it.title == n.title &&
-                it.message == n.message &&
-                it.sourcePackageName == n.sourcePackageName
+                if (Settings.NotificationHistory.removeDuplicates) {
+                    return@filter (
+                        it !== n &&
+                        it.title == n.title &&
+                        it.message == n.message &&
+                        it.sourcePackageName == n.sourcePackageName
+                    )
+                }
+                if (Settings.NotificationHistory.removeUselessNotifications) {
+                    return@filter (
+                        "^\\s*(\\d+\\s+)?(new)?\\s+messages?(\\s+from\\s+\\d+\\s+chats?)?\\s*$"
+                            .toRegex()
+                            .matches(it.message)
+                    )
+                }
+                true
             }
         }
         delete.forEach {

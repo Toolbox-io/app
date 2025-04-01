@@ -11,6 +11,7 @@ import android.media.MediaPlayer
 import android.os.Build
 import android.util.Log
 import androidx.core.net.toUri
+import io.toolbox.App.Companion.context
 import io.toolbox.ui.Theme
 import io.toolbox.ui.protection.actions.intruderphoto.IntruderPhotoService.Companion.takePhoto
 import ru.morozovit.android.decrypt
@@ -56,6 +57,8 @@ object Settings {
     const val SLEEP_LABEL = "hbgewsrjkhn"
     const val USED_LABEL = "jtesnhjsertjsr"
     const val REPLACE_PHOTOS_WITH_INTRUDER_LABEL = "replacePhotosWithIntruder"
+    const val REMOVE_DUPLICATES_LABEL = "removeDuplicates"
+    const val REMOVE_USELESS_NOTIFICATIONS_LABEL = "removeUselessNotifications"
 
     fun init(context: Context) {
         if (!init) {
@@ -535,6 +538,40 @@ object Settings {
             set(value) {
                 with(notificationHistory_sharedPref.edit()) {
                     putBoolean(ENABLED_LABEL, value)
+                    apply()
+                }
+            }
+
+        var removeDuplicates
+            get() = notificationHistory_sharedPref.getBoolean(REMOVE_DUPLICATES_LABEL, true)
+            set(value) {
+                with(notificationHistory_sharedPref.edit()) {
+                    putBoolean(REMOVE_DUPLICATES_LABEL, value)
+                    apply()
+                }
+            }
+
+        var removeUselessNotifications
+            get() = notificationHistory_sharedPref.getBoolean(REMOVE_USELESS_NOTIFICATIONS_LABEL, true)
+            set(value) {
+                with(notificationHistory_sharedPref.edit()) {
+                    putBoolean(REMOVE_USELESS_NOTIFICATIONS_LABEL, value)
+                    apply()
+                }
+            }
+
+        var apps: Set<String>
+            get() = notificationHistory_sharedPref.getStringSet(
+                SELECTED_APPS_LABEL,
+                context
+                    .packageManager
+                    .getInstalledPackages(0)
+                    .map { it.packageName }
+                    .toSet()
+            )!!
+            set(value) {
+                with(notificationHistory_sharedPref.edit()) {
+                    putStringSet(SELECTED_APPS_LABEL, value)
                     apply()
                 }
             }

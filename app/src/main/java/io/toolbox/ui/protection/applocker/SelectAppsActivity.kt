@@ -179,19 +179,17 @@ class SelectAppsActivity: BaseActivity() {
                     var compose by remember { mutableStateOf(true) }
 
                     LaunchedEffect(list[it]) {
-                        coroutineScope.launch {
-                            val info = list[it].applicationInfo
-                            if (info != null) {
-                                appName = info.loadLabel(packageManager).toString()
-                                appPackage = if (appName != list[it].packageName) {
-                                    list[it].packageName
-                                } else {
-                                    null
-                                }
-                                appIcon = info.loadIcon(packageManager).toBitmap().asImageBitmap()
+                        val info = list[it].applicationInfo
+                        if (info != null) {
+                            appName = info.loadLabel(packageManager).toString()
+                            appPackage = if (appName != list[it].packageName) {
+                                list[it].packageName
                             } else {
-                                compose = false
+                                null
                             }
+                            appIcon = info.loadIcon(packageManager).toBitmap().asImageBitmap()
+                        } else {
+                            compose = false
                         }
                     }
 
@@ -237,27 +235,25 @@ class SelectAppsActivity: BaseActivity() {
             }
 
             LaunchedEffect(Unit) {
-                coroutineScope.launch {
-                    val appsList = packageManager.getInstalledPackages(GET_ACTIVITIES).toMutableList()
-                    selectedApps.addAll(Settings.Applocker.apps)
+                val appsList = packageManager.getInstalledPackages(GET_ACTIVITIES).toMutableList()
+                selectedApps.addAll(Settings.Applocker.apps)
 
-                    val sorted = appsList.sortedBy {
-                        it.applicationInfo?.loadLabel(packageManager).toString()
+                val sorted = appsList.sortedBy {
+                    it.applicationInfo?.loadLabel(packageManager).toString()
+                }
+
+                apps.addAll(sorted)
+
+                val toRemove = mutableListOf<PackageInfo>()
+
+                apps.forEach { app ->
+                    if (app.activities.isNullOrEmpty()) {
+                        toRemove += app
                     }
+                }
 
-                    apps.addAll(sorted)
-
-                    val toRemove = mutableListOf<PackageInfo>()
-
-                    apps.forEach { app ->
-                        if (app.activities.isNullOrEmpty()) {
-                            toRemove += app
-                        }
-                    }
-
-                    toRemove.forEach {
-                        apps.remove(it)
-                    }
+                toRemove.forEach {
+                    apps.remove(it)
                 }
             }
 

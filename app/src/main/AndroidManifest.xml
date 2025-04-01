@@ -108,6 +108,13 @@
             android:theme="@style/Theme.SplashScreen.Files" />
 
         <activity
+            android:name=".ui.tools.notificationhistory.NotificationHistorySettingsActivity"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar" />
+        <activity
+            android:name=".ui.tools.notificationhistory.SelectAppsActivity"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar" />
+
+        <activity
             android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"
             android:theme="@style/Theme.Toolbox_io.Licenses" />
         <activity
