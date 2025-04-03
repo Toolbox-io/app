@@ -39,14 +39,14 @@
         android:roundIcon="@mipmap/app_icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.UltimateSecurity"
+        android:theme="@style/Theme.Toolbox_io"
         tools:targetApi="35"
         android:name=".App"
         android:enableOnBackInvokedCallback="true">
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.UltimateSecurity.SplashScreen"
+            android:theme="@style/Theme.Toolbox_io.SplashScreen"
             android:configChanges="keyboardHidden|navigation|keyboard">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -61,49 +61,46 @@
         </activity>
         <activity
             android:name=".ui.main.GuideActivity"
-            android:theme="@style/Theme.UltimateSecurity.ToolboxIOWebsite" />
+            android:theme="@style/Theme.Toolbox_io.Website" />
         <activity
             android:name=".ui.main.DeveloperOptionsActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar" />
+            android:theme="@style/Theme.Toolbox_io.NoActionBar" />
         <activity android:name=".ui.main.GreenScreenActivity" />
+        <activity android:name=".ui.main.OSSLicensesActivity" />
 
         <activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.applocker.SelectAppsActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:name=".ui.protection.applocker.SelectAppsActivity"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.applocker.FakeCrashActivity"
+            android:name=".ui.protection.applocker.FakeCrashActivity"
             android:excludeFromRecents="true"
             android:theme="@style/Theme.FakeCrash"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode" />
         <activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.applocker.PasswordInputActivity"
+            android:name=".ui.protection.applocker.PasswordInputActivity"
             android:excludeFromRecents="true"
             android:theme="@style/Theme.FakeCrash"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
             android:exported="false" />
         <activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.ActionsActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:name=".ui.protection.actions.ActionsActivity"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.actions.AlarmSettingsActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:name=".ui.protection.actions.AlarmSettingsActivity"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.actions.intruderphoto.IntruderPhotoSettingsActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:name=".ui.protection.actions.intruderphoto.IntruderPhotoSettingsActivity"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize" />
-        <!--<activity
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.unlockprotection.intruderphoto.IntruderPhotoActivity"
-            android:theme="@style/Theme.UltimateSecurity.ImageViewer"
-            android:configChanges="orientation|keyboardHidden|screenSize" />-->
         <activity
             android:name=".ui.AuthActivity"
-            android:theme="@style/Theme.UltimateSecurity.SplashScreen"
+            android:theme="@style/Theme.Toolbox_io.SplashScreen"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode" />
         <service
-            android:name="ru.morozovit.ultimatesecurity.ui.protection.actions.intruderphoto.IntruderPhotoService"
+            android:name=".ui.protection.actions.intruderphoto.IntruderPhotoService"
             android:exported="false"
             android:foregroundServiceType="camera" />
         <activity
@@ -111,19 +108,26 @@
             android:theme="@style/Theme.SplashScreen.Files" />
 
         <activity
+            android:name=".ui.tools.notificationhistory.NotificationHistorySettingsActivity"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar" />
+        <activity
+            android:name=".ui.tools.notificationhistory.SelectAppsActivity"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar" />
+
+        <activity
             android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"
-            android:theme="@style/Theme.UltimateSecurity.Licenses" />
+            android:theme="@style/Theme.Toolbox_io.Licenses" />
         <activity
             android:name="com.google.android.gms.oss.licenses.OssLicensesActivity"
-            android:theme="@style/Theme.UltimateSecurity.Licenses" />
+            android:theme="@style/Theme.Toolbox_io.Licenses" />
 
         <activity
             android:name=".ui.tools.appmanager.AppInfoActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar"
             android:exported="false"  />
         <activity
             android:name=".ui.tools.appmanager.ChooseActivityActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar"
             android:exported="false" />
 
         <activity
@@ -142,11 +146,11 @@
 
         <activity
             android:name=".IssueReporter$ExceptionDetailsActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar"
             android:exported="false" />
         <activity
             android:name=".IssueReporter$OneQuestionActivity"
-            android:theme="@style/Theme.UltimateSecurity.NoActionBar"
+            android:theme="@style/Theme.Toolbox_io.NoActionBar"
             android:exported="false" />
 
         <receiver
@@ -154,7 +158,7 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="ru.morozovit.ultimatesecurity.UpdateChecker.START" />
+                <action android:name="io.toolbox.UpdateChecker.START" />
                 <action android:name="android.intent.action.PACKAGE_REPLACED" />
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
             </intent-filter>
@@ -179,6 +183,15 @@
             android:name=".services.UpdateChecker"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="false" />
+
+        <service android:name=".services.NotificationService"
+            android:label="@string/app_name"
+            android:exported="false"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
 
         <provider
             android:name="androidx.core.content.FileProvider"

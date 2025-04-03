@@ -48,7 +48,7 @@
     <string name="delete_app">Delete this app?</string>
     <string name="delete_app_d">Are you sure that you want to delete this app? \nIf you have a problem, send a bug report to GitHub.\nIf you delete this app, the protection will stop working and all your settings will be deleted.</string>
     <string name="yes">Yes</string>
-    <string name="al_permissions">This feature requires the accessibility permission in order to work.\nThe permission is needed for:\n- detecting when an app gets opened, and if it\'s in the list of selected apps, close it and show a fake crash dialog\nThis permission is NEVER used for anything not listed here.\nYou will be taken back to the app after granting this permission.</string>
+    <string name="al_permissions">This feature requires the accessibility permission in order to work. The permission is needed for detecting when an app gets opened, and if it\'s in the list of selected apps, close it and show a fake crash dialog.\nThis permission is NEVER used for anything not listed here.\nYou will be taken back to the app after granting this permission.</string>
     <string name="grant_notification">Grant the notification permission to know when an update is available</string>
     <string name="open_app_again">Open app again</string>
     <string name="lp_oaa">Long press \"Open app again\"</string>
@@ -86,7 +86,6 @@
     <string name="install_package_d">The new version is ready to be installed. Install?\nPlease note that you will need to grant the \"Install unknown apps\" permission to this app in order to continue.</string>
     <string name="tools">Tools</string>
     <string name="start">Start</string>
-    <string name="apkextractor">APK extractor</string>
     <string name="allow_biometric">Allow biometric authentication</string>
     <string name="allow_biometric_d">Allow unlocking this app with a fingerprint or your face.</string>
     <string name="biometric">Biometrical authentication</string>
@@ -189,4 +188,20 @@
     <string name="no_notifications">No notifications. Have a good day!</string>
     <string name="ycaeuats">You can always enable updates again through settings</string>
     <string name="guides">Guides</string>
+    <string name="fatal_error">The app has encountered a fatal error and shut down.</string>
+    <string name="notification_history">Notification history</string>
+    <string name="app_manager">App manager</string>
+    <string name="lock_app">Lock</string>
+    <string name="lock_app_d">Lock this app using App Locker</string>
+    <string name="loading">Loading, please wait</string>
+    <string name="version_app">"Version "</string>
+    <string name="nh_permissions">This feature requires the notification access permission in order to work. This permission is needed to detect and save all notifications that are posted on your device.\nThis permission is NEVER used for anything not listed here.</string>
+    <string name="notification_deleted">Notification deleted</string>
+    <string name="undo">Undo</string>
+    <string name="remove_duplicates">Remove duplicates</string>
+    <string name="remove_duplicates_d">Removes all duplicate notifications from the same app and with the same title and body</string>
+    <string name="remove_useless_notifications">Remove useless notifications</string>
+    <string name="remove_useless_notifications_d">Remove useless notifications like \"12 new messages from 5 chats\"</string>
+    <string name="select_apps_2_d">Select the applications from which the notifications will be saved</string>
+    <string name="notifications_deleted">Notifications deleted</string>
 </resources>

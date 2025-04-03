@@ -1,8 +1,10 @@
 @file:Suppress( "NOTHING_TO_INLINE", "SameParameterValue")
 package ru.morozovit.android
 
+import android.Manifest
 import android.app.Activity
 import android.app.KeyguardManager
+import android.app.Notification
 import android.content.ComponentName
 import android.content.ContentResolver
 import android.content.Context
@@ -20,8 +22,11 @@ import android.hardware.SensorManager
 import android.hardware.usb.UsbEndpoint
 import android.hardware.usb.UsbInterface
 import android.net.Uri
+import android.os.BaseBundle
 import android.os.Build
+import android.os.Bundle
 import android.os.Parcelable
+import android.os.PersistableBundle
 import android.provider.OpenableColumns
 import android.service.quicksettings.Tile
 import android.util.Base64
@@ -66,28 +71,32 @@ import androidx.constraintlayout.compose.ConstrainedLayoutReference
 import androidx.constraintlayout.compose.ConstraintLayoutBaseScope
 import androidx.constraintlayout.compose.HorizontalAnchorable
 import androidx.constraintlayout.compose.VerticalAnchorable
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.window.core.layout.WindowHeightSizeClass
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.io.BufferedInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.Serializable
 import java.lang.ref.WeakReference
+import java.net.URL
 import java.security.SecureRandom
 import java.util.regex.Pattern
 import javax.crypto.Cipher
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.PBEKeySpec
+import javax.net.ssl.HttpsURLConnection
 import kotlin.random.Random
 import kotlin.random.nextInt
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
-
 
 val screenWidth: Int inline get() = Resources.getSystem().displayMetrics.widthPixels
 @Suppress("unused")
@@ -101,7 +110,7 @@ fun appName(context: Context, packageName: String): String? {
         )
         val appName = packageManager.getApplicationLabel(applicationInfo) as String
         return appName
-    } catch (e: PackageManager.NameNotFoundException) {
+    } catch (_: PackageManager.NameNotFoundException) {
         return null
     }
 }
@@ -131,9 +140,7 @@ inline fun View.addOneTimeOnPreDrawListener(crossinline listener: () -> Boolean)
 }
 
 fun Context.launchFiles(): Boolean {
-    val primaryStorageUri = Uri.parse(
-        "content://com.android.externalstorage.documents/root/primary"
-    )
+    val primaryStorageUri = "content://com.android.externalstorage.documents/root/primary".toUri()
 
     fun launchIntentWithComponent(action: String, componentName: ComponentName? = null): Boolean {
         val intent = Intent(action, primaryStorageUri)
@@ -143,7 +150,7 @@ fun Context.launchFiles(): Boolean {
         try {
             startActivity(intent)
             return true
-        } catch (th: Throwable) {
+        } catch (_: Throwable) {
             return false
         }
     }
@@ -236,10 +243,13 @@ val UsbInterface.endpointList: List<UsbEndpoint> get() {
     return list.toList()
 }
 
-fun Activity.resolveAttr(@AttrRes attr: Int): Int? {
+fun Activity.resolveAttr(@AttrRes id: Int): Int? {
     val typedValue = TypedValue()
-    if (theme.resolveAttribute(attr,
-            typedValue, true)) {
+    if (theme.resolveAttribute(
+            id,
+            typedValue,
+            true
+    )) {
         val resId = typedValue.resourceId
         return if (resId != 0) resId else null
     } else {
@@ -379,7 +389,7 @@ inline fun FragmentActivity.requestAuthentication(crossinline callback: Authenti
     try {
         config.title
         config.negativeButtonText
-    } catch (e: UninitializedPropertyAccessException) {
+    } catch (_: UninitializedPropertyAccessException) {
         throw IllegalStateException("Required fields haven't been set")
     }
     val executor = ContextCompat.getMainExecutor(this)
@@ -502,22 +512,20 @@ fun ContentScale.asAndroidScaleType(): ScaleType? {
     }
 }
 
-fun Context.openUrl(url: Uri) {
+inline fun Context.openUrl(url: Uri) {
     startActivity(Intent(Intent.ACTION_VIEW, url))
 }
 
-fun Context.openUrl(url: String) {
+inline fun Context.openUrl(url: String) {
     openUrl(
-        Uri.parse(
-            url.let {
-                val regex = "^[\\w-_]://".toRegex()
-                var th = it
-                if (!regex.containsMatchIn(th)) {
-                    th = "https://$th"
-                }
-                th
+        url.let {
+            val regex = "^[\\w-_]://".toRegex()
+            var th = it
+            if (!regex.containsMatchIn(th)) {
+                th = "https://$th"
             }
-        )
+            th
+        }.toUri()
     )
 }
 
@@ -630,7 +638,7 @@ inline fun SensorEventListener(crossinline callback: (SensorEvent) -> Unit) = ob
 
 inline val Context.isScreenLocked get() = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isKeyguardLocked
 
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("MemberVisibilityCanBePrivate", "unused")
 class NotificationIdManager(vararg reservedIds: Int) {
     private val reserved = reservedIds.toMutableList()
 
@@ -688,14 +696,14 @@ inline fun InputStream.test() =
         read()
         close()
         true
-    } catch (e: IOException) {
+    } catch (_: IOException) {
         false
     }
 
 inline fun ContentResolver.test(item: Uri) =
     try {
         openInputStream(item)!!.test()
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         false
     }
 
@@ -817,3 +825,59 @@ typealias WidthSizeClass = WindowWidthSizeClass
 typealias HeightSizeClass = WindowHeightSizeClass
 @Suppress("unused")
 typealias SizeClass = WindowSizeClass
+
+inline fun Context.notifyIfAllowed(
+    id: Int,
+    notification: Notification
+) {
+    with (NotificationManagerCompat.from(this)) {
+        if (
+            checkSelfPermission(
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return@with
+        }
+        notify(id, notification)
+    }
+}
+
+@Suppress("DEPRECATION")
+fun BaseBundle.toMap(): Map<String, Any> {
+    val map = mutableMapOf<String, Any>()
+    for (key in keySet()) {
+        map[key] = get(key)!!
+    }
+    return map
+}
+
+fun Bundle.toPersistableBundle(): PersistableBundle {
+    val map = toMap()
+    val bundle = PersistableBundle()
+    for ((key, value) in map) {
+        when (value) {
+            is Int -> bundle.putInt(key, value)
+            is Long -> bundle.putLong(key, value)
+            is Double -> bundle.putDouble(key, value)
+            is String -> bundle.putString(key, value)
+            is IntArray -> bundle.putIntArray(key, value)
+            is LongArray -> bundle.putLongArray(key, value)
+            is DoubleArray -> bundle.putDoubleArray(key, value)
+            is PersistableBundle -> bundle.putPersistableBundle(key, value)
+            is Boolean -> bundle.putBoolean(key, value)
+            is BooleanArray -> bundle.putBooleanArray(key, value)
+            is Array<*> -> {
+                if (value.isArrayOf<String>()) {
+                    @Suppress("UNCHECKED_CAST")
+                    bundle.putStringArray(key, value as Array<String>)
+                }
+            }
+        }
+    }
+    return bundle
+}
+
+inline fun String.decodeWindows1251() = String(
+    toByteArray(Charsets.ISO_8859_1),
+    Charsets.UTF_8
+)

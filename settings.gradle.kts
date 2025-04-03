@@ -21,9 +21,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Ultimate Security"
+rootProject.name = "Toolbox.io"
 
-include(":app")
-include(":utils")
-include(":androidUtils")
- 
+include(":app", ":utils", ":androidUtils")

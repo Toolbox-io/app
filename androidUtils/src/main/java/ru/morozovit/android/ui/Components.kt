@@ -968,7 +968,7 @@ inline fun RadioButtonWithText(
     ) {
         RadioButton(
             selected = selected,
-            onClick = null // null recommended for accessibility with screenreaders
+            onClick = null
         )
         Spacer(modifier = Modifier.width(16.dp))
         ProvideTextStyle(value = MaterialTheme.typography.bodyLarge) {
@@ -1070,7 +1070,6 @@ inline fun SwipeToDismissBackground(
     endToStartColor: Color = Color(0xFF1DE9B6),
     endToStartIcon: @Composable () -> Unit = {
         Icon(
-            // make sure add baseline_archive_24 resource to drawable folder
             Icons.Filled.Archive,
             contentDescription = "Archive"
         )
@@ -1102,14 +1101,13 @@ object CategoryDefaults {
     val dividerThickness: Dp = 2.dp
 }
 
-@Suppress("UnusedReceiverParameter")
 @Composable
 inline fun ColumnScope.Category(
     modifier: Modifier = Modifier,
     title: String? = null,
     margin: PaddingValues = CategoryDefaults.margin,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
-    crossinline content: @Composable ColumnScope.() -> Unit
+    noinline content: @Composable ColumnScope.() -> Unit
 ) {
     if (title != null) {
         Text(
@@ -1124,8 +1122,7 @@ inline fun ColumnScope.Category(
             .padding(margin)
             .fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
-        colors = cardColors(containerColor = containerColor)
-    ) {
-        content(this)
-    }
+        colors = cardColors(containerColor = containerColor),
+        content = content
+    )
 }

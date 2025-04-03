@@ -9,12 +9,13 @@
 /.idea/assetWizardSettings.xml
 /.idea/deploymentTargetSelector.xml
 .DS_Store
-/build
+build
 /captures
 .externalNativeBuild
 .cxx
 local.properties
-/app/build
 /releases
 tmp
 .kotlin
+keystore.properties
+/**/release

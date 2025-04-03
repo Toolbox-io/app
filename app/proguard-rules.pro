@@ -13,9 +13,6 @@
 # Hide original package names for classes
 -repackageclasses
 
-# Keep the MainActivity
--keep public class ru.morozovit.ultimatesecurity.ui.MainActivity
-
 # Remove all log calls
 -assumenosideeffects class android.util.Log {
     public static int d(...);
@@ -25,12 +22,10 @@
     public static int i(...);
     public static int v(...);
 }
+-assumenosideeffects class java.lang.System {
+    public static final java.io.PrintStream out;
+}
 
 # Keep icons so they can be used in reflection
 -keep public class androidx.compose.material.icons.Icons$*
 -keep public class androidx.compose.material.icons.filled.*
--keep public class androidx.compose.material.icons.outlined.*
--keep public class androidx.compose.material.icons.rounded.*
--keep public class androidx.compose.material.icons.sharp.*
--keep public class androidx.compose.material.icons.twotone.*
--keep public class androidx.compose.material.icons.automirrored.*

@@ -20,7 +20,6 @@ class ExceptionParser(val exception: Throwable) {
 
     val message get() = exception.message ?: ""
 
-
     val stackTraceString get() = exception
         .stackTrace
         .joinToString("\n") {

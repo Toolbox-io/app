@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.UltimateSecurity" parent="Theme.Material3.DynamicColors.DayNight">
+    <style name="Theme.Toolbox_io" parent="Theme.Material3.DynamicColors.DayNight">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
@@ -10,29 +10,32 @@
         <!-- <item name="android:windowLightNavigationBar">?attr/isLightTheme</item> | api 27 -->
     </style>
 
-    <style name="Theme.UltimateSecurity.NoActionBar">
+    <style name="Theme.Toolbox_io.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoDynamicColor" tools:keep="@style/Theme_UltimateSecurity_NoDynamicColor" />
-    <style name="Theme.UltimateSecurity.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoActionBar.NoDynamicColor">
+    <style
+        name="Theme.Toolbox_io.NoDynamicColor"
+        parent="Theme.Toolbox_io.Light.NoDynamicColor"
+        tools:keep="@style/Theme_Toolbox_io_NoDynamicColor" />
+    <style name="Theme.Toolbox_io.NoActionBar.NoDynamicColor" parent="Theme.Toolbox_io.Light.NoActionBar.NoDynamicColor">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.SplashScreen" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">#FCF5FD</item>
+    <style name="Theme.Toolbox_io.SplashScreen" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#FFFFF8F6</item>
         <item name="windowSplashScreenAnimatedIcon">@mipmap/app_icon</item>
         <!-- <item name="android:windowSplashScreenBackground">#FCF5FD / #141218</item> | api 31 -->
-        <item name="postSplashScreenTheme">@style/Theme.UltimateSecurity.NoActionBar</item>
+        <item name="postSplashScreenTheme">@style/Theme.Toolbox_io.NoActionBar</item>
     </style>
 
     <style name="Theme.SplashScreen.Files">
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.Night" parent="Theme.Material3.DynamicColors.Dark">
+    <style name="Theme.Toolbox_io.Night" parent="Theme.Material3.DynamicColors.Dark">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
@@ -40,99 +43,100 @@
         <item name="android:windowLightStatusBar">false</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.Night.NoActionBar">
+    <style name="Theme.Toolbox_io.Night.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-    <style name="Theme.UltimateSecurity.Night.NoDynamicColor" parent="Theme.Material3.Dark">
+    <style name="Theme.Toolbox_io.Night.NoDynamicColor" parent="Theme.Material3.Dark">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
 
-        <item name="colorPrimary">#FFFFB4A4</item>
-        <item name="colorOnPrimary">#FF561F13</item>
-        <item name="colorPrimaryContainer">#FF733427</item>
-        <item name="colorOnPrimaryContainer">#FFFFDAD3</item>
-        <item name="colorSecondary">#FFE7BDB4</item>
-        <item name="colorOnSecondary">#FF442A24</item>
-        <item name="colorSecondaryContainer">#FF5D3F39</item>
-        <item name="colorOnSecondaryContainer">#FFFFDAD3</item>
-        <item name="colorTertiary">#FFDCC48C</item>
-        <item name="colorOnTertiary">#FF3D2F04</item>
-        <item name="colorTertiaryContainer">#FF554519</item>
-        <item name="colorOnTertiaryContainer">#FFF9E0A6</item>
+        <item name="colorPrimary">#FFFFB68F</item>
+        <item name="colorOnPrimary">#FF532201</item>
+        <item name="colorPrimaryContainer">#FF703715</item>
+        <item name="colorOnPrimaryContainer">#FFFFDBCA</item>
+        <item name="colorSecondary">#FFE6BEAB</item>
+        <item name="colorOnSecondary">#FF432B1D</item>
+        <item name="colorSecondaryContainer">#FF5C4132</item>
+        <item name="colorOnSecondaryContainer">#FFFFDBCA</item>
+        <item name="colorTertiary">#FFCEC891</item>
+        <item name="colorOnTertiary">#FF343108</item>
+        <item name="colorTertiaryContainer">#FF4B481D</item>
+        <item name="colorOnTertiaryContainer">#FFEBE5AA</item>
         <item name="colorError">#FFFFB4AB</item>
         <item name="colorOnError">#FF690005</item>
         <item name="colorErrorContainer">#FF93000A</item>
         <item name="colorOnErrorContainer">#FFFFDAD6</item>
-        <item name="android:colorBackground">#FF1A110F</item>
-        <item name="colorOnBackground">#FFF1DFDB</item>
-        <item name="colorSurface">#FF1A110F</item>
-        <item name="colorOnSurface">#FFF1DFDB</item>
-        <item name="colorSurfaceVariant">#FF534340</item>
-        <item name="colorOnSurfaceVariant">#FFD8C2BD</item>
-        <item name="colorOutline">#FFA08C88</item>
-        <item name="colorOutlineVariant">#FF534340</item>
-        <item name="colorSurfaceDim">#FF1A110F</item>
-        <item name="colorSurfaceBright">#FF423734</item>
-        <item name="colorSurfaceContainerLowest">#FF140C0A</item>
-        <item name="colorSurfaceContainerLow">#FF231917</item>
-        <item name="colorSurfaceContainer">#FF271D1B</item>
-        <item name="colorSurfaceContainerHigh">#FF322825</item>
+        <item name="android:colorBackground">#FF1A120D</item>
+        <item name="colorOnBackground">#FFF0DFD8</item>
+        <item name="colorSurface">#FF1A120D</item>
+        <item name="colorOnSurface">#FFF0DFD8</item>
+        <item name="colorSurfaceVariant">#FF52443D</item>
+        <item name="colorOnSurfaceVariant">#FFD7C2B9</item>
+        <item name="colorOutline">#FF9F8D84</item>
+        <item name="colorOutlineVariant">#FF52443D</item>
+        <item name="colorSurfaceDim">#FF1A120D</item>
+        <item name="colorSurfaceBright">#FF413732</item>
+        <item name="colorSurfaceContainerLowest">#FF140C09</item>
+        <item name="colorSurfaceContainerLow">#FF221A15</item>
+        <item name="colorSurfaceContainer">#FF271E19</item>
+        <item name="colorSurfaceContainerHigh">#FF322823</item>
+        <item name="colorSurfaceContainerHighest">#FF3D332E</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.Night.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Night.NoDynamicColor">
+    <style name="Theme.Toolbox_io.Night.NoActionBar.NoDynamicColor" parent="Theme.Toolbox_io.Night.NoDynamicColor">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.Light" parent="Theme.Material3.DynamicColors.Light">
+    <style name="Theme.Toolbox_io.Light" parent="Theme.Material3.DynamicColors.Light">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
-    <style name="Theme.UltimateSecurity.Light.NoActionBar">
+    <style name="Theme.Toolbox_io.Light.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-    <style name="Theme.UltimateSecurity.Light.NoDynamicColor" parent="Theme.Material3.Light">
+    <style name="Theme.Toolbox_io.Light.NoDynamicColor" parent="Theme.Material3.Light">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
 
-        <item name="colorPrimary">#FF904B3C</item>
+        <item name="colorPrimary">#FF8D4E2A</item>
         <item name="colorOnPrimary">#FFFFFFFF</item>
-        <item name="colorPrimaryContainer">#FFFFDAD3</item>
-        <item name="colorOnPrimaryContainer">#FF3A0A03</item>
-        <item name="colorSecondary">#FF775750</item>
+        <item name="colorPrimaryContainer">#FFFFDBCA</item>
+        <item name="colorOnPrimaryContainer">#FF331100</item>
+        <item name="colorSecondary">#FF765848</item>
         <item name="colorOnSecondary">#FFFFFFFF</item>
-        <item name="colorSecondaryContainer">#FFFFDAD3</item>
-        <item name="colorOnSecondaryContainer">#FF2C1510</item>
-        <item name="colorTertiary">#FF6E5D2E</item>
+        <item name="colorSecondaryContainer">#FFFFDBCA</item>
+        <item name="colorOnSecondaryContainer">#FF2B160A</item>
+        <item name="colorTertiary">#FF646032</item>
         <item name="colorOnTertiary">#FFFFFFFF</item>
-        <item name="colorTertiaryContainer">#FFF9E0A6</item>
-        <item name="colorOnTertiaryContainer">#FF241A00</item>
+        <item name="colorTertiaryContainer">#FFEBE5AA</item>
+        <item name="colorOnTertiaryContainer">#FF1E1C00</item>
         <item name="colorError">#FFBA1A1A</item>
         <item name="colorOnError">#FFFFFFFF</item>
         <item name="colorErrorContainer">#FFFFDAD6</item>
         <item name="colorOnErrorContainer">#FF410002</item>
         <item name="android:colorBackground">#FFFFF8F6</item>
-        <item name="colorOnBackground">#FF231917</item>
+        <item name="colorOnBackground">#FF221A15</item>
         <item name="colorSurface">#FFFFF8F6</item>
-        <item name="colorOnSurface">#FF231917</item>
-        <item name="colorSurfaceVariant">#FFF5DDD9</item>
-        <item name="colorOnSurfaceVariant">#FF534340</item>
-        <item name="colorOutline">#FF85736F</item>
-        <item name="colorOutlineVariant">#FFD8C2BD</item>
-        <item name="colorSurfaceDim">#FFE8D6D3</item>
+        <item name="colorOnSurface">#FF221A15</item>
+        <item name="colorSurfaceVariant">#FFF4DED4</item>
+        <item name="colorOnSurfaceVariant">#FF52443D</item>
+        <item name="colorOutline">#FF85746B</item>
+        <item name="colorOutlineVariant">#FFD7C2B9</item>
+        <item name="colorSurfaceDim">#FFE8D7CF</item>
         <item name="colorSurfaceBright">#FFFFF8F6</item>
         <item name="colorSurfaceContainerLowest">#FFFFFFFF</item>
-        <item name="colorSurfaceContainerLow">#FFFFF0EE</item>
-        <item name="colorSurfaceContainer">#FFFCEAE6</item>
-        <item name="colorSurfaceContainerHigh">#FFF7E4E0</item>
-        <item name="colorSurfaceContainerHighest">#FFF1DFDB</item>
+        <item name="colorSurfaceContainerLow">#FFFFF1EB</item>
+        <item name="colorSurfaceContainer">#FFFCEAE3</item>
+        <item name="colorSurfaceContainerHigh">#FFF6E5DD</item>
+        <item name="colorSurfaceContainerHighest">#FFF0DFD8</item>
     </style>
-    <style name="Theme.UltimateSecurity.Light.NoActionBar.NoDynamicColor" parent="Theme.UltimateSecurity.Light.NoDynamicColor">
+    <style name="Theme.Toolbox_io.Light.NoActionBar.NoDynamicColor" parent="Theme.Toolbox_io.Light.NoDynamicColor">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
@@ -149,12 +153,12 @@
         <item name="android:windowFullscreen">true</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.Licenses">
+    <style name="Theme.Toolbox_io.Licenses">
         <item name="android:statusBarColor">?attr/colorSurfaceContainer</item>
         <item name="android:windowFullscreen">false</item>
     </style>
 
-    <style name="Theme.UltimateSecurity.ToolboxIOWebsite" parent="Theme.UltimateSecurity.Night.NoActionBar.NoDynamicColor">
+    <style name="Theme.Toolbox_io.Website" parent="Theme.Toolbox_io.Night.NoActionBar.NoDynamicColor">
         <item name="colorSurface">#3A3A3A</item>
         <item name="android:textAppearance">@style/TextAppearance.Material3.TitleMedium</item>
     </style>
