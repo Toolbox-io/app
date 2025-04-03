@@ -1,5 +1,6 @@
 package io.toolbox.ui.tools.notificationhistory
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.graphics.drawable.Drawable
@@ -15,7 +16,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -31,6 +31,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -54,9 +55,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -73,11 +76,14 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -89,13 +95,19 @@ import io.toolbox.ui.MainActivity
 import io.toolbox.ui.WindowInsetsHandler
 import kotlinx.coroutines.launch
 import ru.morozovit.android.invoke
+import ru.morozovit.android.left
+import ru.morozovit.android.link
 import ru.morozovit.android.plus
+import ru.morozovit.android.right
 import ru.morozovit.android.runOrLog
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SimpleAlertDialog
 import ru.morozovit.android.ui.SwitchCard
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigation: @Composable () -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
     WindowInsetsHandler {
@@ -104,15 +116,20 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
             val navController = rememberNavController()
 
             val notifications = remember { mutableStateListOf<NotificationData>() }
+            val toDelete = remember { mutableStateListOf<NotificationData>() }
             var changed by remember { mutableStateOf(false) }
 
             val notification_deleted = stringResource(R.string.notification_deleted)
+            val notifications_deleted = stringResource(R.string.notifications_deleted)
             val undo = stringResource(R.string.undo)
+            val loading_msg = stringResource(R.string.loading)
 
+            @SuppressLint("SimpleDateFormat")
             @Composable
             fun Notification(
                 modifier: Modifier = Modifier,
                 title: String,
+                time: String?,
                 message: String,
                 onClick: (() -> Unit)? = null,
                 divider: Boolean,
@@ -246,7 +263,11 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                                         }
                                         Spacer(Modifier.width(16.dp))
                                         Text(
-                                            text = appName,
+                                            text = "$appName${
+                                                if (time != null)
+                                                    " • ${SimpleDateFormat("HH:mm", Locale.US).format(Date(time.toLong()))}"
+                                                else ""
+                                            }",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurface,
                                             fontSize = 13.sp
@@ -269,12 +290,77 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                 }
             }
 
+            @Composable
+            fun Notification(
+                data: NotificationData,
+                snackbarHostState: SnackbarHostState,
+                divider: Boolean,
+                container: Boolean = false
+            ) {
+                with(data) notification@ {
+                    var visible by remember { mutableStateOf(true) }
+
+                    fun onVisibilityChange(it: Boolean) {
+                        Log.d("NotificationHistory", "visibility for $this changed to $it")
+                        visible = it
+                        if (!visible) {
+                            coroutineScope.launch {
+                                NotificationDatabase -= toDelete
+                                toDelete += this@notification
+                                val result = snackbarHostState.showSnackbar(
+                                    message = notification_deleted,
+                                    actionLabel = undo,
+                                    duration = SnackbarDuration.Long,
+                                )
+                                when (result) {
+                                    SnackbarResult.Dismissed -> {
+                                        NotificationDatabase -= this@notification
+                                        notifications -= this@notification
+                                    }
+                                    SnackbarResult.ActionPerformed -> {
+                                        visible = true
+                                    }
+                                }
+                                toDelete -= this@notification
+                            }
+                        }
+                    }
+                    onVisibilityChange = ::onVisibilityChange
+
+                    Notification(
+                        title = title,
+                        message = message,
+                        time = time,
+                        onClick = {
+                            runOrLog("NotificationHistory") {
+                                startActivity(packageManager.getLaunchIntentForPackage(sourcePackageName))
+                            }
+                        },
+                        divider = divider,
+                        visible = visible,
+                        onVisibilityChange = ::onVisibilityChange,
+                        sourcePackageName = sourcePackageName,
+                        icon = icon,
+                        container = container
+                    )
+                }
+            }
+
+            DisposableEffect(Unit) {
+                onDispose {
+                    NotificationDatabase -= toDelete
+                }
+            }
+
             NavHost(
                 navController = navController,
                 startDestination = "home"
             ) {
                 composable("home") {
                     val snackbarHostState = remember { SnackbarHostState() }
+                    var loading by remember { mutableStateOf(true) }
+
+                    val dates = remember { mutableStateMapOf<Long, MutableList<NotificationData>>() }
 
                     Scaffold(
                         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -306,7 +392,11 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                                     }
                                     IconButton(
                                         onClick = {
-                                            navController.navigate("search")
+                                            if (!loading)
+                                                navController.navigate("search")
+                                            else coroutineScope.launch {
+                                                snackbarHostState.showSnackbar(loading_msg)
+                                            }
                                         }
                                     ) {
                                         Icon(
@@ -323,8 +413,6 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                             SnackbarHost(snackbarHostState)
                         }
                     ) { innerPadding ->
-                        var loading by remember { mutableStateOf(true) }
-
                         Box(modifier = Modifier.padding(innerPadding)) {
                             if (loading) {
                                 LinearProgressIndicator(
@@ -350,7 +438,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
 
                                 if (!NotificationService.running) enabled = false
                                 var mainSwitch by remember { mutableStateOf(enabled && NotificationService.running) }
-                                var mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@{
+                                val mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@{
                                     if (it && !NotificationService.running) {
                                         openPermissionDialog = true
                                         return@sw
@@ -399,45 +487,101 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                                     item {
                                         MainSwitch()
                                     }
+                                    var lastDate: String? = null
 
                                     for (index in notifications.indices.reversed()) {
-                                        item {
-                                            with(notifications[index]) notification@ {
-                                                Notification(
-                                                    title = title,
-                                                    message = message,
-                                                    onClick = {
-                                                        runOrLog("NotificationHistory") {
-                                                            startActivity(packageManager.getLaunchIntentForPackage(sourcePackageName))
-                                                        }
-                                                    },
-                                                    divider = index != notifications.size - 1,
-                                                    visible = visible.value,
-                                                    onVisibilityChange = {
-                                                        Log.d("NotificationHistory", "visibility for $this changed to $it")
-                                                        visible.value = it
-                                                        if (!visible.value) {
+                                        // FIXME crash if notifications created too fast
+                                        val time = notifications[index].time!!.toLong()
+                                        val currentDate = SimpleDateFormat(
+                                            "d MMMM",
+                                            Locale.getDefault()
+                                        ).format(
+                                            Date(time)
+                                        )
+                                        if (dates[time] == null) {
+                                            dates[time] = mutableListOf()
+                                        }
+                                        dates[time]!! += notifications[index]
+                                        if (lastDate != currentDate) {
+                                            lastDate = currentDate
+                                            item {
+                                                ConstraintLayout {
+                                                    val (date, divider, remove) = createRefs()
+
+                                                    Text(
+                                                        text = currentDate,
+                                                        fontSize = 20.sp,
+                                                        color = MaterialTheme.colorScheme.primary,
+                                                        fontWeight = FontWeight.Bold,
+                                                        modifier = Modifier
+                                                            .padding(
+                                                                vertical = 8.dp,
+                                                                horizontal = 16.dp
+                                                            )
+                                                            .constrainAs(date) {
+                                                                top link parent.top
+                                                                left link parent.left
+                                                                right link remove.left
+                                                                bottom link divider.top
+                                                                width = Dimension.fillToConstraints
+                                                            }
+                                                    )
+                                                    IconButton(
+                                                        onClick = {
                                                             coroutineScope.launch {
+                                                                val list = dates[time]!!.toSet()
+                                                                NotificationDatabase -= toDelete
+                                                                toDelete += list
+                                                                list.forEach {
+                                                                    runCatching {
+                                                                        it.onVisibilityChange!!(false)
+                                                                    }
+                                                                }
                                                                 val result = snackbarHostState.showSnackbar(
-                                                                    message = notification_deleted,
+                                                                    message = notifications_deleted,
                                                                     actionLabel = undo,
                                                                     duration = SnackbarDuration.Long,
                                                                 )
                                                                 when (result) {
                                                                     SnackbarResult.Dismissed -> {
-                                                                        NotificationDatabase -= this@notification
+                                                                        NotificationDatabase -= list
+                                                                        notifications -= list
                                                                     }
                                                                     SnackbarResult.ActionPerformed -> {
-                                                                        visible.value = true
+                                                                        list.forEach {
+                                                                            runCatching {
+                                                                                it.onVisibilityChange!!(true)
+                                                                            }
+                                                                        }
                                                                     }
                                                                 }
+                                                                toDelete -= list
                                                             }
+                                                        },
+                                                        modifier = Modifier.constrainAs(remove) {
+                                                            top link date.bottom
+                                                            left link date.right
+                                                            right link parent.right
+                                                            bottom link divider.top
                                                         }
-                                                    },
-                                                    sourcePackageName = sourcePackageName,
-                                                    icon = icon
-                                                )
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Filled.Delete,
+                                                            contentDescription = stringResource(R.string.delete)
+                                                        )
+                                                    }
+                                                    HorizontalDivider(
+                                                        modifier = Modifier.constrainAs(divider) {
+                                                            left link parent.left
+                                                            right link parent.right
+                                                            bottom link parent.bottom
+                                                        }
+                                                    )
+                                                }
                                             }
+                                        }
+                                        item {
+                                            Notification(notifications[index], snackbarHostState, index != 0)
                                         }
                                     }
                                 }
@@ -521,7 +665,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
 
                         LaunchedEffect(searchInputState) {
                             filtered.clear()
-                            if (!searchInputState.isBlank()) {
+                            if (searchInputState.isNotBlank()) {
                                 val words = searchInputState.split(" ")
                                 filtered += notifications.filter {
                                     val result1 = run {
@@ -557,46 +701,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
 
                         LazyColumn(contentPadding = innerPadding) {
                             items(filtered.indices.reversed().toList()) { index ->
-                                with(filtered[index]) notification@ {
-                                    var visible by remember { mutableStateOf(true) }
-
-                                    Notification(
-                                        title = title,
-                                        message = message,
-                                        onClick = {
-                                            runOrLog("NotificationHistory") {
-                                                startActivity(packageManager.getLaunchIntentForPackage(sourcePackageName))
-                                            }
-                                        },
-                                        divider = index != filtered.size - 1,
-                                        visible = visible,
-                                        onVisibilityChange = {
-                                            Log.d("NotificationHistory", "visibility for $this changed to $it")
-                                            visible = it
-                                            if (!visible) {
-                                                coroutineScope.launch {
-                                                    val result = snackbarHostState.showSnackbar(
-                                                        message = notification_deleted,
-                                                        actionLabel = undo,
-                                                        duration = SnackbarDuration.Long,
-                                                    )
-                                                    when (result) {
-                                                        SnackbarResult.Dismissed -> {
-                                                            NotificationDatabase -= this@notification
-                                                            changed = true
-                                                        }
-                                                        SnackbarResult.ActionPerformed -> {
-                                                            visible = true
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        sourcePackageName = sourcePackageName,
-                                        icon = icon,
-                                        container = true
-                                    )
-                                }
+                                Notification(filtered[index], snackbarHostState, index != 0, true)
                             }
                         }
                     }

@@ -19,11 +19,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-object NotificationDatabase {
+object NotificationDatabase: MutableList<NotificationData> {
     private var init = false
     private val _notifications = mutableListOf<NotificationData>()
 
-    val notificationHistoryDir by lazy {
+    private val notificationHistoryDir by lazy {
         File(context.filesDir, "notification_history").also { it.mkdir() }
     }
 
@@ -73,16 +73,16 @@ object NotificationDatabase {
 
                 val processLater = mutableListOf<File>()
 
-                fun callback(file: File) {
+                val callback = callback@ { file: File ->
                     try {
                         if (file.nameWithoutExtension.substringBeforeLast(".") in needsPair.keys && file.extension == "png") {
                             needsPair[file.nameWithoutExtension.substringBeforeLast(".")]!!.notificationIconFile = file
                             needsPair.remove(file.nameWithoutExtension.substringBeforeLast("."))
-                            return
+                            return@callback
                         }
                         if (file.extension != "notification") {
                             if (file !in processLater) processLater += file
-                            return
+                            return@callback
                         }
                         val inputStream = FileInputStream(file)
                         val objectInputStream = ObjectInputStream(inputStream)
@@ -97,8 +97,8 @@ object NotificationDatabase {
                     }
                 }
 
-                files?.sortedBy { it.name }?.forEach(::callback)
-                processLater.forEach(::callback)
+                files?.sortedBy { it.name }?.forEach(callback)
+                processLater.forEach(callback)
             }
         }
     }
@@ -108,65 +108,136 @@ object NotificationDatabase {
         return _notifications.toList()
     }
 
-    fun add(notification: NotificationData) {
-        with (context) {
-            with (notification) {
-                init()
+    override fun add(element: NotificationData): Boolean {
+        with (element) {
+            init()
 
-                // Check if the notification with the same date already exists
-                if (
-                    _notifications.find {
-                        it.title == title &&
-                        it.message == message &&
-                        it.sourcePackageName == sourcePackageName
-                    } != null
-                ) return
+            // Check if the notification with the same date already exists
+            if (
+                _notifications.find {
+                    it.title == title &&
+                    it.message == message &&
+                    it.sourcePackageName == sourcePackageName
+                } != null
+            ) return false
 
-                _notifications += notification
+            _notifications += element
 
-                // Serialize to disk
-                async {
-                    val formattedDate = SimpleDateFormat("dd_MM_yyyy", Locale.getDefault()).format(Date())
-                    val time = currentTimeMillis()
-                    val notificationFile = File(notificationHistoryDir, "$formattedDate:$time.notification")
-                    val notificationIconFile = File(notificationHistoryDir, "$formattedDate:$time.notification_icon.png")
-                    if (icon != null) {
-                        val fos = FileOutputStream(notificationIconFile)
-                        try {
-                            icon!!.toBitmap().compress(Bitmap.CompressFormat.PNG, 100, fos)
-                        } catch (e: Exception) {
-                            Log.e("NotificationService", "Error saving notification icon:", e)
-                        } finally {
-                            fos.close()
+            // Serialize to disk
+            async {
+                val formattedDate = SimpleDateFormat("dd_MM_yyyy", Locale.getDefault()).format(Date())
+                val time = currentTimeMillis()
+                val notificationFile = File(notificationHistoryDir, "$formattedDate:$time.notification")
+                val notificationIconFile = File(notificationHistoryDir, "$formattedDate:$time.notification_icon.png")
+                if (icon != null) {
+                    val fos = FileOutputStream(notificationIconFile)
+                    try {
+                        icon!!.toBitmap().compress(Bitmap.CompressFormat.PNG, 100, fos)
+                    } catch (e: Exception) {
+                        Log.e("NotificationService", "Error saving notification icon:", e)
+                    } finally {
+                        fos.close()
+                    }
+                }
+
+                this.notificationFile = notificationFile
+                this.notificationIconFile = notificationIconFile
+
+                runOrLog("NotificationService") {
+                    FileOutputStream(notificationFile).use { fos ->
+                        ObjectOutputStream(fos).use {
+                            it.writeObject(element)
                         }
                     }
-
-                    this.notificationFile = notificationFile
-                    this.notificationIconFile = notificationIconFile
-
-                    runOrLog("NotificationService") {
-                        FileOutputStream(notificationFile).use { fos ->
-                            ObjectOutputStream(fos).use {
-                                it.writeObject(notification)
-                            }
-                        }
-                        Log.d("NotificationService", "Notification data saved to ${notificationFile.absolutePath}")
-                    }
+                    Log.d("NotificationService", "Notification data saved to ${notificationFile.absolutePath}")
                 }
             }
         }
+        return true
     }
 
-    fun remove(notification: NotificationData) {
-        with (context) {
-            init()
-            _notifications -= notification
-            notification.notificationFile?.delete()
+    override fun remove(element: NotificationData): Boolean {
+        init()
+        _notifications -= element
+        element.notificationFile?.delete()
+        return true
+    }
+
+    override operator fun contains(element: NotificationData) = element in _notifications
+
+    inline operator fun plusAssign(notification: NotificationData) {
+        add(notification)
+    }
+    inline operator fun minusAssign(notification: NotificationData) {
+        remove(notification)
+    }
+
+    override val size: Int get() = _notifications.size
+
+    override fun clear() {
+        forEach {
+            remove(it)
         }
     }
 
-    operator fun contains(notification: NotificationData) = notification in _notifications
+    override fun get(index: Int) = _notifications[index]
 
-    inline operator fun plusAssign(notification: NotificationData) = add(notification)
-    inline operator fun minusAssign(notification: NotificationData) = remove(notification)
+    override fun isEmpty() = _notifications.isEmpty()
+
+    override fun iterator() = _notifications.iterator()
+
+    override fun listIterator() = _notifications.listIterator()
+
+    override fun listIterator(index: Int) = _notifications.listIterator(index)
+
+    override fun removeAt(index: Int): NotificationData {
+        val item = get(index)
+        remove(item)
+        return item
+    }
+
+    override fun subList(fromIndex: Int, toIndex: Int) = _notifications.subList(fromIndex, toIndex)
+
+    override fun set(index: Int, element: NotificationData) = throw UnsupportedOperationException()
+
+    override fun retainAll(elements: Collection<NotificationData>): Boolean {
+        var removed = false
+        forEach {
+            if (it !in elements) {
+                val result = remove(it)
+                if (!removed) removed = result
+            }
+        }
+        return removed
+    }
+
+    override fun removeAll(elements: Collection<NotificationData>): Boolean {
+        var removed = false
+        forEach {
+            if (it in elements) {
+                val result = remove(it)
+                if (!removed) removed = result
+            }
+        }
+        return removed
+    }
+
+    override fun lastIndexOf(element: NotificationData) = _notifications.lastIndexOf(element)
+
+    override fun indexOf(element: NotificationData) = _notifications.indexOf(element)
+
+    override fun containsAll(elements: Collection<NotificationData>) = _notifications.containsAll(elements)
+
+    override fun addAll(index: Int, elements: Collection<NotificationData>) = throw UnsupportedOperationException()
+
+    override fun addAll(elements: Collection<NotificationData>): Boolean {
+        var changed = false
+        elements.forEach {
+            val result = add(it)
+            if (!changed) changed = result
+        }
+        return changed
+    }
+
+    override fun add(index: Int, element: NotificationData) = throw UnsupportedOperationException()
 }

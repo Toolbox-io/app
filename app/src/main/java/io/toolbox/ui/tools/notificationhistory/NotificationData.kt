@@ -2,15 +2,12 @@ package io.toolbox.ui.tools.notificationhistory
 
 import android.graphics.drawable.Drawable
 import androidx.annotation.WorkerThread
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import java.io.File
 import java.io.FileInputStream
 import java.io.Serial
 import java.io.Serializable
 
-@OptIn(ExperimentalLayoutApi::class)
+@Suppress("EqualsOrHashCode")
 data class NotificationData(
     val title: String,
     val message: String,
@@ -22,25 +19,6 @@ data class NotificationData(
         @Serial
         const val serialVersionUID = 23592935634587396L
     }
-    @Suppress("KotlinConstantConditions")
-    @Transient
-    var visible: MutableState<Boolean> = mutableStateOf(true)
-        get() {
-            if (field as MutableState<Boolean>? == null) {
-                field = mutableStateOf(true)
-            }
-            return field
-        }
-
-    @Suppress("KotlinConstantConditions")
-    @Transient
-    var visibleInSearch: MutableState<Boolean> = mutableStateOf(true)
-        get() {
-            if (field as MutableState<Boolean>? == null) {
-                field = mutableStateOf(true)
-            }
-            return field
-        }
 
     @Transient
     var notificationFile: File? = null
@@ -65,9 +43,10 @@ data class NotificationData(
             }
         }
 
-    val date: String? get() = notificationFile?.nameWithoutExtension?.split(":")[0]
-    @Suppress("unused")
-    val time: String? get() = notificationFile?.nameWithoutExtension?.split(":")[1]
+    @Transient
+    var onVisibilityChange: ((Boolean) -> Unit)? = null
+
+    val time: String? get() = notificationFile?.nameWithoutExtension?.split(":")?.get(1)
 
     override fun equals(other: Any?): Boolean {
         if (other == null) return false
@@ -77,22 +56,5 @@ data class NotificationData(
             message == other.message &&
             sourcePackageName == other.sourcePackageName &&
             icon == other.icon
-    }
-
-    @Suppress("UNNECESSARY_SAFE_CALL")
-    override fun hashCode(): Int {
-        var result = title.hashCode()
-        result = 31 * result + message.hashCode()
-        result = 31 * result + sourcePackageName.hashCode()
-        result = 31 * result + (icon?.hashCode() ?: 0)
-        result = 31 * result + (visible?.hashCode() ?: 0)
-        result = 31 * result + (visibleInSearch?.hashCode() ?: 0)
-        result = 31 * result + (notificationFile?.hashCode() ?: 0)
-        result = 31 * result + (notificationIconFile?.hashCode() ?: 0)
-        result = 31 * result + visible.hashCode()
-        result = 31 * result + visibleInSearch.hashCode()
-        result = 31 * result + (date?.hashCode() ?: 0)
-        result = 31 * result + (time?.hashCode() ?: 0)
-        return result
     }
 }
