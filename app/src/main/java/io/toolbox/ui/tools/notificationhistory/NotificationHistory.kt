@@ -83,7 +83,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -495,9 +494,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                                         val currentDate = SimpleDateFormat(
                                             "d MMMM",
                                             Locale.getDefault()
-                                        ).format(
-                                            Date(time)
-                                        )
+                                        ).format(Date(time))
                                         if (dates[time] == null) {
                                             dates[time] = mutableListOf()
                                         }
@@ -521,9 +518,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                                                             .constrainAs(date) {
                                                                 top link parent.top
                                                                 left link parent.left
-                                                                right link remove.left
                                                                 bottom link divider.top
-                                                                width = Dimension.fillToConstraints
                                                             }
                                                     )
                                                     IconButton(
@@ -560,7 +555,6 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                                                         },
                                                         modifier = Modifier.constrainAs(remove) {
                                                             top link date.bottom
-                                                            left link date.right
                                                             right link parent.right
                                                             bottom link divider.top
                                                         }
