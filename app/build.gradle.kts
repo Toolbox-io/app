@@ -11,12 +11,12 @@ plugins {
 
 android {
     namespace = "io.toolbox"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "io.toolbox"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 27
         versionName = "2.0"
     }
