@@ -1,4 +1,4 @@
-@file:Suppress("NOTHING_TO_INLINE", "unused", "MemberVisibilityCanBePrivate")
+@file:Suppress("NOTHING_TO_INLINE", "unused", "MemberVisibilityCanBePrivate", "UnusedReceiverParameter")
 
 package ru.morozovit.android.ui
 
