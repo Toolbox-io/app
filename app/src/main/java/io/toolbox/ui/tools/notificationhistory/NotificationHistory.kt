@@ -437,14 +437,6 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
 
                                 if (!NotificationService.running) enabled = false
                                 var mainSwitch by remember { mutableStateOf(enabled && NotificationService.running) }
-                                val mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@{
-                                    if (it && !NotificationService.running) {
-                                        openPermissionDialog = true
-                                        return@sw
-                                    }
-                                    mainSwitch = it
-                                    enabled = it
-                                }
 
                                 SimpleAlertDialog(
                                     open = openPermissionDialog,
@@ -475,7 +467,14 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                                 SwitchCard(
                                     text = stringResource(R.string.enable),
                                     checked = mainSwitch,
-                                    onCheckedChange = mainSwitchOnCheckedChange,
+                                    onCheckedChange = sw@ {
+                                        if (it && !NotificationService.running) {
+                                            openPermissionDialog = true
+                                            return@sw
+                                        }
+                                        mainSwitch = it
+                                        enabled = it
+                                    },
                                     modifier = Modifier.padding(bottom = 12.dp)
                                 )
                             }
@@ -524,6 +523,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                                                     IconButton(
                                                         onClick = {
                                                             coroutineScope.launch {
+                                                                // TODO fix
                                                                 val list = dates[time]!!.toSet()
                                                                 NotificationDatabase -= toDelete
                                                                 toDelete += list

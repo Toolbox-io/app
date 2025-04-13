@@ -315,21 +315,6 @@ class AppInfoActivity: BaseActivity() {
 
                     Category {
                         var lockSwitch by remember { mutableStateOf(Settings.Applocker.apps.contains(appPackage)) }
-                        var lockSwitchOnCheckedChange = { it: Boolean ->
-                            lockSwitch = it
-                            Settings.Applocker.apps = Settings
-                                .Applocker
-                                .apps
-                                .toMutableSet()
-                                .apply {
-                                    if (it) {
-                                        add(appPackage)
-                                    } else {
-                                        remove(appPackage)
-                                    }
-                                }
-                                .toSet()
-                        }
 
                         SwitchListItem(
                             headline = stringResource(R.string.lock_app),
@@ -341,7 +326,21 @@ class AppInfoActivity: BaseActivity() {
                                 )
                             },
                             checked = lockSwitch,
-                            onCheckedChange = lockSwitchOnCheckedChange
+                            onCheckedChange = {
+                                lockSwitch = it
+                                Settings.Applocker.apps = Settings
+                                    .Applocker
+                                    .apps
+                                    .toMutableSet()
+                                    .apply {
+                                        if (it) {
+                                            add(appPackage)
+                                        } else {
+                                            remove(appPackage)
+                                        }
+                                    }
+                                    .toSet()
+                            }
                         )
                     }
 

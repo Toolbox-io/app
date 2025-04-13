@@ -80,7 +80,6 @@ fun TilesScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit)
                                 Icon(
                                     imageVector = Icons.Filled.Bedtime,
                                     contentDescription = stringResource(R.string.sleep),
-//                        modifier = Modifier.size(20.dp)
                                 )
                             }
                         }

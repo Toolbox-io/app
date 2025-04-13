@@ -81,16 +81,15 @@ class NotificationHistorySettingsActivity: BaseActivity() {
                 ) {
                     Category(margin = CategoryDefaults.margin.copy(top = 16.dp)) {
                         var removeDuplicatesSwitch by remember { mutableStateOf(removeDuplicates) }
-                        var removeDuplicatesOnCheckedChange: (Boolean) -> Unit = {
-                            removeDuplicatesSwitch = it
-                            removeDuplicates = it
-                        }
 
                         SwitchListItem(
                             headline = stringResource(R.string.remove_duplicates),
                             supportingText = stringResource(R.string.remove_duplicates_d),
                             checked = removeDuplicatesSwitch,
-                            onCheckedChange = removeDuplicatesOnCheckedChange,
+                            onCheckedChange = {
+                                removeDuplicatesSwitch = it
+                                removeDuplicates = it
+                            },
                             leadingContent = {
                                 Icon(
                                     imageVector = Icons.Filled.Delete,
@@ -103,16 +102,15 @@ class NotificationHistorySettingsActivity: BaseActivity() {
                         )
 
                         var removeUselessNotificationsSwitch by remember { mutableStateOf(removeUselessNotifications) }
-                        var removeUselessNotificationsOnCheckedChange: (Boolean) -> Unit = {
-                            removeUselessNotificationsSwitch = it
-                            removeUselessNotifications = it
-                        }
 
                         SwitchListItem(
                             headline = stringResource(R.string.remove_useless_notifications),
                             supportingText = stringResource(R.string.remove_useless_notifications_d),
                             checked = removeUselessNotificationsSwitch,
-                            onCheckedChange = removeUselessNotificationsOnCheckedChange,
+                            onCheckedChange = {
+                                removeUselessNotificationsSwitch = it
+                                removeUselessNotifications = it
+                            },
                             leadingContent = {
                                 Icon(
                                     imageVector = Icons.Filled.Delete,

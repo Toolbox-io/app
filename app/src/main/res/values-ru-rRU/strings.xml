@@ -9,7 +9,6 @@
     <string name="accessibility_service_description">Этот сервис используется для Блокировки приложений.</string>
     <string name="appinfo">О приложении</string>
     <string name="closeapp">Закрыть</string>
-    <string name="error_disabling_service">Ошибка выключения сервиса</string>
     <string name="select_apps">Приложения</string>
     <string name="select_apps_d">Выберите приложения, к которым будет применена защита</string>
     <string name="test_crash">Тестировать сбой</string>
@@ -192,4 +191,13 @@
     <string name="lock_app_d">Заблокировать это приложение с помощью Блокировки приложений</string>
     <string name="loading">Загрузка, пожалуйста подождите</string>
     <string name="version_app">"Версия "</string>
+    <string name="nh_permissions">Этой функции требуется доступ к уведомлениям для корректной работы. Оно нужно, чтобы обнаруживать и сохранять уведомления, появляющиеся на вашем устройстве.\nЭто разрешение НИКОГДА не используется в целях, не описанных здесь.</string>
+    <string name="notification_deleted">Уведомление удалено</string>
+    <string name="undo">Отменить</string>
+    <string name="remove_duplicates">Удалять дубликаты</string>
+    <string name="remove_duplicates_d">Удалять дубликаты уведомлений из одного приложения и с одинаковым контентом</string>
+    <string name="remove_useless_notifications">Удалять ненужные уведомления</string>
+    <string name="remove_useless_notifications_d">Удалять ненужные уведомления, например \"12 новых сообщений из 5 чатов\"</string>
+    <string name="select_apps_2_d">Выбрать приложения, из которых уведомления будут сохранены</string>
+    <string name="notifications_deleted">Уведомления удалены</string>
 </resources>

@@ -189,7 +189,7 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                     .verticalScroll(rememberScrollState())
                     .padding(innerPadding)
             ) {
-                // UPDATE
+                // Update
                 if (!update_dsa) {
                     var isUpdateCardVisible by remember { mutableStateOf(false) }
 
@@ -329,7 +329,6 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                 }
                                 return@rememberSwipeToDismissBoxState true
                             },
-                            // positional threshold of 25%
                             positionalThreshold = { it * .5f }
                         )
 

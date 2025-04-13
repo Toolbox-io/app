@@ -94,15 +94,14 @@ class ActionsActivity: BaseActivity() {
                                 Settings.UnlockProtection.Alarm.enabled
                             )
                         }
-                        val alarmOnCheckedChange: (Boolean) -> Unit = {
-                            alarm = it
-                            Settings.UnlockProtection.Alarm.enabled = it
-                        }
                         SeparatedSwitchListItem(
                             headline = stringResource(R.string.alarm),
                             supportingText = stringResource(R.string.alarm_d),
                             checked = alarm,
-                            onCheckedChange = alarmOnCheckedChange,
+                            onCheckedChange = {
+                                alarm = it
+                                Settings.UnlockProtection.Alarm.enabled = it
+                            },
                             bodyOnClick = {
                                 activityLauncher.launch(
                                     Intent(
@@ -129,22 +128,6 @@ class ActionsActivity: BaseActivity() {
                                 Settings.UnlockProtection.IntruderPhoto.enabled
                             )
                         }
-                        val intruderPhotoOnCheckedChange: (Boolean) -> Unit = {
-                            if (it) {
-                                if (checkSelfPermission(Manifest.permission.CAMERA) == PERMISSION_GRANTED) {
-                                    intruderPhoto = true
-                                } else {
-                                    requestPermission(Manifest.permission.CAMERA) { granted ->
-                                        if (granted) {
-                                            intruderPhoto = true
-                                        }
-                                    }
-                                }
-                            } else {
-                                intruderPhoto = false
-                            }
-                            Settings.UnlockProtection.IntruderPhoto.enabled = it
-                        }
 
                         LaunchedEffect(Unit) {
                             if (checkSelfPermission(Manifest.permission.CAMERA) != PERMISSION_GRANTED) {
@@ -157,7 +140,22 @@ class ActionsActivity: BaseActivity() {
                             headline = stringResource(R.string.intruderphoto),
                             supportingText = stringResource(R.string.intruderphoto_d),
                             checked = intruderPhoto,
-                            onCheckedChange = intruderPhotoOnCheckedChange,
+                            onCheckedChange = {
+                                if (it) {
+                                    if (checkSelfPermission(Manifest.permission.CAMERA) == PERMISSION_GRANTED) {
+                                        intruderPhoto = true
+                                    } else {
+                                        requestPermission(Manifest.permission.CAMERA) { granted ->
+                                            if (granted) {
+                                                intruderPhoto = true
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    intruderPhoto = false
+                                }
+                                Settings.UnlockProtection.IntruderPhoto.enabled = it
+                            },
                             bodyOnClick = {
                                 activityLauncher.launch(
                                     Intent(

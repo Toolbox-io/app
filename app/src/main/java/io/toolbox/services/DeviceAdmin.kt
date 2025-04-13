@@ -53,7 +53,6 @@ class DeviceAdmin: DeviceAdminReceiver() {
         if (intruderPhotoNotifications.isNotEmpty() && Settings.UnlockProtection.IntruderPhoto.nopt) {
             Handler(Looper.getMainLooper()).postDelayed(3000) {
                 intruderPhotoNotifications.forEach {
-                    // notificationId is a unique int for each notification that you must define.
                     context.notifyIfAllowed(IP_PHOTO_TAKEN_NOTIFICATION_ID, it)
                 }
                 intruderPhotoNotifications.clear()

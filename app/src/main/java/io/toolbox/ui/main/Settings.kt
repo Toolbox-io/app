@@ -144,10 +144,6 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
             allowBiometric
         )
     }
-    val allowBiometricSwitchOnCheckedChanged: (Boolean) -> Unit = {
-        allowBiometricSwitch = it
-        allowBiometric = it
-    }
 
     // Password lock
     var passwordSwitch by remember {
@@ -167,33 +163,12 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
             }
         }
     }
-    val passwordOnCheckedChanged: (Boolean) -> Unit = pw@ {
-        if (it) {
-            if (!Settings.Keys.App.isSet) {
-                setPassword()
-                passwordSwitch = true
-                return@pw
-            }
-        } else {
-            passwordSwitch = false
-            Settings.Keys.App.set("")
-            allowBiometricSwitchEnabled = Settings.Keys.App.isSet
-            return@pw
-        }
-        context.updateLock()
-        allowBiometricSwitchEnabled = Settings.Keys.App.isSet
-        passwordSwitch = true
-    }
 
     // Don't show in recents
     var dontShowInRecentsSwitch by remember {
         mutableStateOf(
             dontShowInRecents
         )
-    }
-    val dontShowInRecentsOnCheckedChanged: (Boolean) -> Unit = {
-        dontShowInRecentsSwitch = it
-        dontShowInRecents = it
     }
 
     // Material You
@@ -203,12 +178,6 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
         mutableStateOf(
             materialYouEnabled
         )
-    }
-    val materialYouOnCheckedChanged: (Boolean) -> Unit = {
-        materialYouSwitch = it
-        materialYouEnabled = it
-        dynamicThemeEnabled = it
-        context.configureTheme()
     }
 
     // Delete app dialog
@@ -248,10 +217,6 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
 
     // Check for updates
     var checkForUpdatesSwitch by remember { mutableStateOf(!Settings.update_dsa) }
-    val checkForUpdatesOnCheckedChanged: (Boolean) -> Unit = {
-        checkForUpdatesSwitch = it
-        Settings.update_dsa = !it
-    }
 
     // Main content
     WindowInsetsHandler {
@@ -283,7 +248,23 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                         headline = stringResource(R.string.lockapp),
                         supportingText = stringResource(R.string.lockapp_d),
                         checked = passwordSwitch,
-                        onCheckedChange = passwordOnCheckedChanged,
+                        onCheckedChange = pw@ {
+                            if (it) {
+                                if (!Settings.Keys.App.isSet) {
+                                    setPassword()
+                                    passwordSwitch = true
+                                    return@pw
+                                }
+                            } else {
+                                passwordSwitch = false
+                                Settings.Keys.App.set("")
+                                allowBiometricSwitchEnabled = Settings.Keys.App.isSet
+                                return@pw
+                            }
+                            context.updateLock()
+                            allowBiometricSwitchEnabled = Settings.Keys.App.isSet
+                            passwordSwitch = true
+                        },
                         bodyOnClick = ::setPassword,
                         divider = true,
                         dividerThickness = 2.dp,
@@ -301,7 +282,10 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                         headline = stringResource(R.string.allow_biometric),
                         supportingText = stringResource(R.string.allow_biometric_d),
                         checked = allowBiometricSwitch,
-                        onCheckedChange = allowBiometricSwitchOnCheckedChanged,
+                        onCheckedChange = {
+                            allowBiometricSwitch = it
+                            allowBiometric = it
+                        },
                         divider = true,
                         dividerThickness = 2.dp,
                         dividerColor = MaterialTheme.colorScheme.surface,
@@ -318,7 +302,10 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                         headline = stringResource(R.string.dont_show_in_recents),
                         supportingText = stringResource(R.string.dont_show_in_recents_d),
                         checked = dontShowInRecentsSwitch,
-                        onCheckedChange = dontShowInRecentsOnCheckedChanged,
+                        onCheckedChange = {
+                            dontShowInRecentsSwitch = it
+                            dontShowInRecents = it
+                        },
                         divider = true,
                         dividerThickness = 2.dp,
                         dividerColor = MaterialTheme.colorScheme.surface,
@@ -358,7 +345,12 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                         supportingText = stringResource(R.string.materialYou_d),
                         enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
                         checked = materialYouSwitch,
-                        onCheckedChange = materialYouOnCheckedChanged,
+                        onCheckedChange = {
+                            materialYouSwitch = it
+                            materialYouEnabled = it
+                            dynamicThemeEnabled = it
+                            context.configureTheme()
+                        },
                         divider = true,
                         dividerColor = MaterialTheme.colorScheme.surface,
                         dividerThickness = 2.dp,
@@ -427,7 +419,10 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                         headline = stringResource(R.string.check_for_updates),
                         supportingText = stringResource(R.string.check_for_updates_d),
                         checked = checkForUpdatesSwitch,
-                        onCheckedChange = checkForUpdatesOnCheckedChanged,
+                        onCheckedChange = {
+                            checkForUpdatesSwitch = it
+                            Settings.update_dsa = !it
+                        },
                         divider = true,
                         dividerColor = MaterialTheme.colorScheme.surface,
                         dividerThickness = 2.dp,
@@ -489,7 +484,7 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                                 }
                                 val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
                                 intent.addCategory(Intent.CATEGORY_OPENABLE)
-                                intent.setType("application/zip")
+                                intent.type = "application/zip"
                                 intent.putExtra(Intent.EXTRA_TITLE, name)
                                 activityLauncher.launch(intent) {
                                     try {

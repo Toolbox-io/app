@@ -156,6 +156,7 @@ object NotificationDatabase: MutableList<NotificationData> {
         return true
     }
 
+    @Suppress("SameReturnValue")
     override fun remove(element: NotificationData): Boolean {
         init()
         _notifications -= element

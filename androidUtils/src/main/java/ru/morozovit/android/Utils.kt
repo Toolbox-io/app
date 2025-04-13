@@ -80,19 +80,16 @@ import androidx.window.core.layout.WindowHeightSizeClass
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import java.io.BufferedInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.Serializable
 import java.lang.ref.WeakReference
-import java.net.URL
 import java.security.SecureRandom
 import java.util.regex.Pattern
 import javax.crypto.Cipher
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.PBEKeySpec
-import javax.net.ssl.HttpsURLConnection
 import kotlin.random.Random
 import kotlin.random.nextInt
 import kotlin.reflect.KClass
@@ -679,7 +676,6 @@ fun PaddingValues.copy(
     bottom = bottom ?: calculateBottomPadding()
 )
 
-@Suppress("unused")
 @Composable
 fun PaddingValues.copy(
     horizontal: Dp? = null,
@@ -806,7 +802,6 @@ fun String.encodeJSON(): String {
 @Suppress("unused", "RedundantSuppression")
 operator fun <T> WeakReference<T>.getValue(thisRef: Any?, property: KProperty<*>) = get()!!
 
-@Suppress("unused")
 inline fun runOrLog(
     tag: String,
     message: String = "An error occurred:",

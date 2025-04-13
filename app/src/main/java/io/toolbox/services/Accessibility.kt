@@ -8,6 +8,7 @@ import android.content.Intent.FLAG_ACTIVITY_NEW_DOCUMENT
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
 import io.toolbox.Settings
 import io.toolbox.mainActivity
 import io.toolbox.ui.protection.applocker.FakeCrashActivity
@@ -33,31 +34,35 @@ class Accessibility: AccessibilityService() {
             AccessibilityKeeperService.start(this)
     }
 
+    @SuppressLint("SwitchIntDef")
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        // App opened listener
-        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            val newPackageName = event.packageName.toString() // App package name
-            if (newPackageName != applicationContext.packageName && newPackageName != prevApp && !lock) {
-                val apps = Settings.Applocker.apps
-                if (apps.contains(newPackageName)) {
-                    // App lock mechanism
-                    homeScreen()
+        when (event.eventType) {
+            // App opened - App Locker
+            TYPE_WINDOW_STATE_CHANGED -> {
+                if (Settings.Applocker.enabled) {
+                    val newPackageName = event.packageName.toString() // App package name
+                    if (newPackageName != applicationContext.packageName && newPackageName != prevApp && !lock) {
+                        val apps = Settings.Applocker.apps
+                        if (apps.contains(newPackageName)) {
+                            // App lock mechanism
+                            homeScreen()
 
-                    sleep(500)
+                            sleep(500)
 
-                    // Fake crash
-                    val intent = Intent(this, FakeCrashActivity::class.java)
-                    intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
-                    // always launch in new window
-                    intent.addFlags(FLAG_ACTIVITY_NEW_DOCUMENT)
-                    intent.addFlags(FLAG_ACTIVITY_MULTIPLE_TASK)
-                    val args = Bundle()
-                    args.putString("appPackage", newPackageName)
-                    intent.putExtras(args)
-                    startActivity(intent)
+                            // Fake crash
+                            val intent = Intent(this, FakeCrashActivity::class.java)
+                            intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
+                            intent.addFlags(FLAG_ACTIVITY_NEW_DOCUMENT)
+                            intent.addFlags(FLAG_ACTIVITY_MULTIPLE_TASK)
+                            val args = Bundle()
+                            args.putString("appPackage", newPackageName)
+                            intent.putExtras(args)
+                            startActivity(intent)
+                        }
+                    }
+                    prevApp = newPackageName
                 }
             }
-            prevApp = newPackageName
         }
     }
 

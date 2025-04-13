@@ -84,7 +84,6 @@ class FakeCrashActivity: androidx.appcompat.app.AppCompatActivity() {
             val b = Bundle()
             b.putString("appPackage", packageName)
             intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
-            // always launch in new window
             intent.addFlags(FLAG_ACTIVITY_NEW_DOCUMENT)
             intent.addFlags(FLAG_ACTIVITY_MULTIPLE_TASK)
             intent.putExtras(b)

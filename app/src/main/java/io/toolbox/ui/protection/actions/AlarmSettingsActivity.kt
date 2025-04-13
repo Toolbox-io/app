@@ -59,6 +59,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import io.toolbox.BaseActivity
 import io.toolbox.R
 import io.toolbox.Settings
@@ -76,7 +77,6 @@ import ru.morozovit.android.ui.RadioButtonWithText
 import ru.morozovit.android.ui.RadioGroup
 import ru.morozovit.android.ui.SwipeToDismissBackground
 import ru.morozovit.android.ui.SwitchCard
-import androidx.core.net.toUri
 
 class AlarmSettingsActivity: BaseActivity() {
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
@@ -141,15 +141,13 @@ class AlarmSettingsActivity: BaseActivity() {
                         )
                     }
 
-                    val mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@{
-                        mainSwitch = it
-                        Settings.Actions.Alarm.enabled = it
-                    }
-
                     SwitchCard(
                         text = stringResource(R.string.enable),
                         checked = mainSwitch,
-                        onCheckedChange = mainSwitchOnCheckedChange,
+                        onCheckedChange = sw@ {
+                            mainSwitch = it
+                            Settings.Actions.Alarm.enabled = it
+                        },
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
 
@@ -331,7 +329,6 @@ class AlarmSettingsActivity: BaseActivity() {
                                             visible.value = false
                                             return@rememberSwipeToDismissBoxState true
                                         },
-                                        // positional threshold of 25%
                                         positionalThreshold = { it * .25f }
                                     )
                                     SwipeToDismissBox(
@@ -403,7 +400,7 @@ class AlarmSettingsActivity: BaseActivity() {
                             onClick = {
                                 val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
                                 intent.addCategory(Intent.CATEGORY_OPENABLE)
-                                intent.setType("audio/*")
+                                intent.type = "audio/*"
                                 activityLauncher.launch(intent) {
                                     if (it.resultCode == RESULT_OK) {
                                         val uri = it.data?.data

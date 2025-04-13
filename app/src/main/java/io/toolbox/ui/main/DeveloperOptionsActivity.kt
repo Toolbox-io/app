@@ -84,10 +84,6 @@ class DeveloperOptionsActivity: BaseActivity(authEnabled = false) {
                                 Settings.Developer.replacePhotosWithIntruder
                             )
                         }
-                        val replacePhotosWithIntruderOnCheckedChange: (Boolean) -> Unit = {
-                            replacePhotosWithIntruderSwitch = it
-                            Settings.Developer.replacePhotosWithIntruder = it
-                        }
 
                         ListItem(
                             headline = "Crash the app",
@@ -129,7 +125,10 @@ class DeveloperOptionsActivity: BaseActivity(authEnabled = false) {
                             headline = "Replace photos with intruder photos",
                             supportingText = "All photos will be replaced with intruders",
                             checked = replacePhotosWithIntruderSwitch,
-                            onCheckedChange = replacePhotosWithIntruderOnCheckedChange,
+                            onCheckedChange = {
+                                replacePhotosWithIntruderSwitch = it
+                                Settings.Developer.replacePhotosWithIntruder = it
+                            },
                             leadingContent = {
                                 Icon(
                                     imageVector = Icons.Filled.Photo,

@@ -296,7 +296,7 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                                         ) {
                                             RadioButton(
                                                 selected = (num == selectedOption),
-                                                onClick = null // null recommended for accessibility with screenreaders
+                                                onClick = null
                                             )
                                             Text(
                                                 text = text,
@@ -363,17 +363,6 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                     onNegativeButtonClick = ::onPermissionDialogDismiss
                 )
 
-                // Main switch
-                val mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@{
-                    if (it && !Accessibility.running) {
-                        openPermissionDialog = true
-                        return@sw
-                    }
-                    mainSwitch = it
-                    Settings.Applocker.enabled = it
-                    Settings.Applocker.used = false
-                }
-
                 // Foreground service switch
                 var afsSwitch by remember { mutableStateOf(Settings.UnlockProtection.fgServiceEnabled) }
 
@@ -381,7 +370,15 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                     SwitchCard(
                         text = stringResource(R.string.enable),
                         checked = mainSwitch,
-                        onCheckedChange = mainSwitchOnCheckedChange,
+                        onCheckedChange = sw@ {
+                            if (it && !Accessibility.running) {
+                                openPermissionDialog = true
+                                return@sw
+                            }
+                            mainSwitch = it
+                            Settings.Applocker.enabled = it
+                            Settings.Applocker.used = false
+                        },
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
                     Category(title = stringResource(R.string.settings)) {
@@ -413,7 +410,11 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                             onCheckedChange = {
                                 afsSwitch = it
                                 Settings.UnlockProtection.fgServiceEnabled = it
-                                AccessibilityKeeperService.instance?.stopSelf()
+                                if (it) {
+                                    AccessibilityKeeperService.start(context)
+                                } else {
+                                    AccessibilityKeeperService.instance?.stopSelf()
+                                }
                             },
                             leadingContent = {
                                 Icon(

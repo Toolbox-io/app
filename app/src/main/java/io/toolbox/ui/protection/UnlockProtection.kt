@@ -104,25 +104,24 @@ fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValue
                     onNegativeButtonClick = ::permissionDialogOnDismiss
                 )
 
-                val mainSwitchOnCheckedChange: (Boolean) -> Unit = sw@ {
-                    if (it) {
-                        if (dpm.isAdminActive(admComponent)) {
-                            Settings.UnlockProtection.enabled = true
-                            mainSwitch = true
-                            return@sw
-                        }
-                        permissionDialogOpen = true
-                        return@sw
-                    } else {
-                        Settings.UnlockProtection.enabled = false
-                    }
-                    mainSwitch = false
-                }
 
                 SwitchCard(
                     text = stringResource(R.string.enable),
                     checked = mainSwitch,
-                    onCheckedChange = mainSwitchOnCheckedChange,
+                    onCheckedChange = sw@ {
+                        if (it) {
+                            if (dpm.isAdminActive(admComponent)) {
+                                Settings.UnlockProtection.enabled = true
+                                mainSwitch = true
+                                return@sw
+                            }
+                            permissionDialogOpen = true
+                            return@sw
+                        } else {
+                            Settings.UnlockProtection.enabled = false
+                        }
+                        mainSwitch = false
+                    },
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 

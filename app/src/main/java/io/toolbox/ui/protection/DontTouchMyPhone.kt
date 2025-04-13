@@ -24,7 +24,6 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -42,7 +41,6 @@ import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.CategoryDefaults
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.utils.EParser
-import kotlin.jvm.java
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
