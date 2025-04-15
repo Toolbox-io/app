@@ -21,6 +21,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Toolbox.io"
+rootProject.name = "Toolbox-io"
 
 include(":app", ":utils", ":androidUtils")

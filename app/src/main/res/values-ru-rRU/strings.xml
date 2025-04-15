@@ -50,7 +50,7 @@
     <string name="open_app_again">Открыть приложение снова</string>
     <string name="lp_oaa">Долго нажать \"Открыть приложение снова\"</string>
     <string name="p_oaa">Нажать \"Открыть приложение снова\"</string>
-    <string name="unlock_protection">Блокировка экрана</string>
+    <string name="unlock_protection">Защита блокировки</string>
     <string name="unlock_attempts">Попытки разблокировки</string>
     <string name="unlock_attempts_d">Число неудачных попыток разблокировки, необходимое для запуска действий</string>
     <string name="actions">Действия защиты</string>
