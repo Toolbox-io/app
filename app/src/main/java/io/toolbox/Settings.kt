@@ -18,6 +18,7 @@ import ru.morozovit.android.decrypt
 import ru.morozovit.android.encrypt
 import java.io.IOException
 import kotlin.random.Random
+import androidx.core.content.edit
 
 @Suppress("MemberVisibilityCanBePrivate")
 object Settings {
@@ -79,45 +80,40 @@ object Settings {
     var update_dsa
         get() = global_sharedPref.getBoolean(UPDATE_DSA_LABEL, false)
         set(value) {
-            with(global_sharedPref.edit()) {
+            global_sharedPref.edit {
                 putBoolean(UPDATE_DSA_LABEL, value)
-                apply()
             }
         }
 
     var allowBiometric
         get() = global_sharedPref.getBoolean(ALLOW_BIOMETRIC_LABEL, false)
         set(value) {
-            with(global_sharedPref.edit()) {
+            global_sharedPref.edit {
                 putBoolean(ALLOW_BIOMETRIC_LABEL, value)
-                apply()
             }
         }
 
     var dontShowInRecents
         get() = global_sharedPref.getBoolean(DONT_SHOW_IN_RECENTS_LABEL, false)
         set(value) {
-            with(global_sharedPref.edit()) {
+            global_sharedPref.edit {
                 putBoolean(DONT_SHOW_IN_RECENTS_LABEL, value)
-                apply()
             }
         }
 
     var materialYouEnabled
         get() = global_sharedPref.getBoolean(MATERIAL_YOU_ENABLED_LABEL, Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
         set(value) {
-            with(global_sharedPref.edit()) {
+            global_sharedPref.edit {
                 putBoolean(MATERIAL_YOU_ENABLED_LABEL, value)
-                apply()
             }
         }
 
     var appTheme: Theme
         get() = Theme.entries[global_sharedPref.getInt(APP_THEME_LABEL, Theme.AsSystem.ordinal)]
         set(value) {
-            with(global_sharedPref.edit()) {
+            global_sharedPref.edit {
                 putInt(APP_THEME_LABEL, value.ordinal)
-                apply()
             }
         }
 
@@ -137,27 +133,24 @@ object Settings {
             var enabled
                 get() = actions_sharedPref.getBoolean(ALARM_LABEL, false)
                 set(value) {
-                    with(actions_sharedPref.edit()) {
+                    actions_sharedPref.edit {
                         putBoolean(ALARM_LABEL, value)
-                        commit()
                     }
                 }
 
             var current
                 get() = actions_sharedPref.getString(CURRENT_CUSTOM_ALARM_LABEL, "")!!
                 set(value) {
-                    with(actions_sharedPref.edit()) {
+                    actions_sharedPref.edit {
                         putString(CURRENT_CUSTOM_ALARM_LABEL, value)
-                        commit()
                     }
                 }
 
             var customAlarms: Set<String>
                 get() = actions_sharedPref.getStringSet(CUSTOM_ALARMS_LABEL, setOf())!!
                 set(value) {
-                    with(actions_sharedPref.edit()) {
+                    actions_sharedPref.edit {
                         putStringSet(CUSTOM_ALARMS_LABEL, value)
-                        commit()
                     }
                 }
         }
@@ -165,18 +158,16 @@ object Settings {
             var enabled
                 get() = actions_sharedPref.getBoolean(INTRUDER_PHOTO_LABEL, false)
                 set(value) {
-                    with(actions_sharedPref.edit()) {
+                    actions_sharedPref.edit {
                         putBoolean(INTRUDER_PHOTO_LABEL, value)
-                        commit()
                     }
                 }
 
             var nopt
                 get() = actions_sharedPref.getBoolean(INTRUDER_PHOTO_NOPT_LABEL, false)
                 set(value) {
-                    with(actions_sharedPref.edit()) {
+                    actions_sharedPref.edit {
                         putBoolean(INTRUDER_PHOTO_NOPT_LABEL, value)
-                        commit()
                     }
                 }
         }
@@ -270,18 +261,16 @@ object Settings {
                     return result
                 }
                 set(value) {
-                    with(keys_sharedPref.edit()) {
+                    keys_sharedPref.edit {
                         putString(APPLOCKER_RANDOM_KEY_LABEL, value)
-                        apply()
                     }
                 }
 
             private var encryptedPassword
                 get() = keys_sharedPref.getString(APPLOCKER_ENCRYPTED_PASSWORD_LABEL, "")!!
                 set(value) {
-                    with(keys_sharedPref.edit()) {
+                    keys_sharedPref.edit {
                         putString(APPLOCKER_ENCRYPTED_PASSWORD_LABEL, value)
-                        apply()
                     }
                 }
 
@@ -318,18 +307,16 @@ object Settings {
                     return result
                 }
                 set(value) {
-                    with(keys_sharedPref.edit()) {
+                    keys_sharedPref.edit {
                         putString(APP_RANDOM_KEY_LABEL, value)
-                        apply()
                     }
                 }
 
             private var encryptedPassword
                 get() = keys_sharedPref.getString(APP_ENCRYPTED_PASSWORD_LABEL, "")!!
                 set(value) {
-                    with(keys_sharedPref.edit()) {
+                    keys_sharedPref.edit {
                         putString(APP_ENCRYPTED_PASSWORD_LABEL, value)
-                        apply()
                     }
                 }
 
@@ -371,9 +358,8 @@ object Settings {
         var enabled
             get() = applocker_sharedPref.getBoolean(ENABLED_LABEL, false)
             set(value) {
-                with(applocker_sharedPref.edit()) {
+                applocker_sharedPref.edit {
                     putBoolean(ENABLED_LABEL, value)
-                    apply()
                 }
             }
 
@@ -389,9 +375,8 @@ object Settings {
         var apps: Set<String>
             get() = applocker_sharedPref.getStringSet(SELECTED_APPS_LABEL, setOf())!!
             set(value) {
-                with(applocker_sharedPref.edit()) {
+                applocker_sharedPref.edit {
                     putStringSet(SELECTED_APPS_LABEL, value)
-                    apply()
                 }
             }
 
@@ -406,9 +391,8 @@ object Settings {
                 return if (it == UnlockMode.NOTHING_SELECTED) DEFAULT_UNLOCK_MODE else it
             }
             set(value) {
-                if (value in 0..UnlockMode.LONG_PRESS_OPEN_APP_AGAIN) with(applocker_sharedPref.edit()) {
+                if (value in 0..UnlockMode.LONG_PRESS_OPEN_APP_AGAIN) applocker_sharedPref.edit {
                     putInt(UNLOCK_MODE_LABEL, value)
-                    apply()
                 } else {
                     throw IllegalArgumentException("The argument must be from 0 to PRESS_TITLE.")
                 }
@@ -426,9 +410,8 @@ object Settings {
         var used: Boolean
             get() = applocker_sharedPref.getBoolean(USED_LABEL, false)
             set(value) {
-                with(applocker_sharedPref.edit()) {
+                applocker_sharedPref.edit {
                     putBoolean(USED_LABEL, value)
-                    apply()
                 }
             }
     }
@@ -449,25 +432,22 @@ object Settings {
         var enabled
             get() = unlockProtection_sharedPref.getBoolean(ENABLED_LABEL, false)
             set(value) {
-                with(unlockProtection_sharedPref.edit()) {
+                unlockProtection_sharedPref.edit {
                     putBoolean(ENABLED_LABEL, value)
-                    apply()
                 }
             }
 
         var unlockAttempts
             get() = unlockProtection_sharedPref.getInt(UNLOCK_ATTEMPTS_LABEL, 2)
-            set(value) = with(unlockProtection_sharedPref.edit()) {
+            set(value) = unlockProtection_sharedPref.edit {
                 putInt(UNLOCK_ATTEMPTS_LABEL, value)
-                apply()
             }
 
         var fgServiceEnabled
             get() = unlockProtection_sharedPref.getBoolean(FG_SERVICE_ENABLED_LABEL, true)
             set(value) {
-                with(unlockProtection_sharedPref.edit()) {
+                unlockProtection_sharedPref.edit {
                     putBoolean(FG_SERVICE_ENABLED_LABEL, value)
-                    apply()
                 }
             }
 
@@ -489,9 +469,8 @@ object Settings {
         var sleep
             get() = tiles_sharedPref.getBoolean(SLEEP_LABEL, false)
             set(value) {
-                with(tiles_sharedPref.edit()) {
+                tiles_sharedPref.edit {
                     putBoolean(SLEEP_LABEL, value)
-                    apply()
                 }
             }
     }
@@ -512,9 +491,8 @@ object Settings {
         }
 
         operator fun set(type: String, value: Boolean) {
-            with(notifications_sharedPref.edit()) {
+            notifications_sharedPref.edit {
                 putBoolean(type, value)
-                apply()
             }
         }
     }
@@ -536,27 +514,24 @@ object Settings {
         var enabled
             get() = notificationHistory_sharedPref.getBoolean(ENABLED_LABEL, false)
             set(value) {
-                with(notificationHistory_sharedPref.edit()) {
+                notificationHistory_sharedPref.edit {
                     putBoolean(ENABLED_LABEL, value)
-                    apply()
                 }
             }
 
         var removeDuplicates
             get() = notificationHistory_sharedPref.getBoolean(REMOVE_DUPLICATES_LABEL, true)
             set(value) {
-                with(notificationHistory_sharedPref.edit()) {
+                notificationHistory_sharedPref.edit {
                     putBoolean(REMOVE_DUPLICATES_LABEL, value)
-                    apply()
                 }
             }
 
         var removeUselessNotifications
             get() = notificationHistory_sharedPref.getBoolean(REMOVE_USELESS_NOTIFICATIONS_LABEL, true)
             set(value) {
-                with(notificationHistory_sharedPref.edit()) {
+                notificationHistory_sharedPref.edit {
                     putBoolean(REMOVE_USELESS_NOTIFICATIONS_LABEL, value)
-                    apply()
                 }
             }
 
@@ -570,9 +545,8 @@ object Settings {
                     .toSet()
             )!!
             set(value) {
-                with(notificationHistory_sharedPref.edit()) {
+                notificationHistory_sharedPref.edit {
                     putStringSet(SELECTED_APPS_LABEL, value)
-                    apply()
                 }
             }
     }
@@ -591,9 +565,8 @@ object Settings {
         var replacePhotosWithIntruder
             get() = developer_sharedPref.getBoolean(REPLACE_PHOTOS_WITH_INTRUDER_LABEL, false)
             set(value) {
-                with(developer_sharedPref.edit()) {
+                developer_sharedPref.edit {
                     putBoolean(REPLACE_PHOTOS_WITH_INTRUDER_LABEL, value)
-                    apply()
                 }
             }
     }
