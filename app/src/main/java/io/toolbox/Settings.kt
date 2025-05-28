@@ -372,6 +372,12 @@ object Settings {
             const val LONG_PRESS_OPEN_APP_AGAIN = 4
         }
 
+        enum class ShowMode {
+            FAKE_CRASH,
+            PASSWORD_POPUP,
+            FULLSCREEN_POPUP
+        }
+
         var apps: Set<String>
             get() = applocker_sharedPref.getStringSet(SELECTED_APPS_LABEL, setOf())!!
             set(value) {
@@ -407,11 +413,25 @@ object Settings {
             else -> ""
         }
 
+        fun getShowModeDescription(value: ShowMode, resources: Resources): String = when (value) {
+            ShowMode.FAKE_CRASH -> resources.getString(R.string.fake_crash)
+            ShowMode.FULLSCREEN_POPUP -> resources.getString(R.string.fullscreen_popup)
+            ShowMode.PASSWORD_POPUP -> resources.getString(R.string.password_popup)
+        }
+
         var used: Boolean
             get() = applocker_sharedPref.getBoolean(USED_LABEL, false)
             set(value) {
                 applocker_sharedPref.edit {
                     putBoolean(USED_LABEL, value)
+                }
+            }
+
+        var showMode: ShowMode
+            get() = ShowMode.entries[applocker_sharedPref.getInt("showMode", 0)]
+            set(value) {
+                applocker_sharedPref.edit {
+                    putInt("showMode", value.ordinal)
                 }
             }
     }

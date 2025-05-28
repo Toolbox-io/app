@@ -35,7 +35,6 @@ import android.util.TypedValue
 import android.view.View
 import android.view.ViewTreeObserver.OnPreDrawListener
 import android.widget.ImageView.ScaleType
-import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCaller
@@ -526,12 +525,20 @@ inline fun Context.openUrl(url: String) {
     )
 }
 
-inline fun ComponentActivity.ComposeView(crossinline init: @Composable () -> Unit) =
+inline fun Context.ComposeView(crossinline init: @Composable () -> Unit) =
     ComposeView(this).apply {
         setContent {
             init()
         }
     }
+
+inline fun ComposeView(context: Context, crossinline init: @Composable () -> Unit) {
+    ComposeView(context).apply {
+        setContent {
+            init()
+        }
+    }
+}
 
 inline fun backCallback(enabled: Boolean = true, crossinline callback: OnBackPressedCallback.() -> Unit)
     = object: OnBackPressedCallback(enabled) {

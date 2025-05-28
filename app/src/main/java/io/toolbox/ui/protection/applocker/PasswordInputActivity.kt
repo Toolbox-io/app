@@ -1,5 +1,12 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package io.toolbox.ui.protection.applocker
 
+import android.content.Context
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+import android.content.Intent.FLAG_ACTIVITY_NEW_DOCUMENT
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
 import android.os.Handler
 import android.view.View.GONE
@@ -10,6 +17,7 @@ import androidx.core.os.postDelayed
 import io.toolbox.Settings
 import io.toolbox.databinding.PasswordBinding
 import io.toolbox.services.Accessibility
+import ru.morozovit.android.homeScreen
 import ru.morozovit.android.screenWidth
 
 
@@ -18,6 +26,17 @@ class PasswordInputActivity: AppCompatActivity() {
 
     companion object {
         const val RESULT_INVALID_PASSWORD = 1
+
+        inline fun start(context: Context, appPackage: String) {
+            val intent = Intent(context, PasswordInputActivity::class.java)
+            val b = Bundle()
+            b.putString("appPackage", appPackage)
+            intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
+            intent.addFlags(FLAG_ACTIVITY_NEW_DOCUMENT)
+            intent.addFlags(FLAG_ACTIVITY_MULTIPLE_TASK)
+            intent.putExtras(b)
+            context.startActivity(intent)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,6 +87,7 @@ class PasswordInputActivity: AppCompatActivity() {
         }
 
         binding.pwC.setOnClickListener {
+            //homeScreen()
             setResult(RESULT_CANCELED)
             finish()
         }

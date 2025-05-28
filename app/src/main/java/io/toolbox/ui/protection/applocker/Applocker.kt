@@ -22,6 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.ImagesearchRoller
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.SettingsApplications
@@ -64,6 +65,7 @@ import io.toolbox.Settings.Applocker.UnlockMode.LONG_PRESS_CLOSE
 import io.toolbox.Settings.Applocker.UnlockMode.LONG_PRESS_OPEN_APP_AGAIN
 import io.toolbox.Settings.Applocker.UnlockMode.LONG_PRESS_TITLE
 import io.toolbox.Settings.Applocker.UnlockMode.PRESS_TITLE
+import io.toolbox.Settings.Applocker.showMode
 import io.toolbox.Settings.Applocker.unlockMode
 import io.toolbox.services.Accessibility
 import io.toolbox.services.Accessibility.Companion.returnBack
@@ -100,13 +102,14 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
             ) {
                 val context = LocalContext() as MainActivity
 
-                val default = stringResource(R.string.lp_ai)
                 var unlockMethodText by remember {
                     mutableStateOf(
-                        if (!false)
-                            Settings.Applocker.getUnlockModeDescription(unlockMode, context.resources)
-                        else
-                            default
+                        Settings.Applocker.getUnlockModeDescription(unlockMode, context.resources)
+                    )
+                }
+                var showModeText by remember {
+                    mutableStateOf(
+                        Settings.Applocker.getShowModeDescription(showMode, context.resources)
                     )
                 }
 
@@ -331,6 +334,86 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                     }
                 }
 
+                // Show mode dialog
+                var openShowModeDialog by remember { mutableStateOf(false) }
+                if (openShowModeDialog) {
+                    fun onDismissRequest() {
+                        openShowModeDialog = false
+                    }
+                    Dialog(
+                        onDismissRequest = ::onDismissRequest
+                    ) {
+                        Card(
+                            shape = RoundedCornerShape(28.dp),
+                            colors = cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+                        ) {
+                            Column(modifier = Modifier.padding(24.dp)) {
+                                Text(
+                                    text = stringResource(R.string.showmode),
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    modifier = Modifier
+                                        .padding()
+                                        .padding(bottom = 16.dp)
+                                )
+                                val radioOptions = Settings.Applocker.ShowMode.entries.toList()
+                                val (selectedOption, onOptionSelected) = remember {
+                                    mutableStateOf(
+                                        radioOptions[radioOptions.indexOf(showMode)]
+                                    )
+                                }
+                                // Note that Modifier.selectableGroup() is essential to ensure correct accessibility behavior
+                                Column(Modifier.selectableGroup()) {
+                                    radioOptions.forEach { num ->
+                                        val text = Settings.Applocker.getShowModeDescription(num, context.resources)
+
+                                        Row(
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .height(56.dp)
+                                                .selectable(
+                                                    selected = (num == selectedOption),
+                                                    onClick = { onOptionSelected(num) },
+                                                    role = Role.RadioButton
+                                                ),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            RadioButton(
+                                                selected = (num == selectedOption),
+                                                onClick = null
+                                            )
+                                            Text(
+                                                text = text,
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                modifier = Modifier.padding(start = 16.dp)
+                                            )
+                                        }
+                                    }
+                                }
+
+                                Row(Modifier.padding(top = 24.dp)) {
+                                    TextButton(
+                                        onClick = ::onDismissRequest
+                                    ) {
+                                        Text(text = stringResource(R.string.cancel))
+                                    }
+                                    Spacer(Modifier.weight(1f))
+                                    TextButton(
+                                        onClick = {
+                                            showMode = selectedOption
+                                            showModeText = Settings.Applocker.getShowModeDescription(
+                                                selectedOption, context.resources
+                                            )
+                                            onDismissRequest()
+                                        }
+                                    ) {
+                                        Text(text = stringResource(R.string.ok))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // Accessibility permission dialog
                 var openPermissionDialog by remember { mutableStateOf(false) }
                 fun onPermissionDialogDismiss() {
@@ -451,6 +534,22 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                             leadingContent = {
                                 Icon(
                                     imageVector = Icons.Filled.Key,
+                                    contentDescription = null
+                                )
+                            },
+                            divider = true,
+                            dividerThickness = 2.dp,
+                            dividerColor = MaterialTheme.colorScheme.surface,
+                        )
+                        ListItem(
+                            headline = stringResource(R.string.showmode),
+                            supportingText = showModeText,
+                            onClick = {
+                                openShowModeDialog = true
+                            },
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.ImagesearchRoller,
                                     contentDescription = null
                                 )
                             }

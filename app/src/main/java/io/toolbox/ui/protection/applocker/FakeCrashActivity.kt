@@ -80,14 +80,7 @@ class FakeCrashActivity: androidx.appcompat.app.AppCompatActivity() {
         val listener: (View?) -> Boolean = {
             setResult(RESULT_OK)
             finish()
-            val intent = Intent(this, PasswordInputActivity::class.java)
-            val b = Bundle()
-            b.putString("appPackage", packageName)
-            intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
-            intent.addFlags(FLAG_ACTIVITY_NEW_DOCUMENT)
-            intent.addFlags(FLAG_ACTIVITY_MULTIPLE_TASK)
-            intent.putExtras(b)
-            startActivity(intent)
+            PasswordInputActivity.start(this, packageName)
             false
         }
 

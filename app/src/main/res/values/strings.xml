@@ -203,4 +203,8 @@
     <string name="remove_useless_notifications_d">Remove useless notifications like \"12 new messages from 5 chats\"</string>
     <string name="select_apps_2_d">Select the applications from which the notifications will be saved</string>
     <string name="notifications_deleted">Notifications deleted</string>
+    <string name="fake_crash">Fake crash</string>
+    <string name="fullscreen_popup">Fullscreen password popup</string>
+    <string name="password_popup">Password popup</string>
+    <string name="showmode">Show mode</string>
 </resources>
