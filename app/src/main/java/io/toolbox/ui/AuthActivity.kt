@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.enableEdgeToEdge
@@ -73,12 +74,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.postDelayed
 import androidx.core.view.postDelayed
 import com.skydoves.cloudy.cloudy
 import io.toolbox.App.Companion.authenticated
 import io.toolbox.BaseActivity
 import io.toolbox.R
 import io.toolbox.Settings
+import io.toolbox.services.Accessibility
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.morozovit.android.BetterActivityResult
@@ -114,6 +117,13 @@ class AuthActivity: BaseActivity(false) {
         throw NullPointerException("Password must be set")
     private val oldPwConfirmed inline get() = intent.getBooleanExtra("oldPwConfirmed", false)
     private val setStarted inline get() = intent.getBooleanExtra("setStarted", false)
+    private val applocker inline get() = intent.getBooleanExtra("applocker", false)
+
+    private val key inline get() =
+        if (applocker)
+            Settings.Keys.Applocker
+        else Settings.Keys.App
+
 
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
     private lateinit var launchingIntent: Intent
@@ -129,7 +139,7 @@ class AuthActivity: BaseActivity(false) {
         operator fun component1() = symbol
         operator fun component2() = visible
 
-        override fun toString() = "PasswordEntry(symbol = $symbol, visible = $visible)"
+        override fun toString() = "PasswordEntry(symbol = $symbol, visible = $  visible)"
     }
 
     private class Handlers {
@@ -262,7 +272,7 @@ class AuthActivity: BaseActivity(false) {
                                     when (mode) {
                                         MODE_ENTER -> R.string.enter_password
                                         MODE_SET ->
-                                            if (!Settings.Keys.App.isSet)
+                                            if (!key.isSet)
                                                 R.string.setpassword
                                             else
                                                 R.string.change_password
@@ -349,65 +359,78 @@ class AuthActivity: BaseActivity(false) {
                                     }
                                     string
                                 }
-                                @SuppressLint("SuspiciousIndentation")
-                                if (!isSetOrConfirm && Settings.Keys.App.check(password)) {
-                                    authenticated = true
-                                    finishAfterTransition(R.anim.scale_down, R.anim.alpha_down)
-                                } else if (mode == MODE_ENTER_OLD_PW && Settings.Keys.App.check(password)) {
-                                    view.post {
-                                        startActivity(Intent(this@AuthActivity, AuthActivity::class.java).apply {
-                                            putExtra("mode", MODE_SET)
-                                            putExtra("oldPwConfirmed", true)
-                                            putExtra("noAnim", true)
-                                        })
-                                        finish()
-                                    }
-                                } else if (mode == MODE_SET) {
-                                    view.post {
-                                        activityLauncher.launch(Intent(this@AuthActivity, AuthActivity::class.java).apply {
-                                            putExtra("mode", MODE_CONFIRM)
-                                            putExtra("password", password)
-                                            putExtra("noAnim", true)
-                                        }) {
-                                            if (it.resultCode == RESULT_OK) {
-                                                setResult(RESULT_OK)
-                                                finish()
+
+                                when {
+                                    !isSetOrConfirm && key.check(password) -> {
+                                        if (applocker) {
+                                            Accessibility.instance?.lock = true
+                                            Handler(mainLooper).postDelayed(2000) {
+                                                Accessibility.instance?.lock = false
                                             }
+                                        } else {
+                                            authenticated = true
+                                        }
+                                        finishAfterTransition(R.anim.scale_down, R.anim.alpha_down)
+                                    }
+                                    mode == MODE_ENTER_OLD_PW && key.check(password) -> {
+                                        view.post {
+                                            startActivity(Intent(this@AuthActivity, AuthActivity::class.java).apply {
+                                                putExtra("mode", MODE_SET)
+                                                putExtra("oldPwConfirmed", true)
+                                                putExtra("noAnim", true)
+                                                putExtra("applocker", applocker)
+                                            })
+                                            finish()
                                         }
                                     }
-                                    clear()
-                                } else if (
-                                    mode == MODE_CONFIRM &&
-                                    password == enteredPassword
-                                ) {
-                                    Settings.Keys.App.set(password)
-                                    view.post {
-                                        setResult(RESULT_OK)
-                                        finish()
+                                    mode == MODE_SET -> {
+                                        view.post {
+                                            activityLauncher.launch(Intent(this@AuthActivity, AuthActivity::class.java).apply {
+                                                putExtra("mode", MODE_CONFIRM)
+                                                putExtra("password", password)
+                                                putExtra("noAnim", true)
+                                                putExtra("applocker", applocker)
+                                            }) {
+                                                if (it.resultCode == RESULT_OK) {
+                                                    setResult(RESULT_OK)
+                                                    finish()
+                                                }
+                                            }
+                                        }
+                                        clear()
                                     }
-                                } else {
-                                    currentPasswordState = 0
-                                    val delay = 100L
+                                    mode == MODE_CONFIRM && password == enteredPassword -> {
+                                        key.set(password)
+                                        view.post {
+                                            setResult(RESULT_OK)
+                                            finish()
+                                        }
+                                    }
+                                    else -> {
+                                        currentPasswordState = 0
+                                        val delay = 100L
 
-                                    offsetSet = -5
-                                    Thread.sleep(delay)
-                                    offsetSet = 10
-                                    Thread.sleep(delay)
-                                    offsetSet = -15
-                                    Thread.sleep(delay)
-                                    offsetSet = 20
-                                    Thread.sleep(delay)
-                                    offsetSet = -15
-                                    Thread.sleep(delay)
-                                    offsetSet = 10
-                                    Thread.sleep(delay)
-                                    offsetSet = -5
-                                    Thread.sleep(delay)
-                                    offsetSet = 0
-                                    Thread.sleep(delay)
-                                    clear()
-                                    Thread.sleep(500)
+                                        offsetSet = -5
+                                        Thread.sleep(delay)
+                                        offsetSet = 10
+                                        Thread.sleep(delay)
+                                        offsetSet = -15
+                                        Thread.sleep(delay)
+                                        offsetSet = 20
+                                        Thread.sleep(delay)
+                                        offsetSet = -15
+                                        Thread.sleep(delay)
+                                        offsetSet = 10
+                                        Thread.sleep(delay)
+                                        offsetSet = -5
+                                        Thread.sleep(delay)
+                                        offsetSet = 0
+                                        Thread.sleep(delay)
+                                        clear()
+                                        Thread.sleep(500)
+                                    }
                                 }
+
                                 inputLocked = false
                             }
                         }
@@ -444,7 +467,7 @@ class AuthActivity: BaseActivity(false) {
                             }
 
                             var resetCount by remember { mutableIntStateOf(0) }
-                            val lock = Any()
+                            val lock = remember { Any() }
 
                             FilledIconButton(
                                 shape = CircleShape,
@@ -576,7 +599,7 @@ class AuthActivity: BaseActivity(false) {
         launchingIntent = intent
         activityLauncher = activityResultLauncher
 
-        if ((!Settings.Keys.App.isSet || authenticated) && !isSetOrConfirm) {
+        if ((!key.isSet || authenticated) && !isSetOrConfirm) {
             finish()
             return
         }
@@ -589,7 +612,7 @@ class AuthActivity: BaseActivity(false) {
         val view = ComposeView {
             AuthScreen(mode)
         }
-        if (isSetOrConfirm && mode == MODE_SET && Settings.Keys.App.isSet && !oldPwConfirmed) {
+        if (isSetOrConfirm && mode == MODE_SET && key.isSet && !oldPwConfirmed) {
             intent.putExtra("mode", MODE_ENTER_OLD_PW)
             assert(mode == MODE_ENTER_OLD_PW)
         } else {

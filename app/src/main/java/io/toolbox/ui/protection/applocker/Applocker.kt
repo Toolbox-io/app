@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS
-import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -40,14 +39,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -70,14 +66,13 @@ import io.toolbox.Settings.Applocker.unlockMode
 import io.toolbox.services.Accessibility
 import io.toolbox.services.Accessibility.Companion.returnBack
 import io.toolbox.services.AccessibilityKeeperService
+import io.toolbox.ui.AuthActivity
 import io.toolbox.ui.MainActivity
 import io.toolbox.ui.WindowInsetsHandler
-import ru.morozovit.android.clearFocusOnKeyboardDismiss
 import ru.morozovit.android.homeScreen
 import ru.morozovit.android.invoke
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
-import ru.morozovit.android.ui.SecureTextField
 import ru.morozovit.android.ui.SimpleAlertDialog
 import ru.morozovit.android.ui.SwitchCard
 import ru.morozovit.android.ui.SwitchListItem
@@ -125,7 +120,7 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                     )
                 }
 
-                // Set password dialog
+                /*// Set password dialog
                 var openSetPasswordDialog by remember { mutableStateOf(false) }
                 if (openSetPasswordDialog) {
                     fun onDismissRequest() {
@@ -244,7 +239,7 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                             }
                         }
                     }
-                }
+                }*/
 
                 // Unlock method dialog
                 var openUnlockMethodDialog by remember { mutableStateOf(false) }
@@ -512,7 +507,15 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                             headline = stringResource(R.string.setpassword),
                             supportingText = stringResource(R.string.setpassword_d),
                             onClick = {
-                                openSetPasswordDialog = true
+                                /*openSetPasswordDialog = true*/
+                                context.startActivity(
+                                    Intent(context, AuthActivity::class.java).apply {
+                                        putExtra("setStarted", true)
+                                        putExtra("mode", 1)
+                                        putExtra("applocker", true)
+                                        flags = FLAG_ACTIVITY_NEW_TASK
+                                    }
+                                )
                             },
                             divider = true,
                             dividerThickness = 2.dp,
@@ -541,6 +544,9 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                             dividerThickness = 2.dp,
                             dividerColor = MaterialTheme.colorScheme.surface,
                         )
+                    }
+
+                    Category(title = stringResource(R.string.customization)) {
                         ListItem(
                             headline = stringResource(R.string.showmode),
                             supportingText = showModeText,
@@ -555,6 +561,7 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                             }
                         )
                     }
+
                     Category(title = stringResource(R.string.testing)) {
                         ListItem(
                             headline = stringResource(R.string.test_crash),

@@ -157,9 +157,11 @@ fun AppTheme(
     consumeLeftInsets: Boolean = false,
     consumeRightInsets: Boolean = false,
     enforceNavContrast: Boolean = false,
+    setBackground: Boolean = true,
+    configInsets: Boolean = true,
     content: @Composable WindowInsetsScope.() -> Unit
 ) {
-    with (LocalContext() as Activity) {
+    with (LocalContext()) {
         var colorScheme = when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && dynamicThemeEnabled ->
                 if (darkTheme)
@@ -244,10 +246,12 @@ fun AppTheme(
             surfaceContainerHighest = surfaceContainerHighest
         )
 
-        WindowCompat.getInsetsController(window, LocalView()).isAppearanceLightStatusBars = !darkTheme
+        if (this is Activity) {
+            WindowCompat.getInsetsController(window, LocalView()).isAppearanceLightStatusBars = !darkTheme
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            window.isNavigationBarContrastEnforced = enforceNavContrast
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                window.isNavigationBarContrastEnforced = enforceNavContrast
+            }
         }
 
         MaterialTheme(colorScheme = colorScheme) {
@@ -264,47 +268,63 @@ fun AppTheme(
                 WindowInsets.safeDrawing.getBottom(LocalDensity())
             )
 
-            WindowInsetsHandler(modifier, !consumeLeftInsets, !consumeRightInsets) {
-                Surface(
-                    contentColor = colorScheme.onSurface,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .let {
-                            var mod = it
-                            if (consumeTopInsets) {
-                                mod += Modifier.consumeWindowInsets(WindowInsets.safeContent.only(WindowInsetsSides.Top))
-                            }
-                            if (consumeBottomInsets) {
-                                mod += Modifier.consumeWindowInsets(WindowInsets.safeContent.only(WindowInsetsSides.Bottom))
-                            }
-                            if (!consumeLeftInsets) {
-                                mod += Modifier.consumeWindowInsets(WindowInsets.safeContent.only(WindowInsetsSides.Left))
-                            }
-                            if (!consumeRightInsets) {
-                                mod += Modifier.consumeWindowInsets(WindowInsets.safeContent.only(WindowInsetsSides.Right))
-                            }
-                            mod
-                        }
-                ) {
-                    val topInset = insets.getTop(LocalDensity())
-                    val bottomInset = insets.getBottom(LocalDensity())
-                    val leftInset = insets.getLeft(LocalDensity(), LocalLayoutDirection())
-                    val rightInset = insets.getRight(LocalDensity(), LocalLayoutDirection())
+            val actualContent = @Composable {
+                val topInset = insets.getTop(LocalDensity())
+                val bottomInset = insets.getBottom(LocalDensity())
+                val leftInset = insets.getLeft(LocalDensity(), LocalLayoutDirection())
+                val rightInset = insets.getRight(LocalDensity(), LocalLayoutDirection())
 
-                    content(
-                        object : WindowInsetsScope {
-                            override val safeDrawingInsets: WindowInsets get() = insets
-                            override val isTopInsetConsumed: Boolean get() = consumeTopInsets
-                            override val isBottomInsetConsumed: Boolean get() = consumeBottomInsets
-                            override val isLeftInsetConsumed: Boolean get() = consumeLeftInsets
-                            override val isRightInsetConsumed: Boolean get() = consumeRightInsets
-                            override val topInset: Int get() = topInset
-                            override val bottomInset: Int get() = bottomInset
-                            override val leftInset: Int get() = leftInset
-                            override val rightInset: Int get() = rightInset
-                        }
-                    )
+                content(
+                    object : WindowInsetsScope {
+                        override val safeDrawingInsets: WindowInsets get() = insets
+                        override val isTopInsetConsumed: Boolean get() = consumeTopInsets
+                        override val isBottomInsetConsumed: Boolean get() = consumeBottomInsets
+                        override val isLeftInsetConsumed: Boolean get() = consumeLeftInsets
+                        override val isRightInsetConsumed: Boolean get() = consumeRightInsets
+                        override val topInset: Int get() = topInset
+                        override val bottomInset: Int get() = bottomInset
+                        override val leftInset: Int get() = leftInset
+                        override val rightInset: Int get() = rightInset
+                    }
+                )
+            }
+
+            val insetHandlerContent = @Composable {
+                if (setBackground) {
+                    Surface(
+                        contentColor = if (setBackground) colorScheme.onSurface else Color.Transparent,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .let {
+                                var mod = it
+                                if (consumeTopInsets) {
+                                    mod += Modifier.consumeWindowInsets(WindowInsets.safeContent.only(WindowInsetsSides.Top))
+                                }
+                                if (consumeBottomInsets) {
+                                    mod += Modifier.consumeWindowInsets(WindowInsets.safeContent.only(WindowInsetsSides.Bottom))
+                                }
+                                if (!consumeLeftInsets) {
+                                    mod += Modifier.consumeWindowInsets(WindowInsets.safeContent.only(WindowInsetsSides.Left))
+                                }
+                                if (!consumeRightInsets) {
+                                    mod += Modifier.consumeWindowInsets(WindowInsets.safeContent.only(WindowInsetsSides.Right))
+                                }
+                                mod
+                            }
+                    ) {
+                        actualContent()
+                    }
+                } else {
+                    actualContent()
                 }
+            }
+
+            if (configInsets) {
+                WindowInsetsHandler(modifier, !consumeLeftInsets, !consumeRightInsets) {
+                    insetHandlerContent()
+                }
+            } else {
+                insetHandlerContent()
             }
         }
     }
