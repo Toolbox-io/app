@@ -32,9 +32,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import dev.chrisbanes.haze.hazeSource
 import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.services.DeviceAdmin
+import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.MainActivity
 import io.toolbox.ui.WindowInsetsHandler
 import io.toolbox.ui.protection.actions.ActionsActivity
@@ -54,6 +56,7 @@ fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValue
                 Modifier
                     .verticalScroll(rememberScrollState())
                     .padding(innerPadding)
+                    .hazeSource(LocalHazeState())
             ) {
                 val context = LocalContext() as MainActivity
                 val activityLauncher = context.activityLauncher

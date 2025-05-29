@@ -53,6 +53,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import dev.chrisbanes.haze.hazeSource
 import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.Settings.ACTIONS_LABEL
@@ -65,6 +66,7 @@ import io.toolbox.Settings.dontShowInRecents
 import io.toolbox.Settings.materialYouEnabled
 import io.toolbox.services.DeviceAdmin
 import io.toolbox.ui.AuthActivity
+import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.MainActivity
 import io.toolbox.ui.Theme
 import io.toolbox.ui.WindowInsetsHandler
@@ -225,6 +227,7 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                 Modifier
                     .verticalScroll(rememberScrollState())
                     .padding(innerPadding)
+                    .hazeSource(LocalHazeState())
             ) {
                 Category(title = stringResource(R.string.security)) {
                     // Device admin

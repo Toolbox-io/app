@@ -29,9 +29,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import dev.chrisbanes.haze.hazeSource
 import io.toolbox.BuildConfig
 import io.toolbox.R
 import io.toolbox.ui.AppIcon
+import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.WindowInsetsHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -53,6 +55,7 @@ fun AboutScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit)
                     .padding(horizontal = 16.dp)
                     .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
+                    .hazeSource(LocalHazeState())
             ) {
                 Box(Modifier.padding(top = 20.dp)) {
                     AppIcon(modifier = Modifier.size(150.dp))

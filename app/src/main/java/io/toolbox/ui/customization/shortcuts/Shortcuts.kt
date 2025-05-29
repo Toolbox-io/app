@@ -31,7 +31,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import dev.chrisbanes.haze.hazeSource
 import io.toolbox.R
+import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.WindowInsetsHandler
 import ru.morozovit.android.getSystemService
 import ru.morozovit.android.invoke
@@ -52,6 +54,7 @@ fun ShortcutsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> U
                     Modifier
                         .verticalScroll(rememberScrollState())
                         .padding(innerPadding)
+                        .hazeSource(LocalHazeState())
                 ) {
                     FlowRow(
                         Modifier

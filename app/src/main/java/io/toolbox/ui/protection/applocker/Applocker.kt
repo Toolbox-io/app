@@ -53,6 +53,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.os.postDelayed
+import dev.chrisbanes.haze.hazeSource
 import io.toolbox.IssueReporter
 import io.toolbox.R
 import io.toolbox.Settings
@@ -67,6 +68,7 @@ import io.toolbox.services.Accessibility
 import io.toolbox.services.Accessibility.Companion.returnBack
 import io.toolbox.services.AccessibilityKeeperService
 import io.toolbox.ui.AuthActivity
+import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.MainActivity
 import io.toolbox.ui.WindowInsetsHandler
 import ru.morozovit.android.homeScreen
@@ -94,6 +96,7 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                 Modifier
                     .verticalScroll(rememberScrollState())
                     .padding(innerPadding)
+                    .hazeSource(LocalHazeState())
             ) {
                 val context = LocalContext() as MainActivity
 

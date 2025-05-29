@@ -70,6 +70,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.ComposeView
@@ -84,6 +85,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
+import dev.chrisbanes.haze.rememberHazeState
 import io.toolbox.App.Companion.authenticated
 import io.toolbox.BaseActivity
 import io.toolbox.R
@@ -125,6 +131,7 @@ import ru.morozovit.android.unsupported
 import ru.morozovit.android.widthSizeClass
 
 val LocalNavController: ProvidableCompositionLocal<NavController> = compositionLocalOf { throw IllegalStateException("Uninitialized") }
+val LocalHazeState: ProvidableCompositionLocal<HazeState> = compositionLocalOf { throw NotImplementedError() }
 
 class MainActivity : BaseActivity(
     backButtonBehavior = Companion.BackButtonBehavior.DEFAULT,
@@ -239,7 +246,7 @@ class MainActivity : BaseActivity(
     }
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
     @Composable
     fun MainScreen() {
         AppTheme(consumeLeftInsets = true, consumeRightInsets = true) {
@@ -249,6 +256,7 @@ class MainActivity : BaseActivity(
             val navController = rememberNavController()
 
             val currentEntry = navController.currentBackStackEntryAsState()
+            val hazeState = rememberHazeState(blurEnabled = true)
 
             LaunchedEffect(currentEntry.value) {
                 runCatching {
@@ -409,6 +417,7 @@ class MainActivity : BaseActivity(
 
                 val bar: @Composable (TopAppBarScrollBehavior) -> Unit = { scrollBehavior ->
                     TopAppBar(
+                        colors = TopAppBarDefaults.topAppBarColors(Color.Unspecified, Color.Transparent),
                         title = {
                             val titleRes = Screen[selectedItem]?.displayName
                             val title = if (titleRes != null) {
@@ -425,7 +434,8 @@ class MainActivity : BaseActivity(
                         navigationIcon = navigation,
                         actions = actions,
                         modifier = Modifier
-                            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Right)),
+                            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Right))
+                            .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()),
                         scrollBehavior = scrollBehavior
                     )
                 }
@@ -444,13 +454,15 @@ class MainActivity : BaseActivity(
 
                 val start by remember { mutableStateOf(selectedItem) }
                 CompositionLocalProvider(
-                    value = LocalNavController provides navController
+                    LocalNavController provides navController,
+                    LocalHazeState provides hazeState
                 ) {
                     NavHost(
                         navController = navController,
                         startDestination = start,
                         modifier = Modifier
                             .consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Left))
+                            // .hazeSource(hazeState)
                     ) {
                         composable(route = HOME) {
                             HomeScreen(

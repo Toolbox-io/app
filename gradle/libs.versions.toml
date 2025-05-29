@@ -8,6 +8,8 @@ composeBom = "2025.05.01"
 constraintlayoutCompose = "1.1.1"
 coreSplashscreen = "1.0.1"
 gson = "2.13.1"
+haze = "1.6.2"
+hazeMaterials = "1.6.2"
 kotlin = "2.1.21"
 coreKtx = "1.16.0"
 appcompat = "1.7.0"
@@ -20,6 +22,10 @@ ossLicenses = "0.10.6"
 playServicesOssLicenses = "17.1.0"
 materialCompose = "1.3.2"
 material-extended = "1.7.8"
+rules = "1.6.1"
+runner = "1.6.2"
+uiTestJunit4 = "1.8.2"
+uiTestManifest = "1.8.2"
 uiViewbinding = "1.8.2"
 jetbrainsKotlinJvm = "2.1.21"
 
@@ -34,11 +40,17 @@ androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", versi
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "material-extended" }
 androidx-material3 = { module = "androidx.compose.material3:material3", version.ref = "materialCompose" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-rules = { module = "androidx.test:rules", version.ref = "rules" }
+androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
+androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "uiTestJunit4" }
+androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "uiTestManifest" }
 androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
 cloudy = { module = "com.github.skydoves:cloudy", version.ref = "cloudy" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
+haze-materials = { module = "dev.chrisbanes.haze:haze-materials", version.ref = "hazeMaterials" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }

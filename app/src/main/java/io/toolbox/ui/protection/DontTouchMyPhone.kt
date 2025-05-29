@@ -29,8 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import dev.chrisbanes.haze.hazeSource
 import io.toolbox.R
 import io.toolbox.Settings
+import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.WindowInsetsHandler
 import io.toolbox.ui.protection.actions.ActionsActivity
 import ru.morozovit.android.SensorEventListener
@@ -48,7 +50,11 @@ import kotlin.math.roundToInt
 fun DontTouchMyPhoneScreen(@Suppress("LocalVariableName") EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
     WindowInsetsHandler {
         EdgeToEdgeBar { innerPadding ->
-            Column(Modifier.padding(innerPadding)) {
+            Column(
+                Modifier
+                    .padding(innerPadding)
+                    .hazeSource(LocalHazeState())
+            ) {
                 val context = LocalContext()
                 val sensorManager = remember { context.getSystemService(SensorManager::class.java) }
                 val mediaPlayer = remember { MediaPlayer() }

@@ -27,10 +27,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import dev.chrisbanes.haze.hazeSource
 import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.services.tiles.SleepTile
+import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.WindowInsetsHandler
+import ru.morozovit.android.invoke
 import ru.morozovit.android.ui.ToggleIconButton
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -44,6 +47,7 @@ fun TilesScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit)
                     .padding(10.dp)
                     .padding(innerPadding)
                     .fillMaxWidth()
+                    .hazeSource(LocalHazeState())
             ) {
                 Card(
                     colors = CardDefaults.cardColors(
