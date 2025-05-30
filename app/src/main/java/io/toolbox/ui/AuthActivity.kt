@@ -76,7 +76,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.postDelayed
 import androidx.core.view.postDelayed
-import com.skydoves.cloudy.cloudy
+import dev.chrisbanes.haze.hazeEffect
 import io.toolbox.App.Companion.authenticated
 import io.toolbox.BaseActivity
 import io.toolbox.R
@@ -93,11 +93,10 @@ import ru.morozovit.android.homeScreen
 import ru.morozovit.android.invoke
 import ru.morozovit.android.requestAuthentication
 import ru.morozovit.utils.EParser
-import kotlin.math.roundToInt
 
-class AuthActivity: BaseActivity(false) {
+open class AuthActivity: BaseActivity(false) {
     companion object {
-        private const val PASSWORD_DOT = "●"
+        const val PASSWORD_DOT = "●"
         const val MAX_PASSWORD_LENGTH = 6
 
         const val MODE_ENTER = 0
@@ -108,18 +107,18 @@ class AuthActivity: BaseActivity(false) {
         var started = false
     }
 
-    private var mode
+    protected var mode
         inline get() = intent.getIntExtra("mode", MODE_ENTER)
         inline set(value) { intent.putExtra("mode", value) }
-    private val isSetOrConfirm inline get() = mode in 1..3
-    private val enteredPassword inline get() =
+    protected val isSetOrConfirm inline get() = mode in 1..3
+    protected val enteredPassword inline get() =
         intent.getStringExtra("password") ?:
         throw NullPointerException("Password must be set")
-    private val oldPwConfirmed inline get() = intent.getBooleanExtra("oldPwConfirmed", false)
-    private val setStarted inline get() = intent.getBooleanExtra("setStarted", false)
-    private val applocker inline get() = intent.getBooleanExtra("applocker", false)
+    protected val oldPwConfirmed inline get() = intent.getBooleanExtra("oldPwConfirmed", false)
+    protected val setStarted inline get() = intent.getBooleanExtra("setStarted", false)
+    protected val applocker inline get() = intent.getBooleanExtra("applocker", false)
 
-    private val key inline get() =
+    protected val key inline get() =
         if (applocker)
             Settings.Keys.Applocker
         else Settings.Keys.App
@@ -235,10 +234,10 @@ class AuthActivity: BaseActivity(false) {
                         }
                         false
                     }
-                    .cloudy(
-                        enabled = blurRadius != 0f,
-                        radius = blurRadius.roundToInt(),
-                    )
+                    .hazeEffect {
+                        blurEnabled = blurRadius != 0f
+                        this.blurRadius = blurRadius.dp
+                    }
             ) {
                 Box(
                     contentAlignment = Alignment.Center,

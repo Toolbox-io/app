@@ -7,12 +7,13 @@ import android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK
 import android.content.Intent.FLAG_ACTIVITY_NEW_DOCUMENT
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
 import io.toolbox.Settings
 import io.toolbox.Settings.Applocker.showMode
 import io.toolbox.mainActivity
-import io.toolbox.ui.AuthActivity
+import io.toolbox.ui.protection.applocker.ApplockerAuthActivity
 import io.toolbox.ui.protection.applocker.FakeCrashActivity
 import io.toolbox.ui.protection.applocker.PasswordInputActivity
 import ru.morozovit.android.homeScreen
@@ -43,12 +44,21 @@ class Accessibility: AccessibilityService() {
         when (event.eventType) {
             // App opened - App Locker
             TYPE_WINDOW_STATE_CHANGED -> {
+                Log.d("applocker", "Window state changed: $event")
                 if (Settings.Applocker.enabled) {
+                    Log.d("applocker", "applocker enabled")
                     val newPackageName = event.packageName.toString() // App package name
+                    Log.d("applocker", "package: $newPackageName")
+                    Log.d("applocker", "app context package: ${applicationContext.packageName}")
+                    Log.d("applocker", "prevApp: $prevApp")
+                    Log.d("applocker", "lock: $lock")
                     if (newPackageName != applicationContext.packageName && newPackageName != prevApp && !lock) {
                         prevApp = newPackageName
+                        Log.i("applocker", "conditions met, locking")
                         val apps = Settings.Applocker.apps
-                        if (apps.contains(newPackageName)) {
+                        Log.d("applocker", "apps list: $apps")
+                        if (newPackageName in apps) {
+                            Log.i("applocker", "app in list, locking...")
                             when (showMode) {
                                 Settings.Applocker.ShowMode.FAKE_CRASH -> {
                                     // App lock mechanism
@@ -70,8 +80,9 @@ class Accessibility: AccessibilityService() {
                                 }
                                 Settings.Applocker.ShowMode.PASSWORD_POPUP -> PasswordInputActivity.start(this, newPackageName)
                                 Settings.Applocker.ShowMode.FULLSCREEN_POPUP -> {
+                                    Log.d("applocker", "enabling fullscreen auth")
                                     startActivity(
-                                        Intent(this, AuthActivity::class.java).apply {
+                                        Intent(this, ApplockerAuthActivity::class.java).apply {
                                             putExtra("setStarted", true)
                                             putExtra("applocker", true)
                                             putExtra("noAnim", true)
@@ -80,16 +91,15 @@ class Accessibility: AccessibilityService() {
                                     )
                                 }
                             }
+                        } else {
+                            Log.w("applocker", "app not in list")
                         }
+                    } else {
+                        Log.w("applocker", "conditions not met")
                     }
                 }
             }
         }
-    }
-
-    fun disable() {
-        disableSelf()
-        instance = null
     }
 
     override fun onInterrupt() {
