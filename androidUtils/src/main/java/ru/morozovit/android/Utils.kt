@@ -75,7 +75,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.window.core.layout.WindowHeightSizeClass
@@ -528,16 +527,13 @@ inline fun Context.openUrl(url: String) {
     )
 }
 
-inline fun Context.ComposeView(lifecycle: Boolean = false, crossinline init: @Composable () -> Unit) =
+inline fun Context.ComposeView(lifecycleOwner: ComposeLifecycleOwner? = null, crossinline init: @Composable () -> Unit) =
     ComposeView(this).apply {
         setContent {
             init()
         }
-        if (lifecycle) {
-            // Trick The ComposeView into thinking we are tracking lifecycle
-            val lifecycleOwner = ComposeLifecycleOwner()
-            lifecycleOwner.performRestore(null)
-            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        if (lifecycleOwner != null) {
+            lifecycleOwner.onStart()
             setViewTreeLifecycleOwner(lifecycleOwner)
             setViewTreeSavedStateRegistryOwner(lifecycleOwner)
         }

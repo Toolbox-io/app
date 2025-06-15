@@ -13,7 +13,7 @@ import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
 import io.toolbox.Settings
 import io.toolbox.Settings.Applocker.showMode
 import io.toolbox.mainActivity
-import io.toolbox.ui.protection.applocker.ApplockerAuthActivity
+import io.toolbox.ui.protection.applocker.ApplockerAuthOverlay
 import io.toolbox.ui.protection.applocker.FakeCrashActivity
 import io.toolbox.ui.protection.applocker.PasswordInputActivity
 import ru.morozovit.android.homeScreen
@@ -81,14 +81,8 @@ class Accessibility: AccessibilityService() {
                                 Settings.Applocker.ShowMode.PASSWORD_POPUP -> PasswordInputActivity.start(this, newPackageName)
                                 Settings.Applocker.ShowMode.FULLSCREEN_POPUP -> {
                                     Log.d("applocker", "enabling fullscreen auth")
-                                    startActivity(
-                                        Intent(this, ApplockerAuthActivity::class.java).apply {
-                                            putExtra("setStarted", true)
-                                            putExtra("applocker", true)
-                                            putExtra("noAnim", true)
-                                            flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_MULTIPLE_TASK
-                                        }
-                                    )
+                                    if (!ApplockerAuthOverlay.shown)
+                                        ApplockerAuthOverlay(this).show()
                                 }
                             }
                         } else {
@@ -96,6 +90,10 @@ class Accessibility: AccessibilityService() {
                         }
                     } else {
                         Log.w("applocker", "conditions not met")
+                    }
+
+                    if (newPackageName == "com.android.systemui") {
+                        ApplockerAuthOverlay.instance?.hide()
                     }
                 }
             }

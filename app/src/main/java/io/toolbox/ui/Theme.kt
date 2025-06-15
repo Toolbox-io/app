@@ -292,7 +292,7 @@ fun AppTheme(
             val insetHandlerContent = @Composable {
                 if (setBackground) {
                     Surface(
-                        contentColor = if (setBackground) colorScheme.onSurface else Color.Transparent,
+                        contentColor = colorScheme.onSurface,
                         modifier = Modifier
                             .fillMaxSize()
                             .let {
@@ -326,6 +326,112 @@ fun AppTheme(
             } else {
                 insetHandlerContent()
             }
+        }
+    }
+}
+
+@Suppress("AnimateAsStateLabel")
+@Composable
+fun OverlayAppTheme(
+    modifier: Modifier = Modifier,
+    darkTheme: Boolean = when (theme) {
+        Theme.AsSystem -> isSystemInDarkTheme()
+        Theme.Light -> false
+        Theme.Dark -> true
+    },
+    content: @Composable () -> Unit
+) {
+    with (LocalContext()) {
+        var colorScheme = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && dynamicThemeEnabled ->
+                if (darkTheme)
+                    dynamicDarkColorScheme(this)
+                else
+                    dynamicLightColorScheme(this)
+            darkTheme -> appDarkColorScheme
+            else -> appLightColorScheme
+        }
+
+        val primary by animateColorAsState(colorScheme.primary)
+        val onPrimary by animateColorAsState(colorScheme.onPrimary)
+        val primaryContainer by animateColorAsState(colorScheme.primaryContainer)
+        val onPrimaryContainer by animateColorAsState(colorScheme.onPrimaryContainer)
+        val secondary by animateColorAsState(colorScheme.secondary)
+        val onSecondary by animateColorAsState(colorScheme.onSecondary)
+        val secondaryContainer by animateColorAsState(colorScheme.secondaryContainer)
+        val onSecondaryContainer by animateColorAsState(colorScheme.onSecondaryContainer)
+        val tertiary by animateColorAsState(colorScheme.tertiary)
+        val onTertiary by animateColorAsState(colorScheme.onTertiary)
+        val tertiaryContainer by animateColorAsState(colorScheme.tertiaryContainer)
+        val onTertiaryContainer by animateColorAsState(colorScheme.onTertiaryContainer)
+        val error by animateColorAsState(colorScheme.error)
+        val onError by animateColorAsState(colorScheme.onError)
+        val errorContainer by animateColorAsState(colorScheme.errorContainer)
+        val onErrorContainer by animateColorAsState(colorScheme.onErrorContainer)
+        val background by animateColorAsState(colorScheme.background)
+        val onBackground by animateColorAsState(colorScheme.onBackground)
+        val surface by animateColorAsState(colorScheme.surface)
+        val onSurface by animateColorAsState(colorScheme.onSurface)
+        val surfaceVariant by animateColorAsState(colorScheme.surfaceVariant)
+        val onSurfaceVariant by animateColorAsState(colorScheme.onSurfaceVariant)
+        val outline by animateColorAsState(colorScheme.outline)
+        val outlineVariant by animateColorAsState(colorScheme.outlineVariant)
+        val scrim by animateColorAsState(colorScheme.scrim)
+        val inverseSurface by animateColorAsState(colorScheme.inverseSurface)
+        val inverseOnSurface by animateColorAsState(colorScheme.inverseOnSurface)
+        val inversePrimary by animateColorAsState(colorScheme.inversePrimary)
+        val surfaceDim by animateColorAsState(colorScheme.surfaceDim)
+        val surfaceBright by animateColorAsState(colorScheme.surfaceBright)
+        val surfaceContainerLowest by animateColorAsState(colorScheme.surfaceContainerLowest)
+        val surfaceContainerLow by animateColorAsState(colorScheme.surfaceContainerLow)
+        val surfaceContainer by animateColorAsState(colorScheme.surfaceContainer)
+        val surfaceContainerHigh by animateColorAsState(colorScheme.surfaceContainerHigh)
+        val surfaceContainerHighest by animateColorAsState(colorScheme.surfaceContainerHighest)
+
+        colorScheme = colorScheme.copy(
+            primary = primary,
+            onPrimary = onPrimary,
+            primaryContainer = primaryContainer,
+            onPrimaryContainer = onPrimaryContainer,
+            secondary = secondary,
+            onSecondary = onSecondary,
+            secondaryContainer = secondaryContainer,
+            onSecondaryContainer = onSecondaryContainer,
+            tertiary = tertiary,
+            onTertiary = onTertiary,
+            tertiaryContainer = tertiaryContainer,
+            onTertiaryContainer = onTertiaryContainer,
+            error = error,
+            onError = onError,
+            errorContainer = errorContainer,
+            onErrorContainer = onErrorContainer,
+            background = background,
+            onBackground = onBackground,
+            surface = surface,
+            onSurface = onSurface,
+            surfaceVariant = surfaceVariant,
+            onSurfaceVariant = onSurfaceVariant,
+            outline = outline,
+            outlineVariant = outlineVariant,
+            scrim = scrim,
+            inverseSurface = inverseSurface,
+            inverseOnSurface = inverseOnSurface,
+            inversePrimary = inversePrimary,
+            surfaceDim = surfaceDim,
+            surfaceBright = surfaceBright,
+            surfaceContainerLowest = surfaceContainerLowest,
+            surfaceContainerLow = surfaceContainerLow,
+            surfaceContainer = surfaceContainer,
+            surfaceContainerHigh = surfaceContainerHigh,
+            surfaceContainerHighest = surfaceContainerHighest
+        )
+
+        MaterialTheme(colorScheme = colorScheme) {
+            Surface(
+                color = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                content = content
+            )
         }
     }
 }

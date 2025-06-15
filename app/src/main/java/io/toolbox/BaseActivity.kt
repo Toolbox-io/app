@@ -20,8 +20,8 @@ import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import io.toolbox.App.Companion.authenticated
+import io.toolbox.ui.Auth.Companion.started
 import io.toolbox.ui.AuthActivity
-import io.toolbox.ui.AuthActivity.Companion.started
 import io.toolbox.ui.MainActivity
 import io.toolbox.ui.Theme
 import ru.morozovit.android.NoParallelExecutor

@@ -95,7 +95,7 @@ import io.toolbox.BaseActivity
 import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.services.UpdateChecker
-import io.toolbox.ui.AuthActivity.Companion.started
+import io.toolbox.ui.Auth.Companion.started
 import io.toolbox.ui.MainActivity.Screen.Companion.ABOUT
 import io.toolbox.ui.MainActivity.Screen.Companion.APP_LOCKER
 import io.toolbox.ui.MainActivity.Screen.Companion.APP_MANAGER
