@@ -73,13 +73,8 @@ jobs:
         STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       run: |
-        echo $(pwd)
-        ls
-        echo ---
-        
-        mkdir -p keys
-        echo "storePassword=$STORE_PASSWORD" > keys/keystore.properties
-        echo "keyPassword=$KEY_PASSWORD" >> keys/keystore.properties
+        echo "storePassword=$STORE_PASSWORD" > keystore.properties
+        echo "keyPassword=$KEY_PASSWORD" >> keystore.properties
     - name: Build with Gradle
       run: ./gradlew assembleRelease --no-daemon
     - name: Upload artifact
