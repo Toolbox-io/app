@@ -20,9 +20,10 @@ on:
   workflow_dispatch:
     inputs:
       force_build:
+        type: boolean
         description: "Force build"
         required: false
-        default: 'false'
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -32,7 +33,7 @@ jobs:
   check-changes:
     runs-on: ubuntu-latest
     outputs:
-      should_run: ${{ steps.filter.outputs.any_changed == 'true' || github.event.inputs.force_build == 'true' }}
+      should_run: ${{ steps.filter.outputs.any_changed == 'true' || inputs.force_build }}
     steps:
       - uses: actions/checkout@v4
         with:
