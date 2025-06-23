@@ -25,7 +25,7 @@ material-extended = "1.7.8"
 rules = "1.6.1"
 runner = "1.6.2"
 uiTestJunit4 = "1.8.2"
-uiTestManifest = "1.8.2"
+uiTestManifest = "1.8.3"
 uiViewbinding = "1.8.3"
 jetbrainsKotlinJvm = "2.1.21"
 
