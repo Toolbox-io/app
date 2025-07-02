@@ -13,11 +13,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Error
@@ -78,6 +76,7 @@ import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SimpleAlertDialog
 import ru.morozovit.android.ui.SwitchCard
 import ru.morozovit.android.ui.SwitchListItem
+import ru.morozovit.android.verticalScroll
 import java.lang.Thread.sleep
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -94,7 +93,7 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
         ) { innerPadding ->
             Column(
                 Modifier
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll()
                     .padding(innerPadding)
                     .hazeSource(LocalHazeState())
             ) {

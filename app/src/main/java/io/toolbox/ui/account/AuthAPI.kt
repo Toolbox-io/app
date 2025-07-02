@@ -8,10 +8,20 @@ import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.toolbox.Settings.Account.token
+import io.toolbox.ui.account.AuthAPI.BASE_URL
 import kotlinx.serialization.Serializable
 import ru.morozovit.android.jsonConfig
 import ru.morozovit.android.logging
 
+/**
+ * This class provides a Kotlin interface to the API endpoints of the Toolbox.io
+ * website with the Ktor client.
+ *
+ * For JSON responses a **response model class** is returned, containing
+ * all the properties from the JSON returned by the endpoint.
+ *
+ * The [BASE_URL] can be changed if the API moves to a different place.
+ */
 object AuthAPI {
     private const val BASE_URL = "https://beta.toolbox-io.ru"
 
@@ -31,6 +41,9 @@ object AuthAPI {
         val token: String,
         val new_password: String
     )
+    @Serializable
+    private data class UserVerifyEmail(val email: String)
+
     @Serializable
     data class UserInfo(
         val id: Int,
@@ -94,6 +107,8 @@ object AuthAPI {
 
     suspend fun verifyEmail(email: String) =
         client.post("$BASE_URL/api/auth/verify-email") {
-            setBody(mapOf("email" to email))
+            setBody(UserVerifyEmail(email))
         }
+
+    suspend fun isLoggedIn() = token.isNotBlank() && checkAuth()
 }

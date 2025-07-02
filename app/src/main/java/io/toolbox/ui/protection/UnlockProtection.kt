@@ -9,9 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Security
@@ -47,6 +45,7 @@ import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SimpleAlertDialog
 import ru.morozovit.android.ui.SwitchCard
+import ru.morozovit.android.verticalScroll
 
 @Composable
 fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
@@ -54,7 +53,7 @@ fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValue
         EdgeToEdgeBar { innerPadding ->
             Column(
                 Modifier
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll()
                     .padding(innerPadding)
                     .hazeSource(LocalHazeState())
             ) {

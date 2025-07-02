@@ -7,8 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Error
@@ -41,6 +39,7 @@ import io.toolbox.ui.AppTheme
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SwitchListItem
+import ru.morozovit.android.verticalScroll
 
 class DeveloperOptionsActivity: BaseActivity(authEnabled = false) {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -76,7 +75,7 @@ class DeveloperOptionsActivity: BaseActivity(authEnabled = false) {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll()
                 ) {
                     Category {
                         var replacePhotosWithIntruderSwitch by remember {

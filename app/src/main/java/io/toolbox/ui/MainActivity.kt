@@ -25,11 +25,10 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Shortcut
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.DoNotTouch
 import androidx.compose.material.icons.filled.Home
@@ -102,6 +101,7 @@ import io.toolbox.ui.MainActivity.Screen.Companion.APP_MANAGER
 import io.toolbox.ui.MainActivity.Screen.Companion.DONT_TOUCH_MY_PHONE
 import io.toolbox.ui.MainActivity.Screen.Companion.HOME
 import io.toolbox.ui.MainActivity.Screen.Companion.NOTIFICATION_HISTORY
+import io.toolbox.ui.MainActivity.Screen.Companion.PROFILE
 import io.toolbox.ui.MainActivity.Screen.Companion.SETTINGS
 import io.toolbox.ui.MainActivity.Screen.Companion.SHORTCUTS
 import io.toolbox.ui.MainActivity.Screen.Companion.TILES
@@ -110,6 +110,7 @@ import io.toolbox.ui.customization.TilesScreen
 import io.toolbox.ui.customization.shortcuts.ShortcutsScreen
 import io.toolbox.ui.main.AboutScreen
 import io.toolbox.ui.main.HomeScreen
+import io.toolbox.ui.main.ProfileScreen
 import io.toolbox.ui.main.SettingsScreen
 import io.toolbox.ui.protection.DontTouchMyPhoneScreen
 import io.toolbox.ui.protection.UnlockProtectionScreen
@@ -128,6 +129,7 @@ import ru.morozovit.android.left
 import ru.morozovit.android.link
 import ru.morozovit.android.right
 import ru.morozovit.android.unsupported
+import ru.morozovit.android.verticalScroll
 import ru.morozovit.android.widthSizeClass
 
 val LocalNavController: ProvidableCompositionLocal<NavController> = compositionLocalOf { throw IllegalStateException("Uninitialized") }
@@ -191,6 +193,7 @@ class MainActivity : BaseActivity(
             operator fun get(name: String) = when (name) {
                 HOME -> Home
                 SETTINGS -> Settings
+                PROFILE -> Profile
                 ABOUT -> About
                 APP_LOCKER -> AppLocker
                 UNLOCK_PROTECTION -> UnlockProtection
@@ -207,6 +210,7 @@ class MainActivity : BaseActivity(
 
             const val HOME = "home"
             const val SETTINGS = "settings"
+            const val PROFILE = "profile"
             const val ABOUT = "about"
 
             const val APP_LOCKER = "appLocker"
@@ -228,6 +232,7 @@ class MainActivity : BaseActivity(
 
         @Serializable data object Home: Screen(HOME, R.string.home, Icons.Filled.Home)
         @Serializable data object Settings: Screen(SETTINGS, R.string.settings, Icons.Filled.Settings)
+        @Serializable data object Profile: Screen(PROFILE, R.string.profile, Icons.Filled.AccountCircle)
         @Serializable data object About: Screen(ABOUT, R.string.about, Icons.Filled.Info)
 
         @Serializable data object AppLocker: Screen(APP_LOCKER, R.string.applocker, Icons.Outlined.PhonelinkLock)
@@ -291,7 +296,7 @@ class MainActivity : BaseActivity(
             val drawerContent: @Composable ColumnScope.() -> Unit = {
                 Column(
                     Modifier
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll()
                         .windowInsetsPadding(
                             WindowInsets.safeDrawing.only(
                                 WindowInsetsSides.Top +
@@ -340,6 +345,7 @@ class MainActivity : BaseActivity(
                     val items = listOf(
                         Screen.Home,
                         Screen.Settings,
+                        Screen.Profile,
                         Screen.About,
                         Screen.Label(R.string.security),
                         Screen.AppLocker,
@@ -471,6 +477,7 @@ class MainActivity : BaseActivity(
                             )
                         }
                         composable(route = SETTINGS) { SettingsScreen(EdgeToEdgeBar) }
+                        composable(route = PROFILE) { ProfileScreen(EdgeToEdgeBar) }
                         composable(route = ABOUT) { AboutScreen(EdgeToEdgeBar) }
 
                         composable(route = APP_LOCKER) {

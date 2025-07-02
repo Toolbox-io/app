@@ -18,8 +18,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Label
@@ -68,6 +66,7 @@ import io.toolbox.ui.AppTheme
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SwitchListItem
+import ru.morozovit.android.verticalScroll
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -109,7 +108,7 @@ class AppInfoActivity: BaseActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll()
                 ) {
                     val packageInfo = remember { packageManager.getPackageInfo(appPackage, PackageManager.GET_ACTIVITIES) }
                     val launchIntent by lazy { packageManager.getLaunchIntentForPackage(appPackage) }

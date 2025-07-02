@@ -59,6 +59,7 @@ android {
     @Suppress("DEPRECATION")
     kotlinOptions {
         jvmTarget = "17"
+        freeCompilerArgs += arrayOf("-Xannotation-default-target=param-property")
     }
 
     buildFeatures {

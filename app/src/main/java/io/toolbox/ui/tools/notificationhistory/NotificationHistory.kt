@@ -169,6 +169,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                 }
                 val positionalThreshold: (Float) -> Float = { it * .5f }
 
+                @Suppress("DEPRECATION")
                 val dismissState = rememberSaveable(
                     resetState,
                     saver = Saver(

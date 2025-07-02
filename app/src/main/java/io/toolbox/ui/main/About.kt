@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Icon
@@ -42,6 +40,7 @@ import ru.morozovit.android.openUrl
 import ru.morozovit.android.ui.Button
 import ru.morozovit.android.ui.License
 import ru.morozovit.android.ui.Website
+import ru.morozovit.android.verticalScroll
 
 @Composable
 fun AboutScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
@@ -54,7 +53,7 @@ fun AboutScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit)
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll()
                     .hazeSource(LocalHazeState())
             ) {
                 Box(Modifier.padding(top = 20.dp)) {

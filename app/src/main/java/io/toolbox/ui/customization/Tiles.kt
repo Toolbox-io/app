@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material3.Card
@@ -35,6 +33,7 @@ import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.WindowInsetsHandler
 import ru.morozovit.android.invoke
 import ru.morozovit.android.ui.ToggleIconButton
+import ru.morozovit.android.verticalScroll
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -43,7 +42,7 @@ fun TilesScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit)
         EdgeToEdgeBar { innerPadding ->
             FlowRow(
                 Modifier
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll()
                     .padding(10.dp)
                     .padding(innerPadding)
                     .fillMaxWidth()

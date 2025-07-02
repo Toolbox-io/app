@@ -49,6 +49,8 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocal
@@ -939,3 +941,6 @@ inline fun HttpClientConfig<*>.logging() = logging {
     logger = Logger.DEFAULT
     level = LogLevel.ALL
 }
+
+@Composable
+inline fun Modifier.verticalScroll() = verticalScroll(rememberScrollState())

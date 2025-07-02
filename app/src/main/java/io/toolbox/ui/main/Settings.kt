@@ -21,8 +21,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Brush
@@ -79,6 +77,7 @@ import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SeparatedSwitchListItem
 import ru.morozovit.android.ui.SimpleAlertDialog
 import ru.morozovit.android.ui.SwitchListItem
+import ru.morozovit.android.verticalScroll
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -225,7 +224,7 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
         EdgeToEdgeBar { innerPadding ->
             Column(
                 Modifier
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll()
                     .padding(innerPadding)
                     .hazeSource(LocalHazeState())
             ) {

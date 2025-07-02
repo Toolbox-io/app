@@ -14,9 +14,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
@@ -39,6 +37,7 @@ import ru.morozovit.android.getSystemService
 import ru.morozovit.android.invoke
 import ru.morozovit.android.ui.Mipmap
 import ru.morozovit.android.ui.TextButton
+import ru.morozovit.android.verticalScroll
 
 private const val FILES_SHORTCUT = "files-shortcut"
 
@@ -52,7 +51,7 @@ fun ShortcutsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> U
 
                 Box(
                     Modifier
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll()
                         .padding(innerPadding)
                         .hazeSource(LocalHazeState())
                 ) {

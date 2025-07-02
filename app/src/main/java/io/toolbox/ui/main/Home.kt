@@ -111,6 +111,7 @@ import ru.morozovit.android.plus
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SwitchWithText
+import ru.morozovit.android.verticalScroll
 import ru.morozovit.utils.MarkdownHeaderParser
 import ru.morozovit.utils.toCamelCase
 import kotlin.reflect.KMutableProperty0
@@ -188,7 +189,7 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
         ) { innerPadding ->
             Column(
                 Modifier
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll()
                     .padding(innerPadding)
                     .hazeSource(LocalHazeState())
             ) {
@@ -320,6 +321,7 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                         type: NotificationType
                     ) {
                         var state by remember { mutableIntStateOf(0) }
+                        @Suppress("DEPRECATION")
                         val dismissState = rememberSwipeToDismissBoxState(
                             confirmValueChange = {
                                 when (it) {

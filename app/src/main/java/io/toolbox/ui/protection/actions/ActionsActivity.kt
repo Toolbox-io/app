@@ -11,8 +11,6 @@ import androidx.activity.result.ActivityResult
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PhotoCamera
@@ -48,6 +46,7 @@ import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.CategoryDefaults
 import ru.morozovit.android.ui.SeparatedSwitchListItem
 import ru.morozovit.android.ui.Siren
+import ru.morozovit.android.verticalScroll
 
 class ActionsActivity: BaseActivity() {
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
@@ -86,7 +85,7 @@ class ActionsActivity: BaseActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
-                        .verticalScroll(rememberScrollState()),
+                        .verticalScroll(),
                 ) {
                     Category(margin = CategoryDefaults.margin.copy(top = 16.dp)) {
                         var alarm by remember {

@@ -1,20 +1,10 @@
 name: Build
 
 on:
-#  push:
-#    branches: [ "main" ]
-#    paths:
-#      - "**.gradle.kts"
-#      - "iosInputs"
-#      - "**.kt"
-#      - "gradle/**"
-#      - "gradle.properties"
-#      - "keys/**"
-#      - "**/src/**"
-#      - "!**/src/iosMain"
-#      - "**.pro"
-#      - "iosApp/**"
-#      - "iosInputs/**"
+  push:
+    branches: [ "main" ]
+    paths:
+      - ".github/workflows/build.yml"
   schedule:
     - cron: '30 13 * * *'  # Run at 16:30 MSK every day
   workflow_dispatch:
@@ -33,7 +23,7 @@ jobs:
   check-changes:
     runs-on: ubuntu-latest
     outputs:
-      should_run: ${{ steps.filter.outputs.any_changed == 'true' || inputs.force_build }}
+      should_run: ${{ steps.filter.outputs.src == 'true' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -54,7 +44,7 @@ jobs:
 
   build-android:
     needs: check-changes
-    if: ${{ needs.check-changes.outputs.should_run == 'true' }}
+    if: ${{ inputs.force_build || needs.check-changes.outputs.should_run == 'true' }}
     runs-on: ubuntu-latest
     name: "Build"
 

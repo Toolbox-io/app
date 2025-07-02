@@ -7,8 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Apps
@@ -42,6 +40,7 @@ import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.CategoryDefaults
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SwitchListItem
+import ru.morozovit.android.verticalScroll
 
 class NotificationHistorySettingsActivity: BaseActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -77,7 +76,7 @@ class NotificationHistorySettingsActivity: BaseActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
-                        .verticalScroll(rememberScrollState()),
+                        .verticalScroll(),
                 ) {
                     Category(margin = CategoryDefaults.margin.copy(top = 16.dp)) {
                         var removeDuplicatesSwitch by remember { mutableStateOf(removeDuplicates) }

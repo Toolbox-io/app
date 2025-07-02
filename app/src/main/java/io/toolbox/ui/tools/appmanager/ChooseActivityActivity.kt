@@ -17,9 +17,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Shortcut
@@ -51,6 +49,7 @@ import ru.morozovit.android.launchIntent
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.IntentActivity
 import ru.morozovit.android.ui.ListItem
+import ru.morozovit.android.verticalScroll
 
 class ChooseActivityActivity: BaseActivity() {
     private val appPackage by lazy { intent.getStringExtra("appPackage")!! }
@@ -88,7 +87,7 @@ class ChooseActivityActivity: BaseActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll()
                 ) {
                     val activities = packageManager.getPackageInfo(appPackage, PackageManager.GET_ACTIVITIES).activities!!
 
@@ -136,7 +135,7 @@ class ChooseActivityActivity: BaseActivity() {
                                                         android.graphics.drawable.Icon.createWithAdaptiveBitmap(
                                                             activity.loadIcon(packageManager).toBitmap()
                                                         )
-                                                    } catch (e: Exception) {
+                                                    } catch (_: Exception) {
                                                         android.graphics.drawable.Icon.createWithBitmap(
                                                             activity.loadIcon(packageManager).toBitmap()
                                                         )
@@ -170,7 +169,7 @@ class ChooseActivityActivity: BaseActivity() {
                         fun onClick() {
                             try {
                                 startActivity(activity.launchIntent)
-                            } catch (e: Exception) {
+                            } catch (_: Exception) {
                                 Toast.makeText(this@ChooseActivityActivity, smthwentwrong, Toast.LENGTH_SHORT).show()
                             }
                         }

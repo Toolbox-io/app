@@ -20,8 +20,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -77,6 +75,7 @@ import ru.morozovit.android.ui.RadioButtonWithText
 import ru.morozovit.android.ui.RadioGroup
 import ru.morozovit.android.ui.SwipeToDismissBackground
 import ru.morozovit.android.ui.SwitchCard
+import ru.morozovit.android.verticalScroll
 
 class AlarmSettingsActivity: BaseActivity() {
     private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
@@ -120,7 +119,7 @@ class AlarmSettingsActivity: BaseActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
-                        .verticalScroll(rememberScrollState()),
+                        .verticalScroll(),
                 ) {
                     val mediaPlayer = remember { MediaPlayer() }
                     DisposableEffect(Unit) {
@@ -160,6 +159,7 @@ class AlarmSettingsActivity: BaseActivity() {
                     ) {
                         var visible = mutableStateOf(true)
 
+                        @Suppress("unused")
                         operator fun component4() = visible
                     }
 
@@ -312,6 +312,7 @@ class AlarmSettingsActivity: BaseActivity() {
                                 visible: MutableState<Boolean>
                             ) {
                                 if (dismissCallback != null) {
+                                    @Suppress("DEPRECATION")
                                     val dismissState = rememberSwipeToDismissBoxState(
                                         confirmValueChange = {
                                             when (it) {

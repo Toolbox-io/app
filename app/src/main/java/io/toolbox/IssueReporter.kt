@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -61,6 +60,7 @@ import ru.morozovit.android.getSerializableExtraAs
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.CategoryDefaults
 import ru.morozovit.android.ui.DialogActivity
+import ru.morozovit.android.verticalScroll
 import ru.morozovit.utils.EParser
 import ru.morozovit.utils.shorten
 import java.io.BufferedInputStream
@@ -298,7 +298,7 @@ object IssueReporter {
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
-                            .verticalScroll(rememberScrollState()),
+                            .verticalScroll(),
                     ) {
                         val exceptionText = remember {
                             "${EParser(exception)}"
@@ -388,7 +388,7 @@ object IssueReporter {
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
-                            .verticalScroll(rememberScrollState()),
+                            .verticalScroll(),
                     ) {
                         var text by remember { mutableStateOf("") }
 

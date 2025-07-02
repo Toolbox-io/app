@@ -1,17 +1,31 @@
-@file:Suppress("NOTHING_TO_INLINE", "unused", "MemberVisibilityCanBePrivate", "UnusedReceiverParameter")
+@file:Suppress(
+    "NOTHING_TO_INLINE",
+    "unused",
+    "MemberVisibilityCanBePrivate",
+    "UnusedReceiverParameter",
+    "INVISIBLE_REFERENCE",
+    "NOTHING_TO_INLINE",
+    "ERROR_SUPPRESSION"
+)
 
 package ru.morozovit.android.ui
 
+import android.annotation.SuppressLint
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -21,6 +35,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,13 +46,14 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -50,6 +66,7 @@ import androidx.compose.material3.CheckboxColors
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
@@ -62,6 +79,7 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SwipeToDismissBoxState
@@ -71,10 +89,12 @@ import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.defaultErrorSemantics
+import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
@@ -87,14 +107,24 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.DefaultAlpha
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asAndroidColorFilter
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -110,11 +140,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ru.morozovit.android.R
 import ru.morozovit.android.asAndroidScaleType
+import ru.morozovit.android.clearFocusOnKeyboardDismiss
 import ru.morozovit.android.invoke
 import ru.morozovit.android.left
 import ru.morozovit.android.link
 import ru.morozovit.android.plus
 import ru.morozovit.android.right
+import kotlin.math.sqrt
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
@@ -462,11 +494,228 @@ fun SwitchCard(
 }
 
 @Composable
+fun AnimatedCrosslineIcon(
+    icon: ImageVector,
+    crossline: Boolean,
+    modifier: Modifier = Modifier,
+    contentDescription: String? = null
+) {
+    val lineDrawProgress by animateFloatAsState(
+        targetValue = if (crossline) 0f else 1f, // 0f for hidden line, 1f for drawn line
+        animationSpec = tween(300),
+        label = "line_draw_progress"
+    )
+
+    val iconColor = MaterialTheme.colorScheme.onSurface
+
+    Box(
+        modifier = modifier
+            .size(24.dp)
+            .semantics {
+                contentDescription?.let { this.contentDescription = it }
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        val vectorPainter = rememberVectorPainter(icon)
+
+        Canvas(modifier = Modifier.matchParentSize()) {
+            val colorFilter = ColorFilter.tint(iconColor)
+
+            // Draw the base Visibility icon directly to the canvas
+            drawIntoCanvas {
+                with(vectorPainter) {
+                    draw(size, 1f, colorFilter)
+                }
+            }
+
+            // Draw the animating main cross line and its 'background' strip on top
+            if (!crossline || lineDrawProgress > 0f) {
+                // Coordinates for the diagonal line (from top-left to bottom-right)
+                val x1 = size.width * 0.05f
+                val y1 = size.height * 0.15f
+                val x2 = size.width * 0.825f
+                val y2 = size.height * 0.925f
+
+                // Current end point of the drawing line based on animation progress
+                val currentX = x1 + (x2 - x1) * lineDrawProgress
+                val currentY = y1 + (y2 - y1) * lineDrawProgress
+
+                val mainLineThickness = 2.dp.toPx()
+                val backgroundStripThickness = 2.dp.toPx() // Thickness of the 'blank background' strip
+
+                // Calculate perpendicular vector for thickness and offset for the second line
+                val dx = x2 - x1
+                val dy = y2 - y1
+                val length = sqrt(dx * dx + dy * dy)
+                // Perpendicular vector normalized (points to the 'left' side relative to line direction)
+                val nx = -dy / length
+                val ny = dx / length
+
+                // Global offset to shift both lines further to the left
+                val globalLineOffset = mainLineThickness / 2
+
+                // --- Draw the 'Blank background' strip path (filled rectangle) first, attached to the left/top-left of the main line ---
+                // This path will now erase pixels
+                drawPath(
+                    path = Path().apply {
+                        val offsetFromMainLineCenter = mainLineThickness / 2 + backgroundStripThickness / 2 - 1.dp.toPx()
+
+                        // Points for the strip, offset to the 'top-left' side by subtracting nx and ny
+                        // Apply globalLineOffset to shift both lines further left
+                        val p1x = x1 - nx * (offsetFromMainLineCenter + globalLineOffset)
+                        val p1y = y1 - ny * (offsetFromMainLineCenter + globalLineOffset)
+                        val p2x = x1 - nx * (offsetFromMainLineCenter + backgroundStripThickness + globalLineOffset)
+                        val p2y = y1 - ny * (offsetFromMainLineCenter + backgroundStripThickness + globalLineOffset)
+
+                        val cp1x = currentX - nx * (offsetFromMainLineCenter + globalLineOffset)
+                        val cp1y = currentY - ny * (offsetFromMainLineCenter + globalLineOffset)
+                        val cp2x = currentX - nx * (offsetFromMainLineCenter + backgroundStripThickness + globalLineOffset)
+                        val cp2y = currentY - ny * (offsetFromMainLineCenter + backgroundStripThickness + globalLineOffset)
+
+                        moveTo(p1x, p1y)
+                        lineTo(p2x, p2y)
+                        lineTo(cp2x, cp2y)
+                        lineTo(cp1x, cp1y)
+                        close()
+                    },
+                    color = Color.Transparent, // This color will be used for blending calculation
+                    style = Fill,
+                    blendMode = BlendMode.Clear // This makes it erase pixels underneath
+                )
+
+                // --- Draw the Main cross line path (filled rectangle) second ---
+                drawPath(
+                    path = Path().apply {
+                        // Apply globalLineOffset to shift both lines further left
+                        val p1x = x1 - nx * (mainLineThickness / 2 + globalLineOffset)
+                        val p1y = y1 - ny * (mainLineThickness / 2 + globalLineOffset)
+                        val p2x = x1 + nx * (mainLineThickness / 2 - globalLineOffset)
+                        val p2y = y1 + ny * (mainLineThickness / 2 - globalLineOffset)
+
+                        val cp1x = currentX - nx * (mainLineThickness / 2 + globalLineOffset)
+                        val cp1y = currentY - ny * (mainLineThickness / 2 + globalLineOffset)
+                        val cp2x = currentX + nx * (mainLineThickness / 2 - globalLineOffset)
+                        val cp2y = currentY + ny * (mainLineThickness / 2 - globalLineOffset)
+
+                        moveTo(p1x, p1y)
+                        lineTo(p2x, p2y)
+                        lineTo(cp2x, cp2y)
+                        lineTo(cp1x, cp1y)
+                        close()
+                    },
+                    color = iconColor,
+                    style = Fill
+                )
+            }
+        }
+    }
+}
+
+@SuppressLint("UnusedContentLambdaTargetStateParameter")
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TweakedOutlinedTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    textStyle: TextStyle = LocalTextStyle.current,
+    label: @Composable (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    prefix: @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
+    supportingText: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    singleLine: Boolean = false,
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+    minLines: Int = 1,
+    interactionSource: MutableInteractionSource? = null,
+    shape: Shape = OutlinedTextFieldDefaults.shape,
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
+) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
+    // If color is not provided via the text style, use content color as a default
+    val textColor =
+        textStyle.color.takeOrElse {
+            val focused = interactionSource.collectIsFocusedAsState().value
+            colors.textColor(enabled, isError, focused)
+        }
+    val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
+
+    CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
+        BasicTextField(
+            value = value,
+            modifier =
+                modifier
+                    .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
+                    .defaultMinSize(
+                        minWidth = OutlinedTextFieldDefaults.MinWidth,
+                        minHeight = OutlinedTextFieldDefaults.MinHeight
+                    )
+                    .clearFocusOnKeyboardDismiss(),
+            onValueChange = onValueChange,
+            enabled = enabled,
+            readOnly = readOnly,
+            textStyle = mergedTextStyle,
+            cursorBrush = SolidColor(colors.cursorColor(isError)),
+            visualTransformation = visualTransformation,
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            interactionSource = interactionSource,
+            singleLine = singleLine,
+            maxLines = maxLines,
+            minLines = minLines,
+            decorationBox = { innerTextField ->
+                OutlinedTextFieldDefaults.DecorationBox(
+                    value = value,
+                    visualTransformation = visualTransformation,
+                    innerTextField = {
+                        AnimatedContent(
+                            targetState = visualTransformation
+                        ) {
+                            innerTextField()
+                        }
+                    },
+                    placeholder = placeholder,
+                    label = label,
+                    leadingIcon = leadingIcon,
+                    trailingIcon = trailingIcon,
+                    prefix = prefix,
+                    suffix = suffix,
+                    supportingText = supportingText,
+                    singleLine = singleLine,
+                    enabled = enabled,
+                    isError = isError,
+                    interactionSource = interactionSource,
+                    colors = colors,
+                    container = {
+                        OutlinedTextFieldDefaults.Container(
+                            enabled = enabled,
+                            isError = isError,
+                            interactionSource = interactionSource,
+                            colors = colors,
+                            shape = shape,
+                        )
+                    }
+                )
+            }
+        )
+    }
+}
+
+@Composable
 inline fun SecureTextField(
     value: String,
     noinline onValueChange: (String) -> Unit,
-    passwordHidden: Boolean,
-    noinline visibilityOnClick: () -> Unit,
+    hidden: Boolean,
+    noinline onHiddenChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     textStyle: TextStyle = LocalTextStyle(),
@@ -478,29 +727,27 @@ inline fun SecureTextField(
     shape: Shape = TextFieldDefaults.shape,
     colors: TextFieldColors = TextFieldDefaults.colors()
 ) {
-    TextField(
+    TweakedOutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         visualTransformation =
-        if (!passwordHidden)
-            VisualTransformation.None
-        else
-            PasswordVisualTransformation(),
+            if (hidden)
+                PasswordVisualTransformation()
+            else
+                VisualTransformation.None,
         label = label,
         trailingIcon = {
             IconButton(
-                onClick = visibilityOnClick
+                onClick = { onHiddenChange(!hidden) }
             ) {
-                val visibilityIcon =
-                    if (passwordHidden) Icons.Filled.Visibility else
-                        Icons.Filled.VisibilityOff
-                // Provide localized description for accessibility services
-                val description =
-                    if (passwordHidden)
+                AnimatedCrosslineIcon(
+                    icon = Icons.Filled.Visibility,
+                    crossline = hidden,
+                    contentDescription = if (hidden)
                         stringResource(R.string.show_pw)
                     else
                         stringResource(R.string.hide_pw)
-                Icon(imageVector = visibilityIcon, contentDescription = description)
+                )
             }
         },
         modifier = modifier,
