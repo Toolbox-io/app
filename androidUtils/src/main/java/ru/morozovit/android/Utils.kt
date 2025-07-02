@@ -81,6 +81,18 @@ import androidx.window.core.layout.WindowHeightSizeClass
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.DEFAULT
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.logging.LoggingConfig
+import io.ktor.serialization.Configuration
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonBuilder
 import java.io.IOException
 import java.io.InputStream
 import java.io.Serializable
@@ -890,3 +902,40 @@ inline fun String.decodeWindows1251() = String(
     toByteArray(Charsets.ISO_8859_1),
     Charsets.UTF_8
 )
+
+inline fun Configuration.json(crossinline settings: JsonBuilder.() -> Unit) {
+    json(
+        Json {
+            settings()
+        }
+    )
+}
+
+inline fun HttpClientConfig<*>.jsonConfig(crossinline settings: JsonBuilder.() -> Unit) {
+    install(ContentNegotiation) {
+        json {
+            settings()
+        }
+    }
+}
+
+inline fun HttpClientConfig<*>.defaultRequest(
+    crossinline settings: DefaultRequest.DefaultRequestBuilder.() -> Unit
+) {
+    install(DefaultRequest) {
+        settings()
+    }
+}
+
+inline fun HttpClientConfig<*>.logging(
+    crossinline settings: LoggingConfig.() -> Unit
+) {
+    install(Logging) {
+        settings()
+    }
+}
+
+inline fun HttpClientConfig<*>.logging() = logging {
+    logger = Logger.DEFAULT
+    level = LogLevel.ALL
+}

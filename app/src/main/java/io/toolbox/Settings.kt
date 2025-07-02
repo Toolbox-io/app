@@ -10,37 +10,122 @@ import android.media.AudioManager.STREAM_ALARM
 import android.media.MediaPlayer
 import android.os.Build
 import android.util.Log
+import androidx.core.content.edit
 import androidx.core.net.toUri
 import io.toolbox.App.Companion.context
+import io.toolbox.Settings.global_sharedPref
+import io.toolbox.Settings.init
 import io.toolbox.ui.Theme
 import io.toolbox.ui.protection.actions.intruderphoto.IntruderPhotoService.Companion.takePhoto
 import ru.morozovit.android.decrypt
 import ru.morozovit.android.encrypt
 import java.io.IOException
 import kotlin.random.Random
-import androidx.core.content.edit
 
 @Suppress("MemberVisibilityCanBePrivate")
+/**
+ * An object containing all the settings of the app.
+ *
+ * The settings are split into categories:
+ *
+ * - **Keys** - where the encrypted passwords are stored
+ * - **Main** - where general settings are stored
+ * - **Actions** - where security actions settings are stored
+ * - **Notifications** - where in-app notifications settings are stored
+ *
+ * _Self-explanatory settings are not included._
+ *
+ * ## Adding a settings class
+ * 1. Add the following code to this object:
+ *    ```kotlin
+ *    object <CATEGORY_NAME> {
+ *        private lateinit var <CATEGORY_NAME>_sharedPref: SharedPreferences
+ *        private var init = false
+ *
+ *        fun init(context: Context) {
+ *            if (!init) {
+ *                <CATEGORY_NAME>_sharedPref = context.getSharedPreferences(
+ *                    <CATEGORY_NAME>_LABEL,
+ *                    Context.MODE_PRIVATE
+ *                )
+ *                init = true
+ *            }
+ *        }
+ *    }
+ *    ```
+ *
+ * 2. Add the following line to [init]'s **Init sub-objects** section:
+ *
+ *    ```
+ *    <CATEGORY_NAME>.init(context)
+ *    ```
+ * 3. Add a `<CATEGORY_NAME>_LABEL` property to the **Settings sections** section of
+ *    this object with a random string value.
+ *
+ *    ```
+ *    val <CATEGORY_NAME>_LABEL = "qwredgscbbrkeag" // Replace the value with a unique random string
+ *    ```
+ *
+ * Replace `CATEGORY_NAME` with the name of the new category in all steps.
+ *
+ * ## Adding a new property
+ * Add the following code to the target object:
+ *
+ * - String property:
+ *
+ *   ```
+ *   var <PROPERTY_NAME>
+ *       get() = <CATEGORY_NAME>_sharedPref.getString(<PROPERTY_NAME>_LABEL, <DEFAULT_VALUE>)!!
+ *       set(value) {
+ *           <CATEGORY_NAME>_sharedPref.edit {
+ *               putString(<PROPERTY_NAME>_LABEL, value)
+ *           }
+ *       }
+ *   ```
+ * - Boolean property:
+ *
+ *   ```
+ *   var <PROPERTY_NAME>
+ *       get() = <CATEGORY_NAME>_sharedPref.getBoolean(<PROPERTY_NAME>_LABEL, <DEFAULT_VALUE>)
+ *       set(value) {
+ *           <CATEGORY_NAME>_sharedPref.edit {
+ *               putBoolean(<PROPERTY_NAME>_LABEL, value)
+ *           }
+ *       }
+ *   ```
+ *
+ * Replace:
+ * - `PROPERTY_NAME` with the property name.
+ * - `CATEGORY_NAME` with the category object name (lowercase).
+ * - `DEFAULT_VALUE` with the property default value if it doesn't exist.
+ *
+ * @see init
+ * @see SharedPreferences
+ */
 object Settings {
     private lateinit var global_sharedPref: SharedPreferences
     private var init = false
 
+    // Settings sections
     const val KEYS_LABEL = "gwegnagjh"
     const val MAIN_LABEL = "wshobjnwh"
     const val ACTIONS_LABEL = "rhnklahen"
     const val APPLOCKER_LABEL = "whnerhoerh"
     const val UNLOCK_PROTECTION_LABEL = "gewbnewrnh"
     const val TILES_LABEL = "ehnbgedkjhn"
-    const val NOTIFICATIONS_LABEL = "notificationTypes"
-    const val DEVELOPER_LABEL = "developer"
-    const val NOTIFICATION_HISTORY_LABEL = "notificationHistory"
+    const val NOTIFICATIONS_LABEL = "ahbEFGJWH"
+    const val DEVELOPER_LABEL = "erhgwiushwgwtvae"
+    const val NOTIFICATION_HISTORY_LABEL = "wefnbiuahrwiefcnwe"
+    const val ACCOUNT_LABEL = "wgjfhewaifjka3ghr4e"
 
+    // Global settings
     const val ALLOW_BIOMETRIC_LABEL = "erjgeskh"
     const val APPLOCKER_RANDOM_KEY_LABEL = "ejn"
     const val APPLOCKER_ENCRYPTED_PASSWORD_LABEL = "hedrh"
     const val APP_RANDOM_KEY_LABEL = "soeitge"
     const val APP_ENCRYPTED_PASSWORD_LABEL = "waegnwg"
 
+    // Sub-object settings
     const val UPDATE_DSA_LABEL = "gsmwsojgnwg"
     const val DONT_SHOW_IN_RECENTS_LABEL = "grehbes"
     const val MATERIAL_YOU_ENABLED_LABEL = "vghwsjkrgn"
@@ -57,10 +142,20 @@ object Settings {
     const val FG_SERVICE_ENABLED_LABEL = "hbjnwsokehgr"
     const val SLEEP_LABEL = "hbgewsrjkhn"
     const val USED_LABEL = "jtesnhjsertjsr"
-    const val REPLACE_PHOTOS_WITH_INTRUDER_LABEL = "replacePhotosWithIntruder"
-    const val REMOVE_DUPLICATES_LABEL = "removeDuplicates"
-    const val REMOVE_USELESS_NOTIFICATIONS_LABEL = "removeUselessNotifications"
+    const val REPLACE_PHOTOS_WITH_INTRUDER_LABEL = "ejewhtfsrgerith"
+    const val REMOVE_DUPLICATES_LABEL = "errhgfwuw3eafvterw4"
+    const val REMOVE_USELESS_NOTIFICATIONS_LABEL = "ergjeargizdNDUIearh"
+    const val SHOW_MODE_LABEL = "weagnvbjdran"
+    const val TOKEN_LABEL = "wfreabcsgbeiugfcewaer"
 
+    /**
+     * Main initialization function.
+     *
+     * It initializes the [global shared preferences][global_sharedPref] and
+     * initializes the shared preferences of the sub-objects.
+     *
+     * @param context The context to use
+     */
     fun init(context: Context) {
         if (!init) {
             global_sharedPref = context.getSharedPreferences(MAIN_LABEL, Context.MODE_PRIVATE)
@@ -73,6 +168,8 @@ object Settings {
             Notifications.init(context)
             NotificationHistory.init(context)
             Developer.init(context)
+            Account.init(context)
+
             init = true
         }
     }
@@ -428,10 +525,10 @@ object Settings {
             }
 
         var showMode: ShowMode
-            get() = ShowMode.entries[applocker_sharedPref.getInt("showMode", 0)]
+            get() = ShowMode.entries[applocker_sharedPref.getInt(SHOW_MODE_LABEL, 0)]
             set(value) {
                 applocker_sharedPref.edit {
-                    putInt("showMode", value.ordinal)
+                    putInt(SHOW_MODE_LABEL, value.ordinal)
                 }
             }
     }
@@ -587,6 +684,26 @@ object Settings {
             set(value) {
                 developer_sharedPref.edit {
                     putBoolean(REPLACE_PHOTOS_WITH_INTRUDER_LABEL, value)
+                }
+            }
+    }
+
+    object Account {
+        private lateinit var account_sharedPref: SharedPreferences
+        private var init = false
+
+        fun init(context: Context) {
+            if (!init) {
+                account_sharedPref = context.getSharedPreferences(ACCOUNT_LABEL, Context.MODE_PRIVATE)
+                init = true
+            }
+        }
+
+        var token
+            get() = account_sharedPref.getString(TOKEN_LABEL, "")!!
+            set(value) {
+                account_sharedPref.edit {
+                    putString(TOKEN_LABEL, value)
                 }
             }
     }
