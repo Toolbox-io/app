@@ -80,6 +80,11 @@ dependencies {
     implementation(libs.biometric)
     implementation(kotlin("reflect"))
     implementation(libs.cloudy)
+    
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)
