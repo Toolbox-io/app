@@ -36,13 +36,16 @@ import ru.morozovit.android.verticalScroll
 @Composable
 inline fun LoginScreen() {
     Column(
-        Modifier
+        modifier = Modifier
+            .fillMaxSize()
             .hazeSource(LocalHazeState())
-            .verticalScroll()
+            .verticalScroll(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "Login",
-            fontSize = 20.sp
+            fontSize = 20.sp,
+            modifier = Modifier.padding(bottom = 16.dp)
         )
 
         var username by remember { mutableStateOf("") }
@@ -51,14 +54,18 @@ inline fun LoginScreen() {
 
         OutlinedTextField(
             value = username,
-            onValueChange = { username = it }
+            onValueChange = { username = it },
+            label = { Text("Username") },
+            modifier = Modifier.padding(bottom = 8.dp)
         )
 
         SecureTextField(
             value = password,
             onValueChange = { password = it },
             hidden = passwordHidden,
-            onHiddenChange = { passwordHidden = it }
+            onHiddenChange = { passwordHidden = it },
+            label = { Text("Password") },
+            modifier = Modifier.padding(bottom = 16.dp)
         )
 
         Button(onClick = {}) {
