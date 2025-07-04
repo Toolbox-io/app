@@ -1,20 +1,16 @@
-package io.toolbox.ui.account
+package io.toolbox.api
 
-import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.toolbox.Settings.Account.token
-import io.toolbox.ui.account.AuthAPI.BASE_URL
+import io.toolbox.Settings
+import io.toolbox.api.AuthAPI.BASE_URL
 import kotlinx.serialization.Serializable
-import ru.morozovit.android.jsonConfig
-import ru.morozovit.android.logging
 
 /**
- * This class provides a Kotlin interface to the API endpoints of the Toolbox.io
+ * This class provides a Kotlin interface to the account API endpoints of the Toolbox.io
  * website with the Ktor client.
  *
  * For JSON responses a **response model class** is returned, containing
@@ -23,7 +19,7 @@ import ru.morozovit.android.logging
  * The [BASE_URL] can be changed if the API moves to a different place.
  */
 object AuthAPI {
-    private const val BASE_URL = "https://beta.toolbox-io.ru"
+    private const val BASE_URL = "https://beta.toolbox-io.ru/api/auth"
 
     @Serializable
     private data class UserCreate(
@@ -42,6 +38,11 @@ object AuthAPI {
         val new_password: String
     )
     @Serializable
+    private data class UserCheckAuth(
+        val authenticated: Boolean,
+        val user: String
+    )
+    @Serializable
     private data class UserVerifyEmail(val email: String)
 
     @Serializable
@@ -53,12 +54,7 @@ object AuthAPI {
     )
 
     private val client by lazy {
-        HttpClient(OkHttp) {
-            jsonConfig {
-                ignoreUnknownKeys = true
-            }
-            logging()
-        }
+        DefaultHTTPClient()
     }
 
     suspend fun register(
@@ -66,49 +62,55 @@ object AuthAPI {
         email: String,
         password: String
     ): UserInfo =
-        client.post("$BASE_URL/api/auth/register") {
+        client.post("$BASE_URL/register") {
             setBody(UserCreate(username, email, password))
         }.body()
 
     suspend fun login(username: String, password: String) =
         client
-            .post("$BASE_URL/api/auth/login") {
+            .post("$BASE_URL/login") {
                 setBody(UserLogin(username, password))
             }
-            .body<Map<String, String>>()["token"]!!
+            .body<Map<String, String>>()["access_token"]!!
 
     suspend fun logout() =
-        client.post("$BASE_URL/api/auth/logout") {
-            header("Authorization", "Bearer $token")
+        client.post("$BASE_URL/logout") {
+            header("Authorization", "Bearer ${Settings.Account.token}")
         }
 
-    suspend fun checkAuth(): Boolean =
-        client
-            .get("$BASE_URL/api/auth/check-auth") {
-                header("Authorization", "Bearer $token")
+    suspend fun checkAuth(): Boolean {
+        val result = client
+            .get("$BASE_URL/check-auth") {
+                header("Authorization", "Bearer ${Settings.Account.token}")
             }
-            .body<Map<String, Any>>()
-            .getOrDefault("authenticated", false) as Boolean
+            .takeIf { it.status.value == 200 }
+            ?.body<UserCheckAuth>()
+            ?.authenticated == true
+
+        if (!result) Settings.Account.token = "" // Delete bad token
+
+        return result
+    }
 
     suspend fun userInfo(): UserInfo =
-        client.get("$BASE_URL/api/auth/user-info") {
-            header("Authorization", "Bearer $token")
+        client.get("$BASE_URL/user-info") {
+            header("Authorization", "Bearer ${Settings.Account.token}")
         }.body()
 
     suspend fun requestReset(email: String) =
-        client.post("$BASE_URL/api/auth/request-reset") {
+        client.post("$BASE_URL/request-reset") {
             setBody(mapOf("email" to email))
         }
 
     suspend fun resetPassword(token: String, newPassword: String) =
-        client.post("$BASE_URL/api/auth/reset-password") {
+        client.post("$BASE_URL/reset-password") {
             setBody(UserResetPassword(token, newPassword))
         }
 
     suspend fun verifyEmail(email: String) =
-        client.post("$BASE_URL/api/auth/verify-email") {
+        client.post("$BASE_URL/verify-email") {
             setBody(UserVerifyEmail(email))
         }
 
-    suspend fun isLoggedIn() = token.isNotBlank() && checkAuth()
+    suspend fun isLoggedIn() = Settings.Account.token.isNotBlank() && checkAuth()
 }

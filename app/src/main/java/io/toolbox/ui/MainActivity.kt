@@ -477,7 +477,12 @@ class MainActivity : BaseActivity(
                             )
                         }
                         composable(route = SETTINGS) { SettingsScreen(EdgeToEdgeBar) }
-                        composable(route = PROFILE) { ProfileScreen(EdgeToEdgeBar) }
+                        composable(route = PROFILE) {
+                            ProfileScreen(
+                                bar,
+                                TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+                            )
+                        }
                         composable(route = ABOUT) { AboutScreen(EdgeToEdgeBar) }
 
                         composable(route = APP_LOCKER) {

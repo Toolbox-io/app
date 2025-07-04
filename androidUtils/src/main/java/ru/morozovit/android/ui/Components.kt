@@ -121,9 +121,15 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintLayoutScope
 import androidx.constraintlayout.compose.Dimension
+import io.github.fornewid.placeholder.foundation.PlaceholderDefaults
+import io.github.fornewid.placeholder.foundation.PlaceholderHighlight
+import io.github.fornewid.placeholder.foundation.placeholder
+import io.github.fornewid.placeholder.material3.color
+import io.github.fornewid.placeholder.material3.shimmer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ru.morozovit.android.R
+import ru.morozovit.android.applyIf
 import ru.morozovit.android.asAndroidScaleType
 import ru.morozovit.android.invoke
 import ru.morozovit.android.left
@@ -150,6 +156,7 @@ fun ListItem(
     onClick: (() -> Unit)? = null,
     bodyOnClick: (() -> Unit)? = null,
     leadingAndBodyShared: Boolean = false,
+    placeholder: Boolean = false,
     bottomContent: (@Composable ConstraintLayoutScope.() -> Unit)? = null
 ) {
     Column {
@@ -170,6 +177,14 @@ fun ListItem(
                 content(null)
             }
         }
+
+        @Composable
+        fun Modifier.cplaceholder() =
+            this.placeholder(
+                visible = placeholder,
+                highlight = PlaceholderHighlight.shimmer(),
+                color = PlaceholderDefaults.color()
+            )
 
         ProvideStyle {
             ConstraintLayout(
@@ -200,13 +215,26 @@ fun ListItem(
                                     start = 16.dp,
                                     top = 8.dp,
                                     bottom = 8.dp
-                                ),
+                                )
+                                .cplaceholder(),
                             content = leadingContent
                         )
                     }
                     androidx.compose.material3.ListItem(
-                        headlineContent = { Text(headline) },
-                        supportingContent = { if (supportingText != null) Text(supportingText) },
+                        headlineContent = {
+                            Text(
+                                text = headline,
+                                modifier = Modifier.cplaceholder()
+                            )
+                        },
+                        supportingContent = {
+                            if (supportingText != null) {
+                                Text(
+                                    text = supportingText,
+                                    modifier = Modifier.cplaceholder()
+                                )
+                            }
+                        },
                         modifier = Modifier
                             .let {
                                 var mod = it.constrainAs(listItem) {
@@ -248,11 +276,9 @@ fun ListItem(
                                         else parent.right
                                 width = Dimension.fillToConstraints
                             }
-                                +
-                                if (bodyOnClick != null)
-                                    Modifier.clickable(onClick = bodyOnClick)
-                                else
-                                    Modifier,
+                            .applyIf(bodyOnClick != null) {
+                                Modifier.clickable(onClick = bodyOnClick!!)
+                            },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         leadingBody()
@@ -276,7 +302,8 @@ fun ListItem(
                                 end = 16.dp,
                                 top = 8.dp,
                                 bottom = 8.dp
-                            ),
+                            )
+                            .cplaceholder(),
                         content = trailingContent
                     )
                 }
@@ -289,7 +316,8 @@ fun ListItem(
                                 right link parent.right
                                 width = Dimension.fillToConstraints
                             }
-                            .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+                            .padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
+                            .cplaceholder(),
                         content = bottomContent
                     )
                 }
@@ -328,6 +356,7 @@ inline fun SwitchListItem(
     dividerColor: Color = DividerDefaults.color,
     dividerThickness: Dp = DividerDefaults.Thickness,
     dividerAnimated: Boolean = false,
+    placeholder: Boolean = false,
     enabled: Boolean = true
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -348,6 +377,7 @@ inline fun SwitchListItem(
                 enabled = enabled
             )
         },
+        placeholder = placeholder,
         divider = divider,
         dividerColor = dividerColor,
         dividerThickness = dividerThickness,
@@ -370,6 +400,7 @@ inline fun SeparatedSwitchListItem(
     dividerColor: Color = DividerDefaults.color,
     dividerThickness: Dp = DividerDefaults.Thickness,
     dividerAnimated: Boolean = false,
+    placeholder: Boolean = false,
     enabled: Boolean = true
 ) {
     ListItem(
@@ -410,6 +441,7 @@ inline fun SeparatedSwitchListItem(
         dividerThickness = dividerThickness,
         dividerAnimated = dividerAnimated,
         leadingAndBodyShared = true,
+        placeholder = placeholder,
         enabled = enabled
     )
 }

@@ -45,11 +45,13 @@ dependencies {
     implementation(libs.material)
     implementation(libs.biometric)
     implementation(libs.gson)
+    implementation(libs.placeholder.material3)
 
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.android)
     implementation(libs.ktor.serialization.kotlinx.json)
 
     implementation(platform(libs.androidx.compose.bom))

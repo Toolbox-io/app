@@ -39,9 +39,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Description
@@ -90,8 +88,7 @@ import dev.chrisbanes.haze.hazeSource
 import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.Settings.update_dsa
-import io.toolbox.download
-import io.toolbox.getContents
+import io.toolbox.api.GuidesAPI
 import io.toolbox.services.Accessibility
 import io.toolbox.services.Accessibility.Companion.returnBack
 import io.toolbox.services.UpdateChecker.Companion.DOWNLOAD_BROADCAST
@@ -105,14 +102,12 @@ import io.toolbox.ui.protection.actions.ActionsActivity
 import io.toolbox.ui.protection.applocker.SelectAppsActivity
 import kotlinx.coroutines.launch
 import ru.morozovit.android.async
-import ru.morozovit.android.decodeWindows1251
 import ru.morozovit.android.invoke
 import ru.morozovit.android.plus
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SwitchWithText
 import ru.morozovit.android.verticalScroll
-import ru.morozovit.utils.MarkdownHeaderParser
 import ru.morozovit.utils.toCamelCase
 import kotlin.reflect.KMutableProperty0
 
@@ -689,66 +684,44 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                     var uri: Uri? by remember { mutableStateOf(null) }
 
                     LaunchedEffect(Unit) {
-                        async {
-                            Log.d("Guides", "Loading guides")
-                            try {
-                                val guidesDir = getContents("guides")!!.asJsonArray
+                        try {
+                            // TODO use the new API and use ktor
+                            val guidesList = GuidesAPI.list()
 
-                                for (it in guidesDir) {
-                                    try {
-                                        val entry = it.asJsonObject
+                            for (it in guidesList) {
+                                val (name0, header) = it
 
-                                        val name0 = entry["name"].asString
-                                        Log.d("Guides", name0)
+                                val name = name0.replace("\\.md$".toRegex(), "")
+                                val title = header.DisplayName
+                                val htmlFile = "https://beta.toolbox-io.ru/guides/${name.lowercase()}/raw".toUri()
 
-                                        if (
-                                            name0 == "README.md" ||
-                                            !name0.endsWith(".md")
-                                        ) {
-                                            Log.d("Guides", "File doesn't meet the requirements")
-                                            continue
-                                        }
-
-                                        val contents = download(entry["download_url"].asString)!!.decodeWindows1251()
-                                        Log.d("Guides", contents)
-                                        val header = MarkdownHeaderParser.parseHeader(contents)
-                                        Log.d("Guides", header.toString())
-
-                                        val name = name0.replace("\\.md$".toRegex(), "")
-                                        val title = if (header != null) header["DisplayName"] as String else name
-                                        val htmlFile = "https://toolbox-io.ru/guides/${name.lowercase()}_raw.html".toUri()
-
-                                        val icon = try {
-                                            val iconName = (header!!["Icon"] as String)
-                                                .toCamelCase()
-                                                .replaceFirstChar { it.uppercase() }
-                                            Class
-                                                .forName(
-                                                    "androidx.compose.material.icons.filled.${iconName}Kt"
-                                                )
-                                                .getMethod(
-                                                    "get${iconName}",
-                                                    Icons.Filled::class.java
-                                                )
-                                                .invoke(null, Icons.Filled) as ImageVector
-                                        } catch (e: Exception) {
-                                            Log.e("Guides", "An error occurred while getting icon: ", e)
-                                            Icons.Filled.Description
-                                        }
-
-                                        guides += Guide(
-                                            title = title,
-                                            name = name,
-                                            icon = icon,
-                                            htmlFile = htmlFile
-                                        ).also { Log.d("Guides", "$it") }
-                                    } catch (e: Exception) {
-                                        Log.e("Guides", "An error occurred: ", e)
-                                    }
+                                val icon = try {
+                                    val iconName = header.Icon
+                                        .toCamelCase()
+                                        .replaceFirstChar { it.uppercase() }
+                                    Class
+                                        .forName(
+                                            "androidx.compose.material.icons.filled.${iconName}Kt"
+                                        )
+                                        .getMethod(
+                                            "get${iconName}",
+                                            Icons.Filled::class.java
+                                        )
+                                        .invoke(null, Icons.Filled) as ImageVector
+                                } catch (e: Exception) {
+                                    Log.e("Guides", "An error occurred while getting icon: ", e)
+                                    Icons.Filled.Description
                                 }
-                            } catch (e: Exception) {
-                                Log.e("Guides", "An error occurred: ", e)
+
+                                guides += Guide(
+                                    title = title,
+                                    name = name,
+                                    icon = icon,
+                                    htmlFile = htmlFile
+                                ).also { Log.d("Guides", "$it") }
                             }
+                        } catch (e: Exception) {
+                            Log.e("Guides", "An error occurred: ", e)
                         }
                     }
 

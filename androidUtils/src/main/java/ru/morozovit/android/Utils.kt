@@ -944,3 +944,12 @@ inline fun HttpClientConfig<*>.logging() = logging {
 
 @Composable
 inline fun Modifier.verticalScroll() = verticalScroll(rememberScrollState())
+
+inline fun Modifier.applyIf(
+    condition: Boolean,
+    block: (Modifier) -> Modifier
+) = if (condition) {
+    block(this)
+} else {
+    this
+}

@@ -80,12 +80,14 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.biometric)
     implementation(kotlin("reflect"))
-    implementation(libs.cloudy)
+    implementation(libs.placeholder.material3)
     
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.android)
+    debugImplementation(libs.slf4j.simple)
     implementation(libs.ktor.serialization.kotlinx.json)
 
     implementation(platform(libs.androidx.compose.bom))
