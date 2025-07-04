@@ -8,6 +8,7 @@ import io.ktor.client.request.setBody
 import io.toolbox.Settings
 import io.toolbox.api.AuthAPI.BASE_URL
 import kotlinx.serialization.Serializable
+import ru.morozovit.android.failOnError
 
 /**
  * This class provides a Kotlin interface to the account API endpoints of the Toolbox.io
@@ -62,15 +63,19 @@ object AuthAPI {
         email: String,
         password: String
     ): UserInfo =
-        client.post("$BASE_URL/register") {
-            setBody(UserCreate(username, email, password))
-        }.body()
+        client
+            .post("$BASE_URL/register") {
+                setBody(UserCreate(username, email, password))
+            }
+            .failOnError()
+            .body()
 
     suspend fun login(username: String, password: String) =
         client
             .post("$BASE_URL/login") {
                 setBody(UserLogin(username, password))
             }
+            .failOnError()
             .body<Map<String, String>>()["access_token"]!!
 
     suspend fun logout() =

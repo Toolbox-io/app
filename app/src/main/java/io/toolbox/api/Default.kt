@@ -13,14 +13,16 @@ import ru.morozovit.android.defaultRequest
 import ru.morozovit.android.jsonConfig
 import ru.morozovit.android.logging
 
-inline fun DefaultHTTPClient() = HttpClient(OkHttp) {
+fun DefaultHTTPClient() = HttpClient(OkHttp) {
     jsonConfig {
         ignoreUnknownKeys = true
     }
+
     logging {
-        logger = Logger.Companion.DEFAULT
+        logger = Logger.DEFAULT
         level = LogLevel.INFO
     }
+
     defaultRequest {
         contentType(ContentType.Application.Json)
     }

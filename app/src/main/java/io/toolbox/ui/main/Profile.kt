@@ -1,4 +1,4 @@
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "ArrayInDataClass")
 
 package io.toolbox.ui.main
 
@@ -45,15 +45,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.chrisbanes.haze.hazeSource
-import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
 import io.toolbox.R
 import io.toolbox.Settings.Account.token
+import io.toolbox.api.AuthAPI
+import io.toolbox.api.errorMessage
 import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.WindowInsetsHandler
-import io.toolbox.api.AuthAPI
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import ru.morozovit.android.invoke
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
@@ -61,6 +62,24 @@ import ru.morozovit.android.ui.SecureTextField
 import ru.morozovit.android.verticalScroll
 
 private var page by mutableIntStateOf(0)
+
+@Serializable
+data class PydanticError(
+    val detail: Array<PydanticError0>
+) {
+    inline val error get() =
+        detail[0]
+            .msg
+            .replaceFirst("Value error, ", "")
+}
+
+@Serializable
+data class PydanticError0(
+    val type: String,
+    val loc: Array<String>,
+    val msg: String,
+    val input: String
+)
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -120,16 +139,10 @@ private inline fun LoginScreen() {
                             token = AuthAPI.login(username, password)
                             page = 3
                         } catch (e: ResponseException) {
-                            showError(
-                                try {
-                                    e.response.body<Map<String, String>>()["detail"]!!
-                                } catch (_: Exception) {
-                                    "Unknown error"
-                                }
-                            )
+                            showError(e.errorMessage())
                         } catch (e: Exception) {
                             e.printStackTrace()
-                            showError("Internal error while logging in")
+                            showError("Internal error")
                         } finally {
                             isLoggingIn = false
                         }
