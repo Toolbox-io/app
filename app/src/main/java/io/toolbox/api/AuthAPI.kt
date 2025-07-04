@@ -47,6 +47,11 @@ object AuthAPI {
     private data class UserVerifyEmail(val email: String)
 
     @Serializable
+    data class SuccessResponse(
+        val success: Boolean
+    )
+
+    @Serializable
     private data class UserPasswordChange(
         val current_password: String,
         val new_password: String
@@ -76,23 +81,28 @@ object AuthAPI {
             .failOnError()
             .body()
 
-    suspend fun login(username: String, password: String) =
-        client
+    suspend fun login(username: String, password: String): String {
+        val result = client
             .post("$BASE_URL/login") {
                 setBody(UserLogin(username, password))
             }
             .failOnError()
             .body<Map<String, String>>()["access_token"]!!
+        token = result
+        return result
+    }
 
-    suspend fun logout() =
+    suspend fun logout() {
         client.post("$BASE_URL/logout") {
-            header("Authorization", "Bearer ${token}")
+            header("Authorization", "Bearer $token")
         }
+        token = ""
+    }
 
     suspend fun checkAuth(): Boolean {
         val result = client
             .get("$BASE_URL/check-auth") {
-                header("Authorization", "Bearer ${token}")
+                header("Authorization", "Bearer $token")
             }
             .takeIf { it.status.value == 200 }
             ?.body<UserCheckAuth>()
@@ -104,24 +114,36 @@ object AuthAPI {
     }
 
     suspend fun userInfo(): UserInfo =
-        client.get("$BASE_URL/user-info") {
-            header("Authorization", "Bearer ${token}")
-        }.body()
+        client
+            .get("$BASE_URL/user-info") {
+                header("Authorization", "Bearer $token")
+            }
+            .failOnError()
+            .body()
 
-    suspend fun requestReset(email: String) =
-        client.post("$BASE_URL/request-reset") {
-            setBody(mapOf("email" to email))
-        }
+    suspend fun requestReset(email: String) {
+        client
+            .post("$BASE_URL/request-reset") {
+                setBody(mapOf("email" to email))
+            }
+            .failOnError()
+    }
 
-    suspend fun resetPassword(token: String, newPassword: String) =
-        client.post("$BASE_URL/reset-password") {
-            setBody(UserResetPassword(token, newPassword))
-        }
+    suspend fun resetPassword(token: String, newPassword: String) {
+        client
+            .post("$BASE_URL/reset-password") {
+                setBody(UserResetPassword(token, newPassword))
+            }
+            .failOnError()
+    }
 
-    suspend fun verifyEmail(email: String) =
-        client.post("$BASE_URL/verify-email") {
-            setBody(UserVerifyEmail(email))
-        }
+    suspend fun sendVerifyEmail(email: String) {
+        client
+            .post("$BASE_URL/verify-email") {
+                setBody(UserVerifyEmail(email))
+            }
+            .failOnError()
+    }
 
     suspend fun changePassword(
         oldPassword: String,
@@ -134,4 +156,10 @@ object AuthAPI {
         .failOnError()
 
     suspend fun isLoggedIn() = token.isNotBlank() && checkAuth()
+
+    suspend fun verifyEmail(code: Int) {
+        client
+            .post("$BASE_URL/verify?code=$code")
+            .failOnError()
+    }
 }

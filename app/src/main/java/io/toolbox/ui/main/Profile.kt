@@ -2,15 +2,23 @@
 
 package io.toolbox.ui.main
 
+import android.util.Log
 import android.widget.Toast
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,6 +36,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -47,17 +56,25 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import dev.chrisbanes.haze.hazeSource
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ResponseException
 import io.toolbox.R
-import io.toolbox.Settings.Account.token
 import io.toolbox.api.AuthAPI
 import io.toolbox.api.errorMessage
 import io.toolbox.ui.LocalHazeState
@@ -71,8 +88,13 @@ import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SecureTextField
 import ru.morozovit.android.verticalScroll
+import kotlin.math.roundToInt
 
-private var page by mutableIntStateOf(0)
+private const val ROUTE_LOADING = "loading"
+private const val ROUTE_LOGIN = "login"
+private const val ROUTE_REGISTER = "register"
+private const val ROUTE_CODE_ENTRY = "code_entry/{email}"
+private const val ROUTE_ACCOUNT = "account"
 
 @Serializable
 data class PydanticError(
@@ -94,7 +116,10 @@ data class PydanticError0(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private inline fun LoginScreen() {
+private inline fun LoginScreen(
+    crossinline onLoginSuccess: () -> Unit,
+    crossinline onRegister: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -147,8 +172,8 @@ private inline fun LoginScreen() {
                     scope.launch {
                         isLoggingIn = true
                         try {
-                            token = AuthAPI.login(username, password)
-                            page = 3
+                            AuthAPI.login(username, password)
+                            onLoginSuccess()
                         } catch (e: ResponseException) {
                             showError(e.errorMessage())
                         } catch (e: Exception) {
@@ -173,11 +198,55 @@ private inline fun LoginScreen() {
                 color = Color.Red
             )
         }
+
+        TextButton(
+            onClick = { onRegister() },
+            modifier = Modifier.padding(top = 16.dp)
+        ) {
+            Text("Register")
+        }
     }
 }
 
 @Composable
-private inline fun RegisterScreen() {
+private fun RegisterScreen(
+    onRegisterSuccess: (String, String, String) -> Unit,
+    onBack: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+
+    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+
+    var passwordHidden by remember { mutableStateOf(true) }
+    var confirmPasswordHidden by remember { mutableStateOf(true) }
+
+    var loading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+    val showError = errorMessage.isNotBlank()
+    val shakeTrigger = remember { mutableIntStateOf(0) }
+    val shakeOffset by animateFloatAsState(
+        targetValue = if (shakeTrigger.intValue > 0) 12f else 0f,
+        animationSpec = keyframes {
+            durationMillis = 300
+            0f at 0
+            -12f at 50
+            12f at 100
+            -12f at 150
+            12f at 200
+            0f at 300
+        }, label = "shakeOffset"
+    )
+
+    suspend fun showErrorMsg(msg: String) {
+        errorMessage = msg
+        shakeTrigger.intValue++
+        delay(2000)
+        errorMessage = ""
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -190,13 +259,100 @@ private inline fun RegisterScreen() {
             fontSize = 20.sp,
             modifier = Modifier.padding(bottom = 16.dp)
         )
-
-        // TODO register screen
+        OutlinedTextField(
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Username") },
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email") },
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        SecureTextField(
+            value = password,
+            onValueChange = { password = it },
+            hidden = passwordHidden,
+            onHiddenChange = { passwordHidden = it },
+            label = { Text("Password") },
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        SecureTextField(
+            value = confirmPassword,
+            onValueChange = { confirmPassword = it },
+            hidden = confirmPasswordHidden,
+            onHiddenChange = { confirmPasswordHidden = it },
+            label = { Text("Confirm Password") },
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        Row(
+            modifier = Modifier
+                .offset { IntOffset(shakeOffset.roundToInt(), 0) }
+                .padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {
+                    scope.launch {
+                        if (username.isBlank() || email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
+                            showErrorMsg("All fields are required")
+                            return@launch
+                        }
+                        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                            showErrorMsg("Invalid email address")
+                            return@launch
+                        }
+                        if (password != confirmPassword) {
+                            showErrorMsg("Passwords do not match")
+                            return@launch
+                        }
+                        loading = true
+                        errorMessage = ""
+                        try {
+                            AuthAPI.register(username, email, password)
+                            delay(800)
+                            onRegisterSuccess(email, username, password)
+                        } catch (e: ResponseException) {
+                            showErrorMsg(e.errorMessage())
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            showErrorMsg("Internal error")
+                        } finally {
+                            loading = false
+                        }
+                    }
+                },
+                enabled = !loading
+            ) {
+                Text("Register")
+            }
+            AnimatedVisibility(loading) {
+                CircularProgressIndicator(Modifier.padding(start = 16.dp))
+            }
+        }
+        TextButton(
+            onClick = onBack,
+            modifier = Modifier.padding(top = 16.dp)
+        ) {
+            Text("Back")
+        }
+        AnimatedVisibility(showError) {
+            Text(
+                text = errorMessage,
+                color = Color.Red,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
     }
 }
 
 @Composable
-private inline fun AccountScreen(snackbarHostState: SnackbarHostState) {
+private fun AccountScreen(
+    snackbarHostState: SnackbarHostState,
+    onLogoutSuccess: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -385,7 +541,7 @@ private inline fun AccountScreen(snackbarHostState: SnackbarHostState) {
                         contentDescription = null
                     )
                 },
-                //placeholder = loading
+                placeholder = loading
             )
             ListItem(
                 headline = stringResource(R.string.email),
@@ -399,7 +555,7 @@ private inline fun AccountScreen(snackbarHostState: SnackbarHostState) {
                         contentDescription = null
                     )
                 },
-                //placeholder = loading
+                placeholder = loading
             )
             ListItem(
                 headline = stringResource(R.string.member_since),
@@ -410,7 +566,7 @@ private inline fun AccountScreen(snackbarHostState: SnackbarHostState) {
                         contentDescription = null
                     )
                 },
-                //placeholder = loading
+                placeholder = loading
             )
         }
 
@@ -418,8 +574,10 @@ private inline fun AccountScreen(snackbarHostState: SnackbarHostState) {
             ListItem(
                 headline = stringResource(R.string.logout),
                 onClick = {
-                    token = "" // Clear the token
-                    page = 1
+                    scope.launch {
+                        AuthAPI.logout()
+                        onLogoutSuccess()
+                    }
                 },
                 divider = true,
                 dividerColor = MaterialTheme.colorScheme.surface,
@@ -430,7 +588,7 @@ private inline fun AccountScreen(snackbarHostState: SnackbarHostState) {
                         contentDescription = null
                     )
                 },
-                //placeholder = loading
+                placeholder = loading
             )
             ListItem(
                 headline = stringResource(R.string.change_password),
@@ -443,8 +601,174 @@ private inline fun AccountScreen(snackbarHostState: SnackbarHostState) {
                         contentDescription = null
                     )
                 },
-                //placeholder = loading
+                placeholder = loading
             )
+        }
+    }
+}
+
+@Composable
+fun SixDigitCodeInput(
+    code: List<String>,
+    onCodeChange: (Int, String) -> Unit,
+    enabled: Boolean = true,
+    focusRequesters: List<androidx.compose.ui.focus.FocusRequester>,
+    showSuccess: Boolean = false,
+    showError: Boolean = false
+) {
+    Row(
+        modifier = Modifier.padding(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        for (i in 0..5) {
+            val targetColor = when {
+                showSuccess -> Color(0xFFC8FFD4)
+                showError -> Color(0xFFFFB4B4)
+                else -> Color.Transparent
+            }
+            val bgColor by animateColorAsState(
+                targetValue = targetColor,
+                animationSpec = tween(durationMillis = 350),
+                label = "digitBgColor"
+            )
+            OutlinedTextField(
+                value = code[i],
+                onValueChange = { value ->
+                    if (value.length <= 1 && (value.isEmpty() || value[0].isDigit())) {
+                        onCodeChange(i, value)
+                        if (value.isNotEmpty() && i < 5) {
+                            focusRequesters[i + 1].requestFocus()
+                        }
+                        if (value.isEmpty() && i > 0) {
+                            focusRequesters[i - 1].requestFocus()
+                        }
+                    }
+                },
+                singleLine = true,
+                modifier = Modifier
+                    .size(48.dp, 56.dp)
+                    .background(bgColor, shape = RoundedCornerShape(8.dp))
+                    .focusRequester(focusRequesters[i]),
+                enabled = enabled,
+                textStyle = LocalTextStyle().copy(textAlign = TextAlign.Center, fontSize = 22.sp),
+                maxLines = 1
+            )
+        }
+    }
+}
+
+@Composable
+fun RegisterCodeEntryScreen(
+    email: String,
+    onVerified: () -> Unit,
+    onResend: suspend () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    var code by remember { mutableStateOf(List(6) { "" }) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var loading by remember { mutableStateOf(false) }
+    var success by remember { mutableStateOf(false) }
+    var triggerSubmit by remember { mutableStateOf(false) }
+    val focusRequesters = List(6) { remember { androidx.compose.ui.focus.FocusRequester() } }
+    val showSuccess = success
+    var transientError by remember { mutableStateOf(false) }
+    val shakeTrigger = remember { mutableIntStateOf(0) }
+    val shakeOffset by animateFloatAsState(
+        targetValue = if (shakeTrigger.intValue > 0) 12f else 0f,
+        animationSpec = keyframes {
+            durationMillis = 300
+            0f at 0
+            -12f at 50
+            12f at 100
+            -12f at 150
+            12f at 200
+            0f at 300
+        }, label = "shakeOffset"
+    )
+
+    // Autofocus first input on mount
+    LaunchedEffect(Unit) {
+        focusRequesters[0].requestFocus()
+    }
+
+    // Autosubmit when code is complete
+    LaunchedEffect(code) {
+        if (code.all { it.length == 1 } && code.joinToString("").matches(Regex("^[0-9]{6}$"))) {
+            triggerSubmit = true
+        }
+    }
+
+    // Animate on success/error
+    LaunchedEffect(success, errorMessage) {
+        if (success) {
+            delay(1200)
+            onVerified()
+        } else if (errorMessage != null) {
+            transientError = true
+            shakeTrigger.intValue++ // Triggers shake
+            delay(3000)
+            transientError = false
+        }
+    }
+
+    // Submit logic (manual or autosubmit)
+    LaunchedEffect(triggerSubmit) {
+        if (triggerSubmit) {
+            loading = true
+            errorMessage = null
+            delay(800)
+            try {
+                AuthAPI.verifyEmail(code.joinToString("").toInt())
+                success = true
+            } catch (e: ClientRequestException) {
+                e.printStackTrace()
+                errorMessage = "Invalid code"
+                success = false
+            } catch (e: Exception) {
+                e.printStackTrace()
+                errorMessage = "Unknown error"
+                success = false
+            }
+            loading = false
+            triggerSubmit = false
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .hazeSource(LocalHazeState())
+            .verticalScroll(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Email Verification", fontSize = 20.sp, modifier = Modifier.padding(top = 32.dp, bottom = 8.dp))
+        Text("Enter the 6-digit code sent to $email", modifier = Modifier.padding(bottom = 16.dp))
+        Row(
+            modifier = Modifier
+                .offset { IntOffset(shakeOffset.roundToInt(), 0) },
+            horizontalArrangement = Arrangement.Center
+        ) {
+            SixDigitCodeInput(
+                code = code,
+                onCodeChange = { idx, value -> code = code.toMutableList().also { it[idx] = value } },
+                enabled = !loading,
+                focusRequesters = focusRequesters,
+                showSuccess = showSuccess,
+                showError = transientError
+            )
+        }
+        Spacer(Modifier.height(16.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(
+                onClick = { scope.launch { onResend() } },
+                enabled = !loading
+            ) { Text("Resend") }
+        }
+        if (errorMessage != null) {
+            Text(errorMessage!!, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
+        }
+        if (loading) {
+            CircularProgressIndicator(Modifier.padding(top = 8.dp))
         }
     }
 }
@@ -454,6 +778,12 @@ private inline fun AccountScreen(snackbarHostState: SnackbarHostState) {
 fun ProfileScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
     WindowInsetsHandler {
         val snackbarHostState = remember { SnackbarHostState() }
+        val navController = rememberNavController()
+        val scope = rememberCoroutineScope()
+
+        var currentEmail: String? by remember { mutableStateOf(null) }
+        var currentUsername: String? by remember { mutableStateOf(null) }
+        var currentPassword: String? by remember { mutableStateOf(null) }
 
         Scaffold(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -463,29 +793,120 @@ fun ProfileScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollB
             topBar = { topBar(scrollBehavior) }
         ) { innerPadding ->
             Column(Modifier.padding(innerPadding)) {
-                AnimatedContent(page) {
-                    when (it) {
-                        0 /* loading */ -> {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                LoadingIndicator(Modifier.size(75.dp))
+                NavHost(
+                    navController = navController,
+                    startDestination = ROUTE_LOADING
+                ) {
+                    composable(ROUTE_LOADING) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            LoadingIndicator(Modifier.size(75.dp))
+                        }
+                        LaunchedEffect(Unit) {
+                            try {
+                                if (AuthAPI.isLoggedIn()) {
+                                    navController.navigate(ROUTE_ACCOUNT) {
+                                        popUpTo(ROUTE_LOADING) { inclusive = true }
+                                    }
+                                } else {
+                                    navController.navigate(ROUTE_LOGIN) {
+                                        popUpTo(ROUTE_LOADING) { inclusive = true }
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                snackbarHostState.showSnackbar(
+                                    "Unknown error while loading"
+                                )
+                                navController.navigate(ROUTE_LOGIN) {
+                                    popUpTo(ROUTE_LOADING) { inclusive = true }
+                                }
                             }
                         }
-                        1 -> LoginScreen()
-                        2 -> RegisterScreen()
-                        3 -> AccountScreen(snackbarHostState)
                     }
-                }
+                    composable(ROUTE_LOGIN) {
+                        LoginScreen(
+                            onLoginSuccess = {
+                                navController.navigate(ROUTE_ACCOUNT) {
+                                    popUpTo(ROUTE_LOGIN) { inclusive = true }
+                                }
+                            },
+                            onRegister = {
+                                navController.navigate(ROUTE_REGISTER)
+                            }
+                        )
+                    }
+                    composable(ROUTE_REGISTER) {
+                        RegisterScreen(
+                            onRegisterSuccess = { _email, _username, _password ->
+                                currentEmail = _email
+                                currentUsername = _username
+                                currentPassword = _password
+                                navController.navigate("code_entry/$currentEmail") {
+                                    popUpTo(ROUTE_REGISTER) { inclusive = true }
+                                }
+                            },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+                    composable(
+                        route = ROUTE_CODE_ENTRY,
+                        arguments = listOf(
+                            navArgument("email") { type = NavType.StringType }
+                        )
+                    ) { backStackEntry ->
+                        val email = backStackEntry.arguments?.getString("email") ?: ""
+                        RegisterCodeEntryScreen(
+                            email = email,
+                            onVerified = {
+                                scope.launch {
+                                    try {
+                                        AuthAPI.login(currentUsername!!, currentPassword!!)
 
-                LaunchedEffect(Unit) {
-                    try {
-                        page = if (AuthAPI.isLoggedIn()) 3 else 1
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        snackbarHostState.showSnackbar(
-                            "Unknown error while loading"
+                                        currentEmail = null
+                                        currentUsername = null
+                                        currentPassword = null
+
+                                        navController.navigate(ROUTE_ACCOUNT) {
+                                            popUpTo(ROUTE_CODE_ENTRY) { inclusive = true }
+                                        }
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                        navController.navigate(ROUTE_LOGIN) {
+                                            popUpTo(ROUTE_CODE_ENTRY) { inclusive = true }
+                                        }
+                                    }
+                                }
+                            },
+                            onResend = {
+                                try {
+                                    AuthAPI.sendVerifyEmail(email)
+                                    snackbarHostState.showSnackbar(
+                                        "Resent successfully"
+                                    )
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    snackbarHostState.showSnackbar(
+                                        "Couldn't resend"
+                                    )
+                                }
+                            }
+                        )
+                    }
+                    composable(ROUTE_ACCOUNT) {
+                        AccountScreen(
+                            snackbarHostState = snackbarHostState,
+                            onLogoutSuccess = {
+                                Log.d("Account", "Logged out")
+                                navController.navigate(ROUTE_LOGIN) {
+                                    popUpTo(0) { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            }
                         )
                     }
                 }

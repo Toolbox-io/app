@@ -190,7 +190,7 @@ fun ListItem(
             ConstraintLayout(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .applyIf(onClick != null) {
+                    .applyIf(onClick != null && !placeholder) {
                         Modifier.clickable(onClick = onClick!!)
                     } + modifier
             ) {
@@ -248,7 +248,7 @@ fun ListItem(
                                     else parent.right
                                 width = Dimension.fillToConstraints
                             }
-                            .applyIf (bodyOnClick != null && !leadingAndBodyShared) {
+                            .applyIf (bodyOnClick != null && !leadingAndBodyShared && !placeholder) {
                                 Modifier.clickable(onClick = bodyOnClick!!)
                             } + bodyModifier,
                         colors = ListItemDefaults.colors(
@@ -271,7 +271,7 @@ fun ListItem(
                                         else parent.right
                                 width = Dimension.fillToConstraints
                             }
-                            .applyIf(bodyOnClick != null) {
+                            .applyIf(bodyOnClick != null && !placeholder) {
                                 Modifier.clickable(onClick = bodyOnClick!!)
                             },
                         verticalAlignment = Alignment.CenterVertically
@@ -367,7 +367,7 @@ inline fun SwitchListItem(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 interactionSource = interactionSource,
-                enabled = enabled
+                enabled = enabled && !placeholder
             )
         },
         placeholder = placeholder,
@@ -426,7 +426,7 @@ inline fun SeparatedSwitchListItem(
                     right link parent.right
                     left link div.right
                 },
-                enabled = enabled
+                enabled = enabled && !placeholder
             )
         },
         divider = divider,
