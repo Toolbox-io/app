@@ -5,7 +5,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.toolbox.Settings
+import io.toolbox.Settings.Account.token
 import io.toolbox.api.AuthAPI.BASE_URL
 import kotlinx.serialization.Serializable
 import ru.morozovit.android.failOnError
@@ -47,6 +47,12 @@ object AuthAPI {
     private data class UserVerifyEmail(val email: String)
 
     @Serializable
+    private data class UserPasswordChange(
+        val current_password: String,
+        val new_password: String
+    )
+
+    @Serializable
     data class UserInfo(
         val id: Int,
         val username: String,
@@ -80,26 +86,26 @@ object AuthAPI {
 
     suspend fun logout() =
         client.post("$BASE_URL/logout") {
-            header("Authorization", "Bearer ${Settings.Account.token}")
+            header("Authorization", "Bearer ${token}")
         }
 
     suspend fun checkAuth(): Boolean {
         val result = client
             .get("$BASE_URL/check-auth") {
-                header("Authorization", "Bearer ${Settings.Account.token}")
+                header("Authorization", "Bearer ${token}")
             }
             .takeIf { it.status.value == 200 }
             ?.body<UserCheckAuth>()
             ?.authenticated == true
 
-        if (!result) Settings.Account.token = "" // Delete bad token
+        if (!result) token = "" // Delete bad token
 
         return result
     }
 
     suspend fun userInfo(): UserInfo =
         client.get("$BASE_URL/user-info") {
-            header("Authorization", "Bearer ${Settings.Account.token}")
+            header("Authorization", "Bearer ${token}")
         }.body()
 
     suspend fun requestReset(email: String) =
@@ -117,5 +123,15 @@ object AuthAPI {
             setBody(UserVerifyEmail(email))
         }
 
-    suspend fun isLoggedIn() = Settings.Account.token.isNotBlank() && checkAuth()
+    suspend fun changePassword(
+        oldPassword: String,
+        newPassword: String
+    ) = client
+        .post("$BASE_URL/change-password") {
+            header("Authorization", "Bearer $token")
+            setBody(UserPasswordChange(oldPassword, newPassword))
+        }
+        .failOnError()
+
+    suspend fun isLoggedIn() = token.isNotBlank() && checkAuth()
 }

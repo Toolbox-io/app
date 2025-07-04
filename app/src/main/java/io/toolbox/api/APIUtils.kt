@@ -9,6 +9,7 @@ suspend fun ResponseException.errorMessage(): String {
         return response
             .body<Map<String, String>>()["detail"]!!
     }
+
     runCatching {
         return response
             .body<PydanticError>()

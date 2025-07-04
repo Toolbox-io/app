@@ -954,7 +954,7 @@ inline fun Modifier.applyIf(
     condition: Boolean,
     block: (Modifier) -> Modifier
 ) = if (condition) {
-    block(this)
+    this + block(this)
 } else {
     this
 }

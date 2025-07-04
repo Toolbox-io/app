@@ -180,7 +180,7 @@ fun ListItem(
 
         @Composable
         fun Modifier.cplaceholder() =
-            this.placeholder(
+            placeholder(
                 visible = placeholder,
                 highlight = PlaceholderHighlight.shimmer(),
                 color = PlaceholderDefaults.color()
@@ -188,13 +188,11 @@ fun ListItem(
 
         ProvideStyle {
             ConstraintLayout(
-                modifier = Modifier.let {
-                    var mod = it.fillMaxWidth()
-                    if (onClick != null) {
-                        mod += Modifier.clickable(onClick = onClick)
-                    }
-                    mod + modifier
-                }
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .applyIf(onClick != null) {
+                        Modifier.clickable(onClick = onClick!!)
+                    } + modifier
             ) {
                 val (leading, listItem, trailing, btm) = createRefs()
 
@@ -206,8 +204,8 @@ fun ListItem(
                                 .constrainAs(leading) {
                                     top link parent.top
                                     bottom link
-                                            if (bottomContent != null) btm.top
-                                            else parent.bottom
+                                        if (bottomContent != null) btm.top
+                                        else parent.bottom
                                     left link parent.left
                                     right link listItem.left
                                 }
@@ -236,26 +234,23 @@ fun ListItem(
                             }
                         },
                         modifier = Modifier
-                            .let {
-                                var mod = it.constrainAs(listItem) {
-                                    top link parent.top
-                                    bottom link
-                                            if (bottomContent != null) btm.top
-                                            else parent.bottom
+                            .constrainAs(listItem) {
+                                top link parent.top
+                                bottom link
+                                    if (bottomContent != null) btm.top
+                                    else parent.bottom
 
-                                    left link
-                                            if (leadingContent != null) leading.right
-                                            else parent.left
-                                    right link
-                                            if (trailingContent != null) trailing.left
-                                            else parent.right
-                                    width = Dimension.fillToConstraints
-                                }
-                                if (bodyOnClick != null && !leadingAndBodyShared) {
-                                    mod += Modifier.clickable(onClick = bodyOnClick)
-                                }
-                                mod + bodyModifier
-                            },
+                                left link
+                                    if (leadingContent != null) leading.right
+                                    else parent.left
+                                right link
+                                    if (trailingContent != null) trailing.left
+                                    else parent.right
+                                width = Dimension.fillToConstraints
+                            }
+                            .applyIf (bodyOnClick != null && !leadingAndBodyShared) {
+                                Modifier.clickable(onClick = bodyOnClick!!)
+                            } + bodyModifier,
                         colors = ListItemDefaults.colors(
                             containerColor = Color.Transparent
                         )
@@ -293,8 +288,8 @@ fun ListItem(
                             .constrainAs(trailing) {
                                 top link parent.top
                                 bottom link
-                                        if (bottomContent != null) btm.top
-                                        else parent.bottom
+                                    if (bottomContent != null) btm.top
+                                    else parent.bottom
                                 right link parent.right
                                 left link listItem.right
                             }
@@ -302,8 +297,7 @@ fun ListItem(
                                 end = 16.dp,
                                 top = 8.dp,
                                 bottom = 8.dp
-                            )
-                            .cplaceholder(),
+                            ),
                         content = trailingContent
                     )
                 }
@@ -316,8 +310,7 @@ fun ListItem(
                                 right link parent.right
                                 width = Dimension.fillToConstraints
                             }
-                            .padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
-                            .cplaceholder(),
+                            .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
                         content = bottomContent
                     )
                 }
@@ -1084,15 +1077,15 @@ inline fun SwitchWithText(
             .fillMaxWidth()
             .height(56.dp)
             .padding(contentPadding)
-            +
-            if (enabled)
-                Modifier.toggleable(
-                    value = checked,
-                    onValueChange = { onCheckedChange(!checked) },
-                    role = Role.Switch
-                )
-            else Modifier
-            + modifier,
+                +
+                if (enabled)
+                    Modifier.toggleable(
+                        value = checked,
+                        onValueChange = { onCheckedChange(!checked) },
+                        role = Role.Switch
+                    )
+                else Modifier
+                        + modifier,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         content()
@@ -1127,7 +1120,7 @@ inline fun RadioButtonWithText(
                 role = Role.RadioButton
             )
             .padding(horizontal = 16.dp)
-            + modifier,
+                + modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(
@@ -1164,22 +1157,22 @@ inline fun SimpleAlertDialog(
                 Text(text = title)
             },
             text =
-            if (body != null || dsaString != null) {
-                {
-                    if (body != null) {
-                        Text(text = body)
-                    }
-                    if (dsaString != null) {
-                        CheckboxWithText(
-                            checked = dsaChecked,
-                            onCheckedChange = { dsaChecked = it },
-                            contentPadding = PaddingValues(top = 10.dp)
-                        ) {
-                            Text(text = dsaString)
+                if (body != null || dsaString != null) {
+                    {
+                        if (body != null) {
+                            Text(text = body)
+                        }
+                        if (dsaString != null) {
+                            CheckboxWithText(
+                                checked = dsaChecked,
+                                onCheckedChange = { dsaChecked = it },
+                                contentPadding = PaddingValues(top = 10.dp)
+                            ) {
+                                Text(text = dsaString)
+                            }
                         }
                     }
-                }
-            } else null,
+                } else null,
             onDismissRequest = { onDismissRequest() },
             confirmButton = {
                 if (!positiveButtonText.isNullOrBlank()) {
