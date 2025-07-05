@@ -34,6 +34,7 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewTreeObserver.OnPreDrawListener
+import android.webkit.WebView
 import android.widget.ImageView.ScaleType
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResult
@@ -979,3 +980,5 @@ suspend fun HttpResponse.failOnError(): HttpResponse {
 
     return this
 }
+
+inline fun WebView.evaluateJavascript(script: String) = evaluateJavascript(script, null)

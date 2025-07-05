@@ -466,9 +466,9 @@ class MainActivity : BaseActivity(
                     NavHost(
                         navController = navController,
                         startDestination = start,
-                        modifier = Modifier
-                            .consumeWindowInsets(WindowInsets.safeDrawing.only(WindowInsetsSides.Left))
-                            // .hazeSource(hazeState)
+                        modifier = Modifier.consumeWindowInsets(
+                            WindowInsets.safeDrawing.only(WindowInsetsSides.Left)
+                        )
                     ) {
                         composable(route = HOME) {
                             HomeScreen(
@@ -523,13 +523,12 @@ class MainActivity : BaseActivity(
                             content = drawerContent,
                             drawerShape = RoundedCornerShape(0.dp, 20.dp, 20.dp, 0.dp),
                             modifier = Modifier.widthIn(
-                                max =
-                                    (
-                                        if (360 > LocalWindowInfo().containerSize.width * 0.5)
-                                            300
-                                        else
-                                            360
-                                    ).dp
+                                max = (
+                                    if (360 > LocalWindowInfo().containerSize.width * 0.5)
+                                        300
+                                    else
+                                        360
+                                ).dp
                             )
                         )
                     },
