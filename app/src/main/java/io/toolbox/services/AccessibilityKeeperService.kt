@@ -9,16 +9,13 @@ import androidx.core.content.ContextCompat
 import io.toolbox.App.Companion.ACCESSIBILITY_CHANNEL_ID
 import io.toolbox.App.Companion.ACCESSIBILITY_NOTIFICATION_ID
 import io.toolbox.R
-import ru.morozovit.utils.add
 
 class AccessibilityKeeperService: Service() {
     companion object {
         var instance: AccessibilityKeeperService? = null
-        private val callbacks = mutableListOf<AccessibilityKeeperService.() -> Unit>()
 
-        fun start(context: Context, callback: (AccessibilityKeeperService.() -> Unit)? = null) {
+        fun start(context: Context) {
             ContextCompat.startForegroundService(context, Intent(context, AccessibilityKeeperService::class.java))
-            callbacks.add(callback)
         }
     }
 
@@ -34,8 +31,6 @@ class AccessibilityKeeperService: Service() {
                 .build()
         )
         instance = this
-        callbacks.forEach { it(this) }
-        callbacks.clear()
         return super.onStartCommand(intent, flags, startId)
     }
 

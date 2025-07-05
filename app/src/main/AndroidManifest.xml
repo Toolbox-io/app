@@ -99,14 +99,6 @@
             android:name=".ui.AuthActivity"
             android:theme="@style/Theme.Toolbox_io.SplashScreen"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode" />
-        <activity
-            android:name=".ui.protection.applocker.ApplockerAuthActivity"
-            android:theme="@style/Theme.Toolbox_io.SplashScreen"
-            android:excludeFromRecents="true"
-            android:taskAffinity="io.toolbox.ui.protection.applocker"
-            android:allowTaskReparenting="false"
-            android:clearTaskOnLaunch="false"
-            android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode" />
         <service
             android:name=".ui.protection.actions.intruderphoto.IntruderPhotoService"
             android:exported="false"
@@ -245,5 +237,9 @@
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
         </service>
+        <service
+            android:name=".services.tiles.SleepTileKeeperService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
     </application>
 </manifest>

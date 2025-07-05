@@ -39,6 +39,9 @@ class App : Application() {
         const val ACCESSIBILITY_CHANNEL_ID = "accessibility"
         const val ACCESSIBILITY_NOTIFICATION_ID = 4
 
+        const val SLEEP_TILE_CHANNEL_ID = "accessibility"
+        const val SLEEP_TILE_NOTIFICATION_ID = 5
+
         // Other constants
         var githubRateLimitRemaining: Long = -1
         const val GITHUB_TOKEN = "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"

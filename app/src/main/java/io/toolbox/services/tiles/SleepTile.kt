@@ -12,7 +12,18 @@ import android.util.Log
 import io.toolbox.App.Companion.context
 import io.toolbox.Settings
 import ru.morozovit.android.configure
+import ru.morozovit.android.runOrLog
 
+/**
+ * This **Quick Settings** tile will keep the screen on if disabled.
+ * If the tile is not enabled in the settings, it will be hidden if possible
+ * and its state will be set to [STATE_UNAVAILABLE].
+ *
+ * @since 1.7
+ * @author denis0001-dev
+ * @see SleepTileKeeperService
+ * @see TileService
+ */
 class SleepTile: TileService() {
     companion object {
         var isVisible = false
@@ -24,7 +35,7 @@ class SleepTile: TileService() {
         @Suppress("DEPRECATION")
         val wakeLock by lazy {
             (context.getSystemService(POWER_SERVICE) as PowerManager)
-                .newWakeLock(SCREEN_DIM_WAKE_LOCK, "aip:wakelock")!!
+                .newWakeLock(SCREEN_DIM_WAKE_LOCK, "toolbox.io:wakelock")!!
         }
 
         private var set = false
@@ -49,10 +60,7 @@ class SleepTile: TileService() {
                 enabled = true
             }
             Log.d("SleepTile", "Releasing wake lock [onTileAdded]")
-            try {
-                wakeLock.release()
-            } catch (_: Exception) {
-            }
+            releaseWakelock()
         } else {
             qsTile.configure {
                 state = STATE_UNAVAILABLE
@@ -67,9 +75,7 @@ class SleepTile: TileService() {
             enabled = true
         }
         Log.d("SleepTile", "Releasing wake lock [onTileRemoved]")
-        try {
-            wakeLock.release()
-        } catch (_: Exception) {}
+        releaseWakelock()
     }
 
     override fun onStartListening() {
@@ -80,9 +86,7 @@ class SleepTile: TileService() {
                     enabled = true
                 }
                 Log.d("SleepTile", "Releasing wake lock [onStartListening]")
-                try {
-                    wakeLock.release()
-                } catch (_: Exception) {}
+                releaseWakelock()
                 set = true
             }
         }
@@ -99,6 +103,21 @@ class SleepTile: TileService() {
         canUpdate = false
     }
 
+    @SuppressLint("WakelockTimeout")
+    fun acquireWakelock() {
+        runOrLog("SleepTile") {
+            if (!wakeLock.isHeld) wakeLock.acquire()
+            SleepTileKeeperService.start(applicationContext)
+        }
+    }
+
+    fun releaseWakelock() {
+        runOrLog("SleepTile") {
+            if (wakeLock.isHeld) wakeLock.release()
+            SleepTileKeeperService.stop()
+        }
+    }
+
     var enabled
         inline get() = qsTile.state == STATE_ACTIVE || qsTile.state == STATE_INACTIVE
         inline set(value) {
@@ -107,7 +126,6 @@ class SleepTile: TileService() {
             }
         }
 
-    @SuppressLint("Wakelock", "WakelockTimeout")
     override fun onClick() {
         if (Settings.Tiles.sleep) {
             qsTile.configure {
@@ -115,13 +133,10 @@ class SleepTile: TileService() {
             }
             if (qsTile.state == STATE_ACTIVE) {
                 Log.d("SleepTile", "Releasing wake lock [onClick]")
-                try {
-                    wakeLock.release()
-                } catch (_: Exception) {
-                }
+                releaseWakelock()
             } else {
                 Log.d("SleepTile", "Acquiring wake lock [onClick]")
-                wakeLock.acquire()
+                acquireWakelock()
             }
         } else {
             qsTile.configure {
