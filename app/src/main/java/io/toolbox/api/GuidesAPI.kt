@@ -6,8 +6,8 @@ import io.toolbox.api.GuidesAPI.BASE_URL
 import kotlinx.serialization.Serializable
 
 /**
- * This class provides a Kotlin interface to the API endpoints of the Toolbox.io
- * website with the Ktor client.
+ * This class provides a Kotlin interface to the guides API endpoints of the
+ * Toolbox.io website with the Ktor client.
  *
  * For JSON responses a **response model class** is returned, containing
  * all the properties from the JSON returned by the endpoint.
@@ -17,9 +17,7 @@ import kotlinx.serialization.Serializable
 object GuidesAPI {
     private const val BASE_URL = "https://beta.toolbox-io.ru/guides"
 
-    private val client by lazy {
-        DefaultHTTPClient()
-    }
+    private val client by lazy { DefaultHTTPClient() }
 
     @Serializable
     data class GuideHeader(

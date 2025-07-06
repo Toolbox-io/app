@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -51,21 +52,25 @@ android {
             isShrinkResources = false
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    @Suppress("DEPRECATION")
-    kotlinOptions {
-        jvmTarget = "17"
-        freeCompilerArgs += arrayOf("-Xannotation-default-target=param-property")
     }
 
     buildFeatures {
         viewBinding = true
         compose = true
         buildConfig = true
+    }
+}
+
+kotlin {
+    android {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+            freeCompilerArgs.addAll("-Xannotation-default-target=param-property")
+        }
     }
 }
 

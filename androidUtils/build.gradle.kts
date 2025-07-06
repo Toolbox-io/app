@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -6,7 +8,7 @@ plugins {
 
 android {
     namespace = "ru.morozovit.android"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 24
@@ -23,19 +25,23 @@ android {
             isShrinkResources = false
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    @Suppress("DEPRECATION")
-    kotlinOptions {
-        jvmTarget = "17"
-        freeCompilerArgs += "-Xnon-local-break-continue"
-    }
-
     buildFeatures {
         compose = true
+    }
+}
+
+kotlin {
+    android {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+            freeCompilerArgs.addAll("-Xnon-local-break-continue")
+        }
     }
 }
 

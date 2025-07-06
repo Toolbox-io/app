@@ -9,8 +9,6 @@
 # Hide original source file names but keep line numbers
 -renamesourcefileattribute SourceFile
 -keepattributes LineNumberTable,SourceFile
-
-# Hide original package names for classes
 -repackageclasses
 
 # Remove all log calls
@@ -24,8 +22,12 @@
 }
 -assumenosideeffects class java.lang.System {
     public static final java.io.PrintStream out;
+    public static final java.io.InputStream in;
+}
+-assumenosideeffects class java.lang.Throwable {
+    public void printStackTrace(...);
 }
 
 # Keep icons so they can be used in reflection
--keep public class androidx.compose.material.icons.Icons$*
--keep public class androidx.compose.material.icons.filled.*
+-keep public class androidx.compose.material.icons.Icons$Filled { *; }
+-keep public class androidx.compose.material.icons.filled.* { *; }

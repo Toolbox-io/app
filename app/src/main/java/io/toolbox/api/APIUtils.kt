@@ -16,5 +16,5 @@ suspend fun ResponseException.errorMessage(): String {
             .error
     }
 
-    return "Unknown error"
+    return response.status.toString()
 }

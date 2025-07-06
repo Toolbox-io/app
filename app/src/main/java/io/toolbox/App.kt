@@ -134,8 +134,9 @@ class App : Application() {
         // Variables
         mContext = WeakReference(this)
         notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        Settings.init(this)
 
+        // Initialize
+        Settings.init(this)
         materialYouForViews()
         createNotificationChannels()
         cleanCache()

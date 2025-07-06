@@ -15,10 +15,10 @@ import androidx.core.net.toUri
 import io.toolbox.App.Companion.context
 import io.toolbox.Settings.global_sharedPref
 import io.toolbox.Settings.init
-import io.toolbox.ui.Theme
 import io.toolbox.ui.protection.actions.intruderphoto.IntruderPhotoService.Companion.takePhoto
 import ru.morozovit.android.decrypt
 import ru.morozovit.android.encrypt
+import ru.morozovit.android.ui.ThemeSetting
 import java.io.IOException
 import kotlin.random.Random
 
@@ -206,8 +206,8 @@ object Settings {
             }
         }
 
-    var appTheme: Theme
-        get() = Theme.entries[global_sharedPref.getInt(APP_THEME_LABEL, Theme.AsSystem.ordinal)]
+    var appTheme: ThemeSetting
+        get() = ThemeSetting.entries[global_sharedPref.getInt(APP_THEME_LABEL, ThemeSetting.AsSystem.ordinal)]
         set(value) {
             global_sharedPref.edit {
                 putInt(APP_THEME_LABEL, value.ordinal)

@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.setContent
@@ -248,6 +249,9 @@ class GuideActivity: BaseActivity(configTheme = false) {
 
                             settings.apply {
                                 javaScriptEnabled = true
+                                allowFileAccess = false
+                                allowContentAccess = false
+                                mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
                                 useWideViewPort = true
                             }
 
@@ -305,7 +309,6 @@ class GuideActivity: BaseActivity(configTheme = false) {
         }
 
         enableEdgeToEdge()
-
         setContent {
             GuideScreen(uri)
         }

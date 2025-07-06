@@ -11,8 +11,8 @@ import kotlinx.serialization.Serializable
 import ru.morozovit.android.failOnError
 
 /**
- * This class provides a Kotlin interface to the account API endpoints of the Toolbox.io
- * website with the Ktor client.
+ * This class provides a Kotlin interface to the account API endpoints of
+ * the Toolbox.io website with the Ktor client.
  *
  * For JSON responses a **response model class** is returned, containing
  * all the properties from the JSON returned by the endpoint.
@@ -21,6 +21,10 @@ import ru.morozovit.android.failOnError
  */
 object AuthAPI {
     private const val BASE_URL = "https://beta.toolbox-io.ru/api/auth"
+
+    /////////////////////
+    // Internal models //
+    /////////////////////
 
     @Serializable
     private data class UserCreate(
@@ -45,17 +49,15 @@ object AuthAPI {
     )
     @Serializable
     private data class UserVerifyEmail(val email: String)
-
-    @Serializable
-    data class SuccessResponse(
-        val success: Boolean
-    )
-
     @Serializable
     private data class UserPasswordChange(
         val current_password: String,
         val new_password: String
     )
+
+    /////////////////////
+    // Returned models //
+    /////////////////////
 
     @Serializable
     data class UserInfo(
@@ -65,9 +67,11 @@ object AuthAPI {
         val created_at: String
     )
 
-    private val client by lazy {
-        DefaultHTTPClient()
-    }
+    ///////////////////
+    // API endpoints //
+    ///////////////////
+
+    private val client by lazy { DefaultHTTPClient() }
 
     suspend fun register(
         username: String,
