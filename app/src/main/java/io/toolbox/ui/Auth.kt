@@ -17,7 +17,6 @@ import androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -84,7 +83,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.postDelayed
-import dev.chrisbanes.haze.hazeEffect
 import io.toolbox.App.Companion.authenticated
 import io.toolbox.BaseActivity
 import io.toolbox.R
@@ -211,12 +209,6 @@ open class Auth(private val context: Context, var intent: Intent = Intent()) {
             DetectAppTheme {
                 val handlers = remember { Handlers() }
 
-                val blurRadius by animateFloatAsState(
-                    targetValue = if (blur.value) 30f else 0f,
-                    animationSpec = tween(durationMillis = 500),
-                    label = "blur"
-                )
-
                 if (!isSetOrConfirm && context is BaseActivity) BackHandler(onBack = ::homeScreen)
 
                 Scaffold(
@@ -255,10 +247,6 @@ open class Auth(private val context: Context, var intent: Intent = Intent()) {
                                 }
                             }
                             false
-                        }
-                        .hazeEffect {
-                            blurEnabled = blurRadius != 0f
-                            this.blurRadius = blurRadius.dp
                         }
                         .requiredHeight(
                             (LocalWindowInfo().containerSize.height - (60 * LocalDensity().density)).dp
