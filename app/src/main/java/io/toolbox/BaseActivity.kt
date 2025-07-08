@@ -23,27 +23,19 @@ import io.toolbox.App.Companion.authenticated
 import io.toolbox.ui.Auth.Companion.started
 import io.toolbox.ui.AuthActivity
 import io.toolbox.ui.MainActivity
-import io.toolbox.ui.Theme
 import ru.morozovit.android.NoParallelExecutor
-import ru.morozovit.android.homeScreen
 import ru.morozovit.android.resolveAttr
+import ru.morozovit.android.ui.ThemeSetting
 import ru.morozovit.utils.ExceptionParser.Companion.eToString
 import java.lang.Thread.sleep
 
+@Suppress("unused")
 abstract class BaseActivity(
     protected var authEnabled: Boolean = true,
     private val savedInstanceStateEnabled: Boolean = true,
-    private var backButtonBehavior: BackButtonBehavior = BackButtonBehavior.DEFAULT,
     private val configTheme: Boolean = true
 ): AppCompatActivity() {
     companion object {
-        enum class BackButtonBehavior {
-            DEFAULT,
-            FINISH,
-            HOME_SCREEN,
-            NONE
-        }
-
         private var interacted = false
         private val interactionDetectorExecutor = NoParallelExecutor()
         private var currentActivity: BaseActivity? = null
@@ -294,19 +286,6 @@ abstract class BaseActivity(
 
     override fun finishAfterTransition() = finishAfterTransition(transitionExit, transitionEnter)
 
-    @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
-    override fun onBackPressed() {
-        when (backButtonBehavior) {
-            BackButtonBehavior.DEFAULT -> super.onBackPressed()
-            BackButtonBehavior.FINISH -> {
-                setResult(RESULT_CANCELED)
-                finish()
-            }
-            BackButtonBehavior.HOME_SCREEN -> homeScreen()
-            BackButtonBehavior.NONE -> {}
-        }
-    }
-
     @SuppressLint("InlinedApi")
     open fun finishAfterTransition(@AnimRes enterAnim: Int, @AnimRes exitAnim: Int) {
         finishAfterTransitionCalled = true
@@ -446,15 +425,15 @@ abstract class BaseActivity(
     fun configureTheme() {
         if (Settings.materialYouEnabled) {
             when (Settings.appTheme) {
-                Theme.AsSystem -> setTheme(R.style.Theme_Toolbox_io_NoActionBar)
-                Theme.Light -> setTheme(R.style.Theme_Toolbox_io_Light_NoActionBar)
-                Theme.Dark -> setTheme(R.style.Theme_Toolbox_io_Night_NoActionBar)
+                ThemeSetting.AsSystem -> setTheme(R.style.Theme_Toolbox_io_NoActionBar)
+                ThemeSetting.Light -> setTheme(R.style.Theme_Toolbox_io_Light_NoActionBar)
+                ThemeSetting.Dark -> setTheme(R.style.Theme_Toolbox_io_Night_NoActionBar)
             }
         } else {
             when (Settings.appTheme) {
-                Theme.AsSystem -> setTheme(R.style.Theme_Toolbox_io_NoActionBar_NoDynamicColor)
-                Theme.Light -> setTheme(R.style.Theme_Toolbox_io_Light_NoActionBar_NoDynamicColor)
-                Theme.Dark -> setTheme(R.style.Theme_Toolbox_io_Night_NoActionBar_NoDynamicColor)
+                ThemeSetting.AsSystem -> setTheme(R.style.Theme_Toolbox_io_NoActionBar_NoDynamicColor)
+                ThemeSetting.Light -> setTheme(R.style.Theme_Toolbox_io_Light_NoActionBar_NoDynamicColor)
+                ThemeSetting.Dark -> setTheme(R.style.Theme_Toolbox_io_Night_NoActionBar_NoDynamicColor)
             }
         }
     }

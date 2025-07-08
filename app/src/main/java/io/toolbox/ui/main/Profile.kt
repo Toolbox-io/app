@@ -78,7 +78,6 @@ import io.toolbox.R
 import io.toolbox.api.AuthAPI
 import io.toolbox.api.errorMessage
 import io.toolbox.ui.LocalHazeState
-import io.toolbox.ui.WindowInsetsHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -87,6 +86,7 @@ import ru.morozovit.android.invoke
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SecureTextField
+import ru.morozovit.android.ui.WindowInsetsHandler
 import ru.morozovit.android.verticalScroll
 import kotlin.math.roundToInt
 

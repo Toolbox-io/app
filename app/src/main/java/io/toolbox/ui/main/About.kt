@@ -32,7 +32,6 @@ import io.toolbox.BuildConfig
 import io.toolbox.R
 import io.toolbox.ui.AppIcon
 import io.toolbox.ui.LocalHazeState
-import io.toolbox.ui.WindowInsetsHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import ru.morozovit.android.invoke
@@ -40,6 +39,7 @@ import ru.morozovit.android.openUrl
 import ru.morozovit.android.ui.Button
 import ru.morozovit.android.ui.License
 import ru.morozovit.android.ui.Website
+import ru.morozovit.android.ui.WindowInsetsHandler
 import ru.morozovit.android.verticalScroll
 
 @Composable

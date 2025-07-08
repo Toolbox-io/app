@@ -68,7 +68,6 @@ import io.toolbox.services.AccessibilityKeeperService
 import io.toolbox.ui.AuthActivity
 import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.MainActivity
-import io.toolbox.ui.WindowInsetsHandler
 import ru.morozovit.android.homeScreen
 import ru.morozovit.android.invoke
 import ru.morozovit.android.ui.Category
@@ -76,6 +75,7 @@ import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SimpleAlertDialog
 import ru.morozovit.android.ui.SwitchCard
 import ru.morozovit.android.ui.SwitchListItem
+import ru.morozovit.android.ui.WindowInsetsHandler
 import ru.morozovit.android.verticalScroll
 import java.lang.Thread.sleep
 

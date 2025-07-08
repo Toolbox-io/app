@@ -33,7 +33,6 @@ import dev.chrisbanes.haze.hazeSource
 import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.ui.LocalHazeState
-import io.toolbox.ui.WindowInsetsHandler
 import io.toolbox.ui.protection.actions.ActionsActivity
 import ru.morozovit.android.SensorEventListener
 import ru.morozovit.android.copy
@@ -42,6 +41,7 @@ import ru.morozovit.android.orientationSensorEventListener
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.CategoryDefaults
 import ru.morozovit.android.ui.ListItem
+import ru.morozovit.android.ui.WindowInsetsHandler
 import ru.morozovit.utils.EParser
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -117,16 +117,16 @@ fun DontTouchMyPhoneScreen(@Suppress("LocalVariableName") EdgeToEdgeBar: @Compos
 
                     tryRegister(
                         sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-                        accelerometerListener!!
+                        accelerometerListener
                     )
 
                     tryRegister(
                         sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-                        orientationListener!!
+                        orientationListener
                     )
                     tryRegister(
                         sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
-                        orientationListener!!
+                        orientationListener
                     )
 
                     onDispose {

@@ -67,11 +67,11 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
 import io.toolbox.R
 import io.toolbox.ui.LocalHazeState
-import io.toolbox.ui.WindowInsetsHandler
 import kotlinx.coroutines.launch
 import ru.morozovit.android.async
 import ru.morozovit.android.invoke
 import ru.morozovit.android.ui.ListItem
+import ru.morozovit.android.ui.WindowInsetsHandler
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
 @Composable

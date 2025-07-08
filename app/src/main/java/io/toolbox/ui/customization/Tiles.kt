@@ -30,9 +30,9 @@ import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.services.tiles.SleepTile
 import io.toolbox.ui.LocalHazeState
-import io.toolbox.ui.WindowInsetsHandler
 import ru.morozovit.android.invoke
 import ru.morozovit.android.ui.ToggleIconButton
+import ru.morozovit.android.ui.WindowInsetsHandler
 import ru.morozovit.android.verticalScroll
 
 @OptIn(ExperimentalLayoutApi::class)

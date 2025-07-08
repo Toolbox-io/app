@@ -36,7 +36,6 @@ import io.toolbox.Settings
 import io.toolbox.services.DeviceAdmin
 import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.MainActivity
-import io.toolbox.ui.WindowInsetsHandler
 import io.toolbox.ui.protection.actions.ActionsActivity
 import kotlinx.coroutines.launch
 import ru.morozovit.android.clearFocusOnKeyboardDismiss
@@ -45,6 +44,7 @@ import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SimpleAlertDialog
 import ru.morozovit.android.ui.SwitchCard
+import ru.morozovit.android.ui.WindowInsetsHandler
 import ru.morozovit.android.verticalScroll
 
 @Composable
@@ -166,6 +166,7 @@ fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValue
                                     }
                                 }
                             },
+                            isError = isError,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clearFocusOnKeyboardDismiss(),

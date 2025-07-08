@@ -66,8 +66,6 @@ import io.toolbox.services.DeviceAdmin
 import io.toolbox.ui.AuthActivity
 import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.MainActivity
-import io.toolbox.ui.Theme
-import io.toolbox.ui.WindowInsetsHandler
 import io.toolbox.ui.dynamicThemeEnabled
 import io.toolbox.ui.protection.actions.ActionsActivity
 import io.toolbox.ui.theme
@@ -77,6 +75,8 @@ import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SeparatedSwitchListItem
 import ru.morozovit.android.ui.SimpleAlertDialog
 import ru.morozovit.android.ui.SwitchListItem
+import ru.morozovit.android.ui.ThemeSetting
+import ru.morozovit.android.ui.WindowInsetsHandler
 import ru.morozovit.android.verticalScroll
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -288,6 +288,7 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                             allowBiometricSwitch = it
                             allowBiometric = it
                         },
+                        enabled = allowBiometricSwitchEnabled,
                         divider = true,
                         dividerThickness = 2.dp,
                         dividerColor = MaterialTheme.colorScheme.surface,
@@ -388,8 +389,8 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                                     FilterChip(
                                         onClick = {
                                             selectedIndex = index
-                                            appTheme = Theme.entries[index]
-                                            theme = Theme.entries[index]
+                                            appTheme = ThemeSetting.entries[index]
+                                            theme = ThemeSetting.entries[index]
                                             context.configureTheme()
                                         },
                                         selected = index == selectedIndex,

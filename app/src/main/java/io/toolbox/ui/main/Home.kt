@@ -97,7 +97,6 @@ import io.toolbox.services.UpdateChecker.Companion.checkForUpdates
 import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.LocalNavController
 import io.toolbox.ui.MainActivity
-import io.toolbox.ui.WindowInsetsHandler
 import io.toolbox.ui.protection.actions.ActionsActivity
 import io.toolbox.ui.protection.applocker.SelectAppsActivity
 import kotlinx.coroutines.launch
@@ -107,6 +106,7 @@ import ru.morozovit.android.plus
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SwitchWithText
+import ru.morozovit.android.ui.WindowInsetsHandler
 import ru.morozovit.android.verticalScroll
 import ru.morozovit.utils.toCamelCase
 import kotlin.reflect.KMutableProperty0

@@ -136,7 +136,6 @@ val LocalNavController: ProvidableCompositionLocal<NavController> = compositionL
 val LocalHazeState: ProvidableCompositionLocal<HazeState> = compositionLocalOf { throw NotImplementedError() }
 
 class MainActivity : BaseActivity(
-    backButtonBehavior = Companion.BackButtonBehavior.DEFAULT,
     savedInstanceStateEnabled = true
 ) {
     private var prevConfig: Configuration? = null

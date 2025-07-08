@@ -96,7 +96,6 @@ import io.toolbox.R
 import io.toolbox.Settings.NotificationHistory.enabled
 import io.toolbox.services.NotificationService
 import io.toolbox.ui.MainActivity
-import io.toolbox.ui.WindowInsetsHandler
 import kotlinx.coroutines.launch
 import ru.morozovit.android.invoke
 import ru.morozovit.android.left
@@ -107,6 +106,7 @@ import ru.morozovit.android.runOrLog
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SimpleAlertDialog
 import ru.morozovit.android.ui.SwitchCard
+import ru.morozovit.android.ui.WindowInsetsHandler
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
