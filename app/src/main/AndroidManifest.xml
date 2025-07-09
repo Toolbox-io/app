@@ -178,6 +178,10 @@
             android:name=".services.AccessibilityKeeperService"
             android:exported="false"
             android:foregroundServiceType="specialUse" />
+        <service
+            android:name=".services.DontTouchMyPhoneService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
 
         <service
             android:name=".services.UpdateChecker"

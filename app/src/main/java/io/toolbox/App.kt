@@ -115,6 +115,22 @@ class App : Application() {
                 importance = NotificationManager.IMPORTANCE_LOW,
                 id = ACCESSIBILITY_CHANNEL_ID
             )
+
+            // Sleep tile foreground service
+            createNotificationChannel(
+                name = resources.getString(R.string.sleep_tile_service),
+                description = resources.getString(R.string.sleep_tile_service_d),
+                importance = NotificationManager.IMPORTANCE_LOW,
+                id = SLEEP_TILE_CHANNEL_ID
+            )
+
+            // Don't touch my phone service
+            createNotificationChannel(
+                name = resources.getString(R.string.dtmp_service),
+                description = resources.getString(R.string.dtmp_service_d),
+                importance = NotificationManager.IMPORTANCE_LOW,
+                id = DONT_TOUCH_MY_PHONE_CHANNEL_ID
+            )
         }
     }
 

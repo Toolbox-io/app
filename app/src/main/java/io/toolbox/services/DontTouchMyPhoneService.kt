@@ -10,6 +10,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -37,6 +38,7 @@ class DontTouchMyPhoneService: Service() {
         val ACTION_DISABLE = "${SleepTileKeeperService::class.qualifiedName}.DISABLE"
 
         inline fun start(context: Context) {
+            Log.d("DontTouchMyPhone", "starting")
             ContextCompat.startForegroundService(context, Intent(context, DontTouchMyPhoneService::class.java))
         }
 
@@ -50,7 +52,7 @@ class DontTouchMyPhoneService: Service() {
         disableReceiver.register(this)
     }
 
-    val sensorManager = getSystemService(SensorManager::class.java)!!
+    val sensorManager by lazy { getSystemService(SensorManager::class.java)!! }
     val mediaPlayer by lazy { MediaPlayer() }
     val audioManager by lazy { getSystemService(AUDIO_SERVICE) as AudioManager }
 
@@ -82,15 +84,14 @@ class DontTouchMyPhoneService: Service() {
     var lastData = Pair(0f, 0f)
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d("DontTouchMyPhone", "Service started")
         startForeground(
             DONT_TOUCH_MY_PHONE_NOTIFICATION_ID,
             NotificationCompat.Builder(this, DONT_TOUCH_MY_PHONE_CHANNEL_ID)
                 .setSmallIcon(R.drawable.do_not_touch)
                 .setContentTitle("\"Don't touch my phone\" active")
                 .setContentText(
-                    """
-                        When someone touches your phone, security actions will be taken
-                    """.trimIndent().replace("\n", " ")
+                    "When someone touches your phone, security actions will be taken"
                 )
                 .addAction(
                     R.drawable.do_not_touch,
