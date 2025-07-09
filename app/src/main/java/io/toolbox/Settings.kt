@@ -16,11 +16,10 @@ import io.toolbox.App.Companion.context
 import io.toolbox.Settings.global_sharedPref
 import io.toolbox.Settings.init
 import io.toolbox.ui.protection.actions.intruderphoto.IntruderPhotoService.Companion.takePhoto
-import ru.morozovit.android.decrypt
-import ru.morozovit.android.encrypt
+import ru.morozovit.android.checkHash
+import ru.morozovit.android.hash
 import ru.morozovit.android.ui.ThemeSetting
 import java.io.IOException
-import kotlin.random.Random
 
 @Suppress("MemberVisibilityCanBePrivate")
 /**
@@ -120,9 +119,7 @@ object Settings {
 
     // Global settings
     const val ALLOW_BIOMETRIC_LABEL = "erjgeskh"
-    const val APPLOCKER_RANDOM_KEY_LABEL = "ejn"
     const val APPLOCKER_ENCRYPTED_PASSWORD_LABEL = "hedrh"
-    const val APP_RANDOM_KEY_LABEL = "soeitge"
     const val APP_ENCRYPTED_PASSWORD_LABEL = "waegnwg"
 
     // Sub-object settings
@@ -338,32 +335,8 @@ object Settings {
             val isSet: Boolean
         }
 
-        private fun generateKey() =
-            Random.nextBytes(
-                Random.nextInt(1, 16)
-            )
-                .map {
-                    it.toInt().toChar()
-                }
-                .joinToString("")
-
         object Applocker: Key {
-            private var randomKey: String
-                get() {
-                    var result = keys_sharedPref.getString(APPLOCKER_RANDOM_KEY_LABEL, null)
-                    if (result == null) {
-                        result = generateKey()
-                        randomKey = result
-                    }
-                    return result
-                }
-                set(value) {
-                    keys_sharedPref.edit {
-                        putString(APPLOCKER_RANDOM_KEY_LABEL, value)
-                    }
-                }
-
-            private var encryptedPassword
+            private var passwordHash
                 get() = keys_sharedPref.getString(APPLOCKER_ENCRYPTED_PASSWORD_LABEL, "")!!
                 set(value) {
                     keys_sharedPref.edit {
@@ -372,44 +345,21 @@ object Settings {
                 }
 
             override fun set(password: String) {
-                randomKey = generateKey()
-                encryptedPassword =
-                    if (password.isEmpty()) ""
-                    else randomKey.encrypt(password)
+                passwordHash = if (password.isBlank()) "" else password.hash()
             }
 
             override fun check(password: String): Boolean {
-                if (encryptedPassword.isEmpty() && password.isEmpty()) {
+                if (passwordHash.isBlank() && password.isBlank()) {
                     return true
                 }
-                val decryptedPassword = try {
-                    encryptedPassword.decrypt(password)
-                } catch (_: Exception) {
-                    null
-                }
-                return decryptedPassword != null && decryptedPassword == randomKey
+                return password.checkHash(passwordHash)
             }
 
-            override val isSet get() = encryptedPassword.isNotEmpty()
+            override val isSet get() = passwordHash.isNotBlank()
         }
 
         object App: Key {
-            private var randomKey: String
-                get() {
-                    var result = keys_sharedPref.getString(APP_RANDOM_KEY_LABEL, null)
-                    if (result == null) {
-                        result = generateKey()
-                        randomKey = result
-                    }
-                    return result
-                }
-                set(value) {
-                    keys_sharedPref.edit {
-                        putString(APP_RANDOM_KEY_LABEL, value)
-                    }
-                }
-
-            private var encryptedPassword
+            private var passwordHash
                 get() = keys_sharedPref.getString(APP_ENCRYPTED_PASSWORD_LABEL, "")!!
                 set(value) {
                     keys_sharedPref.edit {
@@ -418,25 +368,17 @@ object Settings {
                 }
 
             override fun set(password: String) {
-                if (password.isNotEmpty()) randomKey = generateKey()
-                encryptedPassword =
-                    if (password.isEmpty()) ""
-                    else randomKey.encrypt(password)
+                passwordHash = if (password.isBlank()) "" else password.hash()
             }
 
             override fun check(password: String): Boolean {
-                if (encryptedPassword.isEmpty() && password.isEmpty()) {
+                if (passwordHash.isBlank() && password.isBlank()) {
                     return true
                 }
-                val decryptedPassword = try {
-                    encryptedPassword.decrypt(password)
-                } catch (_: Exception) {
-                    null
-                }
-                return decryptedPassword != null && decryptedPassword == randomKey
+                return password.checkHash(passwordHash)
             }
 
-            override val isSet get() = encryptedPassword.isNotEmpty()
+            override val isSet get() = passwordHash.isNotEmpty()
         }
     }
 

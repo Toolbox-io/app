@@ -1,10 +1,12 @@
-@file:Suppress( "NOTHING_TO_INLINE", "SameParameterValue")
+@file:Suppress( "NOTHING_TO_INLINE", "SameParameterValue", "unused")
 package ru.morozovit.android
 
 import android.Manifest
 import android.app.Activity
 import android.app.KeyguardManager
 import android.app.Notification
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.ContentResolver
 import android.content.Context
@@ -12,6 +14,7 @@ import android.content.Intent
 import android.content.Intent.ACTION_MAIN
 import android.content.Intent.CATEGORY_LAUNCHER
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.content.IntentFilter
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.Resources
@@ -105,6 +108,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.Serializable
 import java.lang.ref.WeakReference
+import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.regex.Pattern
 import javax.crypto.Cipher
@@ -567,12 +571,14 @@ inline fun ComposeView(context: Context, crossinline init: @Composable () -> Uni
     }
 }
 
-inline fun backCallback(enabled: Boolean = true, crossinline callback: OnBackPressedCallback.() -> Unit)
-    = object: OnBackPressedCallback(enabled) {
-        override fun handleOnBackPressed() {
+inline fun backCallback(
+    enabled: Boolean = true,
+    crossinline callback: OnBackPressedCallback.() -> Unit
+) = object: OnBackPressedCallback(enabled) {
+    override fun handleOnBackPressed() {
         callback(this)
-        }
     }
+}
 
 fun String.encrypt(password: String): String {
     val salt = ByteArray(16).also { SecureRandom().nextBytes(it) }
@@ -585,12 +591,12 @@ fun String.encrypt(password: String): String {
     val params = IvParameterSpec(iv)
     cipher.init(Cipher.ENCRYPT_MODE, secretKey, params)
 
-    val encryptedBytes = cipher.doFinal(this.toByteArray())
+    val encryptedBytes = cipher.doFinal(toByteArray())
     return "${Base64.encodeToString(salt, Base64.DEFAULT)}:${Base64.encodeToString(iv, Base64.DEFAULT)}:${Base64.encodeToString(encryptedBytes, Base64.DEFAULT)}"
 }
 
 fun String.decrypt(password: String): String {
-    val parts = this.split(":")
+    val parts = split(":")
     val salt = Base64.decode(parts[0], Base64.DEFAULT)
     val iv = Base64.decode(parts[1], Base64.DEFAULT)
     val encryptedBytes = Base64.decode(parts[2], Base64.DEFAULT)
@@ -605,6 +611,16 @@ fun String.decrypt(password: String): String {
 
     val decryptedBytes = cipher.doFinal(encryptedBytes)
     return String(decryptedBytes)
+}
+
+fun String.hash(): String {
+    val digest = MessageDigest.getInstance("SHA-256")
+    val hashBytes = digest.digest(toByteArray())
+    return Base64.encodeToString(hashBytes, Base64.NO_WRAP)
+}
+
+fun String.checkHash(hash: String): Boolean {
+    return hash() == hash
 }
 
 @Suppress("unused")
@@ -670,8 +686,15 @@ inline fun SensorEventListener(crossinline callback: (SensorEvent) -> Unit) = ob
 inline val Context.isScreenLocked get() = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isKeyguardLocked
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
-class NotificationIdManager(vararg reservedIds: Int) {
-    private val reserved = reservedIds.toMutableList()
+class NotificationIdManager(vararg reservedIds: Any) {
+    private val reserved = reservedIds.flatMap {
+        when (it) {
+            is Int -> listOf(it)
+            is String -> listOf(it.toInt())
+            is IntRange -> it.toList()
+            else -> throw IllegalArgumentException("Invalid type")
+        }
+    }.toMutableList()
 
     fun reserve(id: Int) {
         reserved.add(id)
@@ -982,3 +1005,40 @@ suspend fun HttpResponse.failOnError(): HttpResponse {
 }
 
 inline fun WebView.evaluateJavascript(script: String) = evaluateJavascript(script, null)
+
+abstract class ActionedBroadcastReceiver(val action: String? = null): BroadcastReceiver() {
+    inline fun register(context: Context, exported: Boolean = false) {
+        ContextCompat.registerReceiver(
+            context,
+            this,
+            if (action != null)
+                IntentFilter(action)
+            else IntentFilter(),
+            if (exported)
+                ContextCompat.RECEIVER_EXPORTED
+            else ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+    }
+
+    inline fun unregister(context: Context) = context.unregisterReceiver(this)
+}
+
+inline fun broadcastReceiver(
+    action: String? = null,
+    crossinline receiver: Context.(Intent) -> Unit
+) = object: ActionedBroadcastReceiver(action) {
+    override fun onReceive(context: Context, intent: Intent) {
+        if (action == null || intent.action == action) {
+            receiver(context, intent)
+        }
+    }
+}
+
+inline fun Context.notificationButtonPendingIntent(
+    action: String
+) = PendingIntent.getBroadcast(
+    this,
+    0,
+    Intent(action).setPackage(packageName),
+    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+)!!

@@ -3,9 +3,6 @@
 package io.toolbox.api
 
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.logging.DEFAULT
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logger
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -22,10 +19,7 @@ fun DefaultHTTPClient() = HttpClient {
         isLenient = true
     }
 
-    logging {
-        logger = Logger.DEFAULT
-        level = LogLevel.INFO
-    }
+    logging()
 
     defaultRequest {
         contentType(ContentType.Application.Json)

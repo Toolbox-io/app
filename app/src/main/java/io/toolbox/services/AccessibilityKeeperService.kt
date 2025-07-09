@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package io.toolbox.services
 
 import android.app.Service
@@ -14,9 +16,11 @@ class AccessibilityKeeperService: Service() {
     companion object {
         var instance: AccessibilityKeeperService? = null
 
-        fun start(context: Context) {
+        inline fun start(context: Context) {
             ContextCompat.startForegroundService(context, Intent(context, AccessibilityKeeperService::class.java))
         }
+
+        inline fun stop() = instance?.stopSelf()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -40,5 +44,5 @@ class AccessibilityKeeperService: Service() {
         instance = null
     }
 
-    override fun onBind(intent: Intent?) = null
+    override fun onBind(intent: Intent) = null
 }

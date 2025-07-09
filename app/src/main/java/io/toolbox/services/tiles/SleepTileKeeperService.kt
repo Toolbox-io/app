@@ -3,9 +3,7 @@
 package io.toolbox.services.tiles
 
 import android.annotation.SuppressLint
-import android.app.PendingIntent
 import android.app.Service
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
@@ -14,7 +12,9 @@ import androidx.core.content.ContextCompat
 import io.toolbox.App.Companion.SLEEP_TILE_CHANNEL_ID
 import io.toolbox.App.Companion.SLEEP_TILE_NOTIFICATION_ID
 import io.toolbox.R
+import ru.morozovit.android.broadcastReceiver
 import ru.morozovit.android.configure
+import ru.morozovit.android.notificationButtonPendingIntent
 
 /**
  * This **foreground service** will help [SleepTile] stay disabled and prevent
@@ -37,7 +37,7 @@ import ru.morozovit.android.configure
 class SleepTileKeeperService: Service() {
     companion object {
         var instance: SleepTileKeeperService? = null
-        const val ACTION_ENABLE_TILE = "io.toolbox.services.tiles.SleepTileKeeperService.ENABLE_TILE"
+        val ACTION_ENABLE_TILE = "${SleepTileKeeperService::class.qualifiedName}.ENABLE_TILE"
 
         inline fun start(context: Context) {
             ContextCompat.startForegroundService(context, Intent(context, SleepTileKeeperService::class.java))
@@ -48,48 +48,30 @@ class SleepTileKeeperService: Service() {
         }
     }
 
-    private val enableTileReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == ACTION_ENABLE_TILE) {
-                // Try to enable the tile if possible
-                SleepTile.instance?.let { tile ->
-                    tile.qsTile.configure {
-                        state = android.service.quicksettings.Tile.STATE_ACTIVE
-                    }
-                    tile.releaseWakelock()
-                    tile.stopSelf()
-                }
+    private val enableTileReceiver = broadcastReceiver(ACTION_ENABLE_TILE) {
+        SleepTile.instance?.let { tile ->
+            tile.qsTile.configure {
+                state = android.service.quicksettings.Tile.STATE_ACTIVE
             }
+            tile.releaseWakelock()
+            tile.stopSelf()
         }
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onCreate() {
         super.onCreate()
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            registerReceiver(enableTileReceiver, android.content.IntentFilter(ACTION_ENABLE_TILE), RECEIVER_NOT_EXPORTED)
-        } else {
-            registerReceiver(enableTileReceiver, android.content.IntentFilter(ACTION_ENABLE_TILE))
-        }
+        enableTileReceiver.register(this)
     }
 
     override fun onDestroy() {
-        unregisterReceiver(enableTileReceiver)
+        enableTileReceiver.unregister(this)
         stopForeground(STOP_FOREGROUND_REMOVE)
         super.onDestroy()
         instance = null
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val enableIntent = Intent(ACTION_ENABLE_TILE).apply {
-            setPackage(packageName)
-        }
-        val enablePendingIntent = PendingIntent.getBroadcast(
-            this,
-            0,
-            enableIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
         startForeground(
             SLEEP_TILE_NOTIFICATION_ID,
             NotificationCompat.Builder(this, SLEEP_TILE_CHANNEL_ID)
@@ -104,7 +86,7 @@ class SleepTileKeeperService: Service() {
                 .addAction(
                     R.drawable.sleep, // Use the same icon for the action
                     "Enable",
-                    enablePendingIntent
+                    notificationButtonPendingIntent(ACTION_ENABLE_TILE)
                 )
                 .setPriority(PRIORITY_LOW)
                 .setSilent(true)
@@ -115,5 +97,5 @@ class SleepTileKeeperService: Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    override fun onBind(intent: Intent?) = null
+    override fun onBind(intent: Intent) = null
 }

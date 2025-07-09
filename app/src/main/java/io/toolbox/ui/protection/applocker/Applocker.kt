@@ -493,7 +493,7 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                                 if (it) {
                                     AccessibilityKeeperService.start(context)
                                 } else {
-                                    AccessibilityKeeperService.instance?.stopSelf()
+                                    AccessibilityKeeperService.stop()
                                 }
                             },
                             leadingContent = {

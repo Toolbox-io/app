@@ -24,7 +24,7 @@ class App : Application() {
 
         var authenticated = false
 
-        private val NotificationIdManager = NotificationIdManager(1, 2, 4)
+        private val NotificationIdManager = NotificationIdManager(1, 2, 4..6)
 
         // Notification channels
         const val UPDATE_CHANNEL_ID = "update"
@@ -39,8 +39,11 @@ class App : Application() {
         const val ACCESSIBILITY_CHANNEL_ID = "accessibility"
         const val ACCESSIBILITY_NOTIFICATION_ID = 4
 
-        const val SLEEP_TILE_CHANNEL_ID = "accessibility"
+        const val SLEEP_TILE_CHANNEL_ID = "sleep_tile"
         const val SLEEP_TILE_NOTIFICATION_ID = 5
+
+        const val DONT_TOUCH_MY_PHONE_CHANNEL_ID = "dont_touch_my_phone"
+        const val DONT_TOUCH_MY_PHONE_NOTIFICATION_ID = 6
 
         // Other constants
         var githubRateLimitRemaining: Long = -1
