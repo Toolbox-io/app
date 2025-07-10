@@ -5,10 +5,12 @@ import android.content.Intent.EXTRA_TEXT
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import ru.morozovit.android.activityResultLauncher
 import ru.morozovit.android.getFileName
 import ru.morozovit.android.getParcelableExtraAs
+import ru.morozovit.android.runOrLog
 
 class SaveActivity : AppCompatActivity() {
     companion object {
@@ -21,19 +23,27 @@ class SaveActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val activityLauncher = activityResultLauncher
 
-        val dataType = run t@ {
+        val dataType = run type@ {
             runCatching {
-                val text = intent.getStringExtra(EXTRA_TEXT)
-                if (text != null) {
-                    return@t TYPE_TEXT
+                if (intent.getStringExtra(EXTRA_TEXT) != null) {
+                    return@type TYPE_TEXT
                 }
-                intent.getParcelableExtraAs<Uri>(Intent.EXTRA_STREAM)
-                return@t TYPE_URI
+                if (intent.getParcelableExtraAs<Uri>(Intent.EXTRA_STREAM) != null) {
+                    return@type TYPE_URI
+                }
             }
-            return@t TYPE_NONE
+            TYPE_NONE
         }
 
-        assert(dataType in 0..1)
+        if (dataType !in 0..1) {
+            Toast.makeText(
+                this,
+                "Invalid data type",
+                Toast.LENGTH_SHORT
+            ).show()
+            finish()
+            return
+        }
 
         if (intent.action == Intent.ACTION_SEND) {
             activityLauncher.launch(
@@ -58,7 +68,7 @@ class SaveActivity : AppCompatActivity() {
                     addCategory(Intent.CATEGORY_OPENABLE)
                 }
             ) {
-                try {
+                runOrLog("SaveActivity") {
                     if (it.resultCode == RESULT_OK) {
                         val uri = it.data!!.data!!
                         contentResolver.openOutputStream(uri)!!.use { s ->
@@ -78,14 +88,15 @@ class SaveActivity : AppCompatActivity() {
                                         inputStream.copyTo(s)
                                     }
                                 }
-                                else -> throw IllegalStateException("Unsupported data type")
                             }
                         }
                     } else {
-                        throw IllegalStateException("result is not ok")
+                        Toast.makeText(
+                            this,
+                            "Failed to save file",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
                 finish()
             }
