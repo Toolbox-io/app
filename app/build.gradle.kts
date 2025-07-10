@@ -25,7 +25,7 @@ android {
     signingConfigs {
         create("release") {
             val keystoreProperties = Properties().apply {
-                load(FileInputStream(rootProject.file("keystore.properties")))
+                load(FileInputStream(rootProject.file("keys/keystore.properties")))
             }
             storeFile = rootProject.file("keys/release.jks")
             keyAlias = "release"
