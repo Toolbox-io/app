@@ -31,3 +31,8 @@
 # Keep icons so they can be used in reflection
 -keep public class androidx.compose.material.icons.Icons$Filled { *; }
 -keep public class androidx.compose.material.icons.filled.* { *; }
+
+# Keep the JS interface
+-keep public class io.toolbox.ui.main.GuideActivity$WebViewScrollInterface {
+    public *;
+}

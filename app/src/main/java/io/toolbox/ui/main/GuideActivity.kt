@@ -68,9 +68,8 @@ import ru.morozovit.android.invoke
 import ru.morozovit.android.openUrl
 
 class GuideActivity: BaseActivity(configTheme = false) {
-    // JavaScript interface to communicate with WebView
     @Suppress("unused")
-    private class WebViewScrollInterface(
+    class WebViewScrollInterface(
         private val onH1Scrolled: (Boolean) -> Unit,
         private val onTitleExtracted: (String) -> Unit
     ) {
