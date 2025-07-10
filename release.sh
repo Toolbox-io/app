@@ -6,6 +6,9 @@ cd "$(dirname "$0")"
 
 # 2. Variables
 TAG=$(git describe --tags --abbrev=0)
+# shellcheck disable=SC2207
+TAGS=($(git --no-pager tag --sort -v:refname | xargs))
+PREVTAG=${TAGS[2]}
 ASSET_PATH=./app/build/outputs/apk/release/app-release.apk
 DISPLAY_NAME=Toolbox.io.$TAG.apk
 
@@ -23,6 +26,7 @@ new_release() {
   gh release create \
     "$TAG" \
     --generate-notes \
+    --notes-start-tag "$PREVTAG" \
     "$prerelease_opt" \
     "$ASSET_PATH"
 }
