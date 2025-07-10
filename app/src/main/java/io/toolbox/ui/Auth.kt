@@ -91,6 +91,7 @@ import io.toolbox.services.Accessibility
 import io.toolbox.ui.protection.applocker.ApplockerAuthOverlay
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import ru.morozovit.android.ActivityLauncher
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.homeScreen
 import ru.morozovit.android.invoke
@@ -128,7 +129,7 @@ open class Auth(private val context: Context, var intent: Intent = Intent()) {
         else Settings.Keys.App
 
 
-    lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
+    lateinit var activityLauncher: ActivityLauncher
     lateinit var launchingIntent: Intent
 
     private var blur = mutableStateOf(false)

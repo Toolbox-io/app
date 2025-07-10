@@ -7,7 +7,6 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResult
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -39,7 +38,7 @@ import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.ui.AppTheme
 import io.toolbox.ui.protection.actions.intruderphoto.IntruderPhotoSettingsActivity
-import ru.morozovit.android.BetterActivityResult
+import ru.morozovit.android.ActivityLauncher
 import ru.morozovit.android.activityResultLauncher
 import ru.morozovit.android.copy
 import ru.morozovit.android.ui.Category
@@ -49,7 +48,7 @@ import ru.morozovit.android.ui.Siren
 import ru.morozovit.android.verticalScroll
 
 class ActionsActivity: BaseActivity() {
-    private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
+    private lateinit var activityLauncher: ActivityLauncher
 
     @OptIn(ExperimentalMaterial3Api::class)
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

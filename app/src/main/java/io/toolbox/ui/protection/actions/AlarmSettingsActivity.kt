@@ -63,6 +63,7 @@ import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.ui.AppTheme
 import kotlinx.coroutines.launch
+import ru.morozovit.android.ActivityLauncher
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.activityResultLauncher
 import ru.morozovit.android.copy
@@ -78,7 +79,7 @@ import ru.morozovit.android.ui.SwitchCard
 import ru.morozovit.android.verticalScroll
 
 class AlarmSettingsActivity: BaseActivity() {
-    private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
+    private lateinit var activityLauncher: ActivityLauncher
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable

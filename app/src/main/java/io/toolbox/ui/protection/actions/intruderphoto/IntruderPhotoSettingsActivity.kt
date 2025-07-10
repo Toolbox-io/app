@@ -48,6 +48,7 @@ import io.toolbox.BaseActivity
 import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.ui.AppTheme
+import ru.morozovit.android.ActivityLauncher
 import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.activityResultLauncher
 import ru.morozovit.android.invoke
@@ -56,8 +57,8 @@ import ru.morozovit.android.ui.SwitchCard
 import ru.morozovit.android.ui.SwitchListItem
 import java.io.File
 
-class IntruderPhotoSettingsActivity: BaseActivity(false) {
-    private lateinit var activityLauncher: BetterActivityResult<Intent, ActivityResult>
+class IntruderPhotoSettingsActivity: BaseActivity(authEnabled = false) {
+    private lateinit var activityLauncher: ActivityLauncher
     private var resumeLock = true
 
     @OptIn(ExperimentalMaterial3Api::class)
