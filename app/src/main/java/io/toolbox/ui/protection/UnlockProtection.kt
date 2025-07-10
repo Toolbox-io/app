@@ -134,8 +134,9 @@ fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValue
                 }
                 var isError by remember { mutableStateOf(false) }
                 fun validate() {
-                    isError = runCatching { unlockAttempts.toInt() }.isSuccess
+                    isError = runCatching { unlockAttempts.toInt() }.isFailure
                 }
+
                 LaunchedEffect(Unit) {
                     validate()
                 }
