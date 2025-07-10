@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.hazeSource
 import io.toolbox.R
 import io.toolbox.Settings
@@ -61,7 +63,10 @@ fun DontTouchMyPhoneScreen(@Suppress("LocalVariableName") EdgeToEdgeBar: @Compos
                                 imageVector = Icons.Filled.Sensors,
                                 contentDescription = null
                             )
-                        }
+                        },
+                        divider = true,
+                        dividerThickness = 2.dp,
+                        dividerColor = MaterialTheme.colorScheme.surface
                     )
                     SwitchListItem(
                         headline = stringResource(R.string.trigger_on_charger),
