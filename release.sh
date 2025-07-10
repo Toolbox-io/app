@@ -7,14 +7,16 @@ cd "$(dirname "$0")"
 # 2. Variables
 TAG=$(git describe --tags --abbrev=0)
 ASSET_PATH=./app/build/outputs/apk/release/app-release.apk
+DISPLAY_NAME=Toolbox.io.$TAG.apk
 
 # 3. Build release variant
 ./gradlew assembleRelease
 
-# 4. Push all tags
-git push --tags
+# 4. Move locally
+mv "$ASSET_PATH" "releases/$DISPLAY_NAME"
+ASSET_PATH=./releases/$DISPLAY_NAME
 
-# 5. Release to GitHub
+# 6. Release to GitHub
 prerelease_opt=$([[ "$TAG" != v*-pre* ]] || echo "--prerelease")
 
 new_release() {
@@ -35,4 +37,5 @@ edit_existing() {
     "$ASSET_PATH"
 }
 
+git push --tags
 new_release || edit_existing
