@@ -15,8 +15,10 @@ import io.toolbox.App.Companion.context
 import io.toolbox.Settings.global_sharedPref
 import io.toolbox.Settings.init
 import io.toolbox.ui.protection.actions.intruderphoto.IntruderPhotoService.Companion.takePhoto
+import kotlinx.coroutines.DelicateCoroutinesApi
 import ru.morozovit.android.checkHash
 import ru.morozovit.android.hash
+import ru.morozovit.android.isPlayingSafe
 import ru.morozovit.android.ui.ThemeSetting
 import java.io.IOException
 import kotlin.concurrent.thread
@@ -266,7 +268,13 @@ object Settings {
                 }
         }
 
-        fun run(context: Context, mediaPlayer: MediaPlayer, audioManager: AudioManager) {
+        @OptIn(DelicateCoroutinesApi::class)
+        fun run(
+            context: Context,
+            mediaPlayer: MediaPlayer,
+            audioManager: AudioManager,
+            onCompletion: (() -> Unit)? = null
+        ) {
             Log.d("Actions", "Security actions triggered!")
             // Take the required actions
             if (UnlockProtection.Alarm.enabled) {
@@ -296,8 +304,10 @@ object Settings {
                     prepare()
                     start()
 
+                    mediaPlayer.setOnCompletionListener { onCompletion?.invoke() }
+
                     thread {
-                        while (mediaPlayer.isPlaying) {
+                        while (mediaPlayer.isPlayingSafe) {
                             runCatching {
                                 audioManager.setStreamVolume(
                                     STREAM_ALARM,
@@ -311,7 +321,7 @@ object Settings {
                 }
             }
             if (UnlockProtection.IntruderPhoto.enabled) {
-                takePhoto(context, "${System.currentTimeMillis()}")
+                takePhoto(context, "${System.currentTimeMillis()}", onCompletion)
             }
         }
     }

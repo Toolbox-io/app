@@ -24,6 +24,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.hardware.usb.UsbEndpoint
 import android.hardware.usb.UsbInterface
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.BaseBundle
 import android.os.Build
@@ -1038,3 +1039,5 @@ inline fun Context.notificationButtonPendingIntent(
     Intent(action).setPackage(packageName),
     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
 )!!
+
+inline val MediaPlayer.isPlayingSafe get() = runCatching { isPlaying }.getOrNull() == true

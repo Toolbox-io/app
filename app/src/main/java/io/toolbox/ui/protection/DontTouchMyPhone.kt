@@ -62,7 +62,11 @@ fun DontTouchMyPhoneScreen(@Suppress("LocalVariableName") EdgeToEdgeBar: @Compos
 
                 Button(
                     onClick = {
-                        DontTouchMyPhoneService.start(context)
+                        if (working) {
+                            DontTouchMyPhoneService.stop()
+                        } else {
+                            DontTouchMyPhoneService.start(context)
+                        }
                     },
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {

@@ -56,14 +56,27 @@ class DontTouchMyPhoneService: Service() {
     val mediaPlayer by lazy { MediaPlayer() }
     val audioManager by lazy { getSystemService(AUDIO_SERVICE) as AudioManager }
 
-    inline fun trigger() = Settings.Actions.run(this, mediaPlayer, audioManager)
+    inline fun trigger() {
+        stopSensors()
+        Settings.Actions.run(this, mediaPlayer, audioManager) { stopSelf() }
+    }
 
+    // FIXME problem here
     var accelerometerListener = SensorEventListener {
-        val (x, y, z) = it.values.also { values -> print(values) }
+        val (x, y, z) = it.values.also { values ->
+            Log.d(
+                "DontTouchMyPhone",
+                "x: ${values[0]}, y: ${values[1]}, z: ${values[2]}"
+            )
+        }
 
         // Simple threshold for touch detection
-        if ((x > 5 || y > 5 || z > 20)) trigger()
+        if ((x > 5 || y > 5 || z > 20)) {
+            Log.d("DontTouchMyPhone", "Triggering security actions from accelerometer listener")
+            trigger()
+        }
     }
+
     var orientationListener = orientationSensorEventListener { _, pitch, roll ->
         currentPitch = (pitch * 100f).roundToInt() / 100.0f
         currentRoll = (roll * 100f).roundToInt() / 100.0f
@@ -74,8 +87,11 @@ class DontTouchMyPhoneService: Service() {
         val pitchTest = abs(abs(prevPitch) - abs(currentPitch))
         val rollTest = abs(abs(prevRoll) - abs(currentRoll))
 
-        print(
+        Log.d(
+            "DontTouchMyPhone",
             """
+                From the orientation listener:
+                
                 currentPitch: $currentPitch,
                 currentRoll: $currentRoll,
                 
@@ -87,7 +103,10 @@ class DontTouchMyPhoneService: Service() {
             """.trimIndent()
         )
 
-        if (pitchTest >= 0.01 || rollTest >= 0.01) trigger()
+        if (pitchTest >= 0.01 || rollTest >= 0.01) {
+            Log.d("DontTouchMyPhone", "Triggering security actions from orientation listener")
+            trigger()
+        }
 
         lastData = Pair(currentPitch, currentRoll)
     }
@@ -148,6 +167,11 @@ class DontTouchMyPhoneService: Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
+    fun stopSensors() {
+        sensorManager.unregisterListener(accelerometerListener)
+        sensorManager.unregisterListener(orientationListener)
+    }
+
     override fun onDestroy() {
         stopForeground(STOP_FOREGROUND_REMOVE)
         super.onDestroy()
@@ -156,8 +180,7 @@ class DontTouchMyPhoneService: Service() {
 
         // Clean up
         disableReceiver.unregister(this)
-        sensorManager.unregisterListener(accelerometerListener)
-        sensorManager.unregisterListener(orientationListener)
+        stopSensors()
         runCatching {
             mediaPlayer.stop()
             mediaPlayer.release()

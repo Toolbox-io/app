@@ -1,6 +1,5 @@
 package io.toolbox.ui.protection.actions.intruderphoto
 
-import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
@@ -40,8 +39,9 @@ class IntruderPhotoService: android.app.Service() {
             }
         private var nullCallback: (() -> Unit)? = null
 
-        @SuppressLint("ImplicitSamInstance")
-        fun takePhoto(context: Context, name: String) {
+        private var completionCallback: (() -> Unit)? = null
+
+        fun takePhoto(context: Context, name: String, onCompletion: (() -> Unit)? = null) {
             filename = name
             runCatching {
                 context.stopService(Intent(context, IntruderPhotoService::class.java))
@@ -50,6 +50,7 @@ class IntruderPhotoService: android.app.Service() {
 
             fun callback() {
                 assert(instance == null && !running)
+                completionCallback = onCompletion
                 ContextCompat.startForegroundService(
                     context,
                     Intent(context, IntruderPhotoService::class.java)
@@ -107,15 +108,12 @@ class IntruderPhotoService: android.app.Service() {
                                             PendingIntent.FLAG_IMMUTABLE
                                         )
 
-                                        val drawable = try {
+                                        val drawable = runCatching {
                                             val stream = contentResolver.openInputStream(uri)
                                             val drawable = Drawable.createFromStream(stream, null)!!
                                             stream!!.close()
                                             drawable
-                                        } catch (e: Exception) {
-                                            null
-                                        }
-
+                                        }.getOrNull()
 
                                         val notification =
                                             NotificationCompat.Builder(
@@ -198,5 +196,7 @@ class IntruderPhotoService: android.app.Service() {
         stopForeground(STOP_FOREGROUND_REMOVE)
         running = false
         instance = null
+        completionCallback?.invoke()
+        completionCallback = null
     }
 }
