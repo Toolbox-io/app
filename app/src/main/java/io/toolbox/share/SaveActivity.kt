@@ -50,7 +50,7 @@ class SaveActivity : AppCompatActivity() {
                         TYPE_URI -> putExtra(
                             Intent.EXTRA_TITLE,
                             getFileName(
-                                intent.getParcelableExtraAs<Uri>(Intent.EXTRA_STREAM)
+                                intent.getParcelableExtraAs<Uri>(Intent.EXTRA_STREAM)!!
                             )
                         )
                     }
@@ -73,7 +73,7 @@ class SaveActivity : AppCompatActivity() {
                                 }
                                 TYPE_URI -> {
                                     contentResolver.openInputStream(
-                                        intent.getParcelableExtraAs<Uri>(Intent.EXTRA_STREAM)
+                                        intent.getParcelableExtraAs<Uri>(Intent.EXTRA_STREAM)!!
                                     )!!.use { inputStream ->
                                         inputStream.copyTo(s)
                                     }

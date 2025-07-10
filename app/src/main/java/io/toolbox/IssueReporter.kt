@@ -264,7 +264,7 @@ object IssueReporter {
         }
     }
     class ExceptionDetailsActivity: IssueReporterActivity() {
-        private val exception by lazy { intent.getSerializableExtraAs<Throwable>("exception") }
+        private val exception by lazy { intent.getSerializableExtraAs<Throwable>("exception")!! }
         private lateinit var activityLauncher: ActivityLauncher
 
         @OptIn(ExperimentalMaterial3Api::class)
@@ -355,7 +355,7 @@ object IssueReporter {
         }
     }
     class OneQuestionActivity: IssueReporterActivity() {
-        private val exception: Throwable by lazy { intent.getSerializableExtraAs<Throwable>("exception") }
+        private val exception by lazy { intent.getSerializableExtraAs<Throwable>("exception")!! }
 
         @OptIn(ExperimentalMaterial3Api::class)
         @Composable
