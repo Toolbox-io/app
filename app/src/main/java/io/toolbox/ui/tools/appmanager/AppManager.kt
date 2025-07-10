@@ -68,10 +68,10 @@ import dev.chrisbanes.haze.rememberHazeState
 import io.toolbox.R
 import io.toolbox.ui.LocalHazeState
 import kotlinx.coroutines.launch
-import ru.morozovit.android.async
 import ru.morozovit.android.invoke
 import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.WindowInsetsHandler
+import kotlin.concurrent.thread
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
 @Composable
@@ -142,7 +142,7 @@ fun AppManagerScreen(actions: @Composable RowScope.() -> Unit, navigation: @Comp
             }
 
             LaunchedEffect(Unit) {
-                async {
+                thread {
                     val appsList = packageManager.getInstalledPackages(GET_ACTIVITIES).toMutableList()
 
                     val sorted = appsList.sortedBy {

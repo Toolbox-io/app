@@ -144,9 +144,6 @@ fun Context.homeScreen() {
     startActivity(intentHome)
 }
 
-
-inline fun async(noinline exec: () -> Unit) = Thread(exec).apply { start() }
-
 inline fun Tile.configure(apply: Tile.() -> Unit) {
     apply.invoke(this)
     updateTile()

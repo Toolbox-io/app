@@ -100,7 +100,6 @@ import io.toolbox.ui.MainActivity
 import io.toolbox.ui.protection.actions.ActionsActivity
 import io.toolbox.ui.protection.applocker.SelectAppsActivity
 import kotlinx.coroutines.launch
-import ru.morozovit.android.async
 import ru.morozovit.android.invoke
 import ru.morozovit.android.plus
 import ru.morozovit.android.ui.Category
@@ -109,6 +108,7 @@ import ru.morozovit.android.ui.SwitchWithText
 import ru.morozovit.android.ui.WindowInsetsHandler
 import ru.morozovit.android.verticalScroll
 import ru.morozovit.utils.toCamelCase
+import kotlin.concurrent.thread
 import kotlin.reflect.KMutableProperty0
 
 private data class NotificationData(
@@ -253,7 +253,7 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                     }
 
                     LaunchedEffect(Unit) {
-                        async {
+                        thread {
                             runCatching {
                                 val info = checkForUpdates()!!
                                 if (info.available) {

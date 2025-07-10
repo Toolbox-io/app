@@ -53,7 +53,6 @@ import io.toolbox.ui.AppTheme
 import io.toolbox.ui.MainActivity
 import ru.morozovit.android.ActivityLauncher
 import ru.morozovit.android.activityResultLauncher
-import ru.morozovit.android.async
 import ru.morozovit.android.copy
 import ru.morozovit.android.encodeJSON
 import ru.morozovit.android.getSerializableExtraAs
@@ -66,6 +65,7 @@ import ru.morozovit.utils.shorten
 import java.io.BufferedInputStream
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
+import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 object IssueReporter {
@@ -140,7 +140,7 @@ object IssueReporter {
     fun reportIssue(context: Context, exception: Throwable, message: String? = null) {
         if (enabled) {
             val handler = Handler(Looper.getMainLooper())
-            async {
+            thread {
                 with(context) {
                     Log.d("IssueReporter", "Reporting an issue")
                     val request = URL("https://api.github.com/repos/Toolbox-io/Toolbox-io/issues")

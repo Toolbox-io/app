@@ -1,6 +1,7 @@
 package ru.morozovit.android
 
 import java.util.concurrent.Executor
+import kotlin.concurrent.thread
 
 @Suppress("MemberVisibilityCanBePrivate")
 class NoParallelExecutor: Executor {
@@ -9,7 +10,7 @@ class NoParallelExecutor: Executor {
 
     override fun execute(command: Runnable) {
         if (!isRunning) {
-            thread = async {
+            thread = thread {
                 command.run()
                 thread = null
             }

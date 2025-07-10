@@ -51,8 +51,8 @@ import io.toolbox.BaseActivity
 import io.toolbox.R
 import io.toolbox.download
 import io.toolbox.ui.AppTheme
-import ru.morozovit.android.async
 import ru.morozovit.android.verticalScroll
+import kotlin.concurrent.thread
 
 class OSSLicensesActivity: BaseActivity() {
     data class LicenseComponent(
@@ -83,8 +83,8 @@ class OSSLicensesActivity: BaseActivity() {
                         .useLines {
                             val downloadedLicenses = mutableMapOf<String, String>()
 
-                            it.forEach {
-                                val offsetLength = it.substringBefore(' ').split(":")
+                            it.forEach { line ->
+                                val offsetLength = line.substringBefore(' ').split(":")
                                 val offset = offsetLength[0].toInt()
                                 val length = offsetLength[1].toInt()
                                 Log.d("OSSActivity", "${offset}:${length}")
@@ -98,24 +98,24 @@ class OSSLicensesActivity: BaseActivity() {
                                 val license = chars.joinToString("")
                                 Log.d("OSSActivity", license)
 
-                                val name = it.substringAfter(' ')
+                                val name = line.substringAfter(' ')
                                 Log.d("OSSActivity", name)
 
                                 licenses += LicenseComponent(name, license)
                             }
-                            async {
-                                licenses.forEach {
-                                    if (it.license.startsWith("http://") || it.license.startsWith("https://")) {
-                                        if (it.license in downloadedLicenses.keys) {
-                                            it.license = downloadedLicenses[it.license]!!
+                            thread {
+                                licenses.forEach { i ->
+                                    if (i.license.startsWith("http://") || i.license.startsWith("https://")) {
+                                        if (i.license in downloadedLicenses.keys) {
+                                            i.license = downloadedLicenses[i.license]!!
                                         }
-                                        val downloadedLicense = download(it.license)
+                                        val downloadedLicense = download(i.license)
                                         if (downloadedLicense != null) {
                                             if (downloadedLicense.trim().startsWith("<!DOCTYPE html>", true)) {
-                                                it.website = true
+                                                i.website = true
                                             } else {
-                                                downloadedLicenses[it.license] = downloadedLicense
-                                                it.license = downloadedLicense
+                                                downloadedLicenses[i.license] = downloadedLicense
+                                                i.license = downloadedLicense
                                             }
                                         }
                                     }

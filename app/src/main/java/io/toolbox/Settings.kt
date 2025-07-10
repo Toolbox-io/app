@@ -2,7 +2,6 @@ package io.toolbox
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.res.AssetFileDescriptor
 import android.content.res.Resources
 import android.media.AudioAttributes
 import android.media.AudioManager
@@ -20,6 +19,7 @@ import ru.morozovit.android.checkHash
 import ru.morozovit.android.hash
 import ru.morozovit.android.ui.ThemeSetting
 import java.io.IOException
+import kotlin.concurrent.thread
 
 @Suppress("MemberVisibilityCanBePrivate")
 /**
@@ -270,7 +270,7 @@ object Settings {
             // Take the required actions
             if (UnlockProtection.Alarm.enabled) {
                 mediaPlayer.apply {
-                    if (mediaPlayer.isPlaying) stop()
+                    if (isPlaying) stop()
                     reset()
                     setAudioAttributes(
                         AudioAttributes.Builder()
@@ -278,38 +278,35 @@ object Settings {
                             .setUsage(AudioAttributes.USAGE_ALARM)
                             .build()
                     )
+
+                    val afd by lazy { context.assets.openFd("alarm.mp3") }
+
                     if (UnlockProtection.Alarm.current == "") {
-                        val afd: AssetFileDescriptor =
-                            context.assets.openFd("alarm.mp3")
-                        setDataSource(
-                            afd.fileDescriptor,
-                            afd.startOffset,
-                            afd.length
-                        )
+                        setDataSource(afd)
                     } else {
                         try {
                             setDataSource(context, UnlockProtection.Alarm.current.toUri())
                         } catch (_: IOException) {
                             Log.w("DeviceAdmin", "Invalid custom alarm URI, falling back to default")
                             UnlockProtection.Alarm.current = ""
-                            val afd: AssetFileDescriptor =
-                                context.assets.openFd("alarm.mp3")
-                            setDataSource(
-                                afd.fileDescriptor,
-                                afd.startOffset,
-                                afd.length
-                            )
+                            setDataSource(afd)
                         }
                     }
                     prepare()
                     start()
 
-                    Thread {
+                    thread {
                         while (mediaPlayer.isPlaying) {
-                            audioManager.setStreamVolume(STREAM_ALARM, audioManager.getStreamMaxVolume(STREAM_ALARM), 0)
+                            runCatching {
+                                audioManager.setStreamVolume(
+                                    STREAM_ALARM,
+                                    audioManager.getStreamMaxVolume(STREAM_ALARM),
+                                    0
+                                )
+                            }
                             Thread.sleep(100)
                         }
-                    }.start()
+                    }
                 }
             }
             if (UnlockProtection.IntruderPhoto.enabled) {

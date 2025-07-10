@@ -92,11 +92,11 @@ import io.toolbox.ui.protection.applocker.ApplockerAuthOverlay
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.morozovit.android.BetterActivityResult
-import ru.morozovit.android.async
 import ru.morozovit.android.homeScreen
 import ru.morozovit.android.invoke
 import ru.morozovit.android.requestAuthentication
 import ru.morozovit.utils.EParser
+import kotlin.concurrent.thread
 
 open class Auth(private val context: Context, var intent: Intent = Intent()) {
     companion object {
@@ -369,7 +369,7 @@ open class Auth(private val context: Context, var intent: Intent = Intent()) {
                             }
 
                             fun processPassword() {
-                                async {
+                                thread {
                                     inputLocked = true
                                     currentPasswordState = 1
                                     val password = symbols.let {

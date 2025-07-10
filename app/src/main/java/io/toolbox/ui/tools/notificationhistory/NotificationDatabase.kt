@@ -7,7 +7,6 @@ import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
 import io.toolbox.App.Companion.context
 import io.toolbox.Settings
-import ru.morozovit.android.async
 import ru.morozovit.android.runOrLog
 import java.io.File
 import java.io.FileInputStream
@@ -18,6 +17,7 @@ import java.lang.System.currentTimeMillis
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.concurrent.thread
 
 object NotificationDatabase: MutableList<NotificationData> {
     private var init = false
@@ -124,7 +124,7 @@ object NotificationDatabase: MutableList<NotificationData> {
             _notifications += element
 
             // Serialize to disk
-            async {
+            thread {
                 val formattedDate = SimpleDateFormat("dd_MM_yyyy", Locale.getDefault()).format(Date())
                 val time = currentTimeMillis()
                 val notificationFile = File(notificationHistoryDir, "$formattedDate:$time.notification")
