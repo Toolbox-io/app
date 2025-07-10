@@ -10,15 +10,20 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,6 +64,14 @@ class IntruderPhotoSettingsActivity: BaseActivity(authEnabled = false) {
     private lateinit var activityLauncher: ActivityLauncher
     private var resumeLock = true
 
+    data class IntruderPhoto(
+        val uri: Uri,
+        val drawable: Drawable,
+        val file: File
+    ) {
+        inline val lastModified get() = file.lastModified()
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun IntruderPhotoScreen() {
@@ -89,7 +102,7 @@ class IntruderPhotoSettingsActivity: BaseActivity(authEnabled = false) {
                     )
                 },
             ) { innerPadding ->
-                val drawables = remember { mutableStateListOf<Triple<Uri, Drawable, Long>>() }
+                val drawables = remember { mutableStateListOf<IntruderPhoto>() }
                 LaunchedEffect(Unit) {
                     fun isImage(file: File): Boolean {
                         val type = file.extension
@@ -118,10 +131,10 @@ class IntruderPhotoSettingsActivity: BaseActivity(authEnabled = false) {
                         val stream = contentResolver.openInputStream(uri)
                         val drawable = Drawable.createFromStream(stream, null)!!
                         stream!!.close()
-                        drawables.add(Triple(uri, drawable, file.lastModified()))
+                        drawables.add(IntruderPhoto(uri, drawable, file))
                     }
 
-                    drawables.sortWith { o1, o2 -> o2.third.compareTo(o1.third) }
+                    drawables.sortWith { o1, o2 -> o2.lastModified.compareTo(o1.lastModified) }
                 }
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(minSize = 200.dp),
@@ -203,20 +216,43 @@ class IntruderPhotoSettingsActivity: BaseActivity(authEnabled = false) {
                         }
                     }
 
-                    items(drawables.size) {
-                        Image(
-                            painter = rememberDrawablePainter(drawable = drawables[it].second),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .clickable {
-                                    context.startActivity(
-                                        Intent(Intent.ACTION_VIEW).apply {
-                                            setDataAndType(drawables[it].first, "image/*")
-                                            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    items(drawables) {
+                        var menu by remember { mutableStateOf(false) }
+
+                        Box {
+                            Image(
+                                painter = rememberDrawablePainter(drawable = it.drawable),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .combinedClickable(
+                                        onClick = {
+                                            context.startActivity(
+                                                Intent(Intent.ACTION_VIEW).apply {
+                                                    setDataAndType(it.uri, "image/*")
+                                                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                                }
+                                            )
+                                        },
+                                        onLongClick = {
+                                            menu = true
                                         }
                                     )
-                                }
-                        )
+                            )
+
+                            DropdownMenu(
+                                expanded = menu,
+                                onDismissRequest = { menu = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.delete)) },
+                                    leadingIcon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+                                    onClick = {
+                                        it.file.delete()
+                                        drawables.remove(it)
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -234,9 +270,7 @@ class IntruderPhotoSettingsActivity: BaseActivity(authEnabled = false) {
 
     override fun onResume() {
         super.onResume()
-        if (!resumeLock) {
-            recreate()
-        }
+        if (!resumeLock) recreate()
         resumeLock = false
     }
 }

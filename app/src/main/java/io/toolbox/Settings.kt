@@ -15,7 +15,6 @@ import io.toolbox.App.Companion.context
 import io.toolbox.Settings.global_sharedPref
 import io.toolbox.Settings.init
 import io.toolbox.ui.protection.actions.intruderphoto.IntruderPhotoService.Companion.takePhoto
-import kotlinx.coroutines.DelicateCoroutinesApi
 import ru.morozovit.android.checkHash
 import ru.morozovit.android.hash
 import ru.morozovit.android.isPlayingSafe
@@ -272,13 +271,20 @@ object Settings {
                 }
         }
 
-        @OptIn(DelicateCoroutinesApi::class)
+        @Suppress("AssignedValueIsNeverRead")
         fun run(
             context: Context,
             mediaPlayer: MediaPlayer,
             audioManager: AudioManager,
             onCompletion: (() -> Unit)? = null
         ) {
+            var intruderPhotoCompleted = false
+            var alarmCompleted = false
+
+            fun complete() {
+                if (intruderPhotoCompleted && alarmCompleted) onCompletion?.invoke()
+            }
+
             Log.d("Actions", "Security actions triggered!")
             // Take the required actions
             if (UnlockProtection.Alarm.enabled) {
@@ -308,7 +314,10 @@ object Settings {
                     prepare()
                     start()
 
-                    mediaPlayer.setOnCompletionListener { onCompletion?.invoke() }
+                    mediaPlayer.setOnCompletionListener {
+                        alarmCompleted = true
+                        complete()
+                    }
 
                     thread {
                         while (mediaPlayer.isPlayingSafe) {
@@ -323,10 +332,19 @@ object Settings {
                         }
                     }
                 }
+            } else {
+                alarmCompleted = true
             }
             if (UnlockProtection.IntruderPhoto.enabled) {
-                takePhoto(context, "${System.currentTimeMillis()}", onCompletion)
+                takePhoto(context, "${System.currentTimeMillis()}") {
+                    intruderPhotoCompleted = true
+                    complete()
+                }
+            } else {
+                intruderPhotoCompleted = true
             }
+
+            complete()
         }
     }
 
