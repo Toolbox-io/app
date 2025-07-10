@@ -1,5 +1,6 @@
 package io.toolbox
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_MAIN
@@ -68,6 +69,7 @@ import javax.net.ssl.HttpsURLConnection
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
+@SuppressLint("DefaultUncaughtExceptionDelegation")
 object IssueReporter {
     var enabled = true
         set(value) {

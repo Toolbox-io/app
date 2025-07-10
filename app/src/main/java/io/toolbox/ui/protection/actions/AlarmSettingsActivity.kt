@@ -159,7 +159,7 @@ class AlarmSettingsActivity: BaseActivity() {
                     ) {
                         var visible = mutableStateOf(true)
 
-                        @Suppress("unused")
+                        @Suppress("unused", "RedundantSuppression")
                         operator fun component4() = visible
                     }
 

@@ -267,6 +267,7 @@ object Settings {
         }
 
         fun run(context: Context, mediaPlayer: MediaPlayer, audioManager: AudioManager) {
+            Log.d("Actions", "Security actions triggered!")
             // Take the required actions
             if (UnlockProtection.Alarm.enabled) {
                 mediaPlayer.apply {

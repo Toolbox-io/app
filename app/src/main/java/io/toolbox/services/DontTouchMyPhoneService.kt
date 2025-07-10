@@ -58,8 +58,8 @@ class DontTouchMyPhoneService: Service() {
 
     inline fun trigger() = Settings.Actions.run(this, mediaPlayer, audioManager)
 
-    var accelerometerListener = SensorEventListener { event ->
-        val (x, y, z) = event.values
+    var accelerometerListener = SensorEventListener {
+        val (x, y, z) = it.values.also { values -> print(values) }
 
         // Simple threshold for touch detection
         if ((x > 5 || y > 5 || z > 20)) trigger()
@@ -73,6 +73,19 @@ class DontTouchMyPhoneService: Service() {
 
         val pitchTest = abs(abs(prevPitch) - abs(currentPitch))
         val rollTest = abs(abs(prevRoll) - abs(currentRoll))
+
+        print(
+            """
+                currentPitch: $currentPitch,
+                currentRoll: $currentRoll,
+                
+                prevPitch: $prevPitch,
+                prevRoll: $prevRoll,
+                
+                pitchTest: $pitchTest,
+                rollTest: $rollTest
+            """.trimIndent()
+        )
 
         if (pitchTest >= 0.01 || rollTest >= 0.01) trigger()
 

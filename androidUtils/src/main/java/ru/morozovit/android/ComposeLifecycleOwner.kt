@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package ru.morozovit.android
 
 import android.os.Bundle
@@ -27,12 +29,6 @@ class ComposeLifecycleOwner : SavedStateRegistryOwner, LifecycleOwner {
         handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         lifecycle.currentState = Lifecycle.State.DESTROYED
     }
-
-    /**
-     * @return True if the Lifecycle has been initialized.
-     */
-    val isInitialized: Boolean
-        get() = true
 
     override val lifecycle = mLifecycleRegistry
 

@@ -1,9 +1,6 @@
 package io.toolbox.ui.protection.applocker
 
 import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK
-import android.content.Intent.FLAG_ACTIVITY_NEW_DOCUMENT
-import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
 import android.view.View
 import android.view.Window

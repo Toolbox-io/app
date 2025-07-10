@@ -276,7 +276,6 @@ fun Activity.resolveAttr(@AttrRes id: Int): Int? {
     }
 }
 
-@Suppress("UNUSED_PARAMETER", "unused", "MemberVisibilityCanBePrivate")
 class QuickAlertDialogBuilder(context: Context): MaterialAlertDialogBuilder(context) {
     fun title(title: CharSequence): QuickAlertDialogBuilder {
         setTitle(title)
