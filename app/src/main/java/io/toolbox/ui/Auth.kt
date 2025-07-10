@@ -10,7 +10,6 @@ import android.content.res.Configuration
 import android.os.Handler
 import android.util.Log
 import androidx.activity.compose.BackHandler
-import androidx.activity.result.ActivityResult
 import androidx.annotation.AnimRes
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
@@ -92,7 +91,6 @@ import io.toolbox.ui.protection.applocker.ApplockerAuthOverlay
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.morozovit.android.ActivityLauncher
-import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.homeScreen
 import ru.morozovit.android.invoke
 import ru.morozovit.android.requestAuthentication

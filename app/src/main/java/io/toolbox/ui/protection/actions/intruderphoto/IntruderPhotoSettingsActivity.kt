@@ -9,7 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResult
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -49,7 +48,6 @@ import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.ui.AppTheme
 import ru.morozovit.android.ActivityLauncher
-import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.activityResultLauncher
 import ru.morozovit.android.invoke
 import ru.morozovit.android.ui.Category

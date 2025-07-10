@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandVertically
@@ -64,7 +63,6 @@ import io.toolbox.Settings
 import io.toolbox.ui.AppTheme
 import kotlinx.coroutines.launch
 import ru.morozovit.android.ActivityLauncher
-import ru.morozovit.android.BetterActivityResult
 import ru.morozovit.android.activityResultLauncher
 import ru.morozovit.android.copy
 import ru.morozovit.android.getFileName
@@ -105,7 +103,7 @@ class AlarmSettingsActivity: BaseActivity() {
                             IconButton(onClick = onBackPressedDispatcher::onBackPressed) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Localized description"
+                                    contentDescription = stringResource(R.string.back)
                                 )
                             }
                         },
@@ -342,7 +340,7 @@ class AlarmSettingsActivity: BaseActivity() {
                                                 endToStartIcon = {
                                                     Icon(
                                                         Icons.Default.Delete,
-                                                        contentDescription = "Delete"
+                                                        contentDescription = stringResource(R.string.delete)
                                                     )
                                                 }
                                             )

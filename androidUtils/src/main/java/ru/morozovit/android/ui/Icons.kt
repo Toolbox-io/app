@@ -25,3 +25,8 @@ val Icons.Outlined.Siren
     @Composable get() = ImageVector.vectorResource(R.drawable.siren_outlined)
 val Icons.Filled.Siren
     @Composable get() = ImageVector.vectorResource(R.drawable.siren_filled)
+
+val Icons.Outlined.Charger
+    @Composable get() = ImageVector.vectorResource(R.drawable.charger_outlined)
+val Icons.Filled.Charger
+    @Composable get() = ImageVector.vectorResource(R.drawable.charger_filled)

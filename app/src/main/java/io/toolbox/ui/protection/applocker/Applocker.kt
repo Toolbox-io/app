@@ -104,6 +104,7 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                         Settings.Applocker.getUnlockModeDescription(unlockMode, context.resources)
                     )
                 }
+
                 var showModeText by remember {
                     mutableStateOf(
                         Settings.Applocker.getShowModeDescription(showMode, context.resources)
@@ -121,127 +122,6 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                             Settings.Applocker.enabled
                     )
                 }
-
-                /*// Set password dialog
-                var openSetPasswordDialog by remember { mutableStateOf(false) }
-                if (openSetPasswordDialog) {
-                    fun onDismissRequest() {
-                        openSetPasswordDialog = false
-                    }
-                    Dialog(
-                        onDismissRequest = ::onDismissRequest
-                    ) {
-                        Card(
-                            shape = RoundedCornerShape(28.dp),
-                            colors = cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
-                        ) {
-                            Column(modifier = Modifier.padding(24.dp)) {
-                                Text(
-                                    text = stringResource(R.string.setpassword),
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    modifier = Modifier
-                                        .padding()
-                                        .padding(bottom = 16.dp)
-                                )
-                                var oldPasswordHidden by rememberSaveable { mutableStateOf(true) }
-                                var oldPassword by rememberSaveable { mutableStateOf("") }
-                                var oldPasswordIsError by rememberSaveable { mutableStateOf(true) }
-
-                                if (Settings.Keys.Applocker.isSet) {
-                                    fun validate() {
-                                        oldPasswordIsError = oldPassword.isEmpty()
-                                    }
-                                    LaunchedEffect(Unit) {
-                                        snapshotFlow { oldPassword }.collect { validate() }
-                                    }
-
-                                    SecureTextField(
-                                        value = oldPassword,
-                                        onValueChange = { oldPassword = it },
-                                        label = { Text(stringResource(R.string.old_password)) },
-                                        visibilityOnClick = {
-                                            oldPasswordHidden = !oldPasswordHidden
-                                        },
-                                        modifier = Modifier
-                                            .padding()
-                                            .padding(bottom = 10.dp)
-                                            .fillMaxWidth()
-                                            .clearFocusOnKeyboardDismiss(),
-                                        passwordHidden = oldPasswordHidden,
-                                        isError = oldPasswordIsError
-                                    )
-                                }
-                                var newPasswordHidden by rememberSaveable { mutableStateOf(true) }
-                                var newPassword by rememberSaveable { mutableStateOf("") }
-
-                                SecureTextField(
-                                    value = newPassword,
-                                    onValueChange = { newPassword = it },
-                                    label = { Text(stringResource(R.string.new_password)) },
-                                    visibilityOnClick = {
-                                        newPasswordHidden = !newPasswordHidden
-                                    },
-                                    modifier = Modifier
-                                        .padding()
-                                        .padding(bottom = 10.dp)
-                                        .fillMaxWidth()
-                                        .clearFocusOnKeyboardDismiss(),
-                                    passwordHidden = newPasswordHidden
-                                )
-
-                                var confirmPasswordHidden by rememberSaveable {
-                                    mutableStateOf(
-                                        true
-                                    )
-                                }
-                                var confirmPassword by rememberSaveable { mutableStateOf("") }
-
-                                SecureTextField(
-                                    value = confirmPassword,
-                                    onValueChange = { confirmPassword = it },
-                                    label = { Text(stringResource(R.string.confirm_password)) },
-                                    visibilityOnClick = {
-                                        confirmPasswordHidden = !confirmPasswordHidden
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clearFocusOnKeyboardDismiss(),
-                                    passwordHidden = confirmPasswordHidden
-                                )
-                                Row(Modifier.padding(top = 24.dp)) {
-                                    TextButton(
-                                        onClick = ::onDismissRequest
-                                    ) {
-                                        Text(text = stringResource(R.string.cancel))
-                                    }
-                                    Spacer(Modifier.weight(1f))
-                                    TextButton(
-                                        onClick = {
-                                            if (Settings.Keys.Applocker.check(oldPassword) && newPassword == confirmPassword) {
-                                                Settings.Keys.Applocker.set(newPassword)
-                                                onDismissRequest()
-                                            } else if (oldPassword.isEmpty()) {
-                                                Toast.makeText(
-                                                    context,
-                                                    R.string.old_password_cannot_be_empty,
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            } else {
-                                                Toast.makeText(
-                                                    context,
-                                                    R.string.passwords_dont_match,
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            }
-                                        }
-                                    ) {
-                                        Text(text = stringResource(R.string.ok))
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }*/
 
                 // Unlock method dialog
                 var openUnlockMethodDialog by remember { mutableStateOf(false) }

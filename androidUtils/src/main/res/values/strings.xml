@@ -3,4 +3,6 @@
     <string name="show_pw">Show password</string>
     <string name="hide_pw">Hide password</string>
     <string name="smthwentwrong">Something went wrong</string>
+    <string name="delete">Delete</string>
+    <string name="archive">Archive</string>
 </resources>

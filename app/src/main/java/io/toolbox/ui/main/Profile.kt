@@ -3,6 +3,7 @@
 package io.toolbox.ui.main
 
 import android.util.Log
+import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -128,12 +129,14 @@ private inline fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Login",
+            text = stringResource(R.string.login),
             fontSize = 20.sp,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
         val scope = rememberCoroutineScope()
+
+        val internalError = stringResource(R.string.internal_error)
 
         var username by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
@@ -151,7 +154,7 @@ private inline fun LoginScreen(
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text("Username") },
+            label = { Text(stringResource(R.string.username)) },
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
@@ -160,7 +163,7 @@ private inline fun LoginScreen(
             onValueChange = { password = it },
             hidden = passwordHidden,
             onHiddenChange = { passwordHidden = it },
-            label = { Text("Password") },
+            label = { Text(stringResource(R.string.password)) },
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
@@ -178,14 +181,14 @@ private inline fun LoginScreen(
                             showError(e.errorMessage())
                         } catch (e: Exception) {
                             e.printStackTrace()
-                            showError("Internal error")
+                            showError(internalError)
                         } finally {
                             isLoggingIn = false
                         }
                     }
                 }
             ) {
-                Text("Log in")
+                Text(stringResource(R.string.login_btn))
             }
             AnimatedVisibility(isLoggingIn) {
                 CircularProgressIndicator(Modifier.padding(start = 16.dp))
@@ -203,7 +206,7 @@ private inline fun LoginScreen(
             onClick = { onRegister() },
             modifier = Modifier.padding(top = 16.dp)
         ) {
-            Text("Register")
+            Text(stringResource(R.string.register))
         }
     }
 }
@@ -214,6 +217,11 @@ private fun RegisterScreen(
     onBack: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
+
+    val afar = stringResource(R.string.afar)
+    val invalid_email = stringResource(R.string.invalid_email)
+    val passwords_dont_match = stringResource(R.string.passwords_dont_match)
+    val internal_error = stringResource(R.string.internal_error)
 
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -255,20 +263,20 @@ private fun RegisterScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Register",
+            text = stringResource(R.string.register),
             fontSize = 20.sp,
             modifier = Modifier.padding(bottom = 16.dp)
         )
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text("Username") },
+            label = { Text(stringResource(R.string.username)) },
             modifier = Modifier.padding(bottom = 8.dp)
         )
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email") },
+            label = { Text(stringResource(R.string.email)) },
             modifier = Modifier.padding(bottom = 8.dp)
         )
         SecureTextField(
@@ -276,7 +284,7 @@ private fun RegisterScreen(
             onValueChange = { password = it },
             hidden = passwordHidden,
             onHiddenChange = { passwordHidden = it },
-            label = { Text("Password") },
+            label = { Text(stringResource(R.string.password)) },
             modifier = Modifier.padding(bottom = 8.dp)
         )
         SecureTextField(
@@ -284,7 +292,7 @@ private fun RegisterScreen(
             onValueChange = { confirmPassword = it },
             hidden = confirmPasswordHidden,
             onHiddenChange = { confirmPasswordHidden = it },
-            label = { Text("Confirm Password") },
+            label = { Text(stringResource(R.string.confirm_password)) },
             modifier = Modifier.padding(bottom = 16.dp)
         )
         Row(
@@ -297,15 +305,15 @@ private fun RegisterScreen(
                 onClick = {
                     scope.launch {
                         if (username.isBlank() || email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
-                            showErrorMsg("All fields are required")
+                            showErrorMsg(afar)
                             return@launch
                         }
-                        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                            showErrorMsg("Invalid email address")
+                        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                            showErrorMsg(invalid_email)
                             return@launch
                         }
                         if (password != confirmPassword) {
-                            showErrorMsg("Passwords do not match")
+                            showErrorMsg(passwords_dont_match)
                             return@launch
                         }
                         loading = true
@@ -318,7 +326,7 @@ private fun RegisterScreen(
                             showErrorMsg(e.errorMessage())
                         } catch (e: Exception) {
                             e.printStackTrace()
-                            showErrorMsg("Internal error")
+                            showErrorMsg(internal_error)
                         } finally {
                             loading = false
                         }

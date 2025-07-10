@@ -209,11 +209,22 @@
     <string name="showmode">Display mode</string>
     <string name="profile">Profile</string>
     <string name="username">Username</string>
-    <string name="email">Email</string>
+    <string name="email" translatable="false">Email</string>
     <string name="member_since">Member since</string>
     <string name="logout">Log out</string>
-    <string name="sleep_tile_service">Sleep tile\n</string>
+    <string name="sleep_tile_service">Sleep tile</string>
     <string name="sleep_tile_service_d">This service keeps your screen on while the Sleep tile is disabled.</string>
     <string name="dtmp_service">Don\'t touch my phone</string>
     <string name="dtmp_service_d">This service will take security actions when someone touches your phone.</string>
+    <string name="internal_error">Internal error</string>
+    <string name="login_btn">Login</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="afar">All fields are required</string>
+    <string name="invalid_email">Invalid email</string>
+    <string name="failed_to_share_apk">Failed to share APK, please try again</string>
+    <string name="use_sensors">Use sensors</string>
+    <string name="use_sensors_d">If enabled, accelerometer and rotation sensors will be used to detect touches</string>
+    <string name="trigger_on_charger">Trigger on charger</string>
+    <string name="trigger_on_charger_d">Trigger security actions when the charger is connected/disconnected</string>
 </resources>

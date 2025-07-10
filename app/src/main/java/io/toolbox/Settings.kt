@@ -123,6 +123,7 @@ object Settings {
     const val ALLOW_BIOMETRIC_LABEL = "erjgeskh"
     const val APPLOCKER_ENCRYPTED_PASSWORD_LABEL = "hedrh"
     const val APP_ENCRYPTED_PASSWORD_LABEL = "waegnwg"
+    const val DTMP_LABEL = "wfjnsrjfhsedjrg"
 
     // Sub-object settings
     const val UPDATE_DSA_LABEL = "gsmwsojgnwg"
@@ -146,6 +147,8 @@ object Settings {
     const val REMOVE_USELESS_NOTIFICATIONS_LABEL = "ergjeargizdNDUIearh"
     const val SHOW_MODE_LABEL = "weagnvbjdran"
     const val TOKEN_LABEL = "wfreabcsgbeiugfcewaer"
+    const val USE_SENSORS_LABEL = "awfvdxrgbhrdfujbawert"
+    const val TRIGGER_ON_CHARGER_LABEL = "wfvjsdergbjgtberst"
 
     /**
      * Main initialization function.
@@ -168,6 +171,7 @@ object Settings {
             NotificationHistory.init(context)
             Developer.init(context)
             Account.init(context)
+            DTMP.init(context)
 
             init = true
         }
@@ -654,6 +658,37 @@ object Settings {
             set(value) {
                 account_sharedPref.edit {
                     putString(TOKEN_LABEL, value)
+                }
+            }
+    }
+
+    object DTMP {
+        private lateinit var dtmp_sharedPref: SharedPreferences
+        private var init = false
+
+        fun init(context: Context) {
+            if (!init) {
+                dtmp_sharedPref = context.getSharedPreferences(
+                    DTMP_LABEL,
+                    Context.MODE_PRIVATE
+                )
+                init = true
+            }
+        }
+
+        var useSensors
+            get() = dtmp_sharedPref.getBoolean(USE_SENSORS_LABEL, true)
+            set(value) {
+                dtmp_sharedPref.edit {
+                    putBoolean(USE_SENSORS_LABEL, value)
+                }
+            }
+
+        var triggerOnCharger
+            get() = dtmp_sharedPref.getBoolean(TRIGGER_ON_CHARGER_LABEL, true)
+            set(value) {
+                dtmp_sharedPref.edit {
+                    putBoolean(TRIGGER_ON_CHARGER_LABEL, value)
                 }
             }
     }

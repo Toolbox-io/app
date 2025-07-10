@@ -1,6 +1,5 @@
 package io.toolbox.ui.tools.notificationhistory
 
-import android.annotation.SuppressLint
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager.GET_ACTIVITIES
 import android.os.Bundle
@@ -77,7 +76,6 @@ import ru.morozovit.android.ui.ListItem
 import ru.morozovit.android.ui.SimpleAlertDialog
 
 class SelectAppsActivity: BaseActivity() {
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun SelectAppsScreen() {
@@ -468,7 +466,6 @@ class SelectAppsActivity: BaseActivity() {
         }
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

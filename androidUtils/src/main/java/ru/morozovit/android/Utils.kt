@@ -1328,16 +1328,16 @@ inline fun WebView.evaluateJavascript(script: String) = evaluateJavascript(scrip
 
 /**
  * A [BroadcastReceiver] that registers for a specific action.
- * @param action The action to listen for.
+ * @param actions The actions to listen for.
  */
-abstract class ActionedBroadcastReceiver(val action: String? = null): BroadcastReceiver() {
+abstract class ActionedBroadcastReceiver(vararg val actions: String): BroadcastReceiver() {
     inline fun register(context: Context, exported: Boolean = false) {
         ContextCompat.registerReceiver(
             context,
             this,
-            if (action != null)
-                IntentFilter(action)
-            else IntentFilter(),
+            IntentFilter().apply {
+                actions.forEach { addAction(it) }
+            },
             if (exported)
                 ContextCompat.RECEIVER_EXPORTED
             else ContextCompat.RECEIVER_NOT_EXPORTED
@@ -1349,16 +1349,16 @@ abstract class ActionedBroadcastReceiver(val action: String? = null): BroadcastR
 
 /**
  * Creates a [BroadcastReceiver] for a specific action.
- * @param action The action to listen for.
+ * @param actions The actions to listen for.
  * @param receiver The lambda to invoke on receive.
  * @return The created [BroadcastReceiver].
  */
 inline fun broadcastReceiver(
-    action: String? = null,
+    vararg actions: String,
     crossinline receiver: Context.(Intent) -> Unit
-) = object: ActionedBroadcastReceiver(action) {
+) = object: ActionedBroadcastReceiver(*actions) {
     override fun onReceive(context: Context, intent: Intent) {
-        if (action == null || intent.action == action) {
+        if (actions.isEmpty() || intent.action in actions) {
             receiver(context, intent)
         }
     }
@@ -1382,3 +1382,18 @@ inline fun Context.notificationButtonPendingIntent(
  * Returns true if the [MediaPlayer] is playing, or false if not or if an exception occurs.
  */
 inline val MediaPlayer.isPlayingSafe get() = runCatching { isPlaying }.getOrNull() == true
+
+
+fun runMultiple(vararg instructions: () -> Unit): Boolean {
+    var result = true
+
+    instructions.forEach {
+        if (
+            runCatching {
+                it()
+            }.isFailure
+        ) result = false
+    }
+
+    return result
+}

@@ -200,4 +200,27 @@
     <string name="remove_useless_notifications_d">Удалять ненужные уведомления, например \"12 новых сообщений из 5 чатов\"</string>
     <string name="select_apps_2_d">Выбрать приложения, из которых уведомления будут сохранены</string>
     <string name="notifications_deleted">Уведомления удалены</string>
+    <string name="fake_crash">Фальшивый сбой</string>
+    <string name="fullscreen_popup">Полноэкранное окно</string>
+    <string name="password_popup">Окно для ввода</string>
+    <string name="showmode">Режим отображения</string>
+    <string name="profile">Профиль</string>
+    <string name="username">Имя пользователя</string>
+    <string name="member_since">Участник с</string>
+    <string name="logout">Выйти</string>
+    <string name="sleep_tile_service">Плитка \"Режим сна\"</string>
+    <string name="sleep_tile_service_d">Эта служба держит экран включенным, пока плитка \"Режим сна\" отключена.</string>
+    <string name="dtmp_service">Не трогайте мой телефон</string>
+    <string name="dtmp_service_d">Эта служба выполнит действия защиты, когда кто-то потрогает ваш телефон</string>
+    <string name="internal_error">Внутренняя ошибка</string>
+    <string name="login_btn">Войти</string>
+    <string name="login">Вход</string>
+    <string name="register">Зарегистрироваться</string>
+    <string name="afar">Все поля обязательны</string>
+    <string name="invalid_email">Неправильный email</string>
+    <string name="failed_to_share_apk">Не удалось поделиться APK, повторите попытку</string>
+    <string name="use_sensors">Использовать датчики</string>
+    <string name="use_sensors_d">Если включено, датчики акселерометра и поворота будут использованы для обнаружения прикосновений</string>
+    <string name="trigger_on_charger">Выполнить действия при питании</string>
+    <string name="trigger_on_charger_d">Когда зарядка будет подсоединена/отсоединена, будет выполнены действия защиты</string>
 </resources>

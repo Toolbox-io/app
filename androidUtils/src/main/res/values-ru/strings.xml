@@ -2,4 +2,7 @@
 <resources>
     <string name="show_pw">Показать пароль</string>
     <string name="hide_pw">Скрыть пароль</string>
+    <string name="smthwentwrong">Что-то пошло не так</string>
+    <string name="delete">Удалить</string>
+    <string name="archive">Архивировать</string>
 </resources>

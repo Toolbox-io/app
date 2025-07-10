@@ -263,7 +263,7 @@ class AppInfoActivity: BaseActivity() {
                                     } catch (_: Exception) {
                                         Toast.makeText(
                                             this@AppInfoActivity,
-                                            "Failed to share APK, please try again",
+                                            getString(R.string.failed_to_share_apk),
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }

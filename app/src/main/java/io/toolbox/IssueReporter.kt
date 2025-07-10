@@ -69,7 +69,7 @@ import javax.net.ssl.HttpsURLConnection
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
-@SuppressLint("DefaultUncaughtExceptionDelegation")
+@SuppressLint("DefaultUncaughtExceptionDelegation") // FIXME default handler
 object IssueReporter {
     var enabled = true
         set(value) {

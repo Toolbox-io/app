@@ -12,7 +12,7 @@ import ru.morozovit.android.getFileName
 import ru.morozovit.android.getParcelableExtraAs
 import ru.morozovit.android.runOrLog
 
-class SaveActivity : AppCompatActivity() {
+class SaveActivity: AppCompatActivity() {
     companion object {
         const val TYPE_TEXT = 0
         const val TYPE_URI = 1

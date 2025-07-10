@@ -1221,14 +1221,14 @@ inline fun SwipeToDismissBackground(
     startToEndIcon: @Composable () -> Unit = {
         Icon(
             Icons.Default.Delete,
-            contentDescription = "Delete"
+            contentDescription = stringResource(R.string.delete)
         )
     },
     endToStartColor: Color = Color(0xFF1DE9B6),
     endToStartIcon: @Composable () -> Unit = {
         Icon(
             Icons.Filled.Archive,
-            contentDescription = "Archive"
+            contentDescription = stringResource(R.string.archive)
         )
     }
 ) {

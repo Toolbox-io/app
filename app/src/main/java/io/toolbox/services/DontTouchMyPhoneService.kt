@@ -26,6 +26,7 @@ import ru.morozovit.android.SensorEventListener
 import ru.morozovit.android.broadcastReceiver
 import ru.morozovit.android.notificationButtonPendingIntent
 import ru.morozovit.android.orientationSensorEventListener
+import ru.morozovit.android.runMultiple
 import ru.morozovit.android.runOrLog
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -46,6 +47,12 @@ class DontTouchMyPhoneService: Service() {
     }
 
     private val disableReceiver = broadcastReceiver(ACTION_DISABLE) { stopSelf() }
+    private val powerReceiver = broadcastReceiver(
+        Intent.ACTION_POWER_CONNECTED,
+        Intent.ACTION_POWER_DISCONNECTED
+    ) {
+        trigger()
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -117,6 +124,13 @@ class DontTouchMyPhoneService: Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("DontTouchMyPhone", "Service started")
+
+        if (!(Settings.DTMP.useSensors || Settings.DTMP.triggerOnCharger)) {
+            stopSelf()
+            Log.e("DontTouchMyPhone", "no actions configured")
+            return super.onStartCommand(intent, flags, startId)
+        }
+
         startForeground(
             DONT_TOUCH_MY_PHONE_NOTIFICATION_ID,
             NotificationCompat.Builder(this, DONT_TOUCH_MY_PHONE_CHANNEL_ID)
@@ -138,29 +152,35 @@ class DontTouchMyPhoneService: Service() {
         instance = this
 
         // Initialize sensors
-        fun tryRegister(sensor: Sensor?, listener: SensorEventListener) {
-            runOrLog("DontTouchMyPhone") {
-                sensorManager.registerListener(
-                    listener,
-                    sensor!!,
-                    SensorManager.SENSOR_DELAY_NORMAL
-                )
+        if (Settings.DTMP.useSensors) {
+            fun tryRegister(sensor: Sensor?, listener: SensorEventListener) {
+                runOrLog("DontTouchMyPhone") {
+                    sensorManager.registerListener(
+                        listener,
+                        sensor!!,
+                        SensorManager.SENSOR_DELAY_NORMAL
+                    )
+                }
             }
+
+            tryRegister(
+                sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                accelerometerListener
+            )
+
+            tryRegister(
+                sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                orientationListener
+            )
+            tryRegister(
+                sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
+                orientationListener
+            )
         }
 
-        tryRegister(
-            sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-            accelerometerListener
-        )
-
-        tryRegister(
-            sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-            orientationListener
-        )
-        tryRegister(
-            sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
-            orientationListener
-        )
+        if (Settings.DTMP.triggerOnCharger) {
+            powerReceiver.register(this)
+        }
 
         working = true
 
@@ -179,12 +199,15 @@ class DontTouchMyPhoneService: Service() {
         working = false
 
         // Clean up
-        disableReceiver.unregister(this)
-        stopSensors()
-        runCatching {
-            mediaPlayer.stop()
-            mediaPlayer.release()
-        }
+        runMultiple(
+            { disableReceiver.unregister(this) },
+            { powerReceiver.unregister(this) },
+            ::stopSensors,
+            {
+                mediaPlayer.stop()
+                mediaPlayer.release()
+            }
+        )
     }
 
     override fun onBind(intent: Intent) = null
