@@ -125,6 +125,7 @@ object AuthAPI {
             .failOnError()
             .body()
 
+    // TODO reset password screen
     suspend fun requestReset(email: String) {
         client
             .post("$BASE_URL/request-reset") {

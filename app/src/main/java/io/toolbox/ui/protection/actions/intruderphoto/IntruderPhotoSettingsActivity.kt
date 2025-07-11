@@ -13,6 +13,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -27,6 +29,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
@@ -42,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -79,6 +83,8 @@ class IntruderPhotoSettingsActivity: BaseActivity(authEnabled = false) {
             val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
             val context = LocalContext()
 
+            var loading by remember { mutableStateOf(true) }
+
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
@@ -102,156 +108,166 @@ class IntruderPhotoSettingsActivity: BaseActivity(authEnabled = false) {
                     )
                 },
             ) { innerPadding ->
-                val drawables = remember { mutableStateListOf<IntruderPhoto>() }
-                LaunchedEffect(Unit) {
-                    fun isImage(file: File): Boolean {
-                        val type = file.extension
-                        return type.equals("jpg", ignoreCase = true) ||
-                                type.equals("png", ignoreCase = true) ||
-                                type.equals("jpeg", ignoreCase = true)
-                    }
+                Box(Modifier.padding(innerPadding)) {
+                    if (loading) LinearProgressIndicator(Modifier.fillMaxWidth())
 
-                    val frontDir = File(filesDir.absolutePath + "/front")
-                    val frontFiles = frontDir.listFiles() ?: emptyArray()
+                    val drawables = remember { mutableStateListOf<IntruderPhoto>() }
 
-                    frontFiles.forEach { file ->
-                        if (!isImage(file)) {
-                            file.delete()
+                    LaunchedEffect(Unit) {
+                        fun isImage(file: File) = file.extension.let {
+                            it.equals("jpg", ignoreCase = true) ||
+                            it.equals("png", ignoreCase = true) ||
+                            it.equals("jpeg", ignoreCase = true)
                         }
-                    }
 
-                    val validFrontFiles = frontFiles.filter { isImage(it) }
-
-                    validFrontFiles.forEach { file ->
-                        val uri = FileProvider.getUriForFile(
-                            this@IntruderPhotoSettingsActivity,
-                            applicationContext.packageName + ".provider",
-                            file
-                        )
-                        val stream = contentResolver.openInputStream(uri)
-                        val drawable = Drawable.createFromStream(stream, null)!!
-                        stream!!.close()
-                        drawables.add(IntruderPhoto(uri, drawable, file))
-                    }
-
-                    drawables.sortWith { o1, o2 -> o2.lastModified.compareTo(o1.lastModified) }
-                }
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 200.dp),
-                    contentPadding = innerPadding
-                ) {
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        Column {
-                            var mainSwitch by remember { mutableStateOf(Settings.Actions.IntruderPhoto.enabled) }
-
-                            LaunchedEffect(Unit) {
-                                if (checkSelfPermission(Manifest.permission.CAMERA) != PERMISSION_GRANTED) {
-                                    mainSwitch = false
-                                    Settings.UnlockProtection.IntruderPhoto.enabled = false
+                        drawables.addAll(
+                            File("${filesDir.absolutePath}/front")
+                                .listFiles()
+                                ?.filter { file ->
+                                    if (!isImage(file)) file.delete()
+                                    isImage(file)
                                 }
-                            }
+                                ?.map {
+                                    val uri = FileProvider.getUriForFile(
+                                        this@IntruderPhotoSettingsActivity,
+                                        "${applicationContext.packageName}.provider",
+                                        it
+                                    )
 
-                            SwitchCard(
-                                text = stringResource(R.string.enable),
-                                checked = mainSwitch,
-                                onCheckedChange = {
-                                    if (it) {
-                                        if (checkSelfPermission(Manifest.permission.CAMERA) == PERMISSION_GRANTED) {
-                                            mainSwitch = true
-                                        } else {
-                                            requestPermission(Manifest.permission.CAMERA) { granted ->
-                                                if (granted) {
-                                                    mainSwitch = true
-                                                }
-                                            }
-                                        }
-                                    } else {
+                                    IntruderPhoto(
+                                        uri = uri,
+                                        drawable = contentResolver.openInputStream(uri)!!.use { stream ->
+                                            Drawable.createFromStream(stream, null)!!
+                                        },
+                                        file = it
+                                    )
+                                }
+                                ?.sortedWith { o1, o2 -> o2.lastModified.compareTo(o1.lastModified) }
+                                ?: emptyList()
+                        )
+
+                        loading = false
+                    }
+
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(minSize = 200.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            Column {
+                                var mainSwitch by remember { mutableStateOf(Settings.Actions.IntruderPhoto.enabled) }
+
+                                LaunchedEffect(Unit) {
+                                    if (checkSelfPermission(Manifest.permission.CAMERA) != PERMISSION_GRANTED) {
                                         mainSwitch = false
+                                        Settings.UnlockProtection.IntruderPhoto.enabled = false
                                     }
-                                },
-                                modifier = Modifier.padding(bottom = 12.dp)
-                            )
+                                }
 
-                            Category {
-                                var noptChecked by remember { mutableStateOf(Settings.Actions.IntruderPhoto.nopt) }
-                                SwitchListItem(
-                                    headline = stringResource(R.string.notify_on_photo_taken),
-                                    supportingText = stringResource(R.string.nopt_d),
-                                    checked = noptChecked,
+                                SwitchCard(
+                                    text = stringResource(R.string.enable),
+                                    checked = mainSwitch,
                                     onCheckedChange = {
                                         if (it) {
-                                            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PERMISSION_GRANTED
-                                                || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
-                                            ) {
-                                                noptChecked = true
-                                                Settings.UnlockProtection.IntruderPhoto.nopt = true
+                                            if (checkSelfPermission(Manifest.permission.CAMERA) == PERMISSION_GRANTED) {
+                                                mainSwitch = true
                                             } else {
-                                                requestPermission(Manifest.permission.POST_NOTIFICATIONS) { granted ->
+                                                requestPermission(Manifest.permission.CAMERA) { granted ->
                                                     if (granted) {
-                                                        noptChecked = true
-                                                        Settings.UnlockProtection.IntruderPhoto.nopt = true
+                                                        mainSwitch = true
                                                     }
                                                 }
                                             }
                                         } else {
-                                            noptChecked = false
-                                            Settings.UnlockProtection.IntruderPhoto.nopt = false
+                                            mainSwitch = false
                                         }
                                     },
-                                    leadingContent = {
-                                        Icon(
-                                            imageVector = Icons.Filled.NotificationsActive,
-                                            contentDescription = null
-                                        )
-                                    }
+                                    modifier = Modifier.padding(bottom = 12.dp)
                                 )
-                            }
 
-                            Text(
-                                text = stringResource(R.string.intruderphotos),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                            )
-                        }
-                    }
-
-                    items(drawables) {
-                        var menu by remember { mutableStateOf(false) }
-
-                        Box {
-                            Image(
-                                painter = rememberDrawablePainter(drawable = it.drawable),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .combinedClickable(
-                                        onClick = {
-                                            context.startActivity(
-                                                Intent(Intent.ACTION_VIEW).apply {
-                                                    setDataAndType(it.uri, "image/*")
-                                                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                Category {
+                                    var noptChecked by remember { mutableStateOf(Settings.Actions.IntruderPhoto.nopt) }
+                                    SwitchListItem(
+                                        headline = stringResource(R.string.notify_on_photo_taken),
+                                        supportingText = stringResource(R.string.nopt_d),
+                                        checked = noptChecked,
+                                        onCheckedChange = {
+                                            if (it) {
+                                                if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PERMISSION_GRANTED
+                                                    || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+                                                ) {
+                                                    noptChecked = true
+                                                    Settings.UnlockProtection.IntruderPhoto.nopt = true
+                                                } else {
+                                                    requestPermission(Manifest.permission.POST_NOTIFICATIONS) { granted ->
+                                                        if (granted) {
+                                                            noptChecked = true
+                                                            Settings.UnlockProtection.IntruderPhoto.nopt = true
+                                                        }
+                                                    }
                                                 }
-                                            )
+                                            } else {
+                                                noptChecked = false
+                                                Settings.UnlockProtection.IntruderPhoto.nopt = false
+                                            }
                                         },
-                                        onLongClick = {
-                                            menu = true
+                                        leadingContent = {
+                                            Icon(
+                                                imageVector = Icons.Filled.NotificationsActive,
+                                                contentDescription = null
+                                            )
                                         }
                                     )
-                            )
+                                }
 
-                            DropdownMenu(
-                                expanded = menu,
-                                onDismissRequest = { menu = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.delete)) },
-                                    leadingIcon = { Icon(Icons.Filled.Delete, contentDescription = null) },
-                                    onClick = {
-                                        it.file.delete()
-                                        drawables.remove(it)
-                                        menu = false
-                                    }
+                                Text(
+                                    text = stringResource(R.string.intruderphotos),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
                                 )
+                            }
+                        }
+
+                        items(drawables) {
+                            var menu by remember { mutableStateOf(false) }
+
+                            Box {
+                                Image(
+                                    painter = rememberDrawablePainter(drawable = it.drawable),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .combinedClickable(
+                                            onClick = {
+                                                context.startActivity(
+                                                    Intent(Intent.ACTION_VIEW).apply {
+                                                        setDataAndType(it.uri, "image/*")
+                                                        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                                    }
+                                                )
+                                            },
+                                            onLongClick = {
+                                                menu = true
+                                            }
+                                        )
+                                        .fillMaxSize(),
+                                    contentScale = ContentScale.FillWidth
+                                )
+
+                                DropdownMenu(
+                                    expanded = menu,
+                                    onDismissRequest = { menu = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.delete)) },
+                                        leadingIcon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+                                        onClick = {
+                                            it.file.delete()
+                                            drawables.remove(it)
+                                            menu = false
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
