@@ -249,6 +249,7 @@ class IntruderPhotoSettingsActivity: BaseActivity(authEnabled = false) {
                                     onClick = {
                                         it.file.delete()
                                         drawables.remove(it)
+                                        menu = false
                                     }
                                 )
                             }
