@@ -104,9 +104,7 @@ import io.toolbox.ui.MainActivity.Screen.Companion.NOTIFICATION_HISTORY
 import io.toolbox.ui.MainActivity.Screen.Companion.PROFILE
 import io.toolbox.ui.MainActivity.Screen.Companion.SETTINGS
 import io.toolbox.ui.MainActivity.Screen.Companion.SHORTCUTS
-import io.toolbox.ui.MainActivity.Screen.Companion.TILES
 import io.toolbox.ui.MainActivity.Screen.Companion.UNLOCK_PROTECTION
-import io.toolbox.ui.customization.TilesScreen
 import io.toolbox.ui.customization.shortcuts.ShortcutsScreen
 import io.toolbox.ui.main.AboutScreen
 import io.toolbox.ui.main.HomeScreen
@@ -196,7 +194,6 @@ class MainActivity : BaseActivity(
                 ABOUT -> About
                 APP_LOCKER -> AppLocker
                 UNLOCK_PROTECTION -> UnlockProtection
-                TILES -> Tiles
                 SHORTCUTS -> Shortcuts
                 APP_MANAGER -> AppManager
                 DONT_TOUCH_MY_PHONE -> DontTouchMyPhone
@@ -215,7 +212,6 @@ class MainActivity : BaseActivity(
             const val APP_LOCKER = "appLocker"
             const val UNLOCK_PROTECTION = "unlockProtection"
 
-            const val TILES = "tiles"
             const val SHORTCUTS = "shortcuts"
 
             const val APP_MANAGER = "appManager"
@@ -237,7 +233,6 @@ class MainActivity : BaseActivity(
         @Serializable data object AppLocker: Screen(APP_LOCKER, R.string.applocker, Icons.Outlined.PhonelinkLock)
         @Serializable data object UnlockProtection: Screen(UNLOCK_PROTECTION, R.string.unlock_protection, Icons.Filled.Lock)
 
-        @Serializable data object Tiles: Screen(TILES, R.string.tiles, Icons.Filled.Apps)
         @Serializable data object Shortcuts: Screen(SHORTCUTS, R.string.shortcuts, Icons.AutoMirrored.Filled.Shortcut)
 
         @Serializable data object AppManager: Screen(APP_MANAGER, R.string.app_manager, Icons.Filled.Apps)
@@ -351,7 +346,6 @@ class MainActivity : BaseActivity(
                         Screen.UnlockProtection,
                         Screen.DontTouchMyPhone,
                         Screen.Label(R.string.customization),
-                        Screen.Tiles,
                         Screen.Shortcuts,
                         Screen.Label(R.string.tools),
                         Screen.AppManager,
@@ -492,7 +486,6 @@ class MainActivity : BaseActivity(
                         }
                         composable(route = UNLOCK_PROTECTION) { UnlockProtectionScreen(EdgeToEdgeBar) }
 
-                        composable(route = TILES) { TilesScreen(EdgeToEdgeBar) }
                         composable(route = SHORTCUTS) { ShortcutsScreen(EdgeToEdgeBar) }
 
                         composable(route = APP_MANAGER) {

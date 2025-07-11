@@ -10,7 +10,6 @@ import android.service.quicksettings.Tile.STATE_UNAVAILABLE
 import android.service.quicksettings.TileService
 import android.util.Log
 import io.toolbox.App.Companion.context
-import io.toolbox.Settings
 import ru.morozovit.android.configure
 import ru.morozovit.android.runOrLog
 
@@ -54,18 +53,12 @@ class SleepTile: TileService() {
 
     override fun onTileAdded() {
         super.onTileAdded()
-        if (Settings.Tiles.sleep) {
-            isVisible = true
-            qsTile.configure {
-                enabled = true
-            }
-            Log.d("SleepTile", "Releasing wake lock [onTileAdded]")
-            releaseWakelock()
-        } else {
-            qsTile.configure {
-                state = STATE_UNAVAILABLE
-            }
+        isVisible = true
+        qsTile.configure {
+            enabled = true
         }
+        Log.d("SleepTile", "Releasing wake lock [onTileAdded]")
+        releaseWakelock()
     }
 
     override fun onTileRemoved() {
@@ -80,15 +73,13 @@ class SleepTile: TileService() {
 
     override fun onStartListening() {
         super.onStartListening()
-        if (Settings.Tiles.sleep) {
-            if (!set) {
-                qsTile.configure {
-                    enabled = true
-                }
-                Log.d("SleepTile", "Releasing wake lock [onStartListening]")
-                releaseWakelock()
-                set = true
+        if (!set) {
+            qsTile.configure {
+                enabled = true
             }
+            Log.d("SleepTile", "Releasing wake lock [onStartListening]")
+            releaseWakelock()
+            set = true
         }
         canUpdate = true
         if (scheduledConfig != null) {
@@ -127,21 +118,15 @@ class SleepTile: TileService() {
         }
 
     override fun onClick() {
-        if (Settings.Tiles.sleep) {
-            qsTile.configure {
-                state = if (state == STATE_ACTIVE) STATE_INACTIVE else STATE_ACTIVE
-            }
-            if (qsTile.state == STATE_ACTIVE) {
-                Log.d("SleepTile", "Releasing wake lock [onClick]")
-                releaseWakelock()
-            } else {
-                Log.d("SleepTile", "Acquiring wake lock [onClick]")
-                acquireWakelock()
-            }
+        qsTile.configure {
+            state = if (state == STATE_ACTIVE) STATE_INACTIVE else STATE_ACTIVE
+        }
+        if (qsTile.state == STATE_ACTIVE) {
+            Log.d("SleepTile", "Releasing wake lock [onClick]")
+            releaseWakelock()
         } else {
-            qsTile.configure {
-                state = STATE_UNAVAILABLE
-            }
+            Log.d("SleepTile", "Acquiring wake lock [onClick]")
+            acquireWakelock()
         }
     }
 
