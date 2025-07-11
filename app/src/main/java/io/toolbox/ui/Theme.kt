@@ -110,6 +110,7 @@ inline fun AppTheme(
         ThemeSetting.Light -> false
         ThemeSetting.Dark -> true
     },
+    dynamicColor: Boolean = true,
     consumeTopInsets: Boolean = false,
     consumeBottomInsets: Boolean = false,
     consumeLeftInsets: Boolean = false,
@@ -123,7 +124,7 @@ inline fun AppTheme(
     lightColorScheme = appLightColorScheme,
     darkColorScheme = appDarkColorScheme,
     theme = theme,
-    dynamicThemeEnabled = dynamicThemeEnabled,
+    dynamicThemeEnabled = dynamicThemeEnabled && dynamicColor,
     darkTheme = darkTheme,
     consumeTopInsets = consumeTopInsets,
     consumeBottomInsets = consumeBottomInsets,
@@ -143,12 +144,13 @@ inline fun OverlayAppTheme(
         ThemeSetting.Light -> false
         ThemeSetting.Dark -> true
     },
+    dynamicColor: Boolean = true,
     crossinline content: @Composable () -> Unit
 ) = OverlayTheme(
     modifier = modifier,
     lightColorScheme = appLightColorScheme,
     darkColorScheme = appDarkColorScheme,
-    dynamicThemeEnabled = dynamicThemeEnabled,
+    dynamicThemeEnabled = dynamicThemeEnabled && dynamicColor,
     theme = theme,
     darkTheme = darkTheme
 ) { content() }

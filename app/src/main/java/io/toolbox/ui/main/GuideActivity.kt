@@ -84,7 +84,7 @@ class GuideActivity: BaseActivity(configTheme = false) {
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     fun GuideScreen(uri: Uri) {
-        AppTheme(darkTheme = true) {
+        AppTheme(darkTheme = true, dynamicColor = false) {
             val context = LocalContext()
             val scope = rememberCoroutineScope()
 
