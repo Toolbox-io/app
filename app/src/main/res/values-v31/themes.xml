@@ -3,7 +3,7 @@
     <style name="Theme.Toolbox_io.SplashScreen" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#FFFCF8FF</item>
         <item name="windowSplashScreenAnimatedIcon">@mipmap/app_icon</item>
-        <item name="android:windowSplashScreenBackground">#FFFFF8F6</item>
+        <item name="android:windowSplashScreenBackground">#FFFCF8FF</item>
         <item name="postSplashScreenTheme">@style/Theme.Toolbox_io.NoActionBar</item>
     </style>
 </resources>
