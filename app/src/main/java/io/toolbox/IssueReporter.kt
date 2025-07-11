@@ -1,10 +1,8 @@
 package io.toolbox
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_MAIN
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -35,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -44,64 +43,79 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.postDelayed
-import com.google.gson.JsonObject
-import com.google.gson.JsonParser
-import io.toolbox.App.Companion.GITHUB_API_VERSION
-import io.toolbox.App.Companion.GITHUB_TOKEN
+import io.ktor.client.plugins.ResponseException
+import io.ktor.client.statement.bodyAsText
 import io.toolbox.App.Companion.context
-import io.toolbox.App.Companion.githubRateLimitRemaining
+import io.toolbox.api.IssuesAPI
 import io.toolbox.ui.AppTheme
 import io.toolbox.ui.MainActivity
+import kotlinx.coroutines.launch
 import ru.morozovit.android.ActivityLauncher
 import ru.morozovit.android.activityResultLauncher
 import ru.morozovit.android.copy
-import ru.morozovit.android.encodeJSON
 import ru.morozovit.android.getSerializableExtraAs
+import ru.morozovit.android.runMultiple
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.CategoryDefaults
 import ru.morozovit.android.ui.DialogActivity
 import ru.morozovit.android.verticalScroll
 import ru.morozovit.utils.EParser
-import ru.morozovit.utils.shorten
-import java.io.BufferedInputStream
-import java.net.URL
-import javax.net.ssl.HttpsURLConnection
-import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
-@SuppressLint("DefaultUncaughtExceptionDelegation") // FIXME default handler
 object IssueReporter {
+    private var uncaughtHandler: Thread.UncaughtExceptionHandler? = null
+    private var uncaughtHandlerIsSet = false
+
+    fun setHandler() {
+        if (!uncaughtHandlerIsSet) {
+            uncaughtHandler = Thread.getDefaultUncaughtExceptionHandler()
+            uncaughtHandlerIsSet = true
+        }
+    }
+
     var enabled = true
         set(value) {
             field = value
-            Thread.setDefaultUncaughtExceptionHandler(if (value) DEFAULT_HANDLER else DISABLED_HANDLER)
+
+            setHandler()
+
+            Thread.setDefaultUncaughtExceptionHandler(
+                if (value) DEFAULT_HANDLER
+                else uncaughtHandler ?: DISABLED_HANDLER
+            )
         }
     private var crashes = 0
     private const val CRASHES_LIMIT = 2
 
-    private val DEFAULT_HANDLER = { t: Thread, exception: Throwable ->
+    private val DEFAULT_HANDLER = Thread.UncaughtExceptionHandler { t: Thread, exception: Throwable ->
         crashes++
         if (crashes > CRASHES_LIMIT) {
             enabled = false
-            DISABLED_HANDLER(t, exception)
+            (uncaughtHandler ?: DISABLED_HANDLER).uncaughtException(t, exception)
         }
         runCatching {
             Log.e("App", "EXCEPTION CAUGHT:\n${EParser(exception)}")
         }
         startCrashedActivity(exception, context)
     }
-    private val DISABLED_HANDLER = { _: Thread, _: Throwable ->
-        runCatching {
-            Toast.makeText(
-                context,
-                R.string.fatal_error,
-                Toast.LENGTH_SHORT
-            )
-        }
+    private val DISABLED_HANDLER = Thread.UncaughtExceptionHandler { _: Thread, e: Throwable ->
+        runMultiple(
+            {
+                Toast.makeText(
+                    context,
+                    R.string.fatal_error,
+                    Toast.LENGTH_SHORT
+                )
+            },
+            {
+                Log.wtf("App", "FATAL EXCEPTION:", e)
+            }
+        )
         exitProcess(10)
     }
 
     fun init() {
+        setHandler()
         Thread.setDefaultUncaughtExceptionHandler(DEFAULT_HANDLER)
     }
 
@@ -139,117 +153,18 @@ object IssueReporter {
             }
         }
     }
-    fun reportIssue(context: Context, exception: Throwable, message: String? = null) {
+    suspend fun reportIssue(context: Context, exception: Throwable, message: String? = null) {
         if (enabled) {
-            val handler = Handler(Looper.getMainLooper())
-            thread {
-                with(context) {
-                    Log.d("IssueReporter", "Reporting an issue")
-                    val request = URL("https://api.github.com/repos/Toolbox-io/Toolbox-io/issues")
-                        .openConnection() as HttpsURLConnection
-                    request.requestMethod = "POST"
-                    request.setRequestProperty("Accept", "application/vnd.github.raw+json")
-                    request.setRequestProperty("X-Github-Api-Version", GITHUB_API_VERSION)
-                    request.setRequestProperty("Authorization", "Bearer $GITHUB_TOKEN")
-
-                    try {
-                        request.connect()
-                        request.outputStream.use {
-                            val title = "${exception::class.simpleName}: ${exception.message}".shorten(256).encodeJSON()
-                            var body = """
-                                |_Этот отчет об ошибке был автоматически отправлен через Toolbox.io._
-                                |
-                                |### Конфигурация
-                                |**Версия Android:** ${Build.VERSION.RELEASE}
-                                |**Производитель:** ${Build.MANUFACTURER}
-                                |**Бренд:** ${Build.BRAND}
-                                |**Модель:** ${Build.MODEL}
-                                |**Версия Toolbox.io**: ${BuildConfig.VERSION_NAME}
-                                |
-                                |### Ошибка
-                                |```
-                                |${"${EParser(exception)}".trim()}
-                                |```
-                            """.trimMargin()
-                            if (!message.isNullOrBlank()) {
-                                val str = message
-                                    .lines()
-                                    .joinToString(separator = "\n") { line ->
-                                        "> $line"
-                                    }
-
-                                body += """
-                                    |
-                                    |### Что делали?
-                                    |$str
-                                """.trimMargin()
-                            }
-                            body = body.encodeJSON()
-                            val json = """
-                                {
-                                    "title": "$title",
-                                    "body": "$body",
-                                    "assignees": ["denis0001-dev"],
-                                    "labels": ["приложение", "баг", "авто-отчет"]
-                                }
-                            """.trimIndent()
-
-                            Log.d("IssueReporter", json)
-                            it.write(json.toByteArray())
-                        }
-                        if (request.responseCode == 201) {
-                            val input = BufferedInputStream(request.inputStream)
-                            var c: Char
-
-                            val chars: MutableList<Char> = mutableListOf()
-
-                            while (true) {
-                                c = input.read().toChar()
-                                if (c == 0.toChar() || c == '\uFFFF') break
-                                chars.add(c)
-                            }
-                            val response = String(chars.toCharArray())
-                            val parsedResponse = JsonParser.parseString(response) as JsonObject
-                            val number = parsedResponse["number"].asInt
-                            handler.post {
-                                Toast.makeText(
-                                    this,
-                                    resources.getString(R.string.issuecreated).format(number),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        } else {
-                            Log.d("IssueReporter", "Error. HTTP response code: ${request.responseCode}")
-                            val errorInput = request.errorStream!!
-                            var c: Char
-
-                            val chars: MutableList<Char> = mutableListOf()
-
-                            while (true) {
-                                c = errorInput.read().toChar()
-                                if (c == 0.toChar() || c == '\uFFFF') break
-                                chars.add(c)
-                            }
-                            val response = String(chars.toCharArray())
-                            Log.d("IssueReporter", "Error response: $response")
-                            error("")
-                        }
-                    } catch (e: Exception) {
-                        Log.d("IssueReporter", "Error. \n${EParser(e)}")
-                        handler.post {
-                            Toast.makeText(
-                                this,
-                                resources.getString(R.string.smthwentwrong),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    } finally {
-                        runCatching {
-                            githubRateLimitRemaining = request.getHeaderField("x-ratelimit-remaining").toLong()
-                        }
-                        request.disconnect()
-                    }
-                }
+            try {
+                val number = IssuesAPI.reportCrash(exception, message)
+                Toast.makeText(
+                    context,
+                    context.resources.getString(R.string.issuecreated).format(number),
+                    Toast.LENGTH_SHORT
+                ).show()
+            } catch (e: ResponseException) {
+                Log.e("IssueReporter", "Error. HTTP response code: ${e.response.status}")
+                Log.e("IssueReporter", e.response.bodyAsText())
             }
         }
     }
@@ -361,6 +276,7 @@ object IssueReporter {
         @Composable
         fun OneQuestionScreen() {
             val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+            val scope = rememberCoroutineScope()
 
             AppTheme {
                 Scaffold(
@@ -407,9 +323,11 @@ object IssueReporter {
                         )
                         Button(
                             onClick = {
-                                reportIssue(this@OneQuestionActivity, exception, text)
-                                setResult(RESULT_OK)
-                                finish()
+                                scope.launch {
+                                    reportIssue(this@OneQuestionActivity, exception, text)
+                                    setResult(RESULT_OK)
+                                    finish()
+                                }
                             },
                             modifier = Modifier.padding(16.dp)
                         ) {

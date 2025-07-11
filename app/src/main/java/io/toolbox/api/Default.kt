@@ -3,6 +3,7 @@
 package io.toolbox.api
 
 import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -11,7 +12,9 @@ import ru.morozovit.android.jsonConfig
 import ru.morozovit.android.logging
 
 @OptIn(ExperimentalSerializationApi::class)
-fun DefaultHTTPClient() = HttpClient {
+inline fun DefaultHTTPClient(
+    crossinline config: HttpClientConfig<*>.() -> Unit = {}
+) = HttpClient {
     jsonConfig {
         ignoreUnknownKeys = true
         allowComments = true
@@ -26,4 +29,6 @@ fun DefaultHTTPClient() = HttpClient {
     }
 
     followRedirects = true
+
+    config()
 }
