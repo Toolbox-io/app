@@ -10,12 +10,12 @@ package ru.morozovit.android.ui
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.graphics.res.animatedVectorResource
+import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
+import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,7 +44,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -94,22 +93,14 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.DefaultAlpha
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asAndroidColorFilter
-import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -136,7 +127,6 @@ import ru.morozovit.android.left
 import ru.morozovit.android.link
 import ru.morozovit.android.plus
 import ru.morozovit.android.right
-import kotlin.math.sqrt
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
@@ -503,121 +493,22 @@ fun SwitchCard(
 }
 
 @Composable
-fun AnimatedCrosslineIcon(
-    icon: ImageVector,
-    crossline: Boolean,
+fun AnimatedVisibilityIcon(
+    isVisible: Boolean,
     modifier: Modifier = Modifier,
     contentDescription: String? = null
 ) {
-    val lineDrawProgress by animateFloatAsState(
-        targetValue = if (crossline) 0f else 1f, // 0f for hidden line, 1f for drawn line
-        animationSpec = tween(300),
-        label = "line_draw_progress"
+    val painter = rememberAnimatedVectorPainter(
+        animatedImageVector = AnimatedImageVector.animatedVectorResource(
+            id = if (isVisible) R.drawable.avd_show_password else R.drawable.avd_hide_password
+        ),
+        atEnd = true
     )
-
-    val iconColor = MaterialTheme.colorScheme.onSurface
-
-    Box(
-        modifier = modifier
-            .size(24.dp)
-            .semantics {
-                contentDescription?.let { this.contentDescription = it }
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        val vectorPainter = rememberVectorPainter(icon)
-
-        Canvas(modifier = Modifier.matchParentSize()) {
-            val colorFilter = ColorFilter.tint(iconColor)
-
-            // Draw the base Visibility icon directly to the canvas
-            drawIntoCanvas {
-                with(vectorPainter) {
-                    draw(size, 1f, colorFilter)
-                }
-            }
-
-            // Draw the animating main cross line and its 'background' strip on top
-            if (!crossline || lineDrawProgress > 0f) {
-                // Coordinates for the diagonal line (from top-left to bottom-right)
-                val x1 = size.width * 0.05f
-                val y1 = size.height * 0.15f
-                val x2 = size.width * 0.825f
-                val y2 = size.height * 0.925f
-
-                // Current end point of the drawing line based on animation progress
-                val currentX = x1 + (x2 - x1) * lineDrawProgress
-                val currentY = y1 + (y2 - y1) * lineDrawProgress
-
-                val mainLineThickness = 2.dp.toPx()
-                val backgroundStripThickness = 2.dp.toPx() // Thickness of the 'blank background' strip
-
-                // Calculate perpendicular vector for thickness and offset for the second line
-                val dx = x2 - x1
-                val dy = y2 - y1
-                val length = sqrt(dx * dx + dy * dy)
-                // Perpendicular vector normalized (points to the 'left' side relative to line direction)
-                val nx = -dy / length
-                val ny = dx / length
-
-                // Global offset to shift both lines further to the left
-                val globalLineOffset = mainLineThickness / 2
-
-                // --- Draw the 'Blank background' strip path (filled rectangle) first, attached to the left/top-left of the main line ---
-                // This path will now erase pixels
-                drawPath(
-                    path = Path().apply {
-                        val offsetFromMainLineCenter = mainLineThickness / 2 + backgroundStripThickness / 2 - 1.dp.toPx()
-
-                        // Points for the strip, offset to the 'top-left' side by subtracting nx and ny
-                        // Apply globalLineOffset to shift both lines further left
-                        val p1x = x1 - nx * (offsetFromMainLineCenter + globalLineOffset)
-                        val p1y = y1 - ny * (offsetFromMainLineCenter + globalLineOffset)
-                        val p2x = x1 - nx * (offsetFromMainLineCenter + backgroundStripThickness + globalLineOffset)
-                        val p2y = y1 - ny * (offsetFromMainLineCenter + backgroundStripThickness + globalLineOffset)
-
-                        val cp1x = currentX - nx * (offsetFromMainLineCenter + globalLineOffset)
-                        val cp1y = currentY - ny * (offsetFromMainLineCenter + globalLineOffset)
-                        val cp2x = currentX - nx * (offsetFromMainLineCenter + backgroundStripThickness + globalLineOffset)
-                        val cp2y = currentY - ny * (offsetFromMainLineCenter + backgroundStripThickness + globalLineOffset)
-
-                        moveTo(p1x, p1y)
-                        lineTo(p2x, p2y)
-                        lineTo(cp2x, cp2y)
-                        lineTo(cp1x, cp1y)
-                        close()
-                    },
-                    color = Color.Transparent, // This color will be used for blending calculation
-                    style = Fill,
-                    blendMode = BlendMode.Clear // This makes it erase pixels underneath
-                )
-
-                // --- Draw the Main cross line path (filled rectangle) second ---
-                drawPath(
-                    path = Path().apply {
-                        // Apply globalLineOffset to shift both lines further left
-                        val p1x = x1 - nx * (mainLineThickness / 2 + globalLineOffset)
-                        val p1y = y1 - ny * (mainLineThickness / 2 + globalLineOffset)
-                        val p2x = x1 + nx * (mainLineThickness / 2 - globalLineOffset)
-                        val p2y = y1 + ny * (mainLineThickness / 2 - globalLineOffset)
-
-                        val cp1x = currentX - nx * (mainLineThickness / 2 + globalLineOffset)
-                        val cp1y = currentY - ny * (mainLineThickness / 2 + globalLineOffset)
-                        val cp2x = currentX + nx * (mainLineThickness / 2 - globalLineOffset)
-                        val cp2y = currentY + ny * (mainLineThickness / 2 - globalLineOffset)
-
-                        moveTo(p1x, p1y)
-                        lineTo(p2x, p2y)
-                        lineTo(cp2x, cp2y)
-                        lineTo(cp1x, cp1y)
-                        close()
-                    },
-                    color = iconColor,
-                    style = Fill
-                )
-            }
-        }
-    }
+    Icon(
+        painter = painter,
+        contentDescription = contentDescription,
+        modifier = modifier.size(24.dp)
+    )
 }
 
 @Composable
@@ -633,6 +524,10 @@ inline fun SecureTextField(
     noinline leadingIcon: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(
+        keyboardType = KeyboardType.Password,
+        autoCorrectEnabled = false
+    ),
     interactionSource: MutableInteractionSource? = null,
     shape: Shape = OutlinedTextFieldDefaults.shape,
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
@@ -650,9 +545,8 @@ inline fun SecureTextField(
             IconButton(
                 onClick = { onHiddenChange(!hidden) }
             ) {
-                AnimatedCrosslineIcon(
-                    icon = Icons.Filled.Visibility,
-                    crossline = hidden,
+                AnimatedVisibilityIcon(
+                    isVisible = !hidden,
                     contentDescription = if (hidden)
                         stringResource(R.string.show_pw)
                     else
@@ -661,10 +555,7 @@ inline fun SecureTextField(
             }
         },
         modifier = modifier,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Password,
-            autoCorrectEnabled = false
-        ),
+        keyboardOptions = keyboardOptions,
         maxLines = 1,
         singleLine = true,
         enabled = enabled,

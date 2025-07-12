@@ -227,4 +227,5 @@
     <string name="use_sensors_d">If enabled, accelerometer and rotation sensors will be used to detect touches</string>
     <string name="trigger_on_charger">Trigger on charger</string>
     <string name="trigger_on_charger_d">Trigger security actions when the charger is connected/disconnected</string>
+    <string name="wrong_password">Wrong password</string>
 </resources>
