@@ -7,6 +7,7 @@ biometric = "1.4.0-alpha04"
 composeBom = "2025.06.01"
 constraintlayoutCompose = "1.1.1"
 coreSplashscreen = "1.0.1"
+customactivityoncrash = "2.4.0"
 gson = "2.13.1"
 haze = "1.6.6"
 hazeMaterials = "1.6.6"
@@ -44,6 +45,7 @@ androidx-material3 = { module = "androidx.compose.material3:material3", version.
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
 androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
+customactivityoncrash = { module = "cat.ereza:customactivityoncrash", version.ref = "customactivityoncrash" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }

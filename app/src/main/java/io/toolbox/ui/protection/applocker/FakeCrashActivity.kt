@@ -43,9 +43,13 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import io.toolbox.R
 import io.toolbox.Settings.Applocker.UnlockMode.LONG_PRESS_APP_INFO
+import io.toolbox.Settings.Applocker.UnlockMode.LONG_PRESS_CLOSE
+import io.toolbox.Settings.Applocker.UnlockMode.LONG_PRESS_OPEN_APP_AGAIN
 import io.toolbox.Settings.Applocker.UnlockMode.LONG_PRESS_TITLE
 import io.toolbox.Settings.Applocker.UnlockMode.PRESS_TITLE
+import io.toolbox.Settings.Applocker.unlockMode
 import io.toolbox.ui.OverlayAppTheme
+import kotlinx.coroutines.delay
 import ru.morozovit.android.ComposeView
 import ru.morozovit.android.appName
 import ru.morozovit.android.screenWidth
@@ -61,40 +65,33 @@ class FakeCrashActivity : AppCompatActivity() {
             // Per-API layout values from XMLs
             data class LayoutSpec(
                 val cardCornerRadius: Int,
-                val cardHorizontalMargin: Int,
-                val cardMaxWidth: Int,
-                val columnTop: Int,
-                val columnBottom: Int,
-                val titleStart: Int,
-                val titleEnd: Int,
-                val titleBottom: Int,
-                val buttonStart: Int,
-                val buttonEnd: Int,
-                val buttonBottom: Int,
-                val buttonTop: Int,
                 val buttonSpacing: Int,
-                val buttonTextSize: Int
-            )
-            val layout = when {
-                api >= 31 -> LayoutSpec(
-                    cardCornerRadius = 30, cardHorizontalMargin = 30, cardMaxWidth = 500,
-                    columnTop = 20, columnBottom = 10, titleStart = 20, titleEnd = 20,
-                    titleBottom = 20, buttonStart = 20, buttonEnd = 20, buttonBottom = 15,
-                    buttonTop = 15, buttonTextSize = 17, buttonSpacing = 16
-                )
-                api >= 29 -> LayoutSpec(
-                    cardCornerRadius = 10, cardHorizontalMargin = 30, cardMaxWidth = 500,
-                    columnTop = 20, columnBottom = 10, titleStart = 20, titleEnd = 20,
-                    titleBottom = 20, buttonStart = 20, buttonEnd = 20, buttonBottom = 15,
-                    buttonTop = 15, buttonTextSize = 16, buttonSpacing = 32
-                )
-                else -> LayoutSpec(
-                    cardCornerRadius = 0, cardHorizontalMargin = 30, cardMaxWidth = 500,
-                    columnTop = 20, columnBottom = 10, titleStart = 20, titleEnd = 20,
-                    titleBottom = 20, buttonStart = 20, buttonEnd = 20, buttonBottom = 15,
-                    buttonTop = 15, buttonTextSize = 16, buttonSpacing = 32
-                )
+                val buttonTextSize: Int,
+                val isBold: Boolean
+            ) {
+                val cardHorizontalMargin = 30
+                val cardMaxWidth = 500
+                val columnTop = 20
+                val titleStart = 20
+                val titleEnd = 20
+                val columnBottom = 10
+                val titleBottom = 20
+                val buttonStart = 20
+                val buttonEnd = 20
+                val buttonBottom = 15
+                val buttonTop = 15
             }
+
+            val layout = LayoutSpec(
+                cardCornerRadius = when {
+                    api >= 31 -> 30
+                    api >= 29 -> 10
+                    else -> 0
+                },
+                buttonTextSize = if (api >= 31) 17 else 16,
+                buttonSpacing = if (api >= 31) 16 else 32,
+                isBold = api < 29
+            )
 
             val androidPrimary = if (isNight) Color(0xFF80cbc4) else Color(0xFF008577)
 
@@ -114,19 +111,18 @@ class FakeCrashActivity : AppCompatActivity() {
             }
 
             // Auto-close after 15 seconds
-            // TODO uncomment
-            /*LaunchedEffect(Unit) {
+            LaunchedEffect(Unit) {
                 delay(15000)
                 setResult(RESULT_CANCELED)
                 finish()
-            }*/
+            }
 
             fun unlock(modeRequired: Int? = null) {
-//                if (modeRequired in listOf(null, unlockMode)) {
-//                    setResult(RESULT_OK)
-//                    finish()
-//                    PasswordInputActivity.start(context, packageName)
-//                }
+                if (modeRequired in listOf(null, unlockMode)) {
+                    setResult(RESULT_OK)
+                    finish()
+                    PasswordInputActivity.start(context, packageName)
+                }
             }
 
             Box(
@@ -160,7 +156,7 @@ class FakeCrashActivity : AppCompatActivity() {
                                 api >= 29 -> Color.Black
                                 else -> Color.Black
                             },
-                            fontWeight = FontWeight.W600.takeIf { api < 29 },
+                            fontWeight = FontWeight.W600.takeIf { layout.isBold },
                             modifier = Modifier
                                 .padding(
                                     start = layout.titleStart.dp,
@@ -178,22 +174,16 @@ class FakeCrashActivity : AppCompatActivity() {
                         @Composable
                         fun ActionButton(
                             icon: ImageVector,
-                            text: String
+                            text: String,
+                            modeRequired: Int,
+                            action: () -> Unit
                         ) {
                             Box(
                                 Modifier
                                     .fillMaxWidth()
                                     .combinedClickable(
-                                        onClick = {
-                                            startActivity(
-                                                Intent("android.settings.APPLICATION_DETAILS_SETTINGS").apply {
-                                                    data = "package:$packageName".toUri()
-                                                }
-                                            )
-                                            setResult(RESULT_OK)
-                                            finish()
-                                        },
-                                        onLongClick = { unlock(LONG_PRESS_APP_INFO) }
+                                        onClick = action,
+                                        onLongClick = { unlock(modeRequired) }
                                     )
                             ) {
                                 Row(
@@ -228,13 +218,51 @@ class FakeCrashActivity : AppCompatActivity() {
                         }
 
                         // App Info Button (API 28+)
-                        if (showAppInfo) ActionButton(Icons.Outlined.Info, stringResource(R.string.appinfo))
+                        if (showAppInfo) {
+                            ActionButton(
+                                icon = Icons.Outlined.Info,
+                                text = stringResource(R.string.appinfo),
+                                modeRequired = LONG_PRESS_APP_INFO
+                            ) {
+                                startActivity(
+                                    Intent("android.settings.APPLICATION_DETAILS_SETTINGS").apply {
+                                        data = "package:$packageName".toUri()
+                                    }
+                                )
+                                setResult(RESULT_OK)
+                                finish()
+                            }
+                        }
 
                         // Close App Button (API 28+)
-                        if (showCloseApp) ActionButton(Icons.Filled.Close, stringResource(R.string.closeapp))
+                        if (showCloseApp) {
+                            ActionButton(
+                                icon = Icons.Filled.Close,
+                                text = stringResource(R.string.closeapp),
+                                modeRequired = LONG_PRESS_CLOSE
+                            ) {
+                                setResult(RESULT_OK)
+                                finish()
+                            }
+                        }
 
                         // Open App Again Button (API 24–27)
-                        if (showOpenAppAgain) ActionButton(Icons.Filled.Refresh, stringResource(R.string.open_app_again))
+                        if (showOpenAppAgain) {
+                            ActionButton(
+                                icon = Icons.Filled.Refresh,
+                                text = stringResource(R.string.open_app_again),
+                                modeRequired = LONG_PRESS_OPEN_APP_AGAIN
+                            ) {
+                                if (packageName.isNotBlank()) {
+                                    val intent = applicationContext
+                                        .packageManager
+                                        .getLaunchIntentForPackage(packageName)
+                                    startActivity(intent)
+                                    setResult(RESULT_OK)
+                                    finish()
+                                }
+                            }
+                        }
                     }
                 }
             }

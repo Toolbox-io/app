@@ -329,27 +329,16 @@ class UpdateChecker: JobService() {
                 @SuppressLint("MissingPermission")
                 override fun onProgressUpdate(vararg progress: String) {
                     // setting progress percentage
-                    builder.setProgress(100, progress[0].toInt(), false)
+                    builder
+                        .setProgress(100, progress[0].toInt(), false)
                         .setSilent(true)
                         .setOngoing(true)
-                    context.notifyIfAllowed(
-                        UPDATE_NOTIFICATION_ID, builder.build()
-                    )
+                    context.notifyIfAllowed(UPDATE_NOTIFICATION_ID, builder.build())
                 }
 
                 @SuppressLint("MissingPermission")
-                override fun onPostExecute(result: Unit?) {
-                    with (context) {
-                        val install = Intent(Intent.ACTION_INSTALL_PACKAGE)
-                        install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        install.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                        install.data = FileProvider.getUriForFile(
-                            this,
-                            context.packageName + ".provider",
-                            file
-                        )
-
+                override fun onPostExecute(result: Unit) {
+                    with (context) context@ {
                         val dialog = DialogActivity.getLaunchIntent(
                             context = context,
                             title = resources.getString(R.string.install_package),
@@ -357,7 +346,20 @@ class UpdateChecker: JobService() {
                             positiveButtonText = resources.getString(R.string.install),
                             negativeButtonText = resources.getString(R.string.cancel),
                             positiveButtonOnClick = {
-                                startActivity(install)
+                                startActivity(
+                                    Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
+                                        addFlags(
+                                            Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                                                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                                                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                        )
+                                        data = FileProvider.getUriForFile(
+                                            this@context,
+                                            "${context.packageName}.provider",
+                                            file
+                                        )
+                                    }
+                                )
                             },
                             negativeButtonOnClick = {}
                         )

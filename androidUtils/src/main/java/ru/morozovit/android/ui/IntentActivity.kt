@@ -21,7 +21,7 @@ class IntentActivity: Activity() {
         try {
             val intent = try {
                 intent.getParcelableExtraAs<Intent>(EXTRA_INTENT)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 Intent().apply {
                     component = ComponentName(
                         intent.getStringExtra(EXTRA_PACKAGE_NAME)!!,
@@ -31,7 +31,7 @@ class IntentActivity: Activity() {
                 }
             }
             startActivity(intent)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             Toast.makeText(
                 this,
                 resources.getString(R.string.smthwentwrong),

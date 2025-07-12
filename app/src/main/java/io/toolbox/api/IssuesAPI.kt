@@ -8,7 +8,6 @@ import io.toolbox.BuildConfig
 import kotlinx.serialization.Serializable
 import ru.morozovit.android.failOnError
 import ru.morozovit.android.jsonConfig
-import ru.morozovit.utils.ExceptionParser
 
 object IssuesAPI {
     private const val BASE_URL = "https://beta.toolbox-io.ru/api/issues/reportCrash"
@@ -40,11 +39,13 @@ object IssuesAPI {
     )
 
     suspend fun reportCrash(
-        exception: Throwable,
+        exception: String,
         message: String? = null
     ) =
         client
             .post(BASE_URL) {
+                val title = exception.lines()[1].split(": ")
+
                 setBody(
                     CrashReport(
                         androidVersion = Build.VERSION.RELEASE,
@@ -52,9 +53,9 @@ object IssuesAPI {
                         brand = Build.BRAND,
                         model = Build.MODEL,
                         programVersion = BuildConfig.VERSION_NAME,
-                        exceptionClass = exception::class.qualifiedName ?: "<UNKNOWN>",
-                        exceptionMsg = exception.message ?: "<no message>",
-                        exceptionStacktrace = "${ExceptionParser(exception)}".trim(),
+                        exceptionClass = title[0],
+                        exceptionMsg = title[1].takeIf { it.isNotBlank() } ?: "<no message>",
+                        exceptionStacktrace = exception.trim(),
                         whatHappened = message ?: ""
                     )
                 )

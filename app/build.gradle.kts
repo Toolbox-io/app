@@ -59,7 +59,6 @@ android {
     }
 
     buildFeatures {
-        viewBinding = true
         compose = true
         buildConfig = true
     }
@@ -84,6 +83,7 @@ dependencies {
     implementation(libs.biometric)
     implementation(kotlin("reflect"))
     implementation(libs.placeholder.material3)
+    implementation(libs.customactivityoncrash)
     
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)

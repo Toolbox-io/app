@@ -30,6 +30,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Shortcut
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.DoNotTouch
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
@@ -38,6 +39,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.PhonelinkLock
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -51,6 +53,7 @@ import androidx.compose.material3.PermanentDrawerSheet
 import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -60,8 +63,6 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -72,7 +73,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -84,6 +84,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import cat.ereza.customactivityoncrash.CustomActivityOnCrash
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
@@ -91,6 +92,7 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
 import io.toolbox.App.Companion.authenticated
 import io.toolbox.BaseActivity
+import io.toolbox.IssueReporter
 import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.services.UpdateChecker
@@ -119,28 +121,29 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import ru.morozovit.android.ActivityLauncher
+import ru.morozovit.android.ComposeView
 import ru.morozovit.android.WidthSizeClass
 import ru.morozovit.android.activityResultLauncher
 import ru.morozovit.android.compareTo
+import ru.morozovit.android.compositionLocalOf
 import ru.morozovit.android.invoke
 import ru.morozovit.android.left
 import ru.morozovit.android.link
 import ru.morozovit.android.right
+import ru.morozovit.android.runOrLog
 import ru.morozovit.android.unsupported
 import ru.morozovit.android.verticalScroll
 import ru.morozovit.android.widthSizeClass
 
-val LocalNavController: ProvidableCompositionLocal<NavController> = compositionLocalOf { throw IllegalStateException("Uninitialized") }
-val LocalHazeState: ProvidableCompositionLocal<HazeState> = compositionLocalOf { throw NotImplementedError() }
+val LocalNavController = compositionLocalOf<NavController>()
+val LocalHazeState = compositionLocalOf<HazeState>()
 
-class MainActivity : BaseActivity(
-    savedInstanceStateEnabled = true
-) {
+class MainActivity : BaseActivity() {
     private var prevConfig: Configuration? = null
     lateinit var activityLauncher: ActivityLauncher
     val resumeHandlers = mutableListOf<() -> Unit>()
     private var isLockVisible by mutableStateOf(false)
-    private var uriIntent by mutableStateOf(intent)
+    private var uriIntent: Intent? by mutableStateOf(intent)
 
     sealed class BaseScreen
 
@@ -254,38 +257,129 @@ class MainActivity : BaseActivity(
             var selectedItem by rememberSaveable { mutableStateOf(HOME) }
             val navController = rememberNavController()
 
-            val currentEntry = navController.currentBackStackEntryAsState()
+            val currentEntry by navController.currentBackStackEntryAsState()
             val hazeState = rememberHazeState(blurEnabled = true)
-
-            LaunchedEffect(currentEntry.value) {
-                runCatching {
-                    selectedItem = currentEntry.value!!.destination.route!!
-                }
-            }
-
-            LaunchedEffect(uriIntent) {
-                val data = intent.data
-                Log.d("MainActivity", data.toString())
-                Log.d("MainActivity", data?.pathSegments.toString())
-                if (
-                    data != null &&
-                    data.scheme == "toolbox-io" &&
-                    data.host == "page" &&
-                    data.pathSegments.size == 1
-                ) {
-                    try {
-                        navController.navigate(data.pathSegments[0])
-                    } catch (_: Exception) {
-                        Toast.makeText(
-                            this@MainActivity,
-                            R.string.invalid_uri,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            }
-
             val isScreenBig = currentWindowAdaptiveInfo().widthSizeClass >= WidthSizeClass.MEDIUM
+
+            // Crash dialog
+            var isCrashDialogOpen by remember { mutableStateOf(false) }
+            var crashStackTrace: String? by remember { mutableStateOf(null) }
+            var crashActivityLog: String? by remember { mutableStateOf(null) }
+
+            // Set currentItem based on the route
+            LaunchedEffect(currentEntry) {
+                runCatching {
+                    selectedItem = currentEntry!!.destination.route!!
+                }
+            }
+
+            // Process new intents
+            LaunchedEffect(uriIntent) {
+                val intent = uriIntent
+
+                // Process "toolbox-io://" URIs
+                intent?.data
+                    .takeIf {
+                        it?.scheme == "toolbox-io"
+                    }
+                    ?.let {
+                        "${it.host}/${it.path}"
+                    }
+                    ?.let {
+                        when {
+                            it.startsWith("page/") -> {
+                                try {
+                                    navController.navigate(it.replaceFirst("page/", ""))
+                                } catch (_: Exception) {
+                                    Toast.makeText(
+                                        this@MainActivity,
+                                        R.string.invalid_uri,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        }
+                    }
+
+                if (intent == null) {
+                    Log.w("IssueReporter", "intent is null")
+                }
+
+                // Process crashes
+                if (
+                    intent != null &&
+                    runCatching {
+                        CustomActivityOnCrash.getCustomCrashDataFromIntent(intent)
+                    }.also {
+                        val str = it.exceptionOrNull() ?: it.getOrNull() ?: "<null>"
+                        Log.d("IssueReporter", "Crash data: $str")
+                    }.getOrNull() == "crash_mainactivity"
+                ) {
+                    crashStackTrace = CustomActivityOnCrash.getStackTraceFromIntent(intent)
+                    crashActivityLog = CustomActivityOnCrash.getActivityLogFromIntent(intent)
+
+                    Log.e(
+                        "IssueReporter",
+                        """
+                        |App crashed!
+                        |
+                        |Stack trace:
+                        |${crashStackTrace}
+                        |
+                        |Activity log:
+                        |${crashActivityLog}
+                        """.trimMargin()
+                    )
+
+                    isCrashDialogOpen = true
+                }
+            }
+
+            if (isCrashDialogOpen) {
+                AlertDialog(
+                    icon = {
+                        Icon(Icons.Filled.BugReport, null)
+                    },
+                    title = {
+                        Text(stringResource(R.string.im_sorry))
+                    },
+                    text = {
+                        Text(stringResource(R.string.crash_d))
+                    },
+                    onDismissRequest = { isCrashDialogOpen = false },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                isCrashDialogOpen = false
+                                startActivity(
+                                    Intent(this@MainActivity, IssueReporter.ExceptionDetailsActivity::class.java).apply {
+                                        putExtra(
+                                            "exception",
+                                            """
+                                            |Stack trace:
+                                            |${crashStackTrace}
+                                            |
+                                            |Activity log:
+                                            |${crashActivityLog}
+                                            """.trimMargin()
+                                        )
+                                    }
+                                )
+                            }
+                        ) {
+                            Text(stringResource(R.string.details))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { isCrashDialogOpen = false }
+                        ) {
+                            Text(stringResource(R.string.continue1))
+                        }
+                    }
+                )
+            }
+
 
             val drawerContent: @Composable ColumnScope.() -> Unit = {
                 Column(
@@ -336,7 +430,9 @@ class MainActivity : BaseActivity(
                                 .padding(start = 12.dp)
                         )
                     }
-                    val items = listOf(
+
+
+                    listOf(
                         Screen.Home,
                         Screen.Settings,
                         Screen.Profile,
@@ -350,32 +446,30 @@ class MainActivity : BaseActivity(
                         Screen.Label(R.string.tools),
                         Screen.AppManager,
                         Screen.NotificationHistory
-                    )
-                    items.forEach { item ->
-                        when (item) {
+                    ).forEach {
+                        when (it) {
                             is Screen -> NavigationDrawerItem(
-                                icon = { Icon(item.icon, contentDescription = null) },
-                                label = { Text(stringResource(item.displayName)) },
-                                selected = item == Screen[selectedItem],
+                                icon = { Icon(it.icon, contentDescription = null) },
+                                label = { Text(stringResource(it.displayName)) },
+                                selected = it == Screen[selectedItem],
                                 onClick = {
                                     scope.launch { drawerState.close() }
-                                    if (Screen[selectedItem] != item) {
-                                        selectedItem = item.internalName
-                                        navController.navigate(item.internalName)
+                                    if (Screen[selectedItem] != it) {
+                                        selectedItem = it.internalName
+                                        navController.navigate(it.internalName)
                                     }
                                 },
                                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                             )
-                            is Screen.Label -> {
-                                Text(
-                                    text = stringResource(item.label),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.padding(top = 12.dp, bottom = 12.dp, start = 28.dp, end = 36.dp)
-                                )
-                            }
+                            is Screen.Label -> Text(
+                                text = stringResource(it.label),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(top = 12.dp, bottom = 12.dp, start = 28.dp, end = 36.dp)
+                            )
                         }
                     }
+
                     Spacer(Modifier.height(12.dp))
                 }
             }
@@ -463,6 +557,7 @@ class MainActivity : BaseActivity(
                             WindowInsets.safeDrawing.only(WindowInsetsSides.Left)
                         )
                     ) {
+                        // Core
                         composable(route = HOME) {
                             HomeScreen(
                                 bar,
@@ -478,6 +573,7 @@ class MainActivity : BaseActivity(
                         }
                         composable(route = ABOUT) { AboutScreen(EdgeToEdgeBar) }
 
+                        // Security
                         composable(route = APP_LOCKER) {
                             ApplockerScreen(
                                 bar,
@@ -485,9 +581,12 @@ class MainActivity : BaseActivity(
                             )
                         }
                         composable(route = UNLOCK_PROTECTION) { UnlockProtectionScreen(EdgeToEdgeBar) }
+                        composable(route = DONT_TOUCH_MY_PHONE) { DontTouchMyPhoneScreen(EdgeToEdgeBar) }
 
+                        // Customization
                         composable(route = SHORTCUTS) { ShortcutsScreen(EdgeToEdgeBar) }
 
+                        // Tools
                         composable(route = APP_MANAGER) {
                             AppManagerScreen(
                                 actions,
@@ -495,7 +594,6 @@ class MainActivity : BaseActivity(
                                 TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
                             )
                         }
-                        composable(route = DONT_TOUCH_MY_PHONE) { DontTouchMyPhoneScreen(EdgeToEdgeBar) }
                         composable(route = NOTIFICATION_HISTORY) {
                             NotificationHistoryScreen(
                                 actions,
@@ -516,10 +614,9 @@ class MainActivity : BaseActivity(
                             drawerShape = RoundedCornerShape(0.dp, 20.dp, 20.dp, 0.dp),
                             modifier = Modifier.widthIn(
                                 max = (
-                                    if (360 > LocalWindowInfo().containerSize.width * 0.5)
+                                    if (LocalWindowInfo().containerSize.width * 0.5 < 360)
                                         300
-                                    else
-                                        360
+                                    else 360
                                 ).dp
                             )
                         )
@@ -530,17 +627,14 @@ class MainActivity : BaseActivity(
                 ModalNavigationDrawer(
                     drawerState = drawerState,
                     drawerContent = {
-                        val max0 = LocalWindowInfo().containerSize.width * 0.9
-                        val max = when {
-                            max0 > 360.0 -> 360.0
-                            max0 < 300.0 -> 300.0
-                            else -> max0
-                        }
-
                         ModalDrawerSheet(
                             drawerContainerColor = MaterialTheme.colorScheme.surfaceContainer,
                             drawerState = drawerState,
-                            modifier = Modifier.widthIn(max = max.dp),
+                            modifier = Modifier.widthIn(
+                                max = (LocalWindowInfo().containerSize.width * 0.9)
+                                    .coerceIn(300.0..360.0)
+                                    .dp
+                            ),
                             content = drawerContent
                         )
                     },
@@ -554,37 +648,35 @@ class MainActivity : BaseActivity(
         super.onCreate(savedInstanceState)
 
         activityLauncher = activityResultLauncher
-        updateLock()
-        enableEdgeToEdge()
+        prevConfig = resources.configuration
+        uriIntent = intent
 
-        val content = ComposeView(this).apply {
-            setContent {
+        enableEdgeToEdge()
+        setContentView(
+            ComposeView {
                 MainScreen()
+            }.also {
+                if (pendingAuth) {
+                    // if not started don't draw the UI
+                    it.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+                        override fun onPreDraw(): Boolean {
+                            if (started) {
+                                it.viewTreeObserver.removeOnPreDrawListener(this)
+                            }
+                            return false
+                        }
+                    })
+                } else {
+                    startEnterAnimation(it)
+                }
             }
-        }
-        setContentView(content)
+        )
+        updateLock()
 
         // Start update checker
-        try {
+        runOrLog("MainActivity") {
             UpdateChecker.schedule(this)
-        } catch (e: Exception) {
-            Log.e("MainActivity", "${e::class.qualifiedName}: ${e.message}")
         }
-
-        prevConfig = resources.configuration
-
-        if (pendingAuth) {
-            content.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-                override fun onPreDraw(): Boolean {
-                    if (started) {
-                        content.viewTreeObserver.removeOnPreDrawListener(this)
-                    }
-                    return false
-                }
-            })
-        }
-
-        if (!pendingAuth) startEnterAnimation(content)
     }
 
     override fun finish() {
@@ -595,9 +687,7 @@ class MainActivity : BaseActivity(
     override fun onResume() {
         super.onResume()
         if (!pendingAuth) updateLock()
-        for (handler in resumeHandlers) {
-            handler()
-        }
+        for (handler in resumeHandlers) handler()
     }
 
     fun updateLock() {

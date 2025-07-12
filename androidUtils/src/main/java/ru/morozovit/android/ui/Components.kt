@@ -169,12 +169,11 @@ fun ListItem(
         }
 
         @Composable
-        fun Modifier.cplaceholder() =
-            placeholder(
-                visible = placeholder,
-                highlight = PlaceholderHighlight.shimmer(),
-                color = PlaceholderDefaults.color()
-            )
+        fun Modifier.cplaceholder() = placeholder(
+            visible = placeholder,
+            highlight = PlaceholderHighlight.shimmer(),
+            color = PlaceholderDefaults.color()
+        )
 
         ProvideStyle {
             ConstraintLayout(
@@ -806,10 +805,9 @@ class RadioButtonControllerScope<T> @PublishedApi internal constructor() {
     fun addRadioButtons(
         vararg radioButtons: Pair<T, MutableState<Boolean>>,
         coroutineScope: CoroutineScope
-    ) =
-        radioButtons.forEach { (id, checked) ->
-            addRadioButton(id, checked, coroutineScope)
-        }
+    ) = radioButtons.forEach { (id, checked) ->
+        addRadioButton(id, checked, coroutineScope)
+    }
 
     fun removeRadioButton(id: T) = radioButtons.remove(id)
 

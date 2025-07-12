@@ -44,8 +44,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCaller
 import androidx.annotation.AttrRes
-import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -60,10 +58,13 @@ import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SnapshotMutationPolicy
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.onFocusEvent
@@ -87,7 +88,6 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.window.core.layout.WindowHeightSizeClass
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.DefaultRequest
@@ -350,118 +350,6 @@ fun Activity.resolveAttr(@AttrRes id: Int): Int? {
         null
     }
 }
-
-/**
- * A MaterialAlertDialogBuilder with a fluent API for quick configuration.
- * 
- * @param context The [Context] to use for the builder.
- */
-class QuickAlertDialogBuilder(context: Context): MaterialAlertDialogBuilder(context) {
-    fun title(title: CharSequence): QuickAlertDialogBuilder {
-        setTitle(title)
-        return this
-    }
-    fun title(@StringRes titleRes: Int): QuickAlertDialogBuilder {
-        setTitle(titleRes)
-        return this
-    }
-
-    fun message(message: CharSequence): QuickAlertDialogBuilder {
-        setMessage(message)
-        return this
-    }
-    fun message(@StringRes messageRes: Int): QuickAlertDialogBuilder {
-        setMessage(messageRes)
-        return this
-    }
-
-    fun body(body: CharSequence) = message(body)
-    fun body(@StringRes bodyRes: Int) = message(bodyRes)
-
-    inline fun positiveButton(
-        text: CharSequence,
-        crossinline listener: () -> Unit
-    ) : QuickAlertDialogBuilder {
-        setPositiveButton(text) { _, _ -> listener() }
-        return this
-    }
-    inline fun positiveButton(@StringRes textRes: Int, crossinline listener: () -> Unit): QuickAlertDialogBuilder {
-        setPositiveButton(textRes) { _, _ -> listener() }
-        return this
-    }
-    inline fun positiveButton(text: CharSequence, listener: Nothing? = null): QuickAlertDialogBuilder {
-        setPositiveButton(text, null)
-        return this
-    }
-    inline fun positiveButton(@StringRes text: Int, listener: Nothing? = null): QuickAlertDialogBuilder {
-        setPositiveButton(text, null)
-        return this
-    }
-
-    inline fun negativeButton(text: CharSequence, crossinline listener: () -> Unit): QuickAlertDialogBuilder {
-        setNegativeButton(text) { _, _ -> listener() }
-        return this
-    }
-    inline fun negativeButton(@StringRes textRes: Int, crossinline listener: () -> Unit): QuickAlertDialogBuilder {
-        setNegativeButton(textRes) { _, _ -> listener() }
-        return this
-    }
-    inline fun negativeButton(text: CharSequence, listener: Nothing? = null): QuickAlertDialogBuilder {
-        setNegativeButton(text, null)
-        return this
-    }
-    inline fun negativeButton(@StringRes text: Int, listener: Nothing? = null): QuickAlertDialogBuilder {
-        setNegativeButton(text, null)
-        return this
-    }
-
-    inline fun neutralButton(text: CharSequence, crossinline listener: () -> Unit): QuickAlertDialogBuilder {
-        setNeutralButton(text) { _, _ -> listener() }
-        return this
-    }
-    inline fun neutralButton(@StringRes textRes: Int, crossinline listener: () -> Unit): QuickAlertDialogBuilder {
-        setNeutralButton(textRes) { _, _ -> listener() }
-        return this
-    }
-    inline fun neutralButton(text: CharSequence, listener: Nothing? = null): QuickAlertDialogBuilder {
-        setNeutralButton(text, null)
-        return this
-    }
-    inline fun neutralButton(@StringRes text: Int, listener: Nothing? = null): QuickAlertDialogBuilder {
-        setNeutralButton(text, null)
-        return this
-    }
-
-    inline fun onCancel(crossinline listener: () -> Unit): QuickAlertDialogBuilder {
-        setOnCancelListener { listener() }
-        return this
-    }
-
-    inline fun cancelable(value: Boolean): QuickAlertDialogBuilder {
-        setCancelable(value)
-        return this
-    }
-}
-
-/**
- * Shows an alert dialog in an [Activity] using a [QuickAlertDialogBuilder].
- * @param config Lambda to configure the dialog.
- * @return The shown [AlertDialog].
- */
-inline fun Activity.alertDialog(crossinline config: QuickAlertDialogBuilder.() -> Unit): AlertDialog {
-    val builder = QuickAlertDialogBuilder(this)
-    config(builder)
-    return builder.show()
-}
-
-/**
- * Shows an alert dialog in a [Fragment] using a [QuickAlertDialogBuilder].
- * @param config Lambda to configure the dialog.
- * @return The shown [AlertDialog].
- */
-inline fun Fragment.alertDialog(
-    crossinline config: QuickAlertDialogBuilder.() -> Unit
-) = requireActivity().alertDialog(config)
 
 /**
  * Configuration for biometric authentication prompts.
@@ -1397,3 +1285,7 @@ fun runMultiple(vararg instructions: () -> Unit): Boolean {
 
     return result
 }
+
+inline fun <T> compositionLocalOf(
+    policy: SnapshotMutationPolicy<T> = structuralEqualityPolicy()
+) = compositionLocalOf(policy) { error("Not initialized") }

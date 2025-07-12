@@ -50,7 +50,6 @@ import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -103,10 +102,8 @@ class SelectAppsActivity: BaseActivity() {
 
             onBackPressedDispatcher.addCallback(backCallback)
 
-            LaunchedEffect(Unit) {
-                snapshotFlow { unsavedChanges }.collect {
-                    backCallback.isEnabled = it
-                }
+            LaunchedEffect(unsavedChanges) {
+                backCallback.isEnabled = unsavedChanges
             }
 
             fun onExitConfirmDismiss() {

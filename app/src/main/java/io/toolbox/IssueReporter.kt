@@ -2,10 +2,7 @@ package io.toolbox
 
 import android.content.Context
 import android.content.Intent
-import android.content.Intent.ACTION_MAIN
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -42,10 +39,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.os.postDelayed
+import cat.ereza.customactivityoncrash.config.CaocConfig
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.statement.bodyAsText
-import io.toolbox.App.Companion.context
 import io.toolbox.api.IssuesAPI
 import io.toolbox.ui.AppTheme
 import io.toolbox.ui.MainActivity
@@ -53,107 +49,33 @@ import kotlinx.coroutines.launch
 import ru.morozovit.android.ActivityLauncher
 import ru.morozovit.android.activityResultLauncher
 import ru.morozovit.android.copy
-import ru.morozovit.android.getSerializableExtraAs
-import ru.morozovit.android.runMultiple
 import ru.morozovit.android.ui.Category
 import ru.morozovit.android.ui.CategoryDefaults
-import ru.morozovit.android.ui.DialogActivity
 import ru.morozovit.android.verticalScroll
-import ru.morozovit.utils.EParser
-import kotlin.system.exitProcess
+
 
 object IssueReporter {
-    private var uncaughtHandler: Thread.UncaughtExceptionHandler? = null
-    private var uncaughtHandlerIsSet = false
-
-    fun setHandler() {
-        if (!uncaughtHandlerIsSet) {
-            uncaughtHandler = Thread.getDefaultUncaughtExceptionHandler()
-            uncaughtHandlerIsSet = true
-        }
-    }
-
     var enabled = true
         set(value) {
             field = value
-
-            setHandler()
-
-            Thread.setDefaultUncaughtExceptionHandler(
-                if (value) DEFAULT_HANDLER
-                else uncaughtHandler ?: DISABLED_HANDLER
-            )
+            config(enabled = value)
         }
-    private var crashes = 0
-    private const val CRASHES_LIMIT = 2
 
-    private val DEFAULT_HANDLER = Thread.UncaughtExceptionHandler { t: Thread, exception: Throwable ->
-        crashes++
-        if (crashes > CRASHES_LIMIT) {
-            enabled = false
-            (uncaughtHandler ?: DISABLED_HANDLER).uncaughtException(t, exception)
-        }
-        runCatching {
-            Log.e("App", "EXCEPTION CAUGHT:\n${EParser(exception)}")
-        }
-        startCrashedActivity(exception, context)
-    }
-    private val DISABLED_HANDLER = Thread.UncaughtExceptionHandler { _: Thread, e: Throwable ->
-        runMultiple(
-            {
-                Toast.makeText(
-                    context,
-                    R.string.fatal_error,
-                    Toast.LENGTH_SHORT
-                )
-            },
-            {
-                Log.wtf("App", "FATAL EXCEPTION:", e)
+    fun config(enabled: Boolean = true) {
+        CaocConfig.Builder.create()
+            .backgroundMode(CaocConfig.BACKGROUND_MODE_SILENT) //default: CaocConfig.BACKGROUND_MODE_SHOW_CUSTOM
+            .enabled(enabled) //default: true
+            .errorActivity(MainActivity::class.java) //default: null (default error activity)
+            .trackActivities(true)
+            .customCrashDataCollector {
+                "crash_mainactivity"
             }
-        )
-        exitProcess(10)
+            .apply()
     }
 
-    fun init() {
-        setHandler()
-        Thread.setDefaultUncaughtExceptionHandler(DEFAULT_HANDLER)
-    }
+    fun init() = config(enabled = true)
 
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun startCrashedActivity(exception: Throwable, context: Context) {
-        if (enabled) {
-            val handler = Handler(Looper.getMainLooper())
-            context.startActivity(
-                Intent(context, MainActivity::class.java).apply {
-                    action = ACTION_MAIN
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                }
-            )
-            handler.postDelayed(250) {
-                DialogActivity.show(
-                    context = context,
-                    title = context.resources.getString(R.string.im_sorry),
-                    body = context.resources.getString(R.string.crash_d),
-                    positiveButtonText = context.resources.getString(R.string.continue1),
-                    positiveButtonOnClick = {
-                        crashes--
-                        finish()
-                    },
-                    negativeButtonText = context.resources.getString(R.string.details),
-                    negativeButtonOnClick = {
-                        crashes--
-                        context.startActivity(
-                            Intent(context, ExceptionDetailsActivity::class.java).apply {
-                                putExtra("exception", exception)
-                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                            }
-                        )
-                    }
-                )
-            }
-        }
-    }
-    suspend fun reportIssue(context: Context, exception: Throwable, message: String? = null) {
+    suspend fun reportIssue(context: Context, exception: String, message: String? = null) {
         if (enabled) {
             try {
                 val number = IssuesAPI.reportCrash(exception, message)
@@ -178,8 +100,9 @@ object IssueReporter {
             }
         }
     }
+
     class ExceptionDetailsActivity: IssueReporterActivity() {
-        private val exception by lazy { intent.getSerializableExtraAs<Throwable>("exception")!! }
+        private val exception by lazy { intent.getStringExtra("exception")!! }
         private lateinit var activityLauncher: ActivityLauncher
 
         @OptIn(ExperimentalMaterial3Api::class)
@@ -217,16 +140,12 @@ object IssueReporter {
                             .padding(innerPadding)
                             .verticalScroll(),
                     ) {
-                        val exceptionText = remember {
-                            "${EParser(exception)}"
-                        }
-
                         Category(margin = CategoryDefaults.margin.copy(bottom = 16.dp)) {
                             Text(
                                 modifier = Modifier
                                     .padding(16.dp)
                                     .horizontalScroll(rememberScrollState()),
-                                text = exceptionText,
+                                text = exception,
                                 fontFamily = FontFamily.Monospace,
                                 fontSize = 16.sp,
                                 softWrap = false
@@ -270,7 +189,7 @@ object IssueReporter {
         }
     }
     class OneQuestionActivity: IssueReporterActivity() {
-        private val exception by lazy { intent.getSerializableExtraAs<Throwable>("exception")!! }
+        private val exception by lazy { intent.getStringExtra("exception")!! }
 
         @OptIn(ExperimentalMaterial3Api::class)
         @Composable

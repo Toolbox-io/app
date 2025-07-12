@@ -5,12 +5,19 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.View
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.os.postDelayed
-import ru.morozovit.android.alertDialog
 
+// TODO migrate to Compose
 class DialogActivity: AppCompatActivity() {
     companion object {
         const val RESULT_ERROR = RESULT_FIRST_USER
@@ -127,48 +134,61 @@ class DialogActivity: AppCompatActivity() {
         }
     }
 
+    var open by mutableStateOf(true)
+
     lateinit var dialog: AlertDialog
     private val handler = Handler(Looper.getMainLooper())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         try {
-            setContentView(View(this))
-
             val title = intent.extras!!.getString(EXTRA_TITLE)!!
             val body = intent.extras!!.getString(EXTRA_BODY)!!
             val positiveButtonText = intent.extras!!.getString(EXTRA_POSITIVE_BUTTON_TEXT)
             val negativeButtonText = intent.extras!!.getString(EXTRA_NEGATIVE_BUTTON_TEXT)
-            val neutralButtonText = intent.extras!!.getString(EXTRA_NEUTRAL_BUTTON_TEXT)
 
-            dialog = alertDialog {
-                title(title)
-                message(body)
-                if (positiveButtonText != null) {
-                    positiveButton(positiveButtonText) {
-                        positiveButtonOnClick!!(this@DialogActivity)
-                    }
-                }
-                if (negativeButtonText != null) {
-                    negativeButton(negativeButtonText) {
-                        negativeButtonOnClick!!(this@DialogActivity)
-                    }
-                }
-                if (neutralButtonText != null) {
-                    neutralButton(neutralButtonText) {
-                        neutralButtonOnClick!!(this@DialogActivity)
+            enableEdgeToEdge()
+            setContent {
+                MaterialTheme {
+                    if (open) {
+                        androidx.compose.material3.AlertDialog(
+                            onDismissRequest = {
+                                open = false
+
+                                handler.postDelayed(500) {
+                                    if (onDismiss?.invoke(this) != false) {
+                                        super.finish()
+                                    }
+                                }
+                            },
+                            title = {
+                                Text(title)
+                            },
+                            text = {
+                                Text(body)
+                            },
+                            confirmButton = {
+                                if (positiveButtonText != null) {
+                                    TextButton(onClick = { positiveButtonOnClick!!() }) {
+                                        Text(positiveButtonText)
+                                    }
+                                }
+                            },
+                            dismissButton = {
+                                if (negativeButtonText != null) {
+                                    TextButton(onClick = { positiveButtonOnClick!!() }) {
+                                        Text(negativeButtonText)
+                                    }
+                                }
+                            }
+                        )
                     }
                 }
             }
-            dialog.setOnDismissListener {
-                handler.postDelayed(500) {
-                    if (onDismiss?.invoke(this) != false) {
-                        super.finish()
-                    }
-                }
-            }
+
             onCreate?.invoke(this)
         } catch (e: Exception) {
+            e.printStackTrace()
             setResult(RESULT_ERROR)
             finish()
         }
@@ -176,7 +196,7 @@ class DialogActivity: AppCompatActivity() {
 
     override fun finish() {
         runCatching {
-            dialog.dismiss()
+            open = false
         }
         handler.postDelayed(500) {
             super.finish()
