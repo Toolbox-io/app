@@ -1,4 +1,4 @@
-package ru.morozovit.android.ui
+package ru.morozovit.android.utils.ui
 
 import android.content.Context
 import android.content.Intent

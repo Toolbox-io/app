@@ -51,7 +51,7 @@ import io.toolbox.BaseActivity
 import io.toolbox.R
 import io.toolbox.download
 import io.toolbox.ui.AppTheme
-import ru.morozovit.android.verticalScroll
+import ru.morozovit.android.utils.ui.verticalScroll
 import kotlin.concurrent.thread
 
 class OSSLicensesActivity: BaseActivity() {

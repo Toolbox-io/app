@@ -35,11 +35,11 @@ import io.toolbox.App.Companion.context
 import io.toolbox.App.Companion.githubRateLimitRemaining
 import io.toolbox.R
 import io.toolbox.ui.MainActivity
-import ru.morozovit.android.JobIdManager
-import ru.morozovit.android.NoParallelExecutor
-import ru.morozovit.android.SimpleAsyncTask
-import ru.morozovit.android.notifyIfAllowed
-import ru.morozovit.android.ui.DialogActivity
+import ru.morozovit.android.utils.JobIdManager
+import ru.morozovit.android.utils.ThreadExecutor
+import ru.morozovit.android.utils.SimpleAsyncTask
+import ru.morozovit.android.utils.notifyIfAllowed
+import ru.morozovit.android.utils.ui.DialogActivity
 import ru.morozovit.utils.EParser
 import java.io.BufferedInputStream
 import java.io.File
@@ -81,7 +81,7 @@ class UpdateChecker: JobService() {
             scheduled = true
         }
 
-        private val TASK_EXECUTOR = NoParallelExecutor()
+        private val TASK_EXECUTOR = ThreadExecutor()
 
         const val ACTION_START_UPDATE_CHECKER = "io.toolbox.UpdateChecker.START"
 
@@ -251,7 +251,7 @@ class UpdateChecker: JobService() {
 
         class DownloadBroadcastReceiver: BroadcastReceiver() {
             companion object {
-                private val TASK_EXECUTOR = NoParallelExecutor()
+                private val TASK_EXECUTOR = ThreadExecutor()
             }
 
             @Suppress("OVERRIDE_DEPRECATION")

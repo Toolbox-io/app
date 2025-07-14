@@ -1,6 +1,6 @@
 @file:Suppress("UnusedReceiverParameter", "unused")
 
-package ru.morozovit.android.ui
+package ru.morozovit.android.utils.ui
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Language

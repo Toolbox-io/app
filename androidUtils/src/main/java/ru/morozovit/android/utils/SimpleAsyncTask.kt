@@ -1,6 +1,6 @@
-@file:Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+@file:Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
 
-package ru.morozovit.android
+package ru.morozovit.android.utils
 
 import android.os.AsyncTask
 
@@ -9,5 +9,5 @@ abstract class SimpleAsyncTask: AsyncTask<Unit, Unit, Unit>() {
     abstract fun run()
     abstract fun postRun()
     final override fun onProgressUpdate(vararg values: Unit) {}
-    final override fun onPostExecute(result: Unit?) = postRun()
+    final override fun onPostExecute(result: Unit) = postRun()
 }

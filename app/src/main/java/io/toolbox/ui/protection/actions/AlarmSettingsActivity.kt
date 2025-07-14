@@ -62,19 +62,19 @@ import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.ui.AppTheme
 import kotlinx.coroutines.launch
-import ru.morozovit.android.ActivityLauncher
-import ru.morozovit.android.activityResultLauncher
-import ru.morozovit.android.copy
-import ru.morozovit.android.getFileName
-import ru.morozovit.android.test
-import ru.morozovit.android.ui.Button
-import ru.morozovit.android.ui.Category
-import ru.morozovit.android.ui.CategoryDefaults
-import ru.morozovit.android.ui.RadioButtonWithText
-import ru.morozovit.android.ui.RadioGroup
-import ru.morozovit.android.ui.SwipeToDismissBackground
-import ru.morozovit.android.ui.SwitchCard
-import ru.morozovit.android.verticalScroll
+import ru.morozovit.android.utils.ui.Button
+import ru.morozovit.android.utils.ui.Category
+import ru.morozovit.android.utils.ui.CategoryDefaults
+import ru.morozovit.android.utils.ui.RadioButtonWithText
+import ru.morozovit.android.utils.ui.RadioGroup
+import ru.morozovit.android.utils.ui.SwipeToDismissBackground
+import ru.morozovit.android.utils.ui.SwitchCard
+import ru.morozovit.android.utils.ActivityLauncher
+import ru.morozovit.android.utils.activityResultLauncher
+import ru.morozovit.android.utils.ui.copy
+import ru.morozovit.android.utils.getFileName
+import ru.morozovit.android.utils.test
+import ru.morozovit.android.utils.ui.verticalScroll
 
 class AlarmSettingsActivity: BaseActivity() {
     private lateinit var activityLauncher: ActivityLauncher
@@ -199,15 +199,13 @@ class AlarmSettingsActivity: BaseActivity() {
                         item: Uri,
                         checked: Boolean = "$item" == Settings.Actions.Alarm.current
                     ) {
-                        if (!contentResolver.test(item)) {
-                            toRemove.add("$item")
-                        }
+                        if (!contentResolver.test(item)) toRemove.add("$item")
                         val text = getFileName(item)
 
                         var alarmCreated: Alarm? = null
                         alarmCreated = Alarm(
-                            text,
-                            {
+                            label = text,
+                            onClick = {
                                 mediaPlayer.apply {
                                     if (mediaPlayer.isPlaying) stop()
                                     reset()
@@ -223,7 +221,7 @@ class AlarmSettingsActivity: BaseActivity() {
                                 }
                                 Settings.Actions.Alarm.current = "$item"
                             },
-                            {
+                            onRemove = {
                                 Settings.Actions.Alarm.current = ""
                                 onOptionSelected(alarm)
                                 Settings.Actions.Alarm.customAlarms =

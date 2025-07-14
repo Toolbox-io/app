@@ -56,12 +56,12 @@ import io.toolbox.BaseActivity
 import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.ui.AppTheme
-import ru.morozovit.android.ActivityLauncher
-import ru.morozovit.android.activityResultLauncher
-import ru.morozovit.android.invoke
-import ru.morozovit.android.ui.Category
-import ru.morozovit.android.ui.SwitchCard
-import ru.morozovit.android.ui.SwitchListItem
+import ru.morozovit.android.utils.ActivityLauncher
+import ru.morozovit.android.utils.activityResultLauncher
+import ru.morozovit.android.utils.ui.invoke
+import ru.morozovit.android.utils.ui.Category
+import ru.morozovit.android.utils.ui.SwitchCard
+import ru.morozovit.android.utils.ui.SwitchListItem
 import java.io.File
 
 class IntruderPhotoSettingsActivity: BaseActivity(authEnabled = false) {

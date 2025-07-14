@@ -38,14 +38,14 @@ import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.MainActivity
 import io.toolbox.ui.protection.actions.ActionsActivity
 import kotlinx.coroutines.launch
-import ru.morozovit.android.clearFocusOnKeyboardDismiss
-import ru.morozovit.android.invoke
-import ru.morozovit.android.ui.Category
-import ru.morozovit.android.ui.ListItem
-import ru.morozovit.android.ui.SimpleAlertDialog
-import ru.morozovit.android.ui.SwitchCard
-import ru.morozovit.android.ui.WindowInsetsHandler
-import ru.morozovit.android.verticalScroll
+import ru.morozovit.android.utils.ui.clearFocusOnKeyboardDismiss
+import ru.morozovit.android.utils.ui.invoke
+import ru.morozovit.android.utils.ui.Category
+import ru.morozovit.android.utils.ui.ListItem
+import ru.morozovit.android.utils.ui.SimpleAlertDialog
+import ru.morozovit.android.utils.ui.SwitchCard
+import ru.morozovit.android.utils.ui.WindowInsetsHandler
+import ru.morozovit.android.utils.ui.verticalScroll
 
 @Composable
 fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {

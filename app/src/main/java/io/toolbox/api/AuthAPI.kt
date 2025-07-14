@@ -8,7 +8,7 @@ import io.ktor.client.request.setBody
 import io.toolbox.Settings.Account.token
 import io.toolbox.api.AuthAPI.BASE_URL
 import kotlinx.serialization.Serializable
-import ru.morozovit.android.failOnError
+import ru.morozovit.android.utils.failOnError
 
 /**
  * This class provides a Kotlin interface to the account API endpoints of

@@ -13,7 +13,7 @@ import androidx.core.os.postDelayed
 import io.toolbox.App.Companion.IP_PHOTO_TAKEN_NOTIFICATION_ID
 import io.toolbox.App.Companion.context
 import io.toolbox.Settings
-import ru.morozovit.android.notifyIfAllowed
+import ru.morozovit.android.utils.notifyIfAllowed
 
 
 class DeviceAdmin: DeviceAdminReceiver() {

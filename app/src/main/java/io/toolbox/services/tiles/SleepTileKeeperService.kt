@@ -6,15 +6,16 @@ import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.service.quicksettings.Tile
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.PRIORITY_LOW
 import androidx.core.content.ContextCompat
 import io.toolbox.App.Companion.SLEEP_TILE_CHANNEL_ID
 import io.toolbox.App.Companion.SLEEP_TILE_NOTIFICATION_ID
 import io.toolbox.R
-import ru.morozovit.android.broadcastReceiver
-import ru.morozovit.android.configure
-import ru.morozovit.android.notificationButtonPendingIntent
+import ru.morozovit.android.utils.broadcastReceiver
+import ru.morozovit.android.utils.configure
+import ru.morozovit.android.utils.notificationButtonPendingIntent
 
 /**
  * This **foreground service** will help [SleepTile] stay disabled and prevent
@@ -51,7 +52,7 @@ class SleepTileKeeperService: Service() {
     private val enableTileReceiver = broadcastReceiver(ACTION_ENABLE_TILE) {
         SleepTile.instance?.let { tile ->
             tile.qsTile.configure {
-                state = android.service.quicksettings.Tile.STATE_ACTIVE
+                state = Tile.STATE_ACTIVE
             }
             tile.releaseWakelock()
             tile.stopSelf()

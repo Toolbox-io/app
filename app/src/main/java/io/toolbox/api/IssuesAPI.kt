@@ -6,8 +6,8 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.toolbox.BuildConfig
 import kotlinx.serialization.Serializable
-import ru.morozovit.android.failOnError
-import ru.morozovit.android.jsonConfig
+import ru.morozovit.android.utils.failOnError
+import ru.morozovit.android.utils.jsonConfig
 
 object IssuesAPI {
     private const val BASE_URL = "https://beta.toolbox-io.ru/api/issues/reportCrash"

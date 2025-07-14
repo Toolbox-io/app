@@ -7,7 +7,7 @@ import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
 import io.toolbox.App.Companion.context
 import io.toolbox.Settings
-import ru.morozovit.android.runOrLog
+import ru.morozovit.android.utils.runOrLog
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream

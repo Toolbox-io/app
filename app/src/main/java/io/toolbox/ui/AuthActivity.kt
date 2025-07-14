@@ -10,9 +10,9 @@ import io.toolbox.Settings
 import io.toolbox.ui.Auth.Companion.MODE_ENTER_OLD_PW
 import io.toolbox.ui.Auth.Companion.MODE_SET
 import io.toolbox.ui.Auth.Companion.started
-import ru.morozovit.android.ComposeView
-import ru.morozovit.android.activityResultLauncher
-import ru.morozovit.android.addOneTimeOnPreDrawListener
+import ru.morozovit.android.utils.ui.ComposeView
+import ru.morozovit.android.utils.activityResultLauncher
+import ru.morozovit.android.utils.ui.addOneTimeOnPreDrawListener
 
 class AuthActivity: BaseActivity(false) {
     private lateinit var auth: Auth

@@ -5,14 +5,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import io.toolbox.R
-import ru.morozovit.android.launchFiles
+import ru.morozovit.android.utils.launchFiles
 
 class FilesShortcut: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        try {
+        runCatching {
             installSplashScreen()
-        } catch (_: Exception) {}
+        }
         if (!launchFiles()) {
             Toast.makeText(this, R.string.failed_to_launch_files, Toast.LENGTH_SHORT).show()
         }

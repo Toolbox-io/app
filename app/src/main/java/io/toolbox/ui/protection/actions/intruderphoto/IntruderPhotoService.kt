@@ -20,9 +20,9 @@ import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.services.CameraController
 import io.toolbox.services.DeviceAdmin.Companion.intruderPhotoNotifications
-import ru.morozovit.android.isScreenLocked
-import ru.morozovit.android.notifyIfAllowed
-import ru.morozovit.android.waitWhile
+import ru.morozovit.android.utils.isScreenLocked
+import ru.morozovit.android.utils.notifyIfAllowed
+import ru.morozovit.android.utils.waitWhile
 import java.io.File
 import kotlin.concurrent.thread
 

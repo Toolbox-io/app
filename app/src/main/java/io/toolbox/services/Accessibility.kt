@@ -16,7 +16,7 @@ import io.toolbox.mainActivity
 import io.toolbox.ui.protection.applocker.ApplockerAuthOverlay
 import io.toolbox.ui.protection.applocker.FakeCrashActivity
 import io.toolbox.ui.protection.applocker.PasswordInputActivity
-import ru.morozovit.android.homeScreen
+import ru.morozovit.android.utils.homeScreen
 import java.lang.Thread.sleep
 
 

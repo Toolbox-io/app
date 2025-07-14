@@ -7,10 +7,10 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import ru.morozovit.android.activityResultLauncher
-import ru.morozovit.android.getFileName
-import ru.morozovit.android.getParcelableExtraAs
-import ru.morozovit.android.runOrLog
+import ru.morozovit.android.utils.activityResultLauncher
+import ru.morozovit.android.utils.getFileName
+import ru.morozovit.android.utils.getParcelableExtraAs
+import ru.morozovit.android.utils.runOrLog
 
 class SaveActivity: AppCompatActivity() {
     companion object {

@@ -23,9 +23,9 @@ import io.toolbox.App.Companion.authenticated
 import io.toolbox.ui.Auth.Companion.started
 import io.toolbox.ui.AuthActivity
 import io.toolbox.ui.MainActivity
-import ru.morozovit.android.NoParallelExecutor
-import ru.morozovit.android.resolveAttr
-import ru.morozovit.android.ui.ThemeSetting
+import ru.morozovit.android.utils.ThreadExecutor
+import ru.morozovit.android.utils.ui.resolveAttr
+import ru.morozovit.android.utils.ui.ThemeSetting
 import ru.morozovit.utils.ExceptionParser.Companion.eToString
 import java.lang.Thread.sleep
 
@@ -37,7 +37,7 @@ abstract class BaseActivity(
 ): AppCompatActivity() {
     companion object {
         private var interacted = false
-        private val interactionDetectorExecutor = NoParallelExecutor()
+        private val interactionDetectorExecutor = ThreadExecutor()
         private var currentActivity: BaseActivity? = null
         protected var authScheduled2 = false
 

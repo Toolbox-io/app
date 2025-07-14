@@ -1,4 +1,4 @@
-package ru.morozovit.android;
+package ru.morozovit.android.utils;
 
 import android.content.Intent;
 

@@ -68,9 +68,9 @@ import dev.chrisbanes.haze.rememberHazeState
 import io.toolbox.R
 import io.toolbox.ui.LocalHazeState
 import kotlinx.coroutines.launch
-import ru.morozovit.android.invoke
-import ru.morozovit.android.ui.ListItem
-import ru.morozovit.android.ui.WindowInsetsHandler
+import ru.morozovit.android.utils.ui.invoke
+import ru.morozovit.android.utils.ui.ListItem
+import ru.morozovit.android.utils.ui.WindowInsetsHandler
 import kotlin.concurrent.thread
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)

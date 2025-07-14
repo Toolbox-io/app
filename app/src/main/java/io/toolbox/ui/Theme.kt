@@ -10,10 +10,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import io.toolbox.Settings
-import ru.morozovit.android.ui.OverlayTheme
-import ru.morozovit.android.ui.Theme
-import ru.morozovit.android.ui.ThemeSetting
-import ru.morozovit.android.ui.WindowInsetsScope
+import ru.morozovit.android.utils.ui.OverlayTheme
+import ru.morozovit.android.utils.ui.Theme
+import ru.morozovit.android.utils.ui.ThemeSetting
+import ru.morozovit.android.utils.ui.WindowInsetsScope
 
 val appLightColorScheme by lazy {
     lightColorScheme(

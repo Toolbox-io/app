@@ -35,12 +35,12 @@ import io.toolbox.R
 import io.toolbox.Settings.NotificationHistory.removeDuplicates
 import io.toolbox.Settings.NotificationHistory.removeUselessNotifications
 import io.toolbox.ui.AppTheme
-import ru.morozovit.android.copy
-import ru.morozovit.android.ui.Category
-import ru.morozovit.android.ui.CategoryDefaults
-import ru.morozovit.android.ui.ListItem
-import ru.morozovit.android.ui.SwitchListItem
-import ru.morozovit.android.verticalScroll
+import ru.morozovit.android.utils.ui.copy
+import ru.morozovit.android.utils.ui.Category
+import ru.morozovit.android.utils.ui.CategoryDefaults
+import ru.morozovit.android.utils.ui.ListItem
+import ru.morozovit.android.utils.ui.SwitchListItem
+import ru.morozovit.android.utils.ui.verticalScroll
 
 class NotificationHistorySettingsActivity: BaseActivity() {
     @OptIn(ExperimentalMaterial3Api::class)

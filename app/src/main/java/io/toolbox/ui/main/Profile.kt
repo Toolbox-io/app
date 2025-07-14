@@ -82,13 +82,13 @@ import io.toolbox.ui.LocalHazeState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import ru.morozovit.android.clearFocusOnKeyboardDismiss
-import ru.morozovit.android.invoke
-import ru.morozovit.android.ui.Category
-import ru.morozovit.android.ui.ListItem
-import ru.morozovit.android.ui.SecureTextField
-import ru.morozovit.android.ui.WindowInsetsHandler
-import ru.morozovit.android.verticalScroll
+import ru.morozovit.android.utils.ui.clearFocusOnKeyboardDismiss
+import ru.morozovit.android.utils.ui.invoke
+import ru.morozovit.android.utils.ui.Category
+import ru.morozovit.android.utils.ui.ListItem
+import ru.morozovit.android.utils.ui.SecureTextField
+import ru.morozovit.android.utils.ui.WindowInsetsHandler
+import ru.morozovit.android.utils.ui.verticalScroll
 import kotlin.math.roundToInt
 
 private const val ROUTE_LOADING = "loading"

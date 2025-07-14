@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <application>
         <activity
-            android:name="ru.morozovit.android.ui.DialogActivity"
+            android:name="ru.morozovit.android.utils.ui.DialogActivity"
             android:theme="@style/Theme.Dialog"
             android:taskAffinity="ru.morozovit.android" />
     </application>

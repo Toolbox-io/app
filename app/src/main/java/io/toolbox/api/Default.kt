@@ -7,9 +7,9 @@ import io.ktor.client.HttpClientConfig
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.serialization.ExperimentalSerializationApi
-import ru.morozovit.android.defaultRequest
-import ru.morozovit.android.jsonConfig
-import ru.morozovit.android.logging
+import ru.morozovit.android.utils.defaultRequest
+import ru.morozovit.android.utils.jsonConfig
+import ru.morozovit.android.utils.logging
 
 @OptIn(ExperimentalSerializationApi::class)
 inline fun DefaultHTTPClient(

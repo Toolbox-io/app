@@ -120,20 +120,20 @@ import io.toolbox.ui.tools.notificationhistory.NotificationHistoryScreen
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import ru.morozovit.android.ActivityLauncher
-import ru.morozovit.android.ComposeView
-import ru.morozovit.android.WidthSizeClass
-import ru.morozovit.android.activityResultLauncher
-import ru.morozovit.android.compareTo
-import ru.morozovit.android.compositionLocalOf
-import ru.morozovit.android.invoke
-import ru.morozovit.android.left
-import ru.morozovit.android.link
-import ru.morozovit.android.right
-import ru.morozovit.android.runOrLog
-import ru.morozovit.android.unsupported
-import ru.morozovit.android.verticalScroll
-import ru.morozovit.android.widthSizeClass
+import ru.morozovit.android.utils.ActivityLauncher
+import ru.morozovit.android.utils.ui.ComposeView
+import ru.morozovit.android.utils.ui.WidthSizeClass
+import ru.morozovit.android.utils.activityResultLauncher
+import ru.morozovit.android.utils.ui.compareTo
+import ru.morozovit.android.utils.ui.compositionLocalOf
+import ru.morozovit.android.utils.ui.invoke
+import ru.morozovit.android.utils.ui.left
+import ru.morozovit.android.utils.ui.link
+import ru.morozovit.android.utils.ui.right
+import ru.morozovit.android.utils.runOrLog
+import ru.morozovit.android.utils.unsupported
+import ru.morozovit.android.utils.ui.verticalScroll
+import ru.morozovit.android.utils.ui.widthSizeClass
 
 val LocalNavController = compositionLocalOf<NavController>()
 val LocalHazeState = compositionLocalOf<HazeState>()

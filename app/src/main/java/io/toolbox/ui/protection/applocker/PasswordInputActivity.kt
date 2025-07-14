@@ -47,9 +47,9 @@ import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.services.Accessibility
 import io.toolbox.ui.OverlayAppTheme
-import ru.morozovit.android.ComposeView
-import ru.morozovit.android.screenWidth
-import ru.morozovit.android.ui.SecureTextField
+import ru.morozovit.android.utils.ui.ComposeView
+import ru.morozovit.android.utils.screenWidth
+import ru.morozovit.android.utils.ui.SecureTextField
 
 class PasswordInputActivity: AppCompatActivity() {
     companion object {

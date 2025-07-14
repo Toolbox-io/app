@@ -142,7 +142,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="ru.morozovit.android.ui.IntentActivity" />
+        <activity android:name="ru.morozovit.android.utils.ui.IntentActivity" />
 
         <activity
             android:name=".IssueReporter$ExceptionDetailsActivity"

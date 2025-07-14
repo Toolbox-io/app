@@ -15,10 +15,10 @@ import io.toolbox.App.Companion.context
 import io.toolbox.Settings.global_sharedPref
 import io.toolbox.Settings.init
 import io.toolbox.ui.protection.actions.intruderphoto.IntruderPhotoService.Companion.takePhoto
-import ru.morozovit.android.checkHash
-import ru.morozovit.android.hash
-import ru.morozovit.android.isPlayingSafe
-import ru.morozovit.android.ui.ThemeSetting
+import ru.morozovit.android.utils.checkHash
+import ru.morozovit.android.utils.hash
+import ru.morozovit.android.utils.isPlayingSafe
+import ru.morozovit.android.utils.ui.ThemeSetting
 import java.io.IOException
 import kotlin.concurrent.thread
 

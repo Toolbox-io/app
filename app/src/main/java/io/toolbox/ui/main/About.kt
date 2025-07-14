@@ -34,13 +34,13 @@ import io.toolbox.ui.AppIcon
 import io.toolbox.ui.LocalHazeState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
-import ru.morozovit.android.invoke
-import ru.morozovit.android.openUrl
-import ru.morozovit.android.ui.Button
-import ru.morozovit.android.ui.License
-import ru.morozovit.android.ui.Website
-import ru.morozovit.android.ui.WindowInsetsHandler
-import ru.morozovit.android.verticalScroll
+import ru.morozovit.android.utils.ui.invoke
+import ru.morozovit.android.utils.openUrl
+import ru.morozovit.android.utils.ui.Button
+import ru.morozovit.android.utils.ui.License
+import ru.morozovit.android.utils.ui.Website
+import ru.morozovit.android.utils.ui.WindowInsetsHandler
+import ru.morozovit.android.utils.ui.verticalScroll
 
 @Composable
 fun AboutScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {

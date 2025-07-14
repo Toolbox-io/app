@@ -90,10 +90,10 @@ import io.toolbox.services.Accessibility
 import io.toolbox.ui.protection.applocker.ApplockerAuthOverlay
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import ru.morozovit.android.ActivityLauncher
-import ru.morozovit.android.homeScreen
-import ru.morozovit.android.invoke
-import ru.morozovit.android.requestAuthentication
+import ru.morozovit.android.utils.ActivityLauncher
+import ru.morozovit.android.utils.homeScreen
+import ru.morozovit.android.utils.ui.invoke
+import ru.morozovit.android.utils.requestAuthentication
 import ru.morozovit.utils.EParser
 import kotlin.concurrent.thread
 

@@ -68,15 +68,15 @@ import io.toolbox.services.AccessibilityKeeperService
 import io.toolbox.ui.AuthActivity
 import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.MainActivity
-import ru.morozovit.android.homeScreen
-import ru.morozovit.android.invoke
-import ru.morozovit.android.ui.Category
-import ru.morozovit.android.ui.ListItem
-import ru.morozovit.android.ui.SimpleAlertDialog
-import ru.morozovit.android.ui.SwitchCard
-import ru.morozovit.android.ui.SwitchListItem
-import ru.morozovit.android.ui.WindowInsetsHandler
-import ru.morozovit.android.verticalScroll
+import ru.morozovit.android.utils.homeScreen
+import ru.morozovit.android.utils.ui.invoke
+import ru.morozovit.android.utils.ui.Category
+import ru.morozovit.android.utils.ui.ListItem
+import ru.morozovit.android.utils.ui.SimpleAlertDialog
+import ru.morozovit.android.utils.ui.SwitchCard
+import ru.morozovit.android.utils.ui.SwitchListItem
+import ru.morozovit.android.utils.ui.WindowInsetsHandler
+import ru.morozovit.android.utils.ui.verticalScroll
 import java.lang.Thread.sleep
 
 @OptIn(ExperimentalMaterial3Api::class)

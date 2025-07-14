@@ -50,9 +50,9 @@ import io.toolbox.Settings.Applocker.UnlockMode.PRESS_TITLE
 import io.toolbox.Settings.Applocker.unlockMode
 import io.toolbox.ui.OverlayAppTheme
 import kotlinx.coroutines.delay
-import ru.morozovit.android.ComposeView
-import ru.morozovit.android.appName
-import ru.morozovit.android.screenWidth
+import ru.morozovit.android.utils.ui.ComposeView
+import ru.morozovit.android.utils.appName
+import ru.morozovit.android.utils.screenWidth
 
 class FakeCrashActivity : AppCompatActivity() {
     @Composable
@@ -106,7 +106,7 @@ class FakeCrashActivity : AppCompatActivity() {
             LaunchedEffect(intentAppPackage) {
                 if (intentAppPackage != null) {
                     packageName = intentAppPackage
-                    appDisplayName = appName(context, packageName) ?: "null"
+                    appDisplayName = appName(packageName).toString()
                 }
             }
 

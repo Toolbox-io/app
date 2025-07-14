@@ -1,4 +1,4 @@
-package ru.morozovit.android.ui
+package ru.morozovit.android.utils.ui
 
 import android.app.Activity
 import android.content.ComponentName
@@ -7,7 +7,7 @@ import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
 import android.widget.Toast
 import ru.morozovit.android.R
-import ru.morozovit.android.getParcelableExtraAs
+import ru.morozovit.android.utils.getParcelableExtraAs
 
 class IntentActivity: Activity() {
     companion object {

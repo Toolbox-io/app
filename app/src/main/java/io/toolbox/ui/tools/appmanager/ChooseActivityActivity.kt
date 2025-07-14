@@ -43,13 +43,13 @@ import androidx.core.graphics.drawable.toBitmap
 import io.toolbox.BaseActivity
 import io.toolbox.R
 import io.toolbox.ui.AppTheme
-import ru.morozovit.android.getSystemService
-import ru.morozovit.android.isLauncher
-import ru.morozovit.android.launchIntent
-import ru.morozovit.android.ui.Category
-import ru.morozovit.android.ui.IntentActivity
-import ru.morozovit.android.ui.ListItem
-import ru.morozovit.android.verticalScroll
+import ru.morozovit.android.utils.ui.Category
+import ru.morozovit.android.utils.ui.IntentActivity
+import ru.morozovit.android.utils.ui.ListItem
+import ru.morozovit.android.utils.getSystemService
+import ru.morozovit.android.utils.isLauncher
+import ru.morozovit.android.utils.launchIntent
+import ru.morozovit.android.utils.ui.verticalScroll
 
 class ChooseActivityActivity: BaseActivity() {
     private val appPackage by lazy { intent.getStringExtra("appPackage")!! }

@@ -12,9 +12,9 @@ import android.view.Gravity
 import android.view.WindowManager
 import androidx.compose.ui.platform.ComposeView
 import io.toolbox.ui.Auth
-import ru.morozovit.android.ComposeLifecycleOwner
-import ru.morozovit.android.ComposeView
-import ru.morozovit.android.runOrLog
+import ru.morozovit.android.utils.ComposeLifecycleOwner
+import ru.morozovit.android.utils.ui.ComposeView
+import ru.morozovit.android.utils.runOrLog
 import java.lang.ref.WeakReference
 
 class ApplockerAuthOverlay(val context: Context): Auth(

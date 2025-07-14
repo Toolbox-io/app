@@ -38,14 +38,14 @@ import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.ui.AppTheme
 import io.toolbox.ui.protection.actions.intruderphoto.IntruderPhotoSettingsActivity
-import ru.morozovit.android.ActivityLauncher
-import ru.morozovit.android.activityResultLauncher
-import ru.morozovit.android.copy
-import ru.morozovit.android.ui.Category
-import ru.morozovit.android.ui.CategoryDefaults
-import ru.morozovit.android.ui.SeparatedSwitchListItem
-import ru.morozovit.android.ui.Siren
-import ru.morozovit.android.verticalScroll
+import ru.morozovit.android.utils.ActivityLauncher
+import ru.morozovit.android.utils.activityResultLauncher
+import ru.morozovit.android.utils.ui.copy
+import ru.morozovit.android.utils.ui.Category
+import ru.morozovit.android.utils.ui.CategoryDefaults
+import ru.morozovit.android.utils.ui.SeparatedSwitchListItem
+import ru.morozovit.android.utils.ui.Siren
+import ru.morozovit.android.utils.ui.verticalScroll
 
 class ActionsActivity: BaseActivity() {
     private lateinit var activityLauncher: ActivityLauncher

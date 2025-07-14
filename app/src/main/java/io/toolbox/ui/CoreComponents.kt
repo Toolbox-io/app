@@ -5,8 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import ru.morozovit.android.plus
-import ru.morozovit.android.ui.Mipmap
+import ru.morozovit.android.utils.ui.plus
+import ru.morozovit.android.utils.ui.Mipmap
 import io.toolbox.R
 
 @Suppress("NOTHING_TO_INLINE")

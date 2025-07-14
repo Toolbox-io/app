@@ -46,12 +46,12 @@ import io.toolbox.api.IssuesAPI
 import io.toolbox.ui.AppTheme
 import io.toolbox.ui.MainActivity
 import kotlinx.coroutines.launch
-import ru.morozovit.android.ActivityLauncher
-import ru.morozovit.android.activityResultLauncher
-import ru.morozovit.android.copy
-import ru.morozovit.android.ui.Category
-import ru.morozovit.android.ui.CategoryDefaults
-import ru.morozovit.android.verticalScroll
+import ru.morozovit.android.utils.ActivityLauncher
+import ru.morozovit.android.utils.activityResultLauncher
+import ru.morozovit.android.utils.ui.copy
+import ru.morozovit.android.utils.ui.Category
+import ru.morozovit.android.utils.ui.CategoryDefaults
+import ru.morozovit.android.utils.ui.verticalScroll
 
 
 object IssueReporter {

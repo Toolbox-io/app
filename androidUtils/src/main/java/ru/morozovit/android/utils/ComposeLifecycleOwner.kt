@@ -1,6 +1,4 @@
-@file:Suppress("unused")
-
-package ru.morozovit.android
+package ru.morozovit.android.utils
 
 import android.os.Bundle
 import androidx.lifecycle.Lifecycle
@@ -12,7 +10,7 @@ import androidx.savedstate.SavedStateRegistryOwner
 
 class ComposeLifecycleOwner : SavedStateRegistryOwner, LifecycleOwner {
     private var mLifecycleRegistry: LifecycleRegistry = LifecycleRegistry(this)
-    private var mSavedStateRegistryController: SavedStateRegistryController = SavedStateRegistryController.create(this)
+    private var mSavedStateRegistryController: SavedStateRegistryController = SavedStateRegistryController.Companion.create(this)
 
     fun onCreate() {
         performRestore(null)

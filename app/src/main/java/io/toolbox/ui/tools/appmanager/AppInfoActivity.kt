@@ -63,10 +63,10 @@ import io.toolbox.BaseActivity
 import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.ui.AppTheme
-import ru.morozovit.android.ui.Category
-import ru.morozovit.android.ui.ListItem
-import ru.morozovit.android.ui.SwitchListItem
-import ru.morozovit.android.verticalScroll
+import ru.morozovit.android.utils.ui.Category
+import ru.morozovit.android.utils.ui.ListItem
+import ru.morozovit.android.utils.ui.SwitchListItem
+import ru.morozovit.android.utils.ui.verticalScroll
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream

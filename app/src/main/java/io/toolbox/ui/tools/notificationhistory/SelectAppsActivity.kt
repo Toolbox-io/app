@@ -71,9 +71,9 @@ import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.ui.AppTheme
 import kotlinx.coroutines.launch
-import ru.morozovit.android.backCallback
-import ru.morozovit.android.ui.ListItem
-import ru.morozovit.android.ui.SimpleAlertDialog
+import ru.morozovit.android.utils.backCallback
+import ru.morozovit.android.utils.ui.ListItem
+import ru.morozovit.android.utils.ui.SimpleAlertDialog
 
 class SelectAppsActivity: BaseActivity() {
     @OptIn(ExperimentalMaterial3Api::class)

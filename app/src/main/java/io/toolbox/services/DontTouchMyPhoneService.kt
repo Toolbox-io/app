@@ -22,12 +22,12 @@ import io.toolbox.App.Companion.DONT_TOUCH_MY_PHONE_NOTIFICATION_ID
 import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.services.tiles.SleepTileKeeperService
-import ru.morozovit.android.SensorEventListener
-import ru.morozovit.android.broadcastReceiver
-import ru.morozovit.android.notificationButtonPendingIntent
-import ru.morozovit.android.orientationSensorEventListener
-import ru.morozovit.android.runMultiple
-import ru.morozovit.android.runOrLog
+import ru.morozovit.android.utils.SensorEventListener
+import ru.morozovit.android.utils.broadcastReceiver
+import ru.morozovit.android.utils.notificationButtonPendingIntent
+import ru.morozovit.android.utils.orientationSensorEventListener
+import ru.morozovit.android.utils.runMultiple
+import ru.morozovit.android.utils.runOrLog
 import kotlin.math.abs
 import kotlin.math.roundToInt
 

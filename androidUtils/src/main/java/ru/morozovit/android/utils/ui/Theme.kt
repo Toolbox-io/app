@@ -1,4 +1,4 @@
-package ru.morozovit.android.ui
+package ru.morozovit.android.utils.ui
 
 import android.app.Activity
 import android.os.Build
@@ -29,8 +29,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import ru.morozovit.android.invoke
-import ru.morozovit.android.plus
 
 enum class ThemeSetting {
     AsSystem,

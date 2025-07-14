@@ -5,7 +5,7 @@
     "UnusedReceiverParameter"
 )
 
-package ru.morozovit.android.ui
+package ru.morozovit.android.utils.ui
 
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
@@ -64,6 +64,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
@@ -120,13 +121,6 @@ import io.github.fornewid.placeholder.material3.shimmer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ru.morozovit.android.R
-import ru.morozovit.android.applyIf
-import ru.morozovit.android.asAndroidScaleType
-import ru.morozovit.android.invoke
-import ru.morozovit.android.left
-import ru.morozovit.android.link
-import ru.morozovit.android.plus
-import ru.morozovit.android.right
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
@@ -207,7 +201,7 @@ fun ListItem(
                             content = leadingContent
                         )
                     }
-                    androidx.compose.material3.ListItem(
+                    ListItem(
                         headlineContent = {
                             Text(
                                 text = headline,

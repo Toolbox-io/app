@@ -12,7 +12,7 @@ import androidx.annotation.RequiresApi
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.DynamicColorsOptions
 import io.toolbox.Settings.materialYouEnabled
-import ru.morozovit.android.NotificationIdManager
+import ru.morozovit.android.utils.NotificationIdManager
 import java.lang.ref.WeakReference
 
 

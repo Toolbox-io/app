@@ -63,9 +63,9 @@ import io.toolbox.R
 import io.toolbox.ui.AppTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import ru.morozovit.android.evaluateJavascript
-import ru.morozovit.android.invoke
-import ru.morozovit.android.openUrl
+import ru.morozovit.android.utils.ui.evaluateJavascript
+import ru.morozovit.android.utils.ui.invoke
+import ru.morozovit.android.utils.openUrl
 
 class GuideActivity: BaseActivity(configTheme = false) {
     @Suppress("unused")

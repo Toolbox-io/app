@@ -32,12 +32,12 @@ import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.hazeSource
 import io.toolbox.R
 import io.toolbox.ui.LocalHazeState
-import ru.morozovit.android.getSystemService
-import ru.morozovit.android.invoke
-import ru.morozovit.android.ui.Mipmap
-import ru.morozovit.android.ui.TextButton
-import ru.morozovit.android.ui.WindowInsetsHandler
-import ru.morozovit.android.verticalScroll
+import ru.morozovit.android.utils.getSystemService
+import ru.morozovit.android.utils.ui.invoke
+import ru.morozovit.android.utils.ui.Mipmap
+import ru.morozovit.android.utils.ui.TextButton
+import ru.morozovit.android.utils.ui.WindowInsetsHandler
+import ru.morozovit.android.utils.ui.verticalScroll
 
 private const val FILES_SHORTCUT = "files-shortcut"
 

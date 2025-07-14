@@ -28,12 +28,12 @@ import io.toolbox.services.DontTouchMyPhoneService
 import io.toolbox.services.DontTouchMyPhoneService.Companion.working
 import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.protection.actions.ActionsActivity
-import ru.morozovit.android.invoke
-import ru.morozovit.android.ui.Category
-import ru.morozovit.android.ui.Charger
-import ru.morozovit.android.ui.ListItem
-import ru.morozovit.android.ui.SwitchListItem
-import ru.morozovit.android.ui.WindowInsetsHandler
+import ru.morozovit.android.utils.ui.invoke
+import ru.morozovit.android.utils.ui.Category
+import ru.morozovit.android.utils.ui.Charger
+import ru.morozovit.android.utils.ui.ListItem
+import ru.morozovit.android.utils.ui.SwitchListItem
+import ru.morozovit.android.utils.ui.WindowInsetsHandler
 
 @Composable
 fun DontTouchMyPhoneScreen(@Suppress("LocalVariableName") EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
