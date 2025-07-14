@@ -8,7 +8,7 @@ cd "$(dirname "$0")"
 TAG=$(git describe --tags --abbrev=0)
 # shellcheck disable=SC2207
 TAGS=($(git --no-pager tag --sort -v:refname | xargs))
-PREVTAG=${TAGS[2]}
+PREVTAG=${TAGS[1]}
 ASSET_PATH=./app/build/outputs/apk/release/app-release.apk
 DISPLAY_NAME=Toolbox.io.$TAG.apk
 
