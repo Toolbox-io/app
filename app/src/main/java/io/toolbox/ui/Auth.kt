@@ -2,7 +2,6 @@
 
 package io.toolbox.ui
 
-import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
@@ -22,7 +21,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,15 +29,12 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Backspace
@@ -52,7 +47,6 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -74,7 +68,6 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
@@ -92,8 +85,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.morozovit.android.utils.ActivityLauncher
 import ru.morozovit.android.utils.homeScreen
-import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.requestAuthentication
+import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.utils.EParser
 import kotlin.concurrent.thread
 
@@ -200,7 +193,6 @@ open class Auth(private val context: Context, var intent: Intent = Intent()) {
         }
     }
 
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
     @Composable
     fun AuthScreen(mode: Int) {
@@ -232,35 +224,25 @@ open class Auth(private val context: Context, var intent: Intent = Intent()) {
                             )
                         }
                     },
-                    modifier = Modifier
-                        .onKeyEvent {
-                            if (
-                                it.type == KeyEventType.KeyUp
-                            ) {
-                                try {
-                                    handlers[it.key]()
-                                    return@onKeyEvent true
-                                } catch (e: Exception) {
-                                    Log.d("Auth", it.key.toString())
-                                    Log.e("Auth", "${EParser(e)}")
-                                }
+                    modifier = Modifier.onKeyEvent {
+                        if (it.type == KeyEventType.KeyUp) {
+                            try {
+                                handlers[it.key]()
+                                return@onKeyEvent true
+                            } catch (e: Exception) {
+                                Log.d("Auth", it.key.toString())
+                                Log.e("Auth", "${EParser(e)}")
                             }
-                            false
                         }
-                        .requiredHeight(
-                            (LocalWindowInfo().containerSize.height - (60 * LocalDensity().density)).dp
-                        ),
+                        false
+                    },
                     containerColor = Color.Transparent
-                ) {
+                ) { innerPadding ->
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                MaterialTheme.colorScheme.surfaceContainer,
-                                RoundedCornerShape(32.dp)
-                            )
-                            .fillMaxHeight()
+                            .padding(innerPadding)
+                            .fillMaxSize()
                     ) {
                         val content = @Composable {
                             val coroutineScope = rememberCoroutineScope()
@@ -576,33 +558,21 @@ open class Auth(private val context: Context, var intent: Intent = Intent()) {
                             }
                         }
 
-                        val config = LocalConfiguration()
-
                         if (
-                            config.orientation == Configuration.ORIENTATION_LANDSCAPE &&
+                            LocalConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE &&
                             LocalWindowInfo().containerSize.height < 600
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(30.dp),
-                                modifier = Modifier
-                                    /* .background(
-                                        MaterialTheme.colorScheme.surfaceContainer,
-                                        RoundedCornerShape(32.dp)
-                                    ) */
-                                    .padding(20.dp)
+                                modifier = Modifier.padding(20.dp)
                             ) {
                                 content()
                             }
                         } else {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier
-                                    /* .background(
-                                        MaterialTheme.colorScheme.surfaceContainer,
-                                        RoundedCornerShape(32.dp)
-                                    ) */
-                                    .padding(20.dp)
+                                modifier = Modifier.padding(20.dp)
                             ) {
                                 content()
                             }

@@ -69,7 +69,6 @@ import io.toolbox.ui.MainActivity
 import io.toolbox.ui.dynamicThemeEnabled
 import io.toolbox.ui.protection.actions.ActionsActivity
 import io.toolbox.ui.theme
-import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.Category
 import ru.morozovit.android.utils.ui.ListItem
 import ru.morozovit.android.utils.ui.SeparatedSwitchListItem
@@ -77,6 +76,7 @@ import ru.morozovit.android.utils.ui.SimpleAlertDialog
 import ru.morozovit.android.utils.ui.SwitchListItem
 import ru.morozovit.android.utils.ui.ThemeSetting
 import ru.morozovit.android.utils.ui.WindowInsetsHandler
+import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.verticalScroll
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -254,7 +254,6 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                             if (it) {
                                 if (!Settings.Keys.App.isSet) {
                                     setPassword()
-                                    passwordSwitch = true
                                     return@pw
                                 }
                             } else {
@@ -263,6 +262,8 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                                 allowBiometricSwitchEnabled = Settings.Keys.App.isSet
                                 return@pw
                             }
+
+                            // FIXME impossible case
                             context.updateLock()
                             allowBiometricSwitchEnabled = Settings.Keys.App.isSet
                             passwordSwitch = true
