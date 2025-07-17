@@ -79,12 +79,9 @@ import ru.morozovit.android.utils.ui.WindowInsetsHandler
 import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.verticalScroll
 import java.io.BufferedInputStream
-import java.io.BufferedOutputStream
 import java.io.File
-import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.regex.Pattern
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
@@ -96,32 +93,28 @@ import kotlin.system.exitProcess
 fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
     val c = LocalContext()
     val context by lazy { c as MainActivity }
-    val dpm by lazy {
-        context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-    }
-    val adminComponentName by lazy {
-        ComponentName(context, DeviceAdmin::class.java)
-    }
-    val activityLauncher by lazy {
-        context.activityLauncher
-    }
+    val dpm by lazy { context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager }
+    val adminComponentName by lazy { ComponentName(context, DeviceAdmin::class.java) }
+    val activityLauncher by lazy { context.activityLauncher }
 
     // Device admin
     var devAdmSwitch by remember {
         mutableStateOf(dpm.isAdminActive(adminComponentName))
     }
-    val devAdmOnCheckedChanged: (Boolean) -> Unit = {
+    val devAdmOnCheckedChanged = { it: Boolean ->
         if (it) {
-            activityLauncher.launch(Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
-                putExtra(
-                    DevicePolicyManager.EXTRA_DEVICE_ADMIN,
-                    adminComponentName
-                )
-                putExtra(
-                    DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-                    context.resources.getString(R.string.devadmin_ed)
-                )
-            }) { result ->
+            activityLauncher.launch(
+                Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
+                    putExtra(
+                        DevicePolicyManager.EXTRA_DEVICE_ADMIN,
+                        adminComponentName
+                    )
+                    putExtra(
+                        DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                        context.resources.getString(R.string.devadmin_ed)
+                    )
+                }
+            ) { result ->
                 devAdmSwitch = result.resultCode == RESULT_OK
             }
         } else {
@@ -140,16 +133,10 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
             ) == BIOMETRIC_SUCCESS
         )
     }
-    var allowBiometricSwitch by remember {
-        mutableStateOf(
-            allowBiometric
-        )
-    }
+    var allowBiometricSwitch by remember { mutableStateOf(allowBiometric) }
 
     // Password lock
-    var passwordSwitch by remember {
-        mutableStateOf(Settings.Keys.App.isSet)
-    }
+    var passwordSwitch by remember { mutableStateOf(Settings.Keys.App.isSet) }
     fun setPassword() {
         activityLauncher.launch(
             Intent(
@@ -166,20 +153,11 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
     }
 
     // Don't show in recents
-    var dontShowInRecentsSwitch by remember {
-        mutableStateOf(
-            dontShowInRecents
-        )
-    }
+    var dontShowInRecentsSwitch by remember { mutableStateOf(dontShowInRecents) }
 
     // Material You
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
-        materialYouEnabled = false
-    var materialYouSwitch by remember {
-        mutableStateOf(
-            materialYouEnabled
-        )
-    }
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) materialYouEnabled = false
+    var materialYouSwitch by remember { mutableStateOf(materialYouEnabled) }
 
     // Delete app dialog
     var deleteAppDialogOpen by remember { mutableStateOf(false) }
@@ -252,21 +230,12 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                         checked = passwordSwitch,
                         onCheckedChange = pw@ {
                             if (it) {
-                                if (!Settings.Keys.App.isSet) {
-                                    setPassword()
-                                    return@pw
-                                }
+                                if (!Settings.Keys.App.isSet) setPassword()
                             } else {
                                 passwordSwitch = false
-                                Settings.Keys.App.set("")
-                                allowBiometricSwitchEnabled = Settings.Keys.App.isSet
-                                return@pw
+                                allowBiometricSwitchEnabled = false
+                                Settings.Keys.App.clear()
                             }
-
-                            // FIXME impossible case
-                            context.updateLock()
-                            allowBiometricSwitchEnabled = Settings.Keys.App.isSet
-                            passwordSwitch = true
                         },
                         bodyOnClick = ::setPassword,
                         divider = true,
@@ -441,82 +410,77 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                         headline = stringResource(R.string.export_settings),
                         supportingText = stringResource(R.string.export_settings_d),
                         onClick = {
-                            fun onError() {
-                                Toast.makeText(context, R.string.smthwentwrong, Toast.LENGTH_SHORT).show()
-                            }
+                            fun onError() = Toast.makeText(context, R.string.smthwentwrong, Toast.LENGTH_SHORT).show()
 
                             try {
-                                val sharedPrefs = File("${context.dataDir.absolutePath}/shared_prefs")
-                                val sharedPrefsCache = File("${context.cacheDir.absolutePath}/shared_prefs")
-                                sharedPrefs.copyRecursively(
-                                    target = sharedPrefsCache,
-                                    overwrite = true
-                                )
-                                sharedPrefsCache.listFiles()?.forEach {
-                                    if (it.isFile) {
-                                        when (it.nameWithoutExtension) {
-                                            KEYS_LABEL -> it.delete()
-                                            ACTIONS_LABEL -> {
-                                                // Remove custom alarms
-                                                val contents = it.inputStream().use { inp ->
-                                                    String(inp.readBytes())
-                                                }
+                                File("${context.cacheDir.absolutePath}/shared_prefs").let { cache ->
+                                    File("${context.dataDir.absolutePath}/shared_prefs").copyRecursively(
+                                        target = cache,
+                                        overwrite = true
+                                    )
 
-                                                fun String.remove(regex: String) =
-                                                    Pattern
-                                                        .compile(regex, Pattern.MULTILINE)
-                                                        .matcher(this)
-                                                        .replaceAll("")
-
-                                                val replaced =
-                                                    contents
-                                                        .remove("<set\\s*name=\"${CUSTOM_ALARMS_LABEL}\"\\s*>(?>.|\\s)*</set>")
-                                                        .remove("<string\\s+name=\\\"${CURRENT_CUSTOM_ALARM_LABEL}\\\"\\s*>(?>.|\\s)*</string>")
-                                                it.outputStream().use { out ->
-                                                    out.write(replaced.toByteArray())
+                                    activityLauncher.launch(
+                                        Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                                            addCategory(Intent.CATEGORY_OPENABLE)
+                                            type = "application/zip"
+                                            putExtra(
+                                                Intent.EXTRA_TITLE,
+                                                if (Build.VERSION.SDK_INT >= 26) {
+                                                    "${LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy_HH:mm"))}.tiosettings"
+                                                } else {
+                                                    "settings.tiosettings"
                                                 }
-                                            }
+                                            )
                                         }
-                                    }
-                                }
-                                val name = if (Build.VERSION.SDK_INT >= 26) {
-                                    val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy_HH:mm")
-                                    val date = LocalDateTime.now()
-                                    "${date.format(formatter)}.tiosettings"
-                                } else {
-                                    "settings.tiosettings"
-                                }
-                                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
-                                intent.addCategory(Intent.CATEGORY_OPENABLE)
-                                intent.type = "application/zip"
-                                intent.putExtra(Intent.EXTRA_TITLE, name)
-                                activityLauncher.launch(intent) {
-                                    try {
-                                        if (it.resultCode == RESULT_OK && it.data != null && it.data!!.data != null) {
-                                            ZipOutputStream(
-                                                BufferedOutputStream(
-                                                    context.contentResolver.openOutputStream(it.data!!.data!!)
-                                                )
-                                            ).use { out ->
-                                                for (file in sharedPrefsCache.listFiles()!!) {
-                                                    FileInputStream(file).use { fi ->
-                                                        BufferedInputStream(fi).use { origin ->
-                                                            out.putNextEntry(ZipEntry(file.name))
+                                    ) { result ->
+                                        try {
+                                            val intent = result.data
+                                            val uri = intent?.data
+
+                                            if (result.resultCode == RESULT_OK && uri != null) {
+                                                ZipOutputStream(
+                                                    context
+                                                        .contentResolver
+                                                        .openOutputStream(uri)!!
+                                                        .buffered()
+                                                ).use { out ->
+                                                    cache.listFiles()?.forEach {
+                                                        if (it.isFile) {
+                                                            when (it.nameWithoutExtension) {
+                                                                KEYS_LABEL -> it.delete()
+                                                                ACTIONS_LABEL -> {
+                                                                    // Remove custom alarms
+                                                                    it.writeText(
+                                                                        it.readText()
+                                                                            .replace(
+                                                                                "<set\\s*name=\"${CUSTOM_ALARMS_LABEL}\"\\s*>(?>.|\\s)*</set>",
+                                                                                ""
+                                                                            )
+                                                                            .replace(
+                                                                                "<string\\s+name=\\\"${CURRENT_CUSTOM_ALARM_LABEL}\\\"\\s*>(?>.|\\s)*</string>",
+                                                                                ""
+                                                                            )
+                                                                    )
+                                                                }
+                                                            }
+                                                        }
+
+                                                        it.inputStream().buffered().use { origin ->
+                                                            out.putNextEntry(ZipEntry(it.name))
                                                             origin.copyTo(out, 1024)
                                                         }
                                                     }
                                                 }
-                                            }
-                                            Toast.makeText(
-                                                context,
-                                                R.string.settings_exported_successfully,
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        } else {
-                                            error("")
+
+                                                Toast.makeText(
+                                                    context,
+                                                    R.string.settings_exported_successfully,
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            } else error("")
+                                        } catch (_: Exception) {
+                                            onError()
                                         }
-                                    } catch (_: Exception) {
-                                        onError()
                                     }
                                 }
                             } catch (_: Exception) {

@@ -363,6 +363,8 @@ object Settings {
             fun set(password: String)
             fun check(password: String): Boolean
             val isSet: Boolean
+
+            fun clear() = set("")
         }
 
         object Applocker: Key {

@@ -4,7 +4,7 @@ activityCompose = "1.10.1"
 agp = "8.11.1"
 animationGraphics = "1.8.3"
 biometric = "1.4.0-alpha04"
-composeBom = "2025.06.01"
+composeBom = "2025.07.00"
 constraintlayoutCompose = "1.1.1"
 coreSplashscreen = "1.0.1"
 customactivityoncrash = "2.4.0"
@@ -17,19 +17,15 @@ appcompat = "1.7.1"
 kotlinxSerializationJson = "1.9.0"
 ktor = "3.2.2"
 material = "1.12.0"
-constraintlayout = "2.2.1"
-navigation = "2.9.1"
+navigation = "2.9.2"
 ossLicenses = "0.10.6"
 placeholderMaterial3 = "2.0.0"
-playServicesOssLicenses = "17.2.0"
-materialCompose = "1.4.0-alpha17"
+playServicesOssLicenses = "17.2.1"
+materialCompose = "1.4.0-alpha18"
 material-extended = "1.7.8"
 slf4jSimple = "2.1.0-alpha1"
 uiViewbinding = "1.8.3"
 jetbrainsKotlinJvm = "2.2.0"
-junit = "4.13.2"
-junitVersion = "1.2.1"
-espressoCore = "3.6.1"
 
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanistDrawablepainter" }
@@ -58,16 +54,11 @@ ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "k
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
-androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigation" }
 oss-licenses-classpath = { module = "com.google.android.gms:oss-licenses-plugin", version.ref = "ossLicenses" }
 placeholder-material3 = { module = "io.github.fornewid:placeholder-material3", version.ref = "placeholderMaterial3" }
 play-services-oss-licenses = { module = "com.google.android.gms:play-services-oss-licenses", version.ref = "playServicesOssLicenses" }
 androidx-ui-viewbinding = { group = "androidx.compose.ui", name = "ui-viewbinding", version.ref = "uiViewbinding" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4jSimple" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
