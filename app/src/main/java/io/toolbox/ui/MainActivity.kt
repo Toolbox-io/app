@@ -121,19 +121,19 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import ru.morozovit.android.utils.ActivityLauncher
+import ru.morozovit.android.utils.activityResultLauncher
+import ru.morozovit.android.utils.runOrLog
 import ru.morozovit.android.utils.ui.ComposeView
 import ru.morozovit.android.utils.ui.WidthSizeClass
-import ru.morozovit.android.utils.activityResultLauncher
 import ru.morozovit.android.utils.ui.compareTo
 import ru.morozovit.android.utils.ui.compositionLocalOf
 import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.left
 import ru.morozovit.android.utils.ui.link
 import ru.morozovit.android.utils.ui.right
-import ru.morozovit.android.utils.runOrLog
-import ru.morozovit.android.utils.unsupported
 import ru.morozovit.android.utils.ui.verticalScroll
 import ru.morozovit.android.utils.ui.widthSizeClass
+import ru.morozovit.android.utils.unsupported
 
 val LocalNavController = compositionLocalOf<NavController>()
 val LocalHazeState = compositionLocalOf<HazeState>()
@@ -289,7 +289,7 @@ class MainActivity : BaseActivity() {
                         when {
                             it.startsWith("page/") -> {
                                 try {
-                                    navController.navigate(it.replaceFirst("page/", ""))
+                                    navController.navigate(it.replaceFirst("page//", ""))
                                 } catch (_: Exception) {
                                     Toast.makeText(
                                         this@MainActivity,
