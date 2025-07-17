@@ -2,10 +2,7 @@ package io.toolbox.ui.customization.shortcuts
 
 import android.content.Intent
 import android.content.Intent.ACTION_MAIN
-import android.content.pm.ShortcutInfo
-import android.content.pm.ShortcutManager
-import android.graphics.drawable.Icon
-import android.os.Build
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -29,14 +26,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.graphics.drawable.IconCompat
 import dev.chrisbanes.haze.hazeSource
 import io.toolbox.R
 import io.toolbox.ui.LocalHazeState
-import ru.morozovit.android.utils.getSystemService
-import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.Mipmap
 import ru.morozovit.android.utils.ui.TextButton
 import ru.morozovit.android.utils.ui.WindowInsetsHandler
+import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.verticalScroll
 
 private const val FILES_SHORTCUT = "files-shortcut"
@@ -46,19 +45,17 @@ private const val FILES_SHORTCUT = "files-shortcut"
 fun ShortcutsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
     WindowInsetsHandler {
         EdgeToEdgeBar { innerPadding ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val context = LocalContext()
+            val context = LocalContext()
+            val isShortcutsSupported = ShortcutManagerCompat.isRequestPinShortcutSupported(context)
 
+            if (isShortcutsSupported) {
                 Box(
                     Modifier
                         .verticalScroll()
                         .padding(innerPadding)
                         .hazeSource(LocalHazeState())
                 ) {
-                    FlowRow(
-                        Modifier
-                            .padding(10.dp)
-                    ) {
+                    FlowRow(Modifier.padding(10.dp)) {
                         Card(
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.surfaceContainer
@@ -81,21 +78,27 @@ fun ShortcutsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> U
 
                                 TextButton(
                                     onClick = {
-                                        val shortcutManager = context.getSystemService(ShortcutManager::class)!!
-                                        if (shortcutManager.isRequestPinShortcutSupported) {
-                                            val shortcutInfo = ShortcutInfo.Builder(
-                                                context, FILES_SHORTCUT
+                                        if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
+                                            ShortcutManagerCompat.requestPinShortcut(
+                                                context,
+                                                ShortcutInfoCompat.Builder(context, FILES_SHORTCUT)
+                                                    .setShortLabel(context.resources.getString(R.string.files))
+                                                    .setLongLabel(context.resources.getString(R.string.files))
+                                                    .setIcon(IconCompat.createWithResource(context, R.mipmap.files_icon))
+                                                    .setIntent(
+                                                        Intent(context, FilesShortcut::class.java).apply {
+                                                            action = ACTION_MAIN
+                                                        }
+                                                    )
+                                                    .build(),
+                                                null
                                             )
-                                                .setShortLabel(context.resources.getString(R.string.files))
-                                                .setLongLabel(context.resources.getString(R.string.files))
-                                                .setIcon(Icon.createWithResource(context, R.mipmap.files_icon))
-                                                .setIntent(
-                                                    Intent(context, FilesShortcut::class.java).apply {
-                                                        action = ACTION_MAIN
-                                                    }
-                                                )
-                                                .build()
-                                            shortcutManager.requestPinShortcut(shortcutInfo, null)
+                                        } else {
+                                            Toast.makeText(
+                                                context,
+                                                R.string.shortcuts_unsuported1,
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         }
                                     },
                                     icon = {
@@ -116,7 +119,7 @@ fun ShortcutsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> U
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(stringResource(R.string.shortcuts_unsuported))
+                    Text(stringResource(R.string.shortcuts_unsuported1))
                 }
             }
         }

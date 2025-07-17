@@ -228,4 +228,5 @@
     <string name="trigger_on_charger">Trigger on charger</string>
     <string name="trigger_on_charger_d">Trigger security actions when the charger is connected/disconnected</string>
     <string name="wrong_password">Wrong password</string>
+    <string name="shortcuts_unsuported1">Shortcuts aren\'t supported on your device.</string>
 </resources>
