@@ -277,9 +277,7 @@ class AppInfoActivity: BaseActivity() {
                         ListItem(
                             headline = stringResource(R.string.system_app_info),
                             supportingText = stringResource(R.string.system_app_info_d),
-                            divider = true,
-                            dividerThickness = 2.dp,
-                            dividerColor = MaterialTheme.colorScheme.surface,
+                            materialDivider = true,
                             leadingContent = {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.OpenInNew,
@@ -295,9 +293,7 @@ class AppInfoActivity: BaseActivity() {
                         ListItem(
                             headline = stringResource(R.string.view_in_gplay),
                             supportingText = stringResource(R.string.view_in_gplay_d),
-                            divider = true,
-                            dividerThickness = 2.dp,
-                            dividerColor = MaterialTheme.colorScheme.surface,
+                            materialDivider = true,
                             leadingContent = {
                                 Image(
                                     painter = painterResource(R.drawable.google_play),
@@ -348,9 +344,7 @@ class AppInfoActivity: BaseActivity() {
                         ListItem(
                             headline = stringResource(R.string.version),
                             supportingText = packageInfo.versionName,
-                            divider = true,
-                            dividerThickness = 2.dp,
-                            dividerColor = MaterialTheme.colorScheme.surface,
+                            materialDivider = true,
                             leadingContent = {
                                 Icon(
                                     imageVector = Icons.Filled.PermDeviceInformation,
@@ -362,9 +356,7 @@ class AppInfoActivity: BaseActivity() {
                         ListItem(
                             headline = stringResource(R.string.version_code),
                             supportingText = packageInfo.versionCode.toString(),
-                            divider = true,
-                            dividerThickness = 2.dp,
-                            dividerColor = MaterialTheme.colorScheme.surface,
+                            materialDivider = true,
                             leadingContent = {
                                 Icon(
                                     imageVector = Icons.Filled.Code,
@@ -375,9 +367,7 @@ class AppInfoActivity: BaseActivity() {
                         ListItem(
                             headline = stringResource(R.string.package_name),
                             supportingText = packageInfo.packageName,
-                            divider = true,
-                            dividerThickness = 2.dp,
-                            dividerColor = MaterialTheme.colorScheme.surface,
+                            materialDivider = true,
                             leadingContent = {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.Label,
@@ -405,9 +395,7 @@ class AppInfoActivity: BaseActivity() {
                                     contentDescription = null
                                 )
                             },
-                            divider = true,
-                            dividerThickness = 2.dp,
-                            dividerColor = MaterialTheme.colorScheme.surface,
+                            materialDivider = true
                         )
                         ListItem(
                             headline = stringResource(R.string.location),

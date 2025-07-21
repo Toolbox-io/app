@@ -9,8 +9,6 @@ import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS
 import android.util.Log
 import androidx.annotation.StringRes
@@ -83,7 +81,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
-import androidx.core.os.postDelayed
 import dev.chrisbanes.haze.hazeSource
 import io.toolbox.R
 import io.toolbox.Settings
@@ -99,15 +96,16 @@ import io.toolbox.ui.LocalNavController
 import io.toolbox.ui.MainActivity
 import io.toolbox.ui.protection.actions.ActionsActivity
 import io.toolbox.ui.protection.applocker.SelectAppsActivity
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import ru.morozovit.android.utils.ui.invoke
-import ru.morozovit.android.utils.ui.plus
+import ru.morozovit.android.utils.toPascalCase
 import ru.morozovit.android.utils.ui.Category
 import ru.morozovit.android.utils.ui.ListItem
 import ru.morozovit.android.utils.ui.SwitchWithText
 import ru.morozovit.android.utils.ui.WindowInsetsHandler
+import ru.morozovit.android.utils.ui.applyIf
+import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.verticalScroll
-import ru.morozovit.utils.toCamelCase
 import kotlin.concurrent.thread
 import kotlin.reflect.KMutableProperty0
 
@@ -167,7 +165,6 @@ private data class Guide(
 @Composable
 fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
     val context = LocalContext() as MainActivity
-    val handler = remember { Handler(Looper.getMainLooper()) }
     val mainNavController = LocalNavController()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -232,6 +229,7 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                         TextButton(onClick = downloadOnClick) {
                                             Text(text = stringResource(R.string.download))
                                         }
+
                                         TextButton(
                                             onClick = {
                                                 update_dsa = true
@@ -256,8 +254,9 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                         thread {
                             runCatching {
                                 val info = checkForUpdates()!!
+
                                 if (info.available) {
-                                    version = String.format(versionFormat, info.version)
+                                    version = versionFormat.format(info.version)
                                     body = info.description
                                     downloadOnClick = {
                                         context.sendBroadcast(
@@ -282,21 +281,21 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                 val grant = stringResource(R.string.grant)
 
                 LaunchedEffect(Unit) {
-                    if (Build.VERSION.SDK_INT >= 33) {
-                        if (
-                            context.checkSelfPermission(
-                                Manifest.permission.POST_NOTIFICATIONS
-                            ) != PackageManager.PERMISSION_GRANTED
-                        ) {
-                            val result = snackbarHostState.showSnackbar(
+                    if (
+                        Build.VERSION.SDK_INT >= 33 &&
+                        context.checkSelfPermission(
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        when (
+                            snackbarHostState.showSnackbar(
                                 message = grant_notification,
                                 actionLabel = grant,
                                 duration = SnackbarDuration.Long
                             )
-                            when (result) {
-                                SnackbarResult.ActionPerformed -> context.requestPermission(Manifest.permission.POST_NOTIFICATIONS)
-                                SnackbarResult.Dismissed -> {}
-                            }
+                        ) {
+                            SnackbarResult.ActionPerformed -> context.requestPermission(Manifest.permission.POST_NOTIFICATIONS)
+                            SnackbarResult.Dismissed -> {}
                         }
                     }
                 }
@@ -318,16 +317,13 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                         var state by remember { mutableIntStateOf(0) }
                         @Suppress("DEPRECATION")
                         val dismissState = rememberSwipeToDismissBoxState(
-                            confirmValueChange = {
+                            confirmValueChange = v@ {
                                 when (it) {
                                     SwipeToDismissBoxValue.StartToEnd,
-                                    SwipeToDismissBoxValue.EndToStart -> {
-                                        onVisibilityChange(false)
-                                    }
-
-                                    SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
+                                    SwipeToDismissBoxValue.EndToStart -> onVisibilityChange(false)
+                                    SwipeToDismissBoxValue.Settled -> false
                                 }
-                                return@rememberSwipeToDismissBoxState true
+                                true
                             },
                             positionalThreshold = { it * .5f }
                         )
@@ -347,7 +343,6 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                                 when (dismissState.dismissDirection) {
                                                     SwipeToDismissBoxValue.StartToEnd,
                                                     SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.surface
-
                                                     SwipeToDismissBoxValue.Settled -> Color.Transparent
                                                 }
                                             )
@@ -358,45 +353,33 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                     val computedAlpha = if (
                                         dismissState.targetValue == SwipeToDismissBoxValue.Settled &&
                                         dismissState.progress == 1f
-                                    ) 1f
-                                    else 1f - dismissState.progress
+                                    ) 1f else 1f - dismissState.progress
+
                                     val round by animateDpAsState(
-                                        targetValue =
-                                            if (
-                                                computedAlpha != 1f
-                                            ) 28.dp
-                                            else 0.dp,
-                                        label = ""
+                                        targetValue = if (computedAlpha != 1f) 28.dp else 0.dp
                                     )
 
                                     Crossfade(
                                         targetState = state,
-                                        modifier = Modifier.animateContentSize(),
-                                        label = ""
-                                    ) {
-                                        when (it) {
+                                        modifier = Modifier.animateContentSize()
+                                    ) { screen ->
+                                        when (screen) {
                                             0 /* main content */ -> {
                                                 Column {
                                                     Column(
                                                         modifier = modifier
                                                             .background(
-                                                                MaterialTheme.colorScheme.surfaceContainer,
-                                                                RoundedCornerShape(round)
+                                                                color = MaterialTheme.colorScheme.surfaceContainer,
+                                                                shape = RoundedCornerShape(round)
                                                             )
-                                                            .clip(
-                                                                RoundedCornerShape(round)
-                                                            )
-                                                            .alpha(computedAlpha) +
-                                                                if (onClick != null)
-                                                                    Modifier
-                                                                        .combinedClickable(
-                                                                            onClick = onClick,
-                                                                            onLongClick = {
-                                                                                state = 1
-                                                                            }
-                                                                        )
-                                                                else
-                                                                    Modifier
+                                                            .clip(RoundedCornerShape(round))
+                                                            .alpha(computedAlpha)
+                                                            .applyIf(onClick != null) {
+                                                                Modifier.combinedClickable(
+                                                                    onClick = onClick!!,
+                                                                    onLongClick = { state = 1 }
+                                                                )
+                                                            }
                                                     ) {
                                                         Row(
                                                             modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
@@ -433,14 +416,12 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                                             leadingContent = {
                                                                 Spacer(Modifier.width(24.dp))
                                                             },
-                                                            bottomContent = if (bottomContent != null) {
-                                                                {
-                                                                    FlowRow(
-                                                                        modifier = Modifier.padding(start = (24 + 16 - 12).dp, end = 16.dp),
-                                                                        content = bottomContent
-                                                                    )
-                                                                }
-                                                            } else null
+                                                            bottomContent = bottomContent?.let {{
+                                                                FlowRow(
+                                                                    modifier = Modifier.padding(start = (24 + 16 - 12).dp, end = 16.dp),
+                                                                    content = it
+                                                                )
+                                                            }}
                                                         )
                                                     }
                                                     AnimatedVisibility(
@@ -460,24 +441,18 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                                 Column(
                                                     modifier = modifier
                                                         .background(
-                                                            MaterialTheme.colorScheme.surfaceContainer,
-                                                            RoundedCornerShape(round)
+                                                            color = MaterialTheme.colorScheme.surfaceContainer,
+                                                            shape = RoundedCornerShape(round)
                                                         )
-                                                        .clip(
-                                                            RoundedCornerShape(round)
-                                                        )
+                                                        .clip(RoundedCornerShape(round))
                                                         .alpha(computedAlpha)
                                                         .padding(16.dp)
-                                                            +
-                                                            if (onClick != null)
-                                                                Modifier.combinedClickable(
-                                                                    onClick = onClick,
-                                                                    onLongClick = {
-                                                                        state = 1
-                                                                    }
-                                                                )
-                                                            else
-                                                                Modifier
+                                                        .applyIf(onClick != null) {
+                                                            Modifier.combinedClickable(
+                                                                onClick = onClick!!,
+                                                                onLongClick = { state = 1 }
+                                                            )
+                                                        }
                                                 ) {
                                                     var enabled by remember { mutableStateOf(type.isEnabled) }
                                                     SwitchWithText(
@@ -510,115 +485,115 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
 
                     val notifications = remember { mutableStateListOf<NotificationData>() }
                     LaunchedEffect(Unit) {
-                        if (
-                            Settings.UnlockProtection.enabled &&
-                            !(
+                        when {
+                            Settings.UnlockProtection.enabled && !(
                                 Settings.Actions.Alarm.enabled ||
                                 Settings.Actions.IntruderPhoto.enabled
-                            )
-                        ) {
-                            var notification: NotificationData? = null
-                            notification = NotificationData(
-                                title = R.string.turn_on_at_least_one_action,
-                                message = R.string.turn_on_at_least_one_action_d,
-                                bottomContent = {
-                                    TextButton(
-                                        onClick = {
-                                            Intent(context, ActionsActivity::class.java).let {
-                                                context.activityLauncher.launch(it) {
-                                                    if (
-                                                        !(
-                                                            Settings.UnlockProtection.enabled &&
+                            ) -> {
+                                var notification: NotificationData? = null
+                                notification = NotificationData(
+                                    title = R.string.turn_on_at_least_one_action,
+                                    message = R.string.turn_on_at_least_one_action_d,
+                                    bottomContent = {
+                                        TextButton(
+                                            onClick = {
+                                                Intent(context, ActionsActivity::class.java).let {
+                                                    context.activityLauncher.launch(it) {
+                                                        if (
                                                             !(
-                                                                Settings.Actions.Alarm.enabled ||
-                                                                Settings.Actions.IntruderPhoto.enabled
-                                                            )
-                                                        )
+                                                                    Settings.UnlockProtection.enabled &&
+                                                                            !(
+                                                                                    Settings.Actions.Alarm.enabled ||
+                                                                                            Settings.Actions.IntruderPhoto.enabled
+                                                                                    )
+                                                                    )
+                                                        ) notification!!.visible = false
+                                                    }
+                                                }
+                                            }
+                                        ) {
+                                            Text(text = "View actions")
+                                        }
+                                    },
+                                    type = NotificationType.ENABLE_AT_LEAST_ONE_FEATURE
+                                )
+                                notifications += notification
+                            }
+
+                            Settings.Applocker.used -> when {
+                                !Accessibility.running -> {
+                                    var notification: NotificationData? = null
+                                    notification = NotificationData(
+                                        title = R.string.reenable_accessibility,
+                                        message = R.string.reenable_accessibility_d,
+                                        bottomContent = {
+                                            TextButton(
+                                                onClick = {
+                                                    var resumeHandler: (() -> Unit)? = null
+                                                    resumeHandler = {
+                                                        if (Accessibility.running) {
+                                                            notification!!.visible = false
+                                                            Settings.Applocker.used = true
+                                                        }
+                                                        returnBack = false
+                                                        context.resumeHandlers.remove(resumeHandler)
+                                                    }
+                                                    context.resumeHandlers.add(resumeHandler)
+                                                    returnBack = true
+                                                    context.startActivity(
+                                                        Intent(ACTION_ACCESSIBILITY_SETTINGS).apply {
+                                                            flags = FLAG_ACTIVITY_NEW_TASK
+                                                        }
+                                                    )
+                                                }
+                                            ) {
+                                                Text(text = "Enable")
+                                            }
+                                        },
+                                        type = NotificationType.ENABLE_ACCESSIBILITY
+                                    )
+                                    notifications += notification
+                                }
+                                !Settings.Keys.Applocker.isSet -> {
+                                    notifications += NotificationData(
+                                        title = R.string.set_password_1,
+                                        message = R.string.set_password_1_d,
+                                        bottomContent = {
+                                            TextButton(
+                                                onClick = {
+                                                    mainNavController.navigate("applocker")
+                                                }
+                                            ) {
+                                                Text(text = "Set password")
+                                            }
+                                        },
+                                        type = NotificationType.SET_PASSWORD
+                                    )
+                                }
+                                Settings.Applocker.apps.isEmpty() -> {
+                                    var notification: NotificationData? = null
+                                    notification = NotificationData(
+                                        title = R.string.select_apps_1,
+                                        message = R.string.select_apps_1_d,
+                                        bottomContent = {
+                                            TextButton(
+                                                onClick = {
+                                                    context.activityLauncher.launch(
+                                                        Intent(context, SelectAppsActivity::class.java)
                                                     ) {
-                                                        notification!!.visible = false
+                                                        if (Settings.Applocker.apps.isNotEmpty()) {
+                                                            notification!!.visible = false
+                                                        }
                                                     }
                                                 }
+                                            ) {
+                                                Text(text = "Select")
                                             }
-                                        }
-                                    ) {
-                                        Text(text = "View actions")
-                                    }
-                                },
-                                type = NotificationType.ENABLE_AT_LEAST_ONE_FEATURE
-                            )
-                            notifications += notification
-                        }
-                        if (Settings.Applocker.used) {
-                            if (!Accessibility.running) {
-                                var notification: NotificationData? = null
-                                notification = NotificationData(
-                                    title = R.string.reenable_accessibility,
-                                    message = R.string.reenable_accessibility_d,
-                                    bottomContent = {
-                                        TextButton(
-                                            onClick = {
-                                                val intent = Intent(ACTION_ACCESSIBILITY_SETTINGS)
-                                                intent.flags = FLAG_ACTIVITY_NEW_TASK
-                                                var resumeHandler: (() -> Unit)? = null
-                                                resumeHandler = {
-                                                    if (Accessibility.running) {
-                                                        notification!!.visible = false
-                                                        Settings.Applocker.used = true
-                                                    }
-                                                    returnBack = false
-                                                    context.resumeHandlers.remove(resumeHandler)
-                                                }
-                                                context.resumeHandlers.add(resumeHandler)
-                                                returnBack = true
-                                                context.startActivity(intent)
-                                            }
-                                        ) {
-                                            Text(text = "Enable")
-                                        }
-                                    },
-                                    type = NotificationType.ENABLE_ACCESSIBILITY
-                                )
-                                notifications += notification
-                            }
-                            if (!Settings.Keys.Applocker.isSet) {
-                                notifications += NotificationData(
-                                    title = R.string.set_password_1,
-                                    message = R.string.set_password_1_d,
-                                    bottomContent = {
-                                        TextButton(
-                                            onClick = {
-                                                mainNavController.navigate("applocker")
-                                            }
-                                        ) {
-                                            Text(text = "Set password")
-                                        }
-                                    },
-                                    type = NotificationType.SET_PASSWORD
-                                )
-                            }
-                            if (Settings.Applocker.apps.isEmpty()) {
-                                var notification: NotificationData? = null
-                                notification = NotificationData(
-                                    title = R.string.select_apps_1,
-                                    message = R.string.select_apps_1_d,
-                                    bottomContent = {
-                                        TextButton(
-                                            onClick = {
-                                                context.activityLauncher.launch(
-                                                    Intent(context, SelectAppsActivity::class.java)
-                                                ) {
-                                                    if (Settings.Applocker.apps.isNotEmpty()) {
-                                                        notification!!.visible = false
-                                                    }
-                                                }
-                                            }
-                                        ) {
-                                            Text(text = "Select")
-                                        }
-                                    },
-                                    type = NotificationType.SELECT_APPS
-                                )
-                                notifications += notification
+                                        },
+                                        type = NotificationType.SELECT_APPS
+                                    )
+                                    notifications += notification
+                                }
                             }
                         }
                     }
@@ -632,9 +607,10 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                 notifications.forEachIndexed { index, notification ->
                                     if (notification.type.isEnabled) {
                                         notification.onVisibilityChange = {
-                                            set(it)
-                                            if (!it) {
-                                                handler.postDelayed(1000) {
+                                            coroutineScope.launch {
+                                                set(it)
+                                                if (!it) {
+                                                    delay(1000)
                                                     notifications.remove(notification)
                                                 }
                                             }
@@ -681,43 +657,32 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                 // Guides
                 Category(title = stringResource(R.string.guides)) {
                     val guides = remember { mutableStateListOf<Guide>() }
-                    var uri: Uri? by remember { mutableStateOf(null) }
 
                     LaunchedEffect(Unit) {
                         try {
-                            // TODO use the new API and use ktor
-                            val guidesList = GuidesAPI.list()
-
-                            for (it in guidesList) {
-                                val (name0, header) = it
-
-                                val name = name0.replace("\\.md$".toRegex(), "")
-                                val title = header.DisplayName
-                                val htmlFile = "https://beta.toolbox-io.ru/guides/${name.lowercase()}/raw".toUri()
-
-                                val icon = try {
-                                    val iconName = header.Icon
-                                        .toCamelCase()
-                                        .replaceFirstChar { it.uppercase() }
-                                    Class
-                                        .forName(
-                                            "androidx.compose.material.icons.filled.${iconName}Kt"
-                                        )
-                                        .getMethod(
-                                            "get${iconName}",
-                                            Icons.Filled::class.java
-                                        )
-                                        .invoke(null, Icons.Filled) as ImageVector
-                                } catch (e: Exception) {
-                                    Log.e("Guides", "An error occurred while getting icon: ", e)
-                                    Icons.Filled.Description
-                                }
+                            for (it in GuidesAPI.list()) {
+                                val name = it.name.removeSuffix(".md")
+                                val header = it.header
 
                                 guides += Guide(
-                                    title = title,
+                                    title = header.DisplayName,
                                     name = name,
-                                    icon = icon,
-                                    htmlFile = htmlFile
+                                    icon = try {
+                                        val iconName = header.Icon.toPascalCase()
+                                        Class
+                                            .forName(
+                                                "androidx.compose.material.icons.filled.${iconName}Kt"
+                                            )
+                                            .getMethod(
+                                                "get${iconName}",
+                                                Icons.Filled::class.java
+                                            )
+                                            .invoke(null, Icons.Filled) as ImageVector
+                                    } catch (e: Exception) {
+                                        Log.e("Guides", "An error occurred while getting icon: ", e)
+                                        Icons.Filled.Description
+                                    },
+                                    htmlFile = "${GuidesAPI.BASE_URL}/${name.lowercase()}/raw".toUri()
                                 ).also { Log.d("Guides", "$it") }
                             }
                         } catch (e: Exception) {
@@ -725,44 +690,24 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                         }
                     }
 
-                    for (i in guides.indices) {
-                        val guide = guides[i]
-
-                        val onClick = {
-                            uri = guide.htmlFile
-                            context.startActivity(
-                                Intent(context, GuideActivity::class.java).apply {
-                                    data = uri
-                                }
-                            )
-                        }
-
-                        if (i != guides.size - 1) {
-                            ListItem(
-                                headline = guide.title,
-                                leadingContent = {
-                                    Icon(
-                                        imageVector = guide.icon,
-                                        contentDescription = null
-                                    )
-                                },
-                                onClick = onClick,
-                                divider = true,
-                                dividerColor = MaterialTheme.colorScheme.surface,
-                                dividerThickness = 2.dp
-                            )
-                        } else {
-                            ListItem(
-                                headline = guide.title,
-                                leadingContent = {
-                                    Icon(
-                                        imageVector = guide.icon,
-                                        contentDescription = null
-                                    )
-                                },
-                                onClick = onClick
-                            )
-                        }
+                    guides.forEachIndexed { i, (_, title, htmlFile, icon) ->
+                        ListItem(
+                            headline = title,
+                            leadingContent = {
+                                Icon(
+                                    imageVector = icon,
+                                    contentDescription = null
+                                )
+                            },
+                            onClick = {
+                                context.startActivity(
+                                    Intent(context, GuideActivity::class.java).apply {
+                                        data = htmlFile
+                                    }
+                                )
+                            },
+                            materialDivider = i != guides.lastIndex
+                        )
                     }
                 }
             }

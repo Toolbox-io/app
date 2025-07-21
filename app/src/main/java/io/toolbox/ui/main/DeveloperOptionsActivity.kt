@@ -98,9 +98,7 @@ class DeveloperOptionsActivity: BaseActivity(authEnabled = false) {
                                 @Suppress("DIVISION_BY_ZERO")
                                 0 / 0
                             },
-                            divider = true,
-                            dividerThickness = 2.dp,
-                            dividerColor = MaterialTheme.colorScheme.surface
+                            materialDivider = true
                         )
                         ListItem(
                             headline = "Green screen",
@@ -116,9 +114,7 @@ class DeveloperOptionsActivity: BaseActivity(authEnabled = false) {
                                     Intent(this@DeveloperOptionsActivity, GreenScreenActivity::class.java)
                                 )
                             },
-                            divider = true,
-                            dividerThickness = 2.dp,
-                            dividerColor = MaterialTheme.colorScheme.surface
+                            materialDivider = true
                         )
                         SwitchListItem(
                             headline = "Replace photos with intruder photos",

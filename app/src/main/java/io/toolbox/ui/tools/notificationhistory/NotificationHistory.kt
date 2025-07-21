@@ -286,9 +286,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                                         }
                                     )
                                 }
-                                if (divider) {
-                                    HorizontalDivider()
-                                }
+                                if (divider) HorizontalDivider()
                             }
                         }
                     )

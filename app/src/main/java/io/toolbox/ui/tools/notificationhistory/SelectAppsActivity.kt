@@ -205,9 +205,9 @@ class SelectAppsActivity: BaseActivity() {
                             supportingText = appPackage,
                             divider = !container,
                             leadingContent = {
-                                if (appIcon != null) {
+                                appIcon?.let { icon ->
                                     Image(
-                                        bitmap = appIcon!!,
+                                        bitmap = icon,
                                         contentDescription = null,
                                         modifier = Modifier
                                             .size(56.dp)

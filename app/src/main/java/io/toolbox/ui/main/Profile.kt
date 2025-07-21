@@ -540,9 +540,7 @@ private fun AccountScreen(
             ListItem(
                 headline = stringResource(R.string.username),
                 supportingText = username,
-                divider = true,
-                dividerColor = MaterialTheme.colorScheme.surface,
-                dividerThickness = 2.dp,
+                materialDivider = true,
                 leadingContent = {
                     Icon(
                         imageVector = Icons.Filled.AccountCircle,
@@ -554,9 +552,7 @@ private fun AccountScreen(
             ListItem(
                 headline = stringResource(R.string.email),
                 supportingText = email,
-                divider = true,
-                dividerColor = MaterialTheme.colorScheme.surface,
-                dividerThickness = 2.dp,
+                materialDivider = true,
                 leadingContent = {
                     Icon(
                         imageVector = Icons.Filled.Email,
@@ -587,9 +583,7 @@ private fun AccountScreen(
                         onLogoutSuccess()
                     }
                 },
-                divider = true,
-                dividerColor = MaterialTheme.colorScheme.surface,
-                dividerThickness = 2.dp,
+                materialDivider = true,
                 leadingContent = {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Logout,

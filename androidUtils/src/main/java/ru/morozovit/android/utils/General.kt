@@ -1,6 +1,9 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package ru.morozovit.android.utils
 
 import android.util.Log
+import ru.morozovit.utils.toCamelCase
 
 fun runMultiple(vararg instructions: () -> Unit): Boolean {
     var result = true
@@ -74,3 +77,22 @@ inline fun waitWhile(timeout: Long = 0, condition: () -> Boolean): Boolean {
  * to have default values for params, but they must be specified.
  */
 inline val unsupported: Nothing get() = throw UnsupportedOperationException()
+
+
+/**
+ * Capitalizes the first letter of a string if there's any.
+ * If the string if empty, an empty string is returned.
+ *
+ * @return The string with the first letter capitalized.
+ */
+inline fun String.capitalizeFirstLetter() = replaceFirstChar { it.uppercase() }
+
+/**
+ * Converts the string to **pascal case**.
+ *
+ * Example:
+ * `ExampleString`
+ *
+ * @return The string converted to pascal case.
+ */
+inline fun String.toPascalCase() = toCamelCase().capitalizeFirstLetter()

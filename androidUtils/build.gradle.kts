@@ -67,6 +67,8 @@ dependencies {
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.adaptive)
     implementation(libs.androidx.animation.graphics)
+
+    implementation(project(":utils"))
 }
 
 java {

@@ -8,10 +8,12 @@ import android.app.Notification
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCaller
+import androidx.annotation.RawRes
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
@@ -160,3 +162,8 @@ fun Context.appName(packageName: String) = try {
 } catch (_: PackageManager.NameNotFoundException) {
     null
 }
+
+inline fun Resources.getRawText(@RawRes rawRes: Int) =
+    openRawResource(rawRes)
+        .bufferedReader()
+        .use { it.readText() }

@@ -95,9 +95,7 @@ class NotificationHistorySettingsActivity: BaseActivity() {
                                     contentDescription = null
                                 )
                             },
-                            divider = true,
-                            dividerColor = MaterialTheme.colorScheme.surface,
-                            dividerThickness = 2.dp
+                            materialDivider = true
                         )
 
                         var removeUselessNotificationsSwitch by remember { mutableStateOf(removeUselessNotifications) }
@@ -116,9 +114,7 @@ class NotificationHistorySettingsActivity: BaseActivity() {
                                     contentDescription = null
                                 )
                             },
-                            divider = true,
-                            dividerColor = MaterialTheme.colorScheme.surface,
-                            dividerThickness = 2.dp
+                            materialDivider = true
                         )
 
                         ListItem(

@@ -38,7 +38,6 @@ import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -213,9 +212,7 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                         supportingText = stringResource(R.string.devadmin_d),
                         checked = devAdmSwitch,
                         onCheckedChange = devAdmOnCheckedChanged,
-                        divider = true,
-                        dividerColor = MaterialTheme.colorScheme.surface,
-                        dividerThickness = 2.dp,
+                        materialDivider = true,
                         leadingContent = {
                             Icon(
                                 imageVector = Icons.Filled.Security,
@@ -238,9 +235,7 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                             }
                         },
                         bodyOnClick = ::setPassword,
-                        divider = true,
-                        dividerThickness = 2.dp,
-                        dividerColor = MaterialTheme.colorScheme.surface,
+                        materialDivider = true,
                         leadingContent = {
                             Icon(
                                 imageVector = Icons.Filled.Password,
@@ -259,9 +254,7 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                             allowBiometric = it
                         },
                         enabled = allowBiometricSwitchEnabled,
-                        divider = true,
-                        dividerThickness = 2.dp,
-                        dividerColor = MaterialTheme.colorScheme.surface,
+                        materialDivider = true,
                         leadingContent = {
                             Icon(
                                 imageVector = Icons.Filled.Fingerprint,
@@ -279,9 +272,7 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                             dontShowInRecentsSwitch = it
                             dontShowInRecents = it
                         },
-                        divider = true,
-                        dividerThickness = 2.dp,
-                        dividerColor = MaterialTheme.colorScheme.surface,
+                        materialDivider = true,
                         leadingContent = {
                             Icon(
                                 imageVector = Icons.Filled.VisibilityOff,
@@ -324,9 +315,7 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                             dynamicThemeEnabled = it
                             context.configureTheme()
                         },
-                        divider = true,
-                        dividerColor = MaterialTheme.colorScheme.surface,
-                        dividerThickness = 2.dp,
+                        materialDivider = true,
                         leadingContent = {
                             Icon(
                                 imageVector = Icons.Filled.Wallpaper,
@@ -338,9 +327,7 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                     // Theme
                     ListItem(
                         headline = stringResource(R.string.theme),
-                        divider = true,
-                        dividerColor = MaterialTheme.colorScheme.surface,
-                        dividerThickness = 2.dp,
+                        materialDivider = true,
                         leadingContent = {
                             Icon(
                                 imageVector = Icons.Filled.Brush,
@@ -396,9 +383,7 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                             checkForUpdatesSwitch = it
                             Settings.update_dsa = !it
                         },
-                        divider = true,
-                        dividerColor = MaterialTheme.colorScheme.surface,
-                        dividerThickness = 2.dp,
+                        materialDivider = true,
                         leadingContent = {
                             Icon(
                                 imageVector = Icons.Filled.SystemUpdate,
@@ -487,9 +472,7 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                                 onError()
                             }
                         },
-                        divider = true,
-                        dividerColor = MaterialTheme.colorScheme.surface,
-                        dividerThickness = 2.dp,
+                        materialDivider = true,
                         leadingContent = {
                             Icon(
                                 imageVector = Icons.Filled.Backup,
@@ -569,9 +552,7 @@ fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Un
                                 onError(e)
                             }
                         },
-                        divider = true,
-                        dividerColor = MaterialTheme.colorScheme.surface,
-                        dividerThickness = 2.dp,
+                        materialDivider = true,
                         leadingContent = {
                             Icon(
                                 imageVector = Icons.Filled.Restore,

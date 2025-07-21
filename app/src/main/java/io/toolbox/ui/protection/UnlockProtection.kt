@@ -145,9 +145,7 @@ fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValue
                     ListItem(
                         headline = stringResource(R.string.unlock_attempts),
                         supportingText = stringResource(R.string.unlock_attempts_d),
-                        divider = true,
-                        dividerThickness = 2.dp,
-                        dividerColor = MaterialTheme.colorScheme.surface,
+                        materialDivider = true,
                         onClick = {},
                         leadingContent = {
                             Icon(

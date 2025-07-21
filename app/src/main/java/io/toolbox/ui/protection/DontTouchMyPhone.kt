@@ -64,9 +64,7 @@ fun DontTouchMyPhoneScreen(@Suppress("LocalVariableName") EdgeToEdgeBar: @Compos
                                 contentDescription = null
                             )
                         },
-                        divider = true,
-                        dividerThickness = 2.dp,
-                        dividerColor = MaterialTheme.colorScheme.surface
+                        materialDivider = true
                     )
                     SwitchListItem(
                         headline = stringResource(R.string.trigger_on_charger),

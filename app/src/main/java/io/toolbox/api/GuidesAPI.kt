@@ -15,7 +15,7 @@ import kotlinx.serialization.Serializable
  * The [BASE_URL] can be changed if the API moves to a different place.
  */
 object GuidesAPI {
-    private const val BASE_URL = "https://beta.toolbox-io.ru/guides"
+    const val BASE_URL = "https://toolbox-io.ru/guides"
 
     private val client by lazy { DefaultHTTPClient() }
 

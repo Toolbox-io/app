@@ -512,14 +512,11 @@ class MainActivity : BaseActivity() {
                     TopAppBar(
                         colors = TopAppBarDefaults.topAppBarColors(Color.Unspecified, Color.Transparent),
                         title = {
-                            val titleRes = Screen[selectedItem]?.displayName
-                            val title = if (titleRes != null) {
-                                stringResource(titleRes)
-                            } else {
-                                ""
-                            }
                             Text(
-                                text = title,
+                                text = Screen[selectedItem]
+                                    ?.displayName
+                                    ?.let { stringResource(it) }
+                                    ?: "",
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -545,14 +542,14 @@ class MainActivity : BaseActivity() {
                     }
                 }
 
-                val start by remember { mutableStateOf(selectedItem) }
+
                 CompositionLocalProvider(
                     LocalNavController provides navController,
                     LocalHazeState provides hazeState
                 ) {
                     NavHost(
                         navController = navController,
-                        startDestination = start,
+                        startDestination = remember { selectedItem },
                         modifier = Modifier.consumeWindowInsets(
                             WindowInsets.safeDrawing.only(WindowInsetsSides.Left)
                         )

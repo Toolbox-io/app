@@ -10,7 +10,7 @@ import ru.morozovit.android.utils.failOnError
 import ru.morozovit.android.utils.jsonConfig
 
 object IssuesAPI {
-    private const val BASE_URL = "https://beta.toolbox-io.ru/api/issues/reportCrash"
+    private const val BASE_URL = "https://toolbox-io.ru/api/issues/reportCrash"
 
     private val client by lazy {
         DefaultHTTPClient {

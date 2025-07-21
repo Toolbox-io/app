@@ -20,7 +20,7 @@ import ru.morozovit.android.utils.failOnError
  * The [BASE_URL] can be changed if the API moves to a different place.
  */
 object AuthAPI {
-    private const val BASE_URL = "https://beta.toolbox-io.ru/api/auth"
+    private const val BASE_URL = "https://toolbox-io.ru/api/auth"
 
     /////////////////////
     // Internal models //

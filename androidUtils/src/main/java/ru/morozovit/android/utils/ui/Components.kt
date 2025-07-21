@@ -320,6 +320,41 @@ fun ListItem(
 }
 
 @Composable
+inline fun ListItem(
+    modifier: Modifier = Modifier,
+    bodyModifier: Modifier = Modifier,
+    headline: String,
+    supportingText: String? = null,
+    noinline leadingContent: (@Composable ConstraintLayoutScope.() -> Unit)? = null,
+    noinline trailingContent: (@Composable ConstraintLayoutScope.() -> Unit)? = null,
+    enabled: Boolean = true,
+    materialDivider: Boolean = false,
+    dividerAnimated: Boolean = false,
+    noinline onClick: (() -> Unit)? = null,
+    noinline bodyOnClick: (() -> Unit)? = null,
+    leadingAndBodyShared: Boolean = false,
+    placeholder: Boolean = false,
+    noinline bottomContent: (@Composable ConstraintLayoutScope.() -> Unit)? = null
+) = ListItem(
+    modifier = modifier,
+    bodyModifier = modifier,
+    headline = headline,
+    supportingText = supportingText,
+    leadingContent = leadingContent,
+    trailingContent = trailingContent,
+    enabled = enabled,
+    divider = materialDivider,
+    dividerThickness = if (materialDivider) 2.dp else DividerDefaults.Thickness,
+    dividerColor = if (materialDivider) MaterialTheme.colorScheme.surface else DividerDefaults.color,
+    dividerAnimated = dividerAnimated,
+    onClick = onClick,
+    bodyOnClick = bodyOnClick,
+    leadingAndBodyShared = leadingAndBodyShared,
+    placeholder = placeholder,
+    bottomContent = bottomContent
+)
+
+@Composable
 inline fun SwitchListItem(
     modifier: Modifier = Modifier,
     headline: String,
@@ -361,6 +396,35 @@ inline fun SwitchListItem(
         enabled = enabled
     )
 }
+
+@Composable
+inline fun SwitchListItem(
+    modifier: Modifier = Modifier,
+    headline: String,
+    supportingText: String? = null,
+    noinline leadingContent: (@Composable ConstraintLayoutScope.() -> Unit)? = null,
+    checked: Boolean,
+    noinline onCheckedChange: (Boolean) -> Unit,
+    crossinline listItemOnClick: () -> Unit = { onCheckedChange(!checked) },
+    materialDivider: Boolean = false,
+    dividerAnimated: Boolean = false,
+    placeholder: Boolean = false,
+    enabled: Boolean = true
+) = SwitchListItem(
+    modifier = modifier,
+    headline = headline,
+    supportingText = supportingText,
+    leadingContent = leadingContent,
+    checked = checked,
+    onCheckedChange = onCheckedChange,
+    listItemOnClick = listItemOnClick,
+    divider = materialDivider,
+    dividerThickness = if (materialDivider) 2.dp else DividerDefaults.Thickness,
+    dividerColor = if (materialDivider) MaterialTheme.colorScheme.surface else DividerDefaults.color,
+    dividerAnimated = dividerAnimated,
+    placeholder = placeholder,
+    enabled = enabled
+)
 
 @Composable
 inline fun SeparatedSwitchListItem(
@@ -421,6 +485,34 @@ inline fun SeparatedSwitchListItem(
         enabled = enabled
     )
 }
+
+@Composable
+inline fun SeparatedSwitchListItem(
+    modifier: Modifier = Modifier,
+    bodyModifier: Modifier = Modifier,
+    headline: String,
+    supportingText: String? = null,
+    noinline leadingContent: (@Composable ConstraintLayoutScope.() -> Unit)? = null,
+    checked: Boolean,
+    noinline onCheckedChange: (Boolean) -> Unit,
+    noinline bodyOnClick: () -> Unit,
+    materialDivider: Boolean = false,
+    dividerAnimated: Boolean = false,
+    placeholder: Boolean = false,
+    enabled: Boolean = true
+) = SeparatedSwitchListItem(
+    modifier = modifier,
+    bodyModifier = bodyModifier,
+    headline = headline,
+    supportingText = supportingText,
+    leadingContent = leadingContent,
+    checked = checked,
+    onCheckedChange = onCheckedChange,
+    bodyOnClick = bodyOnClick,
+    divider = materialDivider,
+    dividerThickness = if (materialDivider) 2.dp else DividerDefaults.Thickness,
+    dividerColor = if (materialDivider) MaterialTheme.colorScheme.surface else DividerDefaults.color,
+)
 
 @Composable
 fun SwitchCard(

@@ -353,9 +353,7 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                                     )
                                 )
                             },
-                            divider = true,
-                            dividerThickness = 2.dp,
-                            dividerColor = MaterialTheme.colorScheme.surface,
+                            materialDivider = true,
                             leadingContent = {
                                 Icon(
                                     imageVector = Icons.Filled.Apps,
@@ -399,9 +397,7 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                                     }
                                 )
                             },
-                            divider = true,
-                            dividerThickness = 2.dp,
-                            dividerColor = MaterialTheme.colorScheme.surface,
+                            materialDivider = true,
                             leadingContent = {
                                 Icon(
                                     imageVector = Icons.Filled.Password,
@@ -422,9 +418,7 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                                     contentDescription = null
                                 )
                             },
-                            divider = true,
-                            dividerThickness = 2.dp,
-                            dividerColor = MaterialTheme.colorScheme.surface,
+                            materialDivider = true,
                         )
                     }
 
@@ -456,9 +450,7 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                                 @Suppress("DIVISION_BY_ZERO")
                                 0 / 0
                             },
-                            divider = true,
-                            dividerThickness = 2.dp,
-                            dividerColor = MaterialTheme.colorScheme.surface,
+                            materialDivider = true,
                             leadingContent = {
                                 Icon(
                                     imageVector = Icons.Filled.Error,

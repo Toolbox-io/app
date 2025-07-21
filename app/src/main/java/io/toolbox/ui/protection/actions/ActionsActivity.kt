@@ -110,9 +110,7 @@ class ActionsActivity: BaseActivity() {
                                     alarm = Settings.UnlockProtection.Alarm.enabled
                                 }
                             },
-                            divider = true,
-                            dividerThickness = 2.dp,
-                            dividerColor = MaterialTheme.colorScheme.surface,
+                            materialDivider = true,
                             leadingContent = {
                                 Icon(
                                     imageVector = Icons.Filled.Siren,
