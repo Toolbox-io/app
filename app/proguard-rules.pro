@@ -25,12 +25,14 @@
     public static final java.io.InputStream in;
 }
 -assumenosideeffects class java.lang.Throwable {
-    public void printStackTrace(...);
+    public void printStackTrace();
 }
 
 # Keep icons so they can be used in reflection
--keep public class androidx.compose.material.icons.Icons$Filled { *; }
--keep public class androidx.compose.material.icons.filled.* { *; }
+-keep public class androidx.compose.material.icons.Icons$Filled
+-keep public class androidx.compose.material.icons.filled.*Kt {
+    public static final androidx.compose.ui.graphics.vector.ImageVector get*(androidx.compose.material.icons.Icons$Filled);
+}
 
 # Keep the JS interface
 -keep public class io.toolbox.ui.main.GuideActivity$WebViewScrollInterface {
