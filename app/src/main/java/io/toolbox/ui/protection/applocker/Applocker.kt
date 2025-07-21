@@ -66,6 +66,7 @@ import io.toolbox.services.Accessibility.Companion.returnBack
 import io.toolbox.services.AccessibilityKeeperService
 import io.toolbox.ui.AuthActivity
 import io.toolbox.ui.MainActivity
+import io.toolbox.ui.TopBarType
 import ru.morozovit.android.utils.homeScreen
 import ru.morozovit.android.utils.ui.Category
 import ru.morozovit.android.utils.ui.ListItem
@@ -79,7 +80,7 @@ import java.lang.Thread.sleep
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
+fun ApplockerScreen(topBar: TopBarType, scrollBehavior: TopAppBarScrollBehavior) {
     WindowInsetsHandler {
         val snackbarHostState = remember { SnackbarHostState() }
         Scaffold(

@@ -17,7 +17,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.os.postDelayed
 
-// TODO migrate to Compose
 class DialogActivity: AppCompatActivity() {
     companion object {
         const val RESULT_ERROR = RESULT_FIRST_USER

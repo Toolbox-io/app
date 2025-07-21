@@ -206,23 +206,21 @@ fun ActivityInfo.isLauncher(context: Context): Boolean {
  *
  * @return The JSON-encoded string.
  */
-fun String.encodeJSON(): String {
-    val out = StringBuilder()
-    for (i in indices) {
-        when (val c: Char = get(i)) {
-            '"', '\\', '/' -> out.append('\\').append(c)
-            '\t' -> out.append("\\t")
-            '\b' -> out.append("\\b")
-            '\n' -> out.append("\\n")
-            '\r' -> out.append("\\r")
-            else -> if (c.code <= 0x1F) {
-                out.append(String.format("\\u%04x", c.code))
-            } else {
-                out.append(c)
-            }
+fun String.encodeJSON() = buildString {
+    for (c in this) {
+        when (c) {
+            '"', '\\', '/' -> append("\\$c")
+            '\t' -> append("\\t")
+            '\b' -> append("\\b")
+            '\n' -> append("\\n")
+            '\r' -> append("\\r")
+            else -> append(
+                if (c.code <= 0x1F)
+                    String.format("\\u%04x", c.code)
+                else c
+            )
         }
     }
-    return "$out"
 }
 
 /**

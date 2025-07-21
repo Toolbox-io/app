@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -62,6 +61,7 @@ import io.toolbox.Settings.dontShowInRecents
 import io.toolbox.Settings.materialYouEnabled
 import io.toolbox.services.DeviceAdmin
 import io.toolbox.ui.AuthActivity
+import io.toolbox.ui.EdgeToEdgeBarType
 import io.toolbox.ui.MainActivity
 import io.toolbox.ui.dynamicThemeEnabled
 import io.toolbox.ui.protection.actions.ActionsActivity
@@ -87,9 +87,8 @@ import kotlin.system.exitProcess
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SettingsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
-    val c = LocalContext()
-    val context by lazy { c as MainActivity }
+fun SettingsScreen(EdgeToEdgeBar: EdgeToEdgeBarType) {
+    val context = LocalContext() as MainActivity
     val dpm by lazy { context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager }
     val adminComponentName by lazy { ComponentName(context, DeviceAdmin::class.java) }
     val activityLauncher by lazy { context.activityLauncher }

@@ -5,7 +5,6 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager.GET_ACTIVITIES
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -58,6 +57,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import io.toolbox.R
+import io.toolbox.ui.ActionsType
+import io.toolbox.ui.NavigationType
 import kotlinx.coroutines.launch
 import ru.morozovit.android.utils.ui.ListItem
 import ru.morozovit.android.utils.ui.WindowInsetsHandler
@@ -66,7 +67,7 @@ import kotlin.concurrent.thread
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppManagerScreen(actions: @Composable RowScope.() -> Unit, navigation: @Composable () -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
+fun AppManagerScreen(actions: ActionsType, navigation: NavigationType, scrollBehavior: TopAppBarScrollBehavior) {
     WindowInsetsHandler {
         with(LocalContext()) {
             val loadingStr = stringResource(R.string.loading)

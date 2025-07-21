@@ -4,6 +4,10 @@ package ru.morozovit.android.utils
 
 import android.util.Log
 import ru.morozovit.utils.toCamelCase
+import java.io.File
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 fun runMultiple(vararg instructions: () -> Unit): Boolean {
     var result = true
@@ -96,3 +100,45 @@ inline fun String.capitalizeFirstLetter() = replaceFirstChar { it.uppercase() }
  * @return The string converted to pascal case.
  */
 inline fun String.toPascalCase() = toCamelCase().capitalizeFirstLetter()
+
+/**
+ * Runs [block] and returns its result if not `null`.
+ * Otherwise, returns the receiver.
+ *
+ * @receiver The value to return if the result of [block] is `null`
+ * @param block The lambda to run.
+ */
+@OptIn(ExperimentalContracts::class)
+inline fun <T> T.change(block: (T) -> T?): T {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
+
+    return block(this) ?: this
+}
+
+/**
+ * Fills all missing elements from [this.size][List.size]` - 1` to [size]` - 1`
+ * with items returned by [block].
+ *
+ * If [size] is bigger or equal to the [list size][List.size] no items will
+ * be added.
+ *
+ * @receiver The [List] to fill.
+ * @param size The size of the list that should be reached once all elements
+ *             are added.
+ * @param block The lambda to calculate the added items. It accepts an `index`
+ *              parameter which is the index of the new item.
+ */
+inline fun <reified T> List<T>.fillTo(size: Int, block: (index: Int) -> T): List<T> {
+    if (size - this.size <= 0) return this
+    return this + (this.size until size).map(block)
+}
+
+/**
+ * Deletes the file if it exists and creates the file again with no contents.
+ */
+inline fun File.recreate() {
+    if (exists()) delete()
+    createNewFile()
+}

@@ -6,7 +6,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
@@ -32,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.services.DeviceAdmin
+import io.toolbox.ui.EdgeToEdgeBarType
 import io.toolbox.ui.MainActivity
 import io.toolbox.ui.protection.actions.ActionsActivity
 import kotlinx.coroutines.launch
@@ -45,7 +45,7 @@ import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.verticalScroll
 
 @Composable
-fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
+fun UnlockProtectionScreen(EdgeToEdgeBar: EdgeToEdgeBarType) {
     WindowInsetsHandler {
         EdgeToEdgeBar { innerPadding ->
             Column(

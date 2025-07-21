@@ -77,6 +77,7 @@ import io.ktor.client.plugins.ResponseException
 import io.toolbox.R
 import io.toolbox.api.AuthAPI
 import io.toolbox.api.errorMessage
+import io.toolbox.ui.TopBarType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -771,7 +772,7 @@ fun RegisterCodeEntryScreen(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
+fun ProfileScreen(topBar: TopBarType, scrollBehavior: TopAppBarScrollBehavior) {
     WindowInsetsHandler {
         val snackbarHostState = remember { SnackbarHostState() }
         val navController = rememberNavController()

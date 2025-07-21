@@ -2,7 +2,6 @@ package io.toolbox.ui.protection
 
 import android.content.Intent
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Security
@@ -23,6 +22,7 @@ import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.services.DontTouchMyPhoneService
 import io.toolbox.services.DontTouchMyPhoneService.Companion.working
+import io.toolbox.ui.EdgeToEdgeBarType
 import io.toolbox.ui.protection.actions.ActionsActivity
 import ru.morozovit.android.utils.ui.Category
 import ru.morozovit.android.utils.ui.Charger
@@ -32,13 +32,10 @@ import ru.morozovit.android.utils.ui.WindowInsetsHandler
 import ru.morozovit.android.utils.ui.invoke
 
 @Composable
-fun DontTouchMyPhoneScreen(@Suppress("LocalVariableName") EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
+fun DontTouchMyPhoneScreen(EdgeToEdgeBar: EdgeToEdgeBarType) {
     WindowInsetsHandler {
         EdgeToEdgeBar { innerPadding ->
-            Column(
-                Modifier
-                    .padding(innerPadding)
-            ) {
+            Column(Modifier.padding(innerPadding)) {
                 val context = LocalContext()
 
                 var useSensors by remember { mutableStateOf(Settings.DTMP.useSensors) }

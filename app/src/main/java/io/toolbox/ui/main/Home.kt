@@ -92,6 +92,7 @@ import io.toolbox.services.UpdateChecker.Companion.DownloadBroadcastReceiver
 import io.toolbox.services.UpdateChecker.Companion.checkForUpdates
 import io.toolbox.ui.LocalNavController
 import io.toolbox.ui.MainActivity
+import io.toolbox.ui.TopBarType
 import io.toolbox.ui.protection.actions.ActionsActivity
 import io.toolbox.ui.protection.applocker.SelectAppsActivity
 import kotlinx.coroutines.delay
@@ -104,7 +105,6 @@ import ru.morozovit.android.utils.ui.WindowInsetsHandler
 import ru.morozovit.android.utils.ui.applyIf
 import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.verticalScroll
-import kotlin.concurrent.thread
 import kotlin.reflect.KMutableProperty0
 
 private data class NotificationData(
@@ -161,7 +161,7 @@ private data class Guide(
 @SuppressLint("SetJavaScriptEnabled")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
+fun HomeScreen(topBar: TopBarType, scrollBehavior: TopAppBarScrollBehavior) {
     val context = LocalContext() as MainActivity
     val mainNavController = LocalNavController()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -248,26 +248,24 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                     }
 
                     LaunchedEffect(Unit) {
-                        thread {
-                            runCatching {
-                                val info = checkForUpdates()!!
+                        runCatching {
+                            val info = checkForUpdates()!!
 
-                                if (info.available) {
-                                    version = versionFormat.format(info.version)
-                                    body = info.description
-                                    downloadOnClick = {
-                                        context.sendBroadcast(
-                                            Intent(
-                                                context,
-                                                DownloadBroadcastReceiver::class.java
-                                            ).apply {
-                                                action = DOWNLOAD_BROADCAST
-                                                putExtra("updateInfo", info)
-                                            }
-                                        )
-                                    }
-                                    isUpdateCardVisible = true
+                            if (info.available) {
+                                version = versionFormat.format(info.version)
+                                body = info.description
+                                downloadOnClick = {
+                                    context.sendBroadcast(
+                                        Intent(
+                                            context,
+                                            DownloadBroadcastReceiver::class.java
+                                        ).apply {
+                                            action = DOWNLOAD_BROADCAST
+                                            putExtra("updateInfo", info)
+                                        }
+                                    )
                                 }
+                                isUpdateCardVisible = true
                             }
                         }
                     }
@@ -667,9 +665,7 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                                     icon = try {
                                         val iconName = header.Icon.toPascalCase()
                                         Class
-                                            .forName(
-                                                "androidx.compose.material.icons.filled.${iconName}Kt"
-                                            )
+                                            .forName("androidx.compose.material.icons.filled.${iconName}Kt")
                                             .getMethod(
                                                 "get${iconName}",
                                                 Icons.Filled::class.java

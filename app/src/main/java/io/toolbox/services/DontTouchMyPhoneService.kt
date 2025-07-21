@@ -24,8 +24,8 @@ import io.toolbox.Settings
 import io.toolbox.services.tiles.SleepTileKeeperService
 import ru.morozovit.android.utils.SensorEventListener
 import ru.morozovit.android.utils.broadcastReceiver
-import ru.morozovit.android.utils.notificationButtonPendingIntent
 import ru.morozovit.android.utils.orientationSensorEventListener
+import ru.morozovit.android.utils.pendingIntent
 import ru.morozovit.android.utils.runMultiple
 import ru.morozovit.android.utils.runOrLog
 import kotlin.math.abs
@@ -68,7 +68,6 @@ class DontTouchMyPhoneService: Service() {
         Settings.Actions.run(this, mediaPlayer, audioManager) { stopSelf() }
     }
 
-    // FIXME problem here
     var accelerometerListener = SensorEventListener {
         val (x, y, z) = it.values.also { values ->
             Log.d(
@@ -142,7 +141,7 @@ class DontTouchMyPhoneService: Service() {
                 .addAction(
                     R.drawable.do_not_touch,
                     "Disable",
-                    notificationButtonPendingIntent(ACTION_DISABLE)
+                    pendingIntent(Intent(ACTION_DISABLE))
                 )
                 .setPriority(PRIORITY_LOW)
                 .setSilent(true)

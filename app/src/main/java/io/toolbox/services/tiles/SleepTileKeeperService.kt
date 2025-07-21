@@ -15,7 +15,7 @@ import io.toolbox.App.Companion.SLEEP_TILE_NOTIFICATION_ID
 import io.toolbox.R
 import ru.morozovit.android.utils.broadcastReceiver
 import ru.morozovit.android.utils.configure
-import ru.morozovit.android.utils.notificationButtonPendingIntent
+import ru.morozovit.android.utils.pendingIntent
 
 /**
  * This **foreground service** will help [SleepTile] stay disabled and prevent
@@ -87,7 +87,7 @@ class SleepTileKeeperService: Service() {
                 .addAction(
                     R.drawable.sleep, // Use the same icon for the action
                     "Enable",
-                    notificationButtonPendingIntent(ACTION_ENABLE_TILE)
+                    pendingIntent(Intent(ACTION_ENABLE_TILE))
                 )
                 .setPriority(PRIORITY_LOW)
                 .setSilent(true)

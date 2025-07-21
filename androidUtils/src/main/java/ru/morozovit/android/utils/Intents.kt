@@ -117,16 +117,23 @@ fun Context.launchFiles(): Boolean {
     return intent1() || intent2() || intent3() || intent4() || intent5() || intent6()
 }
 
-/**
- * Creates a [PendingIntent] for a notification button broadcast.
- * @param action The action string for the intent.
- * @return The [PendingIntent].
- */
-inline fun Context.notificationButtonPendingIntent(
-    action: String
-) = PendingIntent.getBroadcast(
-    this,
-    0,
-    Intent(action).setPackage(packageName),
-    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-)!!
+
+inline fun Context.pendingIntent(
+    intent: Intent,
+    flags: Int = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+    activity: Boolean = false,
+) = if (activity) {
+    PendingIntent.getActivity(
+        this,
+        0,
+        intent,
+        flags
+    )!!
+} else {
+    PendingIntent.getBroadcast(
+        this,
+        0,
+        intent,
+        flags
+    )!!
+}

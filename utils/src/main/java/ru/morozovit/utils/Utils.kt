@@ -110,13 +110,14 @@ object MarkdownHeaderParser {
  *
  * @return The camelCase version of the string.
  */
-fun String.toCamelCase(): String {
-    val words = this.split(" ", "_", "-")
-    val camelCase = StringBuilder()
-    for ((index, word) in words.withIndex()) {
-        camelCase.append(if (index == 0) word.lowercase() else word.replaceFirstChar { it.uppercase() })
+fun String.toCamelCase() = buildString {
+    for ((index, word) in this@toCamelCase.split(" ", "_", "-").withIndex()) {
+        append(
+            if (index == 0)
+                word.lowercase()
+            else word.replaceFirstChar { it.uppercase() }
+        )
     }
-    return "$camelCase"
 }
 
 /**

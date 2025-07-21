@@ -6,7 +6,6 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -30,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import io.toolbox.BuildConfig
 import io.toolbox.R
 import io.toolbox.ui.AppIcon
+import io.toolbox.ui.EdgeToEdgeBarType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import ru.morozovit.android.utils.openUrl
@@ -41,7 +41,7 @@ import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.verticalScroll
 
 @Composable
-fun AboutScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
+fun AboutScreen(EdgeToEdgeBar: EdgeToEdgeBarType) {
     val context = LocalContext()
 
     WindowInsetsHandler {

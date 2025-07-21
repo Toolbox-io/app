@@ -17,7 +17,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -90,7 +89,9 @@ import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import io.toolbox.R
 import io.toolbox.Settings.NotificationHistory.enabled
 import io.toolbox.services.NotificationService
+import io.toolbox.ui.ActionsType
 import io.toolbox.ui.MainActivity
+import io.toolbox.ui.NavigationType
 import kotlinx.coroutines.launch
 import ru.morozovit.android.utils.runOrLog
 import ru.morozovit.android.utils.ui.ListItem
@@ -108,7 +109,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigation: @Composable () -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
+fun NotificationHistoryScreen(actions: ActionsType, navigation: NavigationType, scrollBehavior: TopAppBarScrollBehavior) {
     WindowInsetsHandler {
         with(LocalContext() as MainActivity) context@ {
             val coroutineScope = rememberCoroutineScope()

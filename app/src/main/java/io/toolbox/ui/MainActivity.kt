@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package io.toolbox.ui
 
 import android.annotation.SuppressLint
@@ -10,7 +12,6 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -130,6 +131,11 @@ import ru.morozovit.android.utils.ui.widthSizeClass
 import ru.morozovit.android.utils.unsupported
 
 val LocalNavController = compositionLocalOf<NavController>()
+
+typealias EdgeToEdgeBarType = @Composable (@Composable (PaddingValues) -> Unit) -> Unit
+typealias ActionsType = @Composable RowScope.() -> Unit
+typealias NavigationType = @Composable () -> Unit
+typealias TopBarType = @Composable (TopAppBarScrollBehavior) -> Unit
 
 class MainActivity : BaseActivity() {
     private var prevConfig: Configuration? = null
@@ -373,7 +379,9 @@ class MainActivity : BaseActivity() {
             }
 
 
-            val drawerContent: @Composable ColumnScope.() -> Unit = {
+
+            @Composable
+            fun DrawerContent() {
                 Column(
                     Modifier
                         .verticalScroll()
@@ -445,10 +453,11 @@ class MainActivity : BaseActivity() {
                                 label = { Text(stringResource(it.displayName)) },
                                 selected = it == Screen[selectedItem],
                                 onClick = {
-                                    scope.launch { drawerState.close() }
-                                    if (Screen[selectedItem] != it) {
-                                        selectedItem = it.internalName
-                                        navController.navigate(it.internalName)
+                                    scope.launch { drawerState.close()
+                                        if (Screen[selectedItem] != it) {
+                                            selectedItem = it.internalName
+                                            navController.navigate(it.internalName)
+                                        }
                                     }
                                 },
                                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -466,8 +475,9 @@ class MainActivity : BaseActivity() {
                 }
             }
 
-            val content = @Composable {
-                val navigation = @Composable {
+            @Composable
+            fun MainContent() {
+                val navigation: NavigationType = {
                     if (!isScreenBig) {
                         IconButton(
                             onClick = {
@@ -484,7 +494,7 @@ class MainActivity : BaseActivity() {
                     }
                 }
 
-                val actions: @Composable RowScope.() -> Unit = {
+                val actions: ActionsType = {
                     if (isLockVisible) {
                         IconButton(
                             onClick = {
@@ -500,7 +510,7 @@ class MainActivity : BaseActivity() {
                     }
                 }
 
-                val bar: @Composable (TopAppBarScrollBehavior) -> Unit = { scrollBehavior ->
+                val bar: TopBarType = { scrollBehavior ->
                     TopAppBar(
                         title = {
                             Text(
@@ -520,8 +530,7 @@ class MainActivity : BaseActivity() {
                     )
                 }
 
-                @Suppress("LocalVariableName")
-                val EdgeToEdgeBar = @Composable { content: @Composable (PaddingValues) -> Unit ->
+                val EdgeToEdgeBar: EdgeToEdgeBarType = { content ->
                     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
                     Scaffold(
                         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -532,10 +541,10 @@ class MainActivity : BaseActivity() {
                     }
                 }
 
+                @Composable
+                fun scrollBehavior() = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
-                CompositionLocalProvider(
-                    LocalNavController provides navController
-                ) {
+                CompositionLocalProvider(LocalNavController provides navController) {
                     NavHost(
                         navController = navController,
                         startDestination = remember { selectedItem },
@@ -544,28 +553,13 @@ class MainActivity : BaseActivity() {
                         )
                     ) {
                         // Core
-                        composable(route = HOME) {
-                            HomeScreen(
-                                bar,
-                                TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-                            )
-                        }
+                        composable(route = HOME) { HomeScreen(bar, scrollBehavior()) }
                         composable(route = SETTINGS) { SettingsScreen(EdgeToEdgeBar) }
-                        composable(route = PROFILE) {
-                            ProfileScreen(
-                                bar,
-                                TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-                            )
-                        }
+                        composable(route = PROFILE) { ProfileScreen(bar, scrollBehavior()) }
                         composable(route = ABOUT) { AboutScreen(EdgeToEdgeBar) }
 
                         // Security
-                        composable(route = APP_LOCKER) {
-                            ApplockerScreen(
-                                bar,
-                                TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-                            )
-                        }
+                        composable(route = APP_LOCKER) { ApplockerScreen(bar, scrollBehavior()) }
                         composable(route = UNLOCK_PROTECTION) { UnlockProtectionScreen(EdgeToEdgeBar) }
                         composable(route = DONT_TOUCH_MY_PHONE) { DontTouchMyPhoneScreen(EdgeToEdgeBar) }
 
@@ -574,18 +568,10 @@ class MainActivity : BaseActivity() {
 
                         // Tools
                         composable(route = APP_MANAGER) {
-                            AppManagerScreen(
-                                actions,
-                                navigation,
-                                TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-                            )
+                            AppManagerScreen(actions, navigation, scrollBehavior())
                         }
                         composable(route = NOTIFICATION_HISTORY) {
-                            NotificationHistoryScreen(
-                                actions,
-                                navigation,
-                                TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-                            )
+                            NotificationHistoryScreen(actions, navigation, scrollBehavior())
                         }
                     }
                 }
@@ -596,7 +582,6 @@ class MainActivity : BaseActivity() {
                     drawerContent = {
                         PermanentDrawerSheet(
                             drawerContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                            content = drawerContent,
                             drawerShape = RoundedCornerShape(0.dp, 20.dp, 20.dp, 0.dp),
                             modifier = Modifier.widthIn(
                                 max = (
@@ -605,10 +590,13 @@ class MainActivity : BaseActivity() {
                                     else 360
                                 ).dp
                             )
-                        )
-                    },
-                    content = content
-                )
+                        ) {
+                            DrawerContent()
+                        }
+                    }
+                ) {
+                    MainContent()
+                }
             } else {
                 ModalNavigationDrawer(
                     drawerState = drawerState,
@@ -620,12 +608,14 @@ class MainActivity : BaseActivity() {
                                 max = (LocalWindowInfo().containerSize.width * 0.9)
                                     .coerceIn(300.0..360.0)
                                     .dp
-                            ),
-                            content = drawerContent
-                        )
-                    },
-                    content = content
-                )
+                            )
+                        ) {
+                            DrawerContent()
+                        }
+                    }
+                ) {
+                    MainContent()
+                }
             }
         }
     }

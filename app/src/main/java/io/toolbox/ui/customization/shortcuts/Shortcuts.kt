@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -30,6 +29,7 @@ import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import io.toolbox.R
+import io.toolbox.ui.EdgeToEdgeBarType
 import ru.morozovit.android.utils.ui.Mipmap
 import ru.morozovit.android.utils.ui.TextButton
 import ru.morozovit.android.utils.ui.WindowInsetsHandler
@@ -40,7 +40,7 @@ private const val FILES_SHORTCUT = "files-shortcut"
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ShortcutsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
+fun ShortcutsScreen(EdgeToEdgeBar: EdgeToEdgeBarType) {
     WindowInsetsHandler {
         EdgeToEdgeBar { innerPadding ->
             val context = LocalContext()
