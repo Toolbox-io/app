@@ -81,7 +81,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
-import dev.chrisbanes.haze.hazeSource
 import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.Settings.update_dsa
@@ -91,7 +90,6 @@ import io.toolbox.services.Accessibility.Companion.returnBack
 import io.toolbox.services.UpdateChecker.Companion.DOWNLOAD_BROADCAST
 import io.toolbox.services.UpdateChecker.Companion.DownloadBroadcastReceiver
 import io.toolbox.services.UpdateChecker.Companion.checkForUpdates
-import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.LocalNavController
 import io.toolbox.ui.MainActivity
 import io.toolbox.ui.protection.actions.ActionsActivity
@@ -183,7 +181,6 @@ fun HomeScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrollBeha
                 Modifier
                     .verticalScroll()
                     .padding(innerPadding)
-                    .hazeSource(LocalHazeState())
             ) {
                 // Update
                 if (!update_dsa) {

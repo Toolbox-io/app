@@ -70,7 +70,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -85,11 +84,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash
-import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.hazeEffect
-import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
-import dev.chrisbanes.haze.materials.HazeMaterials
-import dev.chrisbanes.haze.rememberHazeState
 import io.toolbox.App.Companion.authenticated
 import io.toolbox.BaseActivity
 import io.toolbox.IssueReporter
@@ -136,7 +130,6 @@ import ru.morozovit.android.utils.ui.widthSizeClass
 import ru.morozovit.android.utils.unsupported
 
 val LocalNavController = compositionLocalOf<NavController>()
-val LocalHazeState = compositionLocalOf<HazeState>()
 
 class MainActivity : BaseActivity() {
     private var prevConfig: Configuration? = null
@@ -248,7 +241,7 @@ class MainActivity : BaseActivity() {
     }
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun MainScreen() {
         AppTheme(consumeLeftInsets = true, consumeRightInsets = true) {
@@ -258,7 +251,6 @@ class MainActivity : BaseActivity() {
             val navController = rememberNavController()
 
             val currentEntry by navController.currentBackStackEntryAsState()
-            val hazeState = rememberHazeState(blurEnabled = true)
             val isScreenBig = currentWindowAdaptiveInfo().widthSizeClass >= WidthSizeClass.MEDIUM
 
             // Crash dialog
@@ -510,7 +502,6 @@ class MainActivity : BaseActivity() {
 
                 val bar: @Composable (TopAppBarScrollBehavior) -> Unit = { scrollBehavior ->
                     TopAppBar(
-                        colors = TopAppBarDefaults.topAppBarColors(Color.Unspecified, Color.Transparent),
                         title = {
                             Text(
                                 text = Screen[selectedItem]
@@ -524,8 +515,7 @@ class MainActivity : BaseActivity() {
                         navigationIcon = navigation,
                         actions = actions,
                         modifier = Modifier
-                            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Right))
-                            .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()),
+                            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Right)),
                         scrollBehavior = scrollBehavior
                     )
                 }
@@ -544,8 +534,7 @@ class MainActivity : BaseActivity() {
 
 
                 CompositionLocalProvider(
-                    LocalNavController provides navController,
-                    LocalHazeState provides hazeState
+                    LocalNavController provides navController
                 ) {
                     NavHost(
                         navController = navController,

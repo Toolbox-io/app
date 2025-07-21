@@ -72,22 +72,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import dev.chrisbanes.haze.hazeSource
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ResponseException
 import io.toolbox.R
 import io.toolbox.api.AuthAPI
 import io.toolbox.api.errorMessage
-import io.toolbox.ui.LocalHazeState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import ru.morozovit.android.utils.ui.clearFocusOnKeyboardDismiss
-import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.Category
 import ru.morozovit.android.utils.ui.ListItem
 import ru.morozovit.android.utils.ui.SecureTextField
 import ru.morozovit.android.utils.ui.WindowInsetsHandler
+import ru.morozovit.android.utils.ui.clearFocusOnKeyboardDismiss
+import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.verticalScroll
 import kotlin.math.roundToInt
 
@@ -124,7 +122,6 @@ private inline fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .hazeSource(LocalHazeState())
             .verticalScroll(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -258,7 +255,6 @@ private fun RegisterScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .hazeSource(LocalHazeState())
             .verticalScroll(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -364,7 +360,6 @@ private fun AccountScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .hazeSource(LocalHazeState())
             .verticalScroll()
     ) {
         val context = LocalContext()
@@ -739,7 +734,6 @@ fun RegisterCodeEntryScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .hazeSource(LocalHazeState())
             .verticalScroll(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

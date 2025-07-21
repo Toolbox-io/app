@@ -29,9 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
-import dev.chrisbanes.haze.hazeSource
 import io.toolbox.R
-import io.toolbox.ui.LocalHazeState
 import ru.morozovit.android.utils.ui.Mipmap
 import ru.morozovit.android.utils.ui.TextButton
 import ru.morozovit.android.utils.ui.WindowInsetsHandler
@@ -53,7 +51,6 @@ fun ShortcutsScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> U
                     Modifier
                         .verticalScroll()
                         .padding(innerPadding)
-                        .hazeSource(LocalHazeState())
                 ) {
                     FlowRow(Modifier.padding(10.dp)) {
                         Card(

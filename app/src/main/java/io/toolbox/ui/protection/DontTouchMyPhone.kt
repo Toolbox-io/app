@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,20 +19,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import dev.chrisbanes.haze.hazeSource
 import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.services.DontTouchMyPhoneService
 import io.toolbox.services.DontTouchMyPhoneService.Companion.working
-import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.protection.actions.ActionsActivity
-import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.Category
 import ru.morozovit.android.utils.ui.Charger
 import ru.morozovit.android.utils.ui.ListItem
 import ru.morozovit.android.utils.ui.SwitchListItem
 import ru.morozovit.android.utils.ui.WindowInsetsHandler
+import ru.morozovit.android.utils.ui.invoke
 
 @Composable
 fun DontTouchMyPhoneScreen(@Suppress("LocalVariableName") EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit) -> Unit) {
@@ -42,7 +38,6 @@ fun DontTouchMyPhoneScreen(@Suppress("LocalVariableName") EdgeToEdgeBar: @Compos
             Column(
                 Modifier
                     .padding(innerPadding)
-                    .hazeSource(LocalHazeState())
             ) {
                 val context = LocalContext()
 

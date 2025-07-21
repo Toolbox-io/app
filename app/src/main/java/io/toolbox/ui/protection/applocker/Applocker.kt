@@ -51,7 +51,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.os.postDelayed
-import dev.chrisbanes.haze.hazeSource
 import io.toolbox.IssueReporter
 import io.toolbox.R
 import io.toolbox.Settings
@@ -66,16 +65,15 @@ import io.toolbox.services.Accessibility
 import io.toolbox.services.Accessibility.Companion.returnBack
 import io.toolbox.services.AccessibilityKeeperService
 import io.toolbox.ui.AuthActivity
-import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.MainActivity
 import ru.morozovit.android.utils.homeScreen
-import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.Category
 import ru.morozovit.android.utils.ui.ListItem
 import ru.morozovit.android.utils.ui.SimpleAlertDialog
 import ru.morozovit.android.utils.ui.SwitchCard
 import ru.morozovit.android.utils.ui.SwitchListItem
 import ru.morozovit.android.utils.ui.WindowInsetsHandler
+import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.verticalScroll
 import java.lang.Thread.sleep
 
@@ -95,7 +93,6 @@ fun ApplockerScreen(topBar: @Composable (TopAppBarScrollBehavior) -> Unit, scrol
                 Modifier
                     .verticalScroll()
                     .padding(innerPadding)
-                    .hazeSource(LocalHazeState())
             ) {
                 val context = LocalContext() as MainActivity
 

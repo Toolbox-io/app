@@ -14,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -30,21 +29,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import dev.chrisbanes.haze.hazeSource
 import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.services.DeviceAdmin
-import io.toolbox.ui.LocalHazeState
 import io.toolbox.ui.MainActivity
 import io.toolbox.ui.protection.actions.ActionsActivity
 import kotlinx.coroutines.launch
-import ru.morozovit.android.utils.ui.clearFocusOnKeyboardDismiss
-import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.Category
 import ru.morozovit.android.utils.ui.ListItem
 import ru.morozovit.android.utils.ui.SimpleAlertDialog
 import ru.morozovit.android.utils.ui.SwitchCard
 import ru.morozovit.android.utils.ui.WindowInsetsHandler
+import ru.morozovit.android.utils.ui.clearFocusOnKeyboardDismiss
+import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.verticalScroll
 
 @Composable
@@ -55,7 +52,6 @@ fun UnlockProtectionScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValue
                 Modifier
                     .verticalScroll()
                     .padding(innerPadding)
-                    .hazeSource(LocalHazeState())
             ) {
                 val context = LocalContext() as MainActivity
                 val activityLauncher = context.activityLauncher

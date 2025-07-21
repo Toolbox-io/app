@@ -29,10 +29,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -45,7 +43,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
@@ -60,20 +57,14 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import dev.chrisbanes.haze.hazeEffect
-import dev.chrisbanes.haze.hazeSource
-import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
-import dev.chrisbanes.haze.materials.HazeMaterials
-import dev.chrisbanes.haze.rememberHazeState
 import io.toolbox.R
-import io.toolbox.ui.LocalHazeState
 import kotlinx.coroutines.launch
-import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.ListItem
 import ru.morozovit.android.utils.ui.WindowInsetsHandler
+import ru.morozovit.android.utils.ui.invoke
 import kotlin.concurrent.thread
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppManagerScreen(actions: @Composable RowScope.() -> Unit, navigation: @Composable () -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
     WindowInsetsHandler {
@@ -134,8 +125,7 @@ fun AppManagerScreen(actions: @Composable RowScope.() -> Unit, navigation: @Comp
                                         putExtra("appPackage", appPackage)
                                     }
                                 )
-                            },
-                            modifier = Modifier.hazeSource(LocalHazeState())
+                            }
                         )
                     }
                 }
@@ -172,167 +162,150 @@ fun AppManagerScreen(actions: @Composable RowScope.() -> Unit, navigation: @Comp
                 startDestination = "main"
             ) {
                 composable("main") {
-                    val hazeState = rememberHazeState(blurEnabled = true)
                     val snackbarHostState = remember { SnackbarHostState() }
 
-                    CompositionLocalProvider(
-                        LocalHazeState provides hazeState
-                    ) {
-                        Scaffold(
-                            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                            snackbarHost = {
-                                SnackbarHost(hostState = snackbarHostState)
-                            },
-                            topBar = {
-                                TopAppBar(
-                                    title = {
-                                        Text(
-                                            stringResource(R.string.app_manager),
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    },
-                                    navigationIcon = navigation,
-                                    actions = {
-                                        IconButton(
-                                            onClick = {
-                                                if (loading) {
-                                                    coroutineScope.launch {
-                                                        snackbarHostState.showSnackbar(loadingStr)
-                                                    }
-                                                } else {
-                                                    navController.navigate("search")
+                    Scaffold(
+                        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                        snackbarHost = {
+                            SnackbarHost(hostState = snackbarHostState)
+                        },
+                        topBar = {
+                            TopAppBar(
+                                title = {
+                                    Text(
+                                        stringResource(R.string.app_manager),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                },
+                                navigationIcon = navigation,
+                                actions = {
+                                    IconButton(
+                                        onClick = {
+                                            if (loading) {
+                                                coroutineScope.launch {
+                                                    snackbarHostState.showSnackbar(loadingStr)
                                                 }
+                                            } else {
+                                                navController.navigate("search")
                                             }
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Filled.Search,
-                                                contentDescription = stringResource(R.string.search)
-                                            )
                                         }
-                                        actions()
-                                    },
-                                    scrollBehavior = scrollBehavior,
-                                    modifier = Modifier.hazeEffect(hazeState, HazeMaterials.ultraThin()),
-                                    colors = TopAppBarDefaults.topAppBarColors(Color.Unspecified, Color.Transparent)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Search,
+                                            contentDescription = stringResource(R.string.search)
+                                        )
+                                    }
+                                    actions()
+                                },
+                                scrollBehavior = scrollBehavior
+                            )
+                        }
+                    ) { innerPadding ->
+                        Box(Modifier.padding(innerPadding)) {
+                            if (loading) {
+                                LinearProgressIndicator(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .align(Alignment.TopStart)
                                 )
                             }
-                        ) { innerPadding ->
-                            Box(Modifier.padding(innerPadding)) {
-                                if (loading) {
-                                    LinearProgressIndicator(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .align(Alignment.TopStart)
-                                    )
-                                }
-                                LazyColumn {
-                                    apps(apps)
-                                }
+                            LazyColumn {
+                                apps(apps)
                             }
                         }
                     }
                 }
 
                 composable("search") {
-                    val hazeState = rememberHazeState(blurEnabled = true)
-
-                    CompositionLocalProvider(
-                        LocalHazeState provides hazeState
-                    ) {
-                        Scaffold(
-                            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                            topBar = {
-                                TopAppBar(
-                                    title = {
-                                        BasicTextField(
-                                            value = searchInputState,
-                                            onValueChange = { searchInputState = it },
-                                            textStyle = MaterialTheme.typography.titleMedium.copy(
-                                                color = MaterialTheme.colorScheme.onSurface,
-                                            ),
-                                            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                                            modifier = Modifier.focusRequester(focusRequester),
-                                            maxLines = 1,
-                                            singleLine = true,
-                                            keyboardOptions = KeyboardOptions(
-                                                autoCorrectEnabled = true,
-                                                keyboardType = KeyboardType.Text,
-                                                imeAction = ImeAction.Search
-                                            )
+                    Scaffold(
+                        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                        topBar = {
+                            TopAppBar(
+                                title = {
+                                    BasicTextField(
+                                        value = searchInputState,
+                                        onValueChange = { searchInputState = it },
+                                        textStyle = MaterialTheme.typography.titleMedium.copy(
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                        ),
+                                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                                        modifier = Modifier.focusRequester(focusRequester),
+                                        maxLines = 1,
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(
+                                            autoCorrectEnabled = true,
+                                            keyboardType = KeyboardType.Text,
+                                            imeAction = ImeAction.Search
                                         )
-
-                                        LaunchedEffect(Unit) {
-                                            focusRequester.requestFocus()
-                                        }
-                                    },
-                                    navigationIcon = {
-                                        IconButton(
-                                            onClick = {
-                                                navController.navigateUp()
-                                            }
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Filled.Close,
-                                                contentDescription = null
-                                            )
-                                        }
-                                    },
-                                    colors = TopAppBarDefaults.topAppBarColors(
-                                       Color.Unspecified, Color.Transparent
-                                    ),
-                                    modifier = Modifier.hazeEffect(hazeState, HazeMaterials.ultraThin())
-                                )
-                            }
-                        ) { innerPadding ->
-                            Surface(
-                                color = MaterialTheme.colorScheme.surfaceContainer,
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                LazyColumn(
-                                    contentPadding = innerPadding
-                                ) {
-                                    apps(
-                                        list = if (searchInputState == "")
-                                            mutableListOf()
-                                        else {
-                                            val words = searchInputState.split(" ")
-                                            apps.filter {
-                                                val result1 = run {
-                                                    var matches = 0
-                                                    val filt = it
-                                                        .applicationInfo
-                                                        ?.loadLabel(packageManager)
-                                                        .toString()
-                                                    words.forEach { word ->
-                                                        if (
-                                                            filt.contains(
-                                                                other = word,
-                                                                ignoreCase = true
-                                                            )
-                                                        ) matches++
-                                                    }
-                                                    return@run matches > words.size * 0.5
-                                                }
-                                                val result2 = run {
-                                                    var matches = 0
-                                                    val filt = it.packageName
-                                                    words.forEach { word ->
-                                                        if (
-                                                            filt.contains(
-                                                                other = word,
-                                                                ignoreCase = true
-                                                            )
-                                                        ) matches++
-                                                    }
-                                                    return@run matches > words.size * 0.5
-                                                }
-                                                result1 || result2
-                                            }
-                                        },
-                                        container = true
                                     )
+
+                                    LaunchedEffect(Unit) {
+                                        focusRequester.requestFocus()
+                                    }
+                                },
+                                navigationIcon = {
+                                    IconButton(
+                                        onClick = {
+                                            navController.navigateUp()
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Close,
+                                            contentDescription = null
+                                        )
+                                    }
                                 }
+                            )
+                        }
+                    ) { innerPadding ->
+                        Surface(
+                            color = MaterialTheme.colorScheme.surfaceContainer,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            LazyColumn(
+                                contentPadding = innerPadding
+                            ) {
+                                apps(
+                                    list = if (searchInputState == "")
+                                        mutableListOf()
+                                    else {
+                                        val words = searchInputState.split(" ")
+                                        apps.filter {
+                                            val result1 = run {
+                                                var matches = 0
+                                                val filt = it
+                                                    .applicationInfo
+                                                    ?.loadLabel(packageManager)
+                                                    .toString()
+                                                words.forEach { word ->
+                                                    if (
+                                                        filt.contains(
+                                                            other = word,
+                                                            ignoreCase = true
+                                                        )
+                                                    ) matches++
+                                                }
+                                                return@run matches > words.size * 0.5
+                                            }
+                                            val result2 = run {
+                                                var matches = 0
+                                                val filt = it.packageName
+                                                words.forEach { word ->
+                                                    if (
+                                                        filt.contains(
+                                                            other = word,
+                                                            ignoreCase = true
+                                                        )
+                                                    ) matches++
+                                                }
+                                                return@run matches > words.size * 0.5
+                                            }
+                                            result1 || result2
+                                        }
+                                    },
+                                    container = true
+                                )
                             }
                         }
                     }

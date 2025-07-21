@@ -27,19 +27,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import dev.chrisbanes.haze.hazeSource
 import io.toolbox.BuildConfig
 import io.toolbox.R
 import io.toolbox.ui.AppIcon
-import io.toolbox.ui.LocalHazeState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
-import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.openUrl
 import ru.morozovit.android.utils.ui.Button
 import ru.morozovit.android.utils.ui.License
 import ru.morozovit.android.utils.ui.Website
 import ru.morozovit.android.utils.ui.WindowInsetsHandler
+import ru.morozovit.android.utils.ui.invoke
 import ru.morozovit.android.utils.ui.verticalScroll
 
 @Composable
@@ -54,7 +52,6 @@ fun AboutScreen(EdgeToEdgeBar: @Composable (@Composable (PaddingValues) -> Unit)
                     .padding(horizontal = 16.dp)
                     .padding(innerPadding)
                     .verticalScroll()
-                    .hazeSource(LocalHazeState())
             ) {
                 Box(Modifier.padding(top = 20.dp)) {
                     AppIcon(modifier = Modifier.size(150.dp))

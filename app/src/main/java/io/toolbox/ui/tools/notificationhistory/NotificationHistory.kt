@@ -87,31 +87,26 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
-import dev.chrisbanes.haze.hazeEffect
-import dev.chrisbanes.haze.hazeSource
-import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
-import dev.chrisbanes.haze.materials.HazeMaterials
-import dev.chrisbanes.haze.rememberHazeState
 import io.toolbox.R
 import io.toolbox.Settings.NotificationHistory.enabled
 import io.toolbox.services.NotificationService
 import io.toolbox.ui.MainActivity
 import kotlinx.coroutines.launch
-import ru.morozovit.android.utils.ui.invoke
-import ru.morozovit.android.utils.ui.left
-import ru.morozovit.android.utils.ui.link
-import ru.morozovit.android.utils.ui.plus
-import ru.morozovit.android.utils.ui.right
 import ru.morozovit.android.utils.runOrLog
 import ru.morozovit.android.utils.ui.ListItem
 import ru.morozovit.android.utils.ui.SimpleAlertDialog
 import ru.morozovit.android.utils.ui.SwitchCard
 import ru.morozovit.android.utils.ui.WindowInsetsHandler
+import ru.morozovit.android.utils.ui.invoke
+import ru.morozovit.android.utils.ui.left
+import ru.morozovit.android.utils.ui.link
+import ru.morozovit.android.utils.ui.plus
+import ru.morozovit.android.utils.ui.right
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigation: @Composable () -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
     WindowInsetsHandler {
@@ -362,7 +357,6 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                 composable("home") {
                     val snackbarHostState = remember { SnackbarHostState() }
                     var loading by remember { mutableStateOf(true) }
-                    val hazeState = rememberHazeState()
 
                     val dates = remember { mutableStateMapOf<Long, MutableList<NotificationData>>() }
 
@@ -410,8 +404,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                                     }
                                     actions()
                                 },
-                                scrollBehavior = scrollBehavior,
-                                modifier = Modifier.hazeEffect(hazeState, HazeMaterials.ultraThin())
+                                scrollBehavior = scrollBehavior
                             )
                         },
                         snackbarHost = {
@@ -487,7 +480,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
 
                             // TODO date markers and separators
                             if (notifications.isNotEmpty() || loading) {
-                                LazyColumn(Modifier.hazeSource(hazeState)) {
+                                LazyColumn {
                                     item {
                                         MainSwitch()
                                     }
@@ -586,7 +579,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                                     }
                                 }
                             } else {
-                                Column(Modifier.hazeSource(hazeState)) {
+                                Column {
                                     MainSwitch()
                                     Box(
                                         Modifier
@@ -608,7 +601,6 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
 
                 composable("search") {
                     val snackbarHostState = remember { SnackbarHostState() }
-                    val hazeState = rememberHazeState()
 
                     var searchInputState by remember { mutableStateOf("") }
                     val focusRequester = remember { FocusRequester() }
@@ -654,8 +646,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                                 scrollBehavior = scrollBehavior,
                                 colors = TopAppBarDefaults.topAppBarColors(
                                     containerColor = MaterialTheme.colorScheme.surfaceContainer
-                                ),
-                                modifier = Modifier.hazeEffect(hazeState, HazeMaterials.ultraThin())
+                                )
                             )
                         },
                         snackbarHost = {
@@ -701,10 +692,7 @@ fun NotificationHistoryScreen(actions: @Composable RowScope.() -> Unit, navigati
                             }
                         }
 
-                        LazyColumn(
-                            contentPadding = innerPadding,
-                            modifier = Modifier.hazeSource(hazeState)
-                        ) {
+                        LazyColumn(contentPadding = innerPadding) {
                             items(filtered.indices.reversed().toList()) { index ->
                                 Notification(filtered[index], snackbarHostState, index != 0, true)
                             }
