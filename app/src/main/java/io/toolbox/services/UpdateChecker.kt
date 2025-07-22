@@ -40,10 +40,10 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import ru.morozovit.android.utils.JobIdManager
+import ru.morozovit.android.utils.SemanticVersion
 import ru.morozovit.android.utils.SimpleAsyncTask
 import ru.morozovit.android.utils.ThreadExecutor
 import ru.morozovit.android.utils.change
-import ru.morozovit.android.utils.fillTo
 import ru.morozovit.android.utils.getSerializableExtraAs
 import ru.morozovit.android.utils.notifyIfAllowed
 import ru.morozovit.android.utils.pendingIntent
@@ -90,63 +90,6 @@ class UpdateChecker: JobService() {
 
         const val ACTION_START_UPDATE_CHECKER = "io.toolbox.UpdateChecker.START"
         const val DOWNLOAD_BROADCAST = "UpdateChecker.DOWNLOAD"
-
-        data class SemanticVersion(
-            val major: Int = 0,
-            val minor: Int = 0,
-            val patch: Int = 0
-        ): java.io.Serializable {
-            override fun equals(other: Any?) = other != null && (
-                (
-                    other is SemanticVersion &&
-                    major == other.major &&
-                    minor == other.minor &&
-                    patch == other.patch
-                ) || (
-                    other is Number &&
-                    other.toInt() == toString().toInt()
-                ) || (
-                    other.toString() == toString()
-                )
-            )
-
-            operator fun compareTo(other: SemanticVersion): Int {
-                val majorBigger = major.compareTo(other.major)
-                val minorBigger = minor.compareTo(other.minor)
-                val patchBigger = patch.compareTo(other.patch)
-
-                return majorBigger.change { maj ->
-                    (
-                        minorBigger.change { min ->
-                            patchBigger.takeIf { min == 0 }
-                        }
-                    ).takeIf { maj == 0 }
-                }
-            }
-
-            override fun toString() = buildString {
-                if (major > 0) append(major)
-                if (minor > 0) append(".$minor")
-                if (patch > 0) append(".$patch")
-            }
-
-            override fun hashCode(): Int {
-                var result = major.hashCode()
-                result = 31 * result + minor.hashCode()
-                result = 31 * result + patch.hashCode()
-                return result
-            }
-        }
-
-        inline fun SemanticVersion(string: String?) = if (string.isNullOrBlank()) {
-            SemanticVersion()
-        } else {
-            val (maj, min, pat) = string
-                .split(".")
-                .map { it.toInt() }
-                .fillTo(3) { 0 }
-            SemanticVersion(maj, min, pat)
-        }
 
         data class UpdateInfo(
             val available: Boolean,
