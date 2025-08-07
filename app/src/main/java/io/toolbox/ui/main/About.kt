@@ -42,118 +42,118 @@ import ru.morozovit.android.utils.ui.verticalScroll
 
 @Composable
 fun AboutScreen(EdgeToEdgeBar: EdgeToEdgeBarType) {
-    val context = LocalContext()
-
-    WindowInsetsHandler {
-        EdgeToEdgeBar { innerPadding ->
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(innerPadding)
-                    .verticalScroll()
-            ) {
-                Box(Modifier.padding(top = 20.dp)) {
-                    AppIcon(modifier = Modifier.size(150.dp))
-                }
-                Text(
-                    text = stringResource(R.string.app_name),
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.headlineLarge,
-                    modifier = Modifier.padding(top = 20.dp)
-                )
-                @Suppress("KotlinConstantConditions", "RedundantSuppression")
-                Text(
-                    text = "${stringResource(R.string.version_app)}${BuildConfig.VERSION_NAME}${if (BuildConfig.DEBUG) " (DEBUG)" else ""}",
-                    textAlign = TextAlign.Center
-                )
-                Text(
-                    text = stringResource(R.string.app_desc_l),
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(top = 10.dp),
-                    textAlign = TextAlign.Center
-                )
-
-                val osl = stringResource(R.string.osl)
-
-                Column(Modifier.width(IntrinsicSize.Max)) {
-                    Button(
-                        onClick = {
-                            context.startActivity(
-                                Intent(context, OSSLicensesActivity::class.java)
-                            )
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Filled.License,
-                                contentDescription = osl
-                            )
-                        },
-                        modifier = Modifier
-                            .padding(top = 10.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Text(osl)
+    with (LocalContext()) {
+        WindowInsetsHandler {
+            EdgeToEdgeBar { innerPadding ->
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(innerPadding)
+                        .verticalScroll()
+                ) {
+                    Box(Modifier.padding(top = 20.dp)) {
+                        AppIcon(modifier = Modifier.size(150.dp))
                     }
+                    Text(
+                        text = stringResource(R.string.app_name),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.headlineLarge,
+                        modifier = Modifier.padding(top = 20.dp)
+                    )
+                    @Suppress("KotlinConstantConditions", "RedundantSuppression")
+                    Text(
+                        text = "${stringResource(R.string.version_app)}${BuildConfig.VERSION_NAME}${if (BuildConfig.DEBUG) " (DEBUG)" else ""}",
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = stringResource(R.string.app_desc_l),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(top = 10.dp),
+                        textAlign = TextAlign.Center
+                    )
 
-                    Button(
-                        onClick = {
-                            context.openUrl("toolbox-io.ru")
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Filled.Website,
-                                contentDescription = stringResource(R.string.website)
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(stringResource(R.string.website))
-                    }
+                    val osl = stringResource(R.string.osl)
 
-                    val interactionSource = remember { MutableInteractionSource() }
-                    val viewConfiguration = LocalViewConfiguration.current
-                    LaunchedEffect(interactionSource) {
-                        var isLongClick = false
+                    Column(Modifier.width(IntrinsicSize.Max)) {
+                        Button(
+                            onClick = {
+                                startActivity(
+                                    Intent(this@with, OSSLicensesActivity::class.java)
+                                )
+                            },
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Filled.License,
+                                    contentDescription = osl
+                                )
+                            },
+                            modifier = Modifier
+                                .padding(top = 10.dp)
+                                .fillMaxWidth()
+                        ) {
+                            Text(osl)
+                        }
 
-                        interactionSource.interactions.collectLatest { interaction ->
-                            when (interaction) {
-                                is PressInteraction.Press -> {
-                                    isLongClick = false
-                                    delay(viewConfiguration.longPressTimeoutMillis)
-                                    isLongClick = true
-                                    context.startActivity(
-                                        Intent(
-                                            context,
-                                            DeveloperOptionsActivity::class.java
+                        Button(
+                            onClick = {
+                                openUrl("toolbox-io.ru")
+                            },
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Filled.Website,
+                                    contentDescription = stringResource(R.string.website)
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(stringResource(R.string.website))
+                        }
+
+                        val interactionSource = remember { MutableInteractionSource() }
+                        val viewConfiguration = LocalViewConfiguration.current
+                        LaunchedEffect(interactionSource) {
+                            var isLongClick = false
+
+                            interactionSource.interactions.collectLatest { interaction ->
+                                when (interaction) {
+                                    is PressInteraction.Press -> {
+                                        isLongClick = false
+                                        delay(viewConfiguration.longPressTimeoutMillis)
+                                        isLongClick = true
+                                        startActivity(
+                                            Intent(
+                                                this@with,
+                                                DeveloperOptionsActivity::class.java
+                                            )
                                         )
-                                    )
-                                }
+                                    }
 
-                                is PressInteraction.Release -> {
-                                    if (isLongClick.not()) {
-                                        context.openUrl(
-                                            "https://github.com/denis0001-dev/Toolbox-io/issues/new" +
-                                                    "?assignees=denis0001-dev&labels=app%2C+bug" +
-                                                    "&projects=&template=application-bug-report.md&title="
-                                        )
+                                    is PressInteraction.Release -> {
+                                        if (isLongClick.not()) {
+                                            openUrl(
+                                                "https://github.com/denis0001-dev/Toolbox-io/issues/new" +
+                                                "?assignees=denis0001-dev&labels=app%2C+bug" +
+                                                "&projects=&template=application-bug-report.md&title="
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    Button(
-                        onClick = {},
-                        interactionSource = interactionSource,
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Filled.Error,
-                                contentDescription = stringResource(R.string.report_error)
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(stringResource(R.string.report_error))
+                        Button(
+                            onClick = {},
+                            interactionSource = interactionSource,
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Filled.Error,
+                                    contentDescription = stringResource(R.string.report_error)
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(stringResource(R.string.report_error))
+                        }
                     }
                 }
             }

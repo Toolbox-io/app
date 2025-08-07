@@ -68,8 +68,8 @@ import kotlin.concurrent.thread
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppManagerScreen(actions: ActionsType, navigation: NavigationType, scrollBehavior: TopAppBarScrollBehavior) {
-    WindowInsetsHandler {
-        with(LocalContext()) {
+    with(LocalContext()) {
+        WindowInsetsHandler {
             val loadingStr = stringResource(R.string.loading)
 
             val coroutineScope = rememberCoroutineScope()

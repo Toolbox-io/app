@@ -162,205 +162,282 @@ private data class Guide(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(topBar: TopBarType, scrollBehavior: TopAppBarScrollBehavior) {
-    val context = LocalContext() as MainActivity
-    val mainNavController = LocalNavController()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
+    with (LocalContext() as MainActivity) {
+        val mainNavController = LocalNavController()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val coroutineScope = rememberCoroutineScope()
 
-    val ycaeuats = stringResource(R.string.ycaeuats)
+        val ycaeuats = stringResource(R.string.ycaeuats)
 
-    WindowInsetsHandler {
-        Scaffold(
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            snackbarHost = {
-                SnackbarHost(hostState = snackbarHostState)
-            },
-            topBar = { topBar(scrollBehavior) }
-        ) { innerPadding ->
-            Column(
-                Modifier
-                    .verticalScroll()
-                    .padding(innerPadding)
-            ) {
-                // Update
-                if (!update_dsa) {
-                    var isUpdateCardVisible by remember { mutableStateOf(false) }
+        WindowInsetsHandler {
+            Scaffold(
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                snackbarHost = {
+                    SnackbarHost(hostState = snackbarHostState)
+                },
+                topBar = { topBar(scrollBehavior) }
+            ) { innerPadding ->
+                Column(
+                    Modifier
+                        .verticalScroll()
+                        .padding(innerPadding)
+                ) {
+                    // Update
+                    if (!update_dsa) {
+                        var isUpdateCardVisible by remember { mutableStateOf(false) }
 
-                    val versionFormat = stringResource(R.string.update_version)
-                    var version by remember { mutableStateOf("") }
-                    var body by remember { mutableStateOf("") }
-                    var downloadOnClick by remember { mutableStateOf({}) }
+                        val versionFormat = stringResource(R.string.update_version)
+                        var version by remember { mutableStateOf("") }
+                        var body by remember { mutableStateOf("") }
+                        var downloadOnClick by remember { mutableStateOf({}) }
 
-                    Column(Modifier.animateContentSize()) {
-                        AnimatedVisibility(
-                            visible = isUpdateCardVisible,
-                            enter = fadeIn() + scaleIn(initialScale = 0.7f),
-                            exit = fadeOut() + scaleOut(targetScale = 0.7f),
-                        ) {
-                            Card(
-                                modifier = Modifier
-                                    .padding()
-                                    .padding(16.dp)
-                                    .fillMaxWidth(),
-                                colors = cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
-                                )
+                        Column(Modifier.animateContentSize()) {
+                            AnimatedVisibility(
+                                visible = isUpdateCardVisible,
+                                enter = fadeIn() + scaleIn(initialScale = 0.7f),
+                                exit = fadeOut() + scaleOut(targetScale = 0.7f),
                             ) {
-                                Column(Modifier.padding(16.dp)) {
-                                    Text(
-                                        text = stringResource(R.string.update),
-                                        style = MaterialTheme.typography.titleMedium
+                                Card(
+                                    modifier = Modifier
+                                        .padding()
+                                        .padding(16.dp)
+                                        .fillMaxWidth(),
+                                    colors = cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceContainer
                                     )
-                                    Text(
-                                        text = version,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        modifier = Modifier.padding(bottom = 10.dp)
-                                    )
-                                    HorizontalDivider()
-                                    Text(
-                                        text = body,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)
-                                    )
-                                    Row {
-                                        TextButton(onClick = downloadOnClick) {
-                                            Text(text = stringResource(R.string.download))
-                                        }
-
-                                        TextButton(
-                                            onClick = {
-                                                update_dsa = true
-                                                isUpdateCardVisible = false
-                                                coroutineScope.launch {
-                                                    snackbarHostState.showSnackbar(
-                                                        message = ycaeuats,
-                                                        duration = SnackbarDuration.Short
-                                                    )
-                                                }
+                                ) {
+                                    Column(Modifier.padding(16.dp)) {
+                                        Text(
+                                            text = stringResource(R.string.update),
+                                            style = MaterialTheme.typography.titleMedium
+                                        )
+                                        Text(
+                                            text = version,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            modifier = Modifier.padding(bottom = 10.dp)
+                                        )
+                                        HorizontalDivider()
+                                        Text(
+                                            text = body,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)
+                                        )
+                                        Row {
+                                            TextButton(onClick = downloadOnClick) {
+                                                Text(text = stringResource(R.string.download))
                                             }
-                                        ) {
-                                            Text(text = stringResource(R.string.dsa))
+
+                                            TextButton(
+                                                onClick = {
+                                                    update_dsa = true
+                                                    isUpdateCardVisible = false
+                                                    coroutineScope.launch {
+                                                        snackbarHostState.showSnackbar(
+                                                            message = ycaeuats,
+                                                            duration = SnackbarDuration.Short
+                                                        )
+                                                    }
+                                                }
+                                            ) {
+                                                Text(text = stringResource(R.string.dsa))
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    LaunchedEffect(Unit) {
-                        runCatching {
-                            val info = checkForUpdates()!!
+                        LaunchedEffect(Unit) {
+                            runCatching {
+                                val info = checkForUpdates()!!
 
-                            if (info.available) {
-                                version = versionFormat.format(info.version)
-                                body = info.description
-                                downloadOnClick = {
-                                    context.sendBroadcast(
-                                        Intent(
-                                            context,
-                                            DownloadBroadcastReceiver::class.java
-                                        ).apply {
-                                            action = DOWNLOAD_BROADCAST
-                                            putExtra("updateInfo", info)
-                                        }
-                                    )
+                                if (info.available) {
+                                    version = versionFormat.format(info.version)
+                                    body = info.description
+                                    downloadOnClick = {
+                                        sendBroadcast(
+                                            Intent(
+                                                this@with,
+                                                DownloadBroadcastReceiver::class.java
+                                            ).apply {
+                                                action = DOWNLOAD_BROADCAST
+                                                putExtra("updateInfo", info)
+                                            }
+                                        )
+                                    }
+                                    isUpdateCardVisible = true
                                 }
-                                isUpdateCardVisible = true
                             }
                         }
                     }
-                }
 
-                // Notifications permission request
-                val grant_notification = stringResource(R.string.grant_notification)
-                val grant = stringResource(R.string.grant)
+                    // Notifications permission request
+                    val grant_notification = stringResource(R.string.grant_notification)
+                    val grant = stringResource(R.string.grant)
 
-                LaunchedEffect(Unit) {
-                    if (
-                        Build.VERSION.SDK_INT >= 33 &&
-                        context.checkSelfPermission(
-                            Manifest.permission.POST_NOTIFICATIONS
-                        ) != PackageManager.PERMISSION_GRANTED
-                    ) {
-                        when (
-                            snackbarHostState.showSnackbar(
-                                message = grant_notification,
-                                actionLabel = grant,
-                                duration = SnackbarDuration.Long
-                            )
+                    LaunchedEffect(Unit) {
+                        if (
+                            Build.VERSION.SDK_INT >= 33 &&
+                            checkSelfPermission(
+                                Manifest.permission.POST_NOTIFICATIONS
+                            ) != PackageManager.PERMISSION_GRANTED
                         ) {
-                            SnackbarResult.ActionPerformed -> context.requestPermission(Manifest.permission.POST_NOTIFICATIONS)
-                            SnackbarResult.Dismissed -> {}
+                            when (
+                                snackbarHostState.showSnackbar(
+                                    message = grant_notification,
+                                    actionLabel = grant,
+                                    duration = SnackbarDuration.Long
+                                )
+                            ) {
+                                SnackbarResult.ActionPerformed -> requestPermission(Manifest.permission.POST_NOTIFICATIONS)
+                                SnackbarResult.Dismissed -> {}
+                            }
                         }
                     }
-                }
 
-                // In-app notifications
-                Category(containerColor = MaterialTheme.colorScheme.surface, title = stringResource(R.string.notifications)) {
-                    @Composable
-                    fun Notification(
-                        modifier: Modifier = Modifier,
-                        title: String,
-                        message: String,
-                        onClick: (() -> Unit)? = null,
-                        divider: Boolean,
-                        bottomContent: (@Composable FlowRowScope.() -> Unit)? = null,
-                        visible: Boolean,
-                        onVisibilityChange: ((Boolean) -> Unit),
-                        type: NotificationType
-                    ) {
-                        var state by remember { mutableIntStateOf(0) }
-                        @Suppress("DEPRECATION")
-                        val dismissState = rememberSwipeToDismissBoxState(
-                            confirmValueChange = v@ {
-                                when (it) {
-                                    SwipeToDismissBoxValue.StartToEnd,
-                                    SwipeToDismissBoxValue.EndToStart -> onVisibilityChange(false)
-                                    SwipeToDismissBoxValue.Settled -> false
-                                }
-                                true
-                            },
-                            positionalThreshold = { it * .5f }
-                        )
-
-                        AnimatedVisibility(
-                            visible = visible,
-                            exit = fadeOut() + shrinkVertically()
+                    // In-app notifications
+                    Category(containerColor = MaterialTheme.colorScheme.surface, title = stringResource(R.string.notifications)) {
+                        @Composable
+                        fun Notification(
+                            modifier: Modifier = Modifier,
+                            title: String,
+                            message: String,
+                            onClick: (() -> Unit)? = null,
+                            divider: Boolean,
+                            bottomContent: (@Composable FlowRowScope.() -> Unit)? = null,
+                            visible: Boolean,
+                            onVisibilityChange: ((Boolean) -> Unit),
+                            type: NotificationType
                         ) {
-                            SwipeToDismissBox(
-                                state = dismissState,
-                                modifier = modifier,
-                                backgroundContent = {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .background(
-                                                when (dismissState.dismissDirection) {
-                                                    SwipeToDismissBoxValue.StartToEnd,
-                                                    SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.surface
-                                                    SwipeToDismissBoxValue.Settled -> Color.Transparent
-                                                }
-                                            )
-                                            .padding(12.dp, 8.dp)
-                                    )
+                            var state by remember { mutableIntStateOf(0) }
+
+                            @Suppress("DEPRECATION")
+                            val dismissState = rememberSwipeToDismissBoxState(
+                                confirmValueChange = v@{
+                                    when (it) {
+                                        SwipeToDismissBoxValue.StartToEnd,
+                                        SwipeToDismissBoxValue.EndToStart -> onVisibilityChange(false)
+
+                                        SwipeToDismissBoxValue.Settled -> false
+                                    }
+                                    true
                                 },
-                                content = {
-                                    val computedAlpha = if (
-                                        dismissState.targetValue == SwipeToDismissBoxValue.Settled &&
-                                        dismissState.progress == 1f
-                                    ) 1f else 1f - dismissState.progress
+                                positionalThreshold = { it * .5f }
+                            )
 
-                                    val round by animateDpAsState(
-                                        targetValue = if (computedAlpha != 1f) 28.dp else 0.dp
-                                    )
+                            AnimatedVisibility(
+                                visible = visible,
+                                exit = fadeOut() + shrinkVertically()
+                            ) {
+                                SwipeToDismissBox(
+                                    state = dismissState,
+                                    modifier = modifier,
+                                    backgroundContent = {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .background(
+                                                    when (dismissState.dismissDirection) {
+                                                        SwipeToDismissBoxValue.StartToEnd,
+                                                        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.surface
 
-                                    Crossfade(
-                                        targetState = state,
-                                        modifier = Modifier.animateContentSize()
-                                    ) { screen ->
-                                        when (screen) {
-                                            0 /* main content */ -> {
-                                                Column {
+                                                        SwipeToDismissBoxValue.Settled -> Color.Transparent
+                                                    }
+                                                )
+                                                .padding(12.dp, 8.dp)
+                                        )
+                                    },
+                                    content = {
+                                        val computedAlpha = if (
+                                            dismissState.targetValue == SwipeToDismissBoxValue.Settled &&
+                                            dismissState.progress == 1f
+                                        ) 1f else 1f - dismissState.progress
+
+                                        val round by animateDpAsState(
+                                            targetValue = if (computedAlpha != 1f) 28.dp else 0.dp
+                                        )
+
+                                        Crossfade(
+                                            targetState = state,
+                                            modifier = Modifier.animateContentSize()
+                                        ) { screen ->
+                                            when (screen) {
+                                                0 /* main content */ -> {
+                                                    Column {
+                                                        Column(
+                                                            modifier = modifier
+                                                                .background(
+                                                                    color = MaterialTheme.colorScheme.surfaceContainer,
+                                                                    shape = RoundedCornerShape(round)
+                                                                )
+                                                                .clip(RoundedCornerShape(round))
+                                                                .alpha(computedAlpha)
+                                                                .applyIf(onClick != null) {
+                                                                    Modifier.combinedClickable(
+                                                                        onClick = onClick!!,
+                                                                        onLongClick = { state = 1 }
+                                                                    )
+                                                                }
+                                                        ) {
+                                                            Row(
+                                                                modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
+                                                                verticalAlignment = Alignment.CenterVertically
+                                                            ) {
+                                                                Box(
+                                                                    modifier =
+                                                                        Modifier
+                                                                            .background(
+                                                                                MaterialTheme.colorScheme.primary,
+                                                                                RoundedCornerShape(50)
+                                                                            )
+                                                                            .size(24.dp),
+                                                                    contentAlignment = Alignment.Center
+                                                                ) {
+                                                                    Icon(
+                                                                        imageVector = type.source.icon,
+                                                                        contentDescription = null,
+                                                                        tint = MaterialTheme.colorScheme.onPrimary,
+                                                                        modifier = Modifier.size(18.dp)
+                                                                    )
+                                                                }
+                                                                Spacer(Modifier.width(16.dp))
+                                                                Text(
+                                                                    text = stringResource(type.source.label),
+                                                                    style = MaterialTheme.typography.bodySmall,
+                                                                    color = MaterialTheme.colorScheme.onSurface,
+                                                                    fontSize = 13.sp
+                                                                )
+                                                            }
+                                                            ListItem(
+                                                                headline = title,
+                                                                supportingText = message,
+                                                                leadingContent = {
+                                                                    Spacer(Modifier.width(24.dp))
+                                                                },
+                                                                bottomContent = bottomContent?.let {
+                                                                    {
+                                                                        FlowRow(
+                                                                            modifier = Modifier.padding(start = (24 + 16 - 12).dp, end = 16.dp),
+                                                                            content = it
+                                                                        )
+                                                                    }
+                                                                }
+                                                            )
+                                                        }
+                                                        AnimatedVisibility(
+                                                            visible = divider,
+                                                            enter = expandVertically(),
+                                                            exit = shrinkVertically()
+                                                        ) {
+                                                            HorizontalDivider(
+                                                                color = MaterialTheme.colorScheme.surface,
+                                                                thickness = 2.dp
+                                                            )
+                                                        }
+                                                    }
+                                                }
+
+                                                1 /* settings */ -> {
                                                     Column(
                                                         modifier = modifier
                                                             .background(
@@ -369,6 +446,7 @@ fun HomeScreen(topBar: TopBarType, scrollBehavior: TopAppBarScrollBehavior) {
                                                             )
                                                             .clip(RoundedCornerShape(round))
                                                             .alpha(computedAlpha)
+                                                            .padding(16.dp)
                                                             .applyIf(onClick != null) {
                                                                 Modifier.combinedClickable(
                                                                     onClick = onClick!!,
@@ -376,331 +454,260 @@ fun HomeScreen(topBar: TopBarType, scrollBehavior: TopAppBarScrollBehavior) {
                                                                 )
                                                             }
                                                     ) {
-                                                        Row(
-                                                            modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
-                                                            verticalAlignment = Alignment.CenterVertically
-                                                        ) {
-                                                            Box(
-                                                                modifier =
-                                                                    Modifier
-                                                                        .background(
-                                                                            MaterialTheme.colorScheme.primary,
-                                                                            RoundedCornerShape(50)
-                                                                        )
-                                                                        .size(24.dp),
-                                                                contentAlignment = Alignment.Center
-                                                            ) {
-                                                                Icon(
-                                                                    imageVector = type.source.icon,
-                                                                    contentDescription = null,
-                                                                    tint = MaterialTheme.colorScheme.onPrimary,
-                                                                    modifier = Modifier.size(18.dp)
-                                                                )
+                                                        var enabled by remember { mutableStateOf(type.isEnabled) }
+                                                        SwitchWithText(
+                                                            checked = enabled,
+                                                            onCheckedChange = { v ->
+                                                                enabled = v
+                                                                type.isEnabled = v
                                                             }
-                                                            Spacer(Modifier.width(16.dp))
+                                                        ) {
                                                             Text(
-                                                                text = stringResource(type.source.label),
-                                                                style = MaterialTheme.typography.bodySmall,
-                                                                color = MaterialTheme.colorScheme.onSurface,
-                                                                fontSize = 13.sp
+                                                                text = stringResource(type.label),
                                                             )
                                                         }
-                                                        ListItem(
-                                                            headline = title,
-                                                            supportingText = message,
-                                                            leadingContent = {
-                                                                Spacer(Modifier.width(24.dp))
-                                                            },
-                                                            bottomContent = bottomContent?.let {{
-                                                                FlowRow(
-                                                                    modifier = Modifier.padding(start = (24 + 16 - 12).dp, end = 16.dp),
-                                                                    content = it
-                                                                )
-                                                            }}
-                                                        )
-                                                    }
-                                                    AnimatedVisibility(
-                                                        visible = divider,
-                                                        enter = expandVertically(),
-                                                        exit = shrinkVertically()
-                                                    ) {
-                                                        HorizontalDivider(
-                                                            color = MaterialTheme.colorScheme.surface,
-                                                            thickness = 2.dp
-                                                        )
-                                                    }
-                                                }
-                                            }
-
-                                            1 /* settings */ -> {
-                                                Column(
-                                                    modifier = modifier
-                                                        .background(
-                                                            color = MaterialTheme.colorScheme.surfaceContainer,
-                                                            shape = RoundedCornerShape(round)
-                                                        )
-                                                        .clip(RoundedCornerShape(round))
-                                                        .alpha(computedAlpha)
-                                                        .padding(16.dp)
-                                                        .applyIf(onClick != null) {
-                                                            Modifier.combinedClickable(
-                                                                onClick = onClick!!,
-                                                                onLongClick = { state = 1 }
-                                                            )
+                                                        TextButton(
+                                                            onClick = {
+                                                                onVisibilityChange(enabled)
+                                                                state = 0
+                                                            }
+                                                        ) {
+                                                            Text(text = stringResource(R.string.save))
                                                         }
-                                                ) {
-                                                    var enabled by remember { mutableStateOf(type.isEnabled) }
-                                                    SwitchWithText(
-                                                        checked = enabled,
-                                                        onCheckedChange = { v ->
-                                                            enabled = v
-                                                            type.isEnabled = v
-                                                        }
-                                                    ) {
-                                                        Text(
-                                                            text = stringResource(type.label),
-                                                        )
-                                                    }
-                                                    TextButton(
-                                                        onClick = {
-                                                            onVisibilityChange(enabled)
-                                                            state = 0
-                                                        }
-                                                    ) {
-                                                        Text(text = stringResource(R.string.save))
                                                     }
                                                 }
                                             }
                                         }
                                     }
-                                }
-                            )
-                        }
-                    }
-
-                    val notifications = remember { mutableStateListOf<NotificationData>() }
-                    LaunchedEffect(Unit) {
-                        when {
-                            Settings.UnlockProtection.enabled && !(
-                                Settings.Actions.Alarm.enabled ||
-                                Settings.Actions.IntruderPhoto.enabled
-                            ) -> {
-                                var notification: NotificationData? = null
-                                notification = NotificationData(
-                                    title = R.string.turn_on_at_least_one_action,
-                                    message = R.string.turn_on_at_least_one_action_d,
-                                    bottomContent = {
-                                        TextButton(
-                                            onClick = {
-                                                Intent(context, ActionsActivity::class.java).let {
-                                                    context.activityLauncher.launch(it) {
-                                                        if (
-                                                            !(
-                                                                    Settings.UnlockProtection.enabled &&
-                                                                            !(
-                                                                                    Settings.Actions.Alarm.enabled ||
-                                                                                            Settings.Actions.IntruderPhoto.enabled
-                                                                                    )
-                                                                    )
-                                                        ) notification!!.visible = false
-                                                    }
-                                                }
-                                            }
-                                        ) {
-                                            Text(text = "View actions")
-                                        }
-                                    },
-                                    type = NotificationType.ENABLE_AT_LEAST_ONE_FEATURE
                                 )
-                                notifications += notification
-                            }
-
-                            Settings.Applocker.used -> when {
-                                !Accessibility.running -> {
-                                    var notification: NotificationData? = null
-                                    notification = NotificationData(
-                                        title = R.string.reenable_accessibility,
-                                        message = R.string.reenable_accessibility_d,
-                                        bottomContent = {
-                                            TextButton(
-                                                onClick = {
-                                                    var resumeHandler: (() -> Unit)? = null
-                                                    resumeHandler = {
-                                                        if (Accessibility.running) {
-                                                            notification!!.visible = false
-                                                            Settings.Applocker.used = true
-                                                        }
-                                                        returnBack = false
-                                                        context.resumeHandlers.remove(resumeHandler)
-                                                    }
-                                                    context.resumeHandlers.add(resumeHandler)
-                                                    returnBack = true
-                                                    context.startActivity(
-                                                        Intent(ACTION_ACCESSIBILITY_SETTINGS).apply {
-                                                            flags = FLAG_ACTIVITY_NEW_TASK
-                                                        }
-                                                    )
-                                                }
-                                            ) {
-                                                Text(text = "Enable")
-                                            }
-                                        },
-                                        type = NotificationType.ENABLE_ACCESSIBILITY
-                                    )
-                                    notifications += notification
-                                }
-                                !Settings.Keys.Applocker.isSet -> {
-                                    notifications += NotificationData(
-                                        title = R.string.set_password_1,
-                                        message = R.string.set_password_1_d,
-                                        bottomContent = {
-                                            TextButton(
-                                                onClick = {
-                                                    mainNavController.navigate("applocker")
-                                                }
-                                            ) {
-                                                Text(text = "Set password")
-                                            }
-                                        },
-                                        type = NotificationType.SET_PASSWORD
-                                    )
-                                }
-                                Settings.Applocker.apps.isEmpty() -> {
-                                    var notification: NotificationData? = null
-                                    notification = NotificationData(
-                                        title = R.string.select_apps_1,
-                                        message = R.string.select_apps_1_d,
-                                        bottomContent = {
-                                            TextButton(
-                                                onClick = {
-                                                    context.activityLauncher.launch(
-                                                        Intent(context, SelectAppsActivity::class.java)
-                                                    ) {
-                                                        if (Settings.Applocker.apps.isNotEmpty()) {
-                                                            notification!!.visible = false
-                                                        }
-                                                    }
-                                                }
-                                            ) {
-                                                Text(text = "Select")
-                                            }
-                                        },
-                                        type = NotificationType.SELECT_APPS
-                                    )
-                                    notifications += notification
-                                }
                             }
                         }
-                    }
 
-                    Crossfade(
-                        targetState = notifications.isNotEmpty(),
-                        label = ""
-                    ) { notEmpty ->
-                        if (notEmpty) {
-                            Column {
-                                notifications.forEachIndexed { index, notification ->
-                                    if (notification.type.isEnabled) {
-                                        notification.onVisibilityChange = {
-                                            coroutineScope.launch {
-                                                set(it)
-                                                if (!it) {
-                                                    delay(1000)
-                                                    notifications.remove(notification)
+                        val notifications = remember { mutableStateListOf<NotificationData>() }
+                        LaunchedEffect(Unit) {
+                            when {
+                                Settings.UnlockProtection.enabled && !(
+                                        Settings.Actions.Alarm.enabled ||
+                                                Settings.Actions.IntruderPhoto.enabled
+                                        ) -> {
+                                    var notification: NotificationData? = null
+                                    notification = NotificationData(
+                                        title = R.string.turn_on_at_least_one_action,
+                                        message = R.string.turn_on_at_least_one_action_d,
+                                        bottomContent = {
+                                            TextButton(
+                                                onClick = {
+                                                    Intent(this@with, ActionsActivity::class.java).let {
+                                                        activityLauncher.launch(it) {
+                                                            if (
+                                                                !(
+                                                                    Settings.UnlockProtection.enabled && !(
+                                                                        Settings.Actions.Alarm.enabled ||
+                                                                        Settings.Actions.IntruderPhoto.enabled
+                                                                    )
+                                                                )
+                                                            ) notification!!.visible = false
+                                                        }
+                                                    }
                                                 }
+                                            ) {
+                                                Text(text = "View actions")
                                             }
-                                        }
-                                        Notification(
-                                            title = stringResource(notification.title),
-                                            message = stringResource(notification.message),
-                                            onClick = notification.onClick,
-                                            divider = index != notifications.size - 1,
-                                            bottomContent = notification.bottomContent,
-                                            type = notification.type,
-                                            visible = notification.visible,
-                                            onVisibilityChange = { notification.visible = it }
+                                        },
+                                        type = NotificationType.ENABLE_AT_LEAST_ONE_FEATURE
+                                    )
+                                    notifications += notification
+                                }
+
+                                Settings.Applocker.used -> when {
+                                    !Accessibility.running -> {
+                                        var notification: NotificationData? = null
+                                        notification = NotificationData(
+                                            title = R.string.reenable_accessibility,
+                                            message = R.string.reenable_accessibility_d,
+                                            bottomContent = {
+                                                TextButton(
+                                                    onClick = {
+                                                        var resumeHandler: (() -> Unit)? = null
+                                                        resumeHandler = {
+                                                            if (Accessibility.running) {
+                                                                notification!!.visible = false
+                                                                Settings.Applocker.used = true
+                                                            }
+                                                            returnBack = false
+                                                            resumeHandlers.remove(resumeHandler)
+                                                        }
+                                                        resumeHandlers.add(resumeHandler)
+                                                        returnBack = true
+                                                        startActivity(
+                                                            Intent(ACTION_ACCESSIBILITY_SETTINGS).apply {
+                                                                flags = FLAG_ACTIVITY_NEW_TASK
+                                                            }
+                                                        )
+                                                    }
+                                                ) {
+                                                    Text(text = "Enable")
+                                                }
+                                            },
+                                            type = NotificationType.ENABLE_ACCESSIBILITY
+                                        )
+                                        notifications += notification
+                                    }
+
+                                    !Settings.Keys.Applocker.isSet -> {
+                                        notifications += NotificationData(
+                                            title = R.string.set_password_1,
+                                            message = R.string.set_password_1_d,
+                                            bottomContent = {
+                                                TextButton(
+                                                    onClick = {
+                                                        mainNavController.navigate("applocker")
+                                                    }
+                                                ) {
+                                                    Text(text = "Set password")
+                                                }
+                                            },
+                                            type = NotificationType.SET_PASSWORD
                                         )
                                     }
+
+                                    Settings.Applocker.apps.isEmpty() -> {
+                                        var notification: NotificationData? = null
+                                        notification = NotificationData(
+                                            title = R.string.select_apps_1,
+                                            message = R.string.select_apps_1_d,
+                                            bottomContent = {
+                                                TextButton(
+                                                    onClick = {
+                                                        activityLauncher.launch(
+                                                            Intent(this@with, SelectAppsActivity::class.java)
+                                                        ) {
+                                                            if (Settings.Applocker.apps.isNotEmpty()) {
+                                                                notification!!.visible = false
+                                                            }
+                                                        }
+                                                    }
+                                                ) {
+                                                    Text(text = "Select")
+                                                }
+                                            },
+                                            type = NotificationType.SELECT_APPS
+                                        )
+                                        notifications += notification
+                                    }
                                 }
                             }
-                        } else {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier
-                                    .background(MaterialTheme.colorScheme.surfaceContainer)
-                                    .padding(16.dp)
-                                    .fillMaxWidth()
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.CheckCircle,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(48.dp)
-                                        .align(Alignment.CenterHorizontally),
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = stringResource(R.string.no_notifications),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    modifier = Modifier.padding(top = 16.dp)
-                                )
-                            }
                         }
-                    }
-                }
 
-                // Guides
-                Category(title = stringResource(R.string.guides)) {
-                    val guides = remember { mutableStateListOf<Guide>() }
-
-                    LaunchedEffect(Unit) {
-                        try {
-                            for (it in GuidesAPI.list()) {
-                                val name = it.name.removeSuffix(".md")
-                                val header = it.header
-
-                                guides += Guide(
-                                    title = header.DisplayName,
-                                    name = name,
-                                    icon = try {
-                                        val iconName = header.Icon.toPascalCase()
-                                        Class
-                                            .forName("androidx.compose.material.icons.filled.${iconName}Kt")
-                                            .getMethod(
-                                                "get${iconName}",
-                                                Icons.Filled::class.java
+                        Crossfade(
+                            targetState = notifications.isNotEmpty(),
+                            label = ""
+                        ) { notEmpty ->
+                            if (notEmpty) {
+                                Column {
+                                    notifications.forEachIndexed { index, notification ->
+                                        if (notification.type.isEnabled) {
+                                            notification.onVisibilityChange = {
+                                                coroutineScope.launch {
+                                                    set(it)
+                                                    if (!it) {
+                                                        delay(1000)
+                                                        notifications.remove(notification)
+                                                    }
+                                                }
+                                            }
+                                            Notification(
+                                                title = stringResource(notification.title),
+                                                message = stringResource(notification.message),
+                                                onClick = notification.onClick,
+                                                divider = index != notifications.size - 1,
+                                                bottomContent = notification.bottomContent,
+                                                type = notification.type,
+                                                visible = notification.visible,
+                                                onVisibilityChange = { notification.visible = it }
                                             )
-                                            .invoke(null, Icons.Filled) as ImageVector
-                                    } catch (e: Exception) {
-                                        Log.e("Guides", "An error occurred while getting icon: ", e)
-                                        Icons.Filled.Description
-                                    },
-                                    htmlFile = "${GuidesAPI.BASE_URL}/${name.lowercase()}/raw".toUri()
-                                ).also { Log.d("Guides", "$it") }
+                                        }
+                                    }
+                                }
+                            } else {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier
+                                        .background(MaterialTheme.colorScheme.surfaceContainer)
+                                        .padding(16.dp)
+                                        .fillMaxWidth()
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.CheckCircle,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(48.dp)
+                                            .align(Alignment.CenterHorizontally),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.no_notifications),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        modifier = Modifier.padding(top = 16.dp)
+                                    )
+                                }
                             }
-                        } catch (e: Exception) {
-                            Log.e("Guides", "An error occurred: ", e)
                         }
                     }
 
-                    guides.forEachIndexed { i, (_, title, htmlFile, icon) ->
-                        ListItem(
-                            headline = title,
-                            leadingContent = {
-                                Icon(
-                                    imageVector = icon,
-                                    contentDescription = null
-                                )
-                            },
-                            onClick = {
-                                context.startActivity(
-                                    Intent(context, GuideActivity::class.java).apply {
-                                        data = htmlFile
-                                    }
-                                )
-                            },
-                            materialDivider = i != guides.lastIndex
-                        )
+                    // Guides
+                    Category(title = stringResource(R.string.guides)) {
+                        val guides = remember { mutableStateListOf<Guide>() }
+
+                        LaunchedEffect(Unit) {
+                            try {
+                                for (it in GuidesAPI.list()) {
+                                    val name = it.name.removeSuffix(".md")
+                                    val header = it.header
+
+                                    guides += Guide(
+                                        title = header.DisplayName,
+                                        name = name,
+                                        icon = try {
+                                            val iconName = header.Icon.toPascalCase()
+                                            Class
+                                                .forName("androidx.compose.material.icons.filled.${iconName}Kt")
+                                                .getMethod(
+                                                    "get${iconName}",
+                                                    Icons.Filled::class.java
+                                                )
+                                                .invoke(null, Icons.Filled) as ImageVector
+                                        } catch (e: Exception) {
+                                            Log.e("Guides", "An error occurred while getting icon: ", e)
+                                            Icons.Filled.Description
+                                        },
+                                        htmlFile = "${GuidesAPI.BASE_URL}/${name.lowercase()}/raw".toUri()
+                                    ).also { Log.d("Guides", "$it") }
+                                }
+                            } catch (e: Exception) {
+                                Log.e("Guides", "An error occurred: ", e)
+                            }
+                        }
+
+                        guides.forEachIndexed { i, (_, title, htmlFile, icon) ->
+                            ListItem(
+                                headline = title,
+                                leadingContent = {
+                                    Icon(
+                                        imageVector = icon,
+                                        contentDescription = null
+                                    )
+                                },
+                                onClick = {
+                                    startActivity(
+                                        Intent(this@with, GuideActivity::class.java).apply {
+                                            data = htmlFile
+                                        }
+                                    )
+                                },
+                                materialDivider = i != guides.lastIndex
+                            )
+                        }
                     }
                 }
             }

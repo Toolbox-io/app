@@ -33,86 +33,86 @@ import ru.morozovit.android.utils.ui.invoke
 
 @Composable
 fun DontTouchMyPhoneScreen(EdgeToEdgeBar: EdgeToEdgeBarType) {
-    WindowInsetsHandler {
-        EdgeToEdgeBar { innerPadding ->
-            Column(Modifier.padding(innerPadding)) {
-                val context = LocalContext()
+    with (LocalContext()) {
+        WindowInsetsHandler {
+            EdgeToEdgeBar { innerPadding ->
+                Column(Modifier.padding(innerPadding)) {
+                    var useSensors by remember { mutableStateOf(Settings.DTMP.useSensors) }
+                    var triggerOnCharger by remember { mutableStateOf(Settings.DTMP.triggerOnCharger) }
 
-                var useSensors by remember { mutableStateOf(Settings.DTMP.useSensors) }
-                var triggerOnCharger by remember { mutableStateOf(Settings.DTMP.triggerOnCharger) }
-
-                Category(title = stringResource(R.string.settings)) {
-                    SwitchListItem(
-                        headline = stringResource(R.string.use_sensors),
-                        supportingText = stringResource(R.string.use_sensors_d),
-                        checked = useSensors,
-                        onCheckedChange = {
-                            Settings.DTMP.useSensors = it
-                            useSensors = it
-                        },
-                        leadingContent = {
-                            Icon(
-                                imageVector = Icons.Filled.Sensors,
-                                contentDescription = null
-                            )
-                        },
-                        materialDivider = true
-                    )
-                    SwitchListItem(
-                        headline = stringResource(R.string.trigger_on_charger),
-                        supportingText = stringResource(R.string.trigger_on_charger_d),
-                        checked = triggerOnCharger,
-                        onCheckedChange = {
-                            Settings.DTMP.triggerOnCharger = it
-                            triggerOnCharger = it
-                        },
-                        leadingContent = {
-                            Icon(
-                                imageVector = Icons.Filled.Charger,
-                                contentDescription = null
-                            )
-                        }
-                    )
-                }
-
-                Category {
-                    ListItem(
-                        headline = stringResource(R.string.actions),
-                        supportingText = stringResource(R.string.actions_d),
-                        onClick = {
-                            context.startActivity(
-                                Intent(
-                                    context,
-                                    ActionsActivity::class.java
+                    Category(title = stringResource(R.string.settings)) {
+                        SwitchListItem(
+                            headline = stringResource(R.string.use_sensors),
+                            supportingText = stringResource(R.string.use_sensors_d),
+                            checked = useSensors,
+                            onCheckedChange = {
+                                Settings.DTMP.useSensors = it
+                                useSensors = it
+                            },
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.Sensors,
+                                    contentDescription = null
                                 )
-                            )
-                        },
-                        leadingContent = {
-                            Icon(
-                                imageVector = Icons.Filled.Security,
-                                contentDescription = null
-                            )
-                        }
-                    )
-                }
+                            },
+                            materialDivider = true
+                        )
+                        SwitchListItem(
+                            headline = stringResource(R.string.trigger_on_charger),
+                            supportingText = stringResource(R.string.trigger_on_charger_d),
+                            checked = triggerOnCharger,
+                            onCheckedChange = {
+                                Settings.DTMP.triggerOnCharger = it
+                                triggerOnCharger = it
+                            },
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.Charger,
+                                    contentDescription = null
+                                )
+                            }
+                        )
+                    }
 
-                Button(
-                    onClick = {
-                        if (working) {
-                            DontTouchMyPhoneService.stop()
-                        } else {
-                            DontTouchMyPhoneService.start(context)
-                        }
-                    },
-                    enabled = useSensors || triggerOnCharger,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                ) {
-                    Text(
-                        if (working)
-                            stringResource(R.string.stop)
-                        else
-                            stringResource(R.string.start)
-                    )
+                    Category {
+                        ListItem(
+                            headline = stringResource(R.string.actions),
+                            supportingText = stringResource(R.string.actions_d),
+                            onClick = {
+                                startActivity(
+                                    Intent(
+                                        this@with,
+                                        ActionsActivity::class.java
+                                    )
+                                )
+                            },
+                            leadingContent = {
+                                Icon(
+                                    imageVector = Icons.Filled.Security,
+                                    contentDescription = null
+                                )
+                            }
+                        )
+                    }
+
+                    Button(
+                        onClick = {
+                            if (working) {
+                                DontTouchMyPhoneService.stop()
+                            } else {
+                                DontTouchMyPhoneService.start(this@with)
+                            }
+                        },
+                        enabled = useSensors || triggerOnCharger,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        Text(
+                            if (working)
+                                stringResource(R.string.stop)
+                            else
+                                stringResource(R.string.start)
+                        )
+                    }
                 }
             }
         }

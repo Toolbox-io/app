@@ -81,404 +81,404 @@ import java.lang.Thread.sleep
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ApplockerScreen(topBar: TopBarType, scrollBehavior: TopAppBarScrollBehavior) {
-    WindowInsetsHandler {
-        val snackbarHostState = remember { SnackbarHostState() }
-        Scaffold(
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            snackbarHost = {
-                SnackbarHost(hostState = snackbarHostState)
-            },
-            topBar = { topBar(scrollBehavior) }
-        ) { innerPadding ->
-            Column(
-                Modifier
-                    .verticalScroll()
-                    .padding(innerPadding)
-            ) {
-                val context = LocalContext() as MainActivity
-
-                var unlockMethodText by remember {
-                    mutableStateOf(
-                        Settings.Applocker.getUnlockModeDescription(unlockMode, context.resources)
-                    )
-                }
-
-                var showModeText by remember {
-                    mutableStateOf(
-                        Settings.Applocker.getShowModeDescription(showMode, context.resources)
-                    )
-                }
-
-                if (!Accessibility.running) Settings.Applocker.enabled = false
-
-                // Main switch
-                var mainSwitch by remember {
-                    mutableStateOf(
-                        if (!Accessibility.running)
-                            false
-                        else
-                            Settings.Applocker.enabled
-                    )
-                }
-
-                // Unlock method dialog
-                var openUnlockMethodDialog by remember { mutableStateOf(false) }
-                if (openUnlockMethodDialog) {
-                    fun onDismissRequest() {
-                        openUnlockMethodDialog = false
+    with (LocalContext() as MainActivity) {
+        WindowInsetsHandler {
+            val snackbarHostState = remember { SnackbarHostState() }
+            Scaffold(
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                snackbarHost = {
+                    SnackbarHost(hostState = snackbarHostState)
+                },
+                topBar = { topBar(scrollBehavior) }
+            ) { innerPadding ->
+                Column(
+                    Modifier
+                        .verticalScroll()
+                        .padding(innerPadding)
+                ) {
+                    var unlockMethodText by remember {
+                        mutableStateOf(
+                            Settings.Applocker.getUnlockModeDescription(unlockMode, this@with.resources)
+                        )
                     }
-                    Dialog(
-                        onDismissRequest = ::onDismissRequest
-                    ) {
-                        Card(
-                            shape = RoundedCornerShape(28.dp),
-                            colors = cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+
+                    var showModeText by remember {
+                        mutableStateOf(
+                            Settings.Applocker.getShowModeDescription(showMode, this@with.resources)
+                        )
+                    }
+
+                    if (!Accessibility.running) Settings.Applocker.enabled = false
+
+                    // Main switch
+                    var mainSwitch by remember {
+                        mutableStateOf(
+                            if (!Accessibility.running)
+                                false
+                            else
+                                Settings.Applocker.enabled
+                        )
+                    }
+
+                    // Unlock method dialog
+                    var openUnlockMethodDialog by remember { mutableStateOf(false) }
+                    if (openUnlockMethodDialog) {
+                        fun onDismissRequest() {
+                            openUnlockMethodDialog = false
+                        }
+                        Dialog(
+                            onDismissRequest = ::onDismissRequest
                         ) {
-                            Column(modifier = Modifier.padding(24.dp)) {
-                                Text(
-                                    text = stringResource(R.string.unlockmethod),
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    modifier = Modifier
-                                        .padding()
-                                        .padding(bottom = 16.dp)
-                                )
-                                val radioOptions = mutableListOf<Int>()
-                                if (Build.VERSION.SDK_INT >= 28) {
-                                    radioOptions += LONG_PRESS_APP_INFO
-                                    radioOptions += LONG_PRESS_CLOSE
-                                } else {
-                                    radioOptions += LONG_PRESS_OPEN_APP_AGAIN
-                                }
-                                radioOptions += LONG_PRESS_TITLE
-                                radioOptions += PRESS_TITLE
-                                val (selectedOption, onOptionSelected) = remember {
-                                    mutableIntStateOf(
-                                        radioOptions[radioOptions.indexOf(unlockMode)]
+                            Card(
+                                shape = RoundedCornerShape(28.dp),
+                                colors = cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+                            ) {
+                                Column(modifier = Modifier.padding(24.dp)) {
+                                    Text(
+                                        text = stringResource(R.string.unlockmethod),
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        modifier = Modifier
+                                            .padding()
+                                            .padding(bottom = 16.dp)
                                     )
-                                }
-                                // Note that Modifier.selectableGroup() is essential to ensure correct accessibility behavior
-                                Column(Modifier.selectableGroup()) {
-                                    radioOptions.forEach { num ->
-                                        val text = Settings.Applocker.getUnlockModeDescription(num, context.resources)
+                                    val radioOptions = mutableListOf<Int>()
+                                    if (Build.VERSION.SDK_INT >= 28) {
+                                        radioOptions += LONG_PRESS_APP_INFO
+                                        radioOptions += LONG_PRESS_CLOSE
+                                    } else {
+                                        radioOptions += LONG_PRESS_OPEN_APP_AGAIN
+                                    }
+                                    radioOptions += LONG_PRESS_TITLE
+                                    radioOptions += PRESS_TITLE
+                                    val (selectedOption, onOptionSelected) = remember {
+                                        mutableIntStateOf(
+                                            radioOptions[radioOptions.indexOf(unlockMode)]
+                                        )
+                                    }
+                                    // Note that Modifier.selectableGroup() is essential to ensure correct accessibility behavior
+                                    Column(Modifier.selectableGroup()) {
+                                        radioOptions.forEach { num ->
+                                            val text = Settings.Applocker.getUnlockModeDescription(num, this@with.resources)
 
-                                        Row(
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .height(56.dp)
-                                                .selectable(
+                                            Row(
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .height(56.dp)
+                                                    .selectable(
+                                                        selected = (num == selectedOption),
+                                                        onClick = { onOptionSelected(num) },
+                                                        role = Role.RadioButton
+                                                    ),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                RadioButton(
                                                     selected = (num == selectedOption),
-                                                    onClick = { onOptionSelected(num) },
-                                                    role = Role.RadioButton
-                                                ),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            RadioButton(
-                                                selected = (num == selectedOption),
-                                                onClick = null
-                                            )
-                                            Text(
-                                                text = text,
-                                                style = MaterialTheme.typography.bodyLarge,
-                                                modifier = Modifier.padding(start = 16.dp)
-                                            )
+                                                    onClick = null
+                                                )
+                                                Text(
+                                                    text = text,
+                                                    style = MaterialTheme.typography.bodyLarge,
+                                                    modifier = Modifier.padding(start = 16.dp)
+                                                )
+                                            }
                                         }
                                     }
-                                }
 
-                                Row(Modifier.padding(top = 24.dp)) {
-                                    TextButton(
-                                        onClick = ::onDismissRequest
-                                    ) {
-                                        Text(text = stringResource(R.string.cancel))
-                                    }
-                                    Spacer(Modifier.weight(1f))
-                                    TextButton(
-                                        onClick = {
-                                            unlockMode = selectedOption
-                                            unlockMethodText = Settings.Applocker.getUnlockModeDescription(
-                                                selectedOption, context.resources
-                                            )
-                                            onDismissRequest()
+                                    Row(Modifier.padding(top = 24.dp)) {
+                                        TextButton(
+                                            onClick = ::onDismissRequest
+                                        ) {
+                                            Text(text = stringResource(R.string.cancel))
                                         }
-                                    ) {
-                                        Text(text = stringResource(R.string.ok))
+                                        Spacer(Modifier.weight(1f))
+                                        TextButton(
+                                            onClick = {
+                                                unlockMode = selectedOption
+                                                unlockMethodText = Settings.Applocker.getUnlockModeDescription(
+                                                    selectedOption, this@with.resources
+                                                )
+                                                onDismissRequest()
+                                            }
+                                        ) {
+                                            Text(text = stringResource(R.string.ok))
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                }
 
-                // Show mode dialog
-                var openShowModeDialog by remember { mutableStateOf(false) }
-                if (openShowModeDialog) {
-                    fun onDismissRequest() {
-                        openShowModeDialog = false
-                    }
-                    Dialog(
-                        onDismissRequest = ::onDismissRequest
-                    ) {
-                        Card(
-                            shape = RoundedCornerShape(28.dp),
-                            colors = cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+                    // Show mode dialog
+                    var openShowModeDialog by remember { mutableStateOf(false) }
+                    if (openShowModeDialog) {
+                        fun onDismissRequest() {
+                            openShowModeDialog = false
+                        }
+                        Dialog(
+                            onDismissRequest = ::onDismissRequest
                         ) {
-                            Column(modifier = Modifier.padding(24.dp)) {
-                                Text(
-                                    text = stringResource(R.string.showmode),
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    modifier = Modifier
-                                        .padding()
-                                        .padding(bottom = 16.dp)
-                                )
-                                val radioOptions = Settings.Applocker.ShowMode.entries.toList()
-                                val (selectedOption, onOptionSelected) = remember {
-                                    mutableStateOf(
-                                        radioOptions[radioOptions.indexOf(showMode)]
+                            Card(
+                                shape = RoundedCornerShape(28.dp),
+                                colors = cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+                            ) {
+                                Column(modifier = Modifier.padding(24.dp)) {
+                                    Text(
+                                        text = stringResource(R.string.showmode),
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        modifier = Modifier
+                                            .padding()
+                                            .padding(bottom = 16.dp)
                                     )
-                                }
-                                // Note that Modifier.selectableGroup() is essential to ensure correct accessibility behavior
-                                Column(Modifier.selectableGroup()) {
-                                    radioOptions.forEach { num ->
-                                        val text = Settings.Applocker.getShowModeDescription(num, context.resources)
+                                    val radioOptions = Settings.Applocker.ShowMode.entries.toList()
+                                    val (selectedOption, onOptionSelected) = remember {
+                                        mutableStateOf(
+                                            radioOptions[radioOptions.indexOf(showMode)]
+                                        )
+                                    }
+                                    // Note that Modifier.selectableGroup() is essential to ensure correct accessibility behavior
+                                    Column(Modifier.selectableGroup()) {
+                                        radioOptions.forEach { num ->
+                                            val text = Settings.Applocker.getShowModeDescription(num, this@with.resources)
 
-                                        Row(
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .height(56.dp)
-                                                .selectable(
+                                            Row(
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .height(56.dp)
+                                                    .selectable(
+                                                        selected = (num == selectedOption),
+                                                        onClick = { onOptionSelected(num) },
+                                                        role = Role.RadioButton
+                                                    ),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                RadioButton(
                                                     selected = (num == selectedOption),
-                                                    onClick = { onOptionSelected(num) },
-                                                    role = Role.RadioButton
-                                                ),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            RadioButton(
-                                                selected = (num == selectedOption),
-                                                onClick = null
-                                            )
-                                            Text(
-                                                text = text,
-                                                style = MaterialTheme.typography.bodyLarge,
-                                                modifier = Modifier.padding(start = 16.dp)
-                                            )
+                                                    onClick = null
+                                                )
+                                                Text(
+                                                    text = text,
+                                                    style = MaterialTheme.typography.bodyLarge,
+                                                    modifier = Modifier.padding(start = 16.dp)
+                                                )
+                                            }
                                         }
                                     }
-                                }
 
-                                Row(Modifier.padding(top = 24.dp)) {
-                                    TextButton(
-                                        onClick = ::onDismissRequest
-                                    ) {
-                                        Text(text = stringResource(R.string.cancel))
-                                    }
-                                    Spacer(Modifier.weight(1f))
-                                    TextButton(
-                                        onClick = {
-                                            showMode = selectedOption
-                                            showModeText = Settings.Applocker.getShowModeDescription(
-                                                selectedOption, context.resources
-                                            )
-                                            onDismissRequest()
+                                    Row(Modifier.padding(top = 24.dp)) {
+                                        TextButton(
+                                            onClick = ::onDismissRequest
+                                        ) {
+                                            Text(text = stringResource(R.string.cancel))
                                         }
-                                    ) {
-                                        Text(text = stringResource(R.string.ok))
+                                        Spacer(Modifier.weight(1f))
+                                        TextButton(
+                                            onClick = {
+                                                showMode = selectedOption
+                                                showModeText = Settings.Applocker.getShowModeDescription(
+                                                    selectedOption, this@with.resources
+                                                )
+                                                onDismissRequest()
+                                            }
+                                        ) {
+                                            Text(text = stringResource(R.string.ok))
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                }
 
-                // Accessibility permission dialog
-                var openPermissionDialog by remember { mutableStateOf(false) }
-                fun onPermissionDialogDismiss() {
-                    openPermissionDialog = false
-                }
-                SimpleAlertDialog(
-                    open = openPermissionDialog,
-                    onDismissRequest = ::onPermissionDialogDismiss,
-                    title = stringResource(R.string.permissions_required),
-                    body = stringResource(R.string.al_permissions),
-                    positiveButtonText = stringResource(R.string.ok),
-                    onPositiveButtonClick = {
-                        val intent = Intent(ACTION_ACCESSIBILITY_SETTINGS)
-                        intent.flags = FLAG_ACTIVITY_NEW_TASK
-                        var handler: (() -> Unit)? = null
-                        handler = {
-                            if (Accessibility.running) {
-                                mainSwitch = true
-                                Settings.Applocker.enabled = true
-                                Settings.Applocker.used = true
+                    // Accessibility permission dialog
+                    var openPermissionDialog by remember { mutableStateOf(false) }
+                    fun onPermissionDialogDismiss() {
+                        openPermissionDialog = false
+                    }
+                    SimpleAlertDialog(
+                        open = openPermissionDialog,
+                        onDismissRequest = ::onPermissionDialogDismiss,
+                        title = stringResource(R.string.permissions_required),
+                        body = stringResource(R.string.al_permissions),
+                        positiveButtonText = stringResource(R.string.ok),
+                        onPositiveButtonClick = {
+                            val intent = Intent(ACTION_ACCESSIBILITY_SETTINGS)
+                            intent.flags = FLAG_ACTIVITY_NEW_TASK
+                            var handler: (() -> Unit)? = null
+                            handler = {
+                                if (Accessibility.running) {
+                                    mainSwitch = true
+                                    Settings.Applocker.enabled = true
+                                    Settings.Applocker.used = true
+                                }
+                                returnBack = false
+                                resumeHandlers.remove(handler)
                             }
-                            returnBack = false
-                            context.resumeHandlers.remove(handler)
-                        }
-                        context.resumeHandlers.add(handler)
-                        returnBack = true
-                        context.startActivity(intent)
-                    },
-                    negativeButtonText = stringResource(R.string.cancel),
-                    onNegativeButtonClick = ::onPermissionDialogDismiss
-                )
-
-                // Foreground service switch
-                var afsSwitch by remember { mutableStateOf(Settings.UnlockProtection.fgServiceEnabled) }
-
-                Column {
-                    SwitchCard(
-                        text = stringResource(R.string.enable),
-                        checked = mainSwitch,
-                        onCheckedChange = sw@ {
-                            if (it && !Accessibility.running) {
-                                openPermissionDialog = true
-                                return@sw
-                            }
-                            mainSwitch = it
-                            Settings.Applocker.enabled = it
-                            Settings.Applocker.used = false
+                            resumeHandlers.add(handler)
+                            returnBack = true
+                            startActivity(intent)
                         },
-                        modifier = Modifier.padding(bottom = 12.dp)
+                        negativeButtonText = stringResource(R.string.cancel),
+                        onNegativeButtonClick = ::onPermissionDialogDismiss
                     )
-                    Category(title = stringResource(R.string.settings)) {
-                        ListItem(
-                            headline = stringResource(R.string.select_apps),
-                            supportingText = stringResource(R.string.select_apps_d),
-                            onClick = {
-                                context.startActivity(
-                                    Intent(
-                                        context,
-                                        SelectAppsActivity::class.java
+
+                    // Foreground service switch
+                    var afsSwitch by remember { mutableStateOf(Settings.UnlockProtection.fgServiceEnabled) }
+
+                    Column {
+                        SwitchCard(
+                            text = stringResource(R.string.enable),
+                            checked = mainSwitch,
+                            onCheckedChange = sw@{
+                                if (it && !Accessibility.running) {
+                                    openPermissionDialog = true
+                                    return@sw
+                                }
+                                mainSwitch = it
+                                Settings.Applocker.enabled = it
+                                Settings.Applocker.used = false
+                            },
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
+                        Category(title = stringResource(R.string.settings)) {
+                            ListItem(
+                                headline = stringResource(R.string.select_apps),
+                                supportingText = stringResource(R.string.select_apps_d),
+                                onClick = {
+                                    startActivity(
+                                        Intent(
+                                            this@with,
+                                            SelectAppsActivity::class.java
+                                        )
                                     )
-                                )
-                            },
-                            materialDivider = true,
-                            leadingContent = {
-                                Icon(
-                                    imageVector = Icons.Filled.Apps,
-                                    contentDescription = null
-                                )
-                            }
-                        )
-                        SwitchListItem(
-                            headline = stringResource(R.string.afs),
-                            supportingText = stringResource(R.string.afs_d),
-                            checked = afsSwitch,
-                            onCheckedChange = {
-                                afsSwitch = it
-                                Settings.UnlockProtection.fgServiceEnabled = it
-                                if (it) {
-                                    AccessibilityKeeperService.start(context)
-                                } else {
-                                    AccessibilityKeeperService.stop()
+                                },
+                                materialDivider = true,
+                                leadingContent = {
+                                    Icon(
+                                        imageVector = Icons.Filled.Apps,
+                                        contentDescription = null
+                                    )
                                 }
-                            },
-                            leadingContent = {
-                                Icon(
-                                    imageVector = Icons.Filled.SettingsApplications,
-                                    contentDescription = null
-                                )
-                            }
-                        )
-                    }
-                    Category(title = stringResource(R.string.security)) {
-                        ListItem(
-                            headline = stringResource(R.string.setpassword),
-                            supportingText = stringResource(R.string.setpassword_d),
-                            onClick = {
-                                /*openSetPasswordDialog = true*/
-                                context.startActivity(
-                                    Intent(context, AuthActivity::class.java).apply {
-                                        putExtra("setStarted", true)
-                                        putExtra("mode", 1)
-                                        putExtra("applocker", true)
-                                        flags = FLAG_ACTIVITY_NEW_TASK
+                            )
+                            SwitchListItem(
+                                headline = stringResource(R.string.afs),
+                                supportingText = stringResource(R.string.afs_d),
+                                checked = afsSwitch,
+                                onCheckedChange = {
+                                    afsSwitch = it
+                                    Settings.UnlockProtection.fgServiceEnabled = it
+                                    if (it) {
+                                        AccessibilityKeeperService.start(this@with)
+                                    } else {
+                                        AccessibilityKeeperService.stop()
                                     }
-                                )
-                            },
-                            materialDivider = true,
-                            leadingContent = {
-                                Icon(
-                                    imageVector = Icons.Filled.Password,
-                                    contentDescription = null
-                                )
-                            }
-                        )
-
-                        ListItem(
-                            headline = stringResource(R.string.unlockmethod),
-                            supportingText = unlockMethodText,
-                            onClick = {
-                                openUnlockMethodDialog = true
-                            },
-                            leadingContent = {
-                                Icon(
-                                    imageVector = Icons.Filled.Key,
-                                    contentDescription = null
-                                )
-                            },
-                            materialDivider = true,
-                        )
-                    }
-
-                    Category(title = stringResource(R.string.customization)) {
-                        ListItem(
-                            headline = stringResource(R.string.showmode),
-                            supportingText = showModeText,
-                            onClick = {
-                                openShowModeDialog = true
-                            },
-                            leadingContent = {
-                                Icon(
-                                    imageVector = Icons.Filled.ImagesearchRoller,
-                                    contentDescription = null
-                                )
-                            }
-                        )
-                    }
-
-                    Category(title = stringResource(R.string.testing)) {
-                        ListItem(
-                            headline = stringResource(R.string.test_crash),
-                            supportingText = stringResource(R.string.test_crash_d),
-                            onClick = {
-                                IssueReporter.enabled = false
-                                Handler(Looper.getMainLooper()).postDelayed(500) {
-                                    IssueReporter.enabled = true
+                                },
+                                leadingContent = {
+                                    Icon(
+                                        imageVector = Icons.Filled.SettingsApplications,
+                                        contentDescription = null
+                                    )
                                 }
-                                @Suppress("DIVISION_BY_ZERO")
-                                0 / 0
-                            },
-                            materialDivider = true,
-                            leadingContent = {
-                                Icon(
-                                    imageVector = Icons.Filled.Error,
-                                    contentDescription = null
-                                )
-                            }
-                        )
-                        ListItem(
-                            headline = stringResource(R.string.test_fake_crash),
-                            supportingText = stringResource(R.string.test_fake_crash_d),
-                            onClick = {
-                                context.homeScreen()
+                            )
+                        }
+                        Category(title = stringResource(R.string.security)) {
+                            ListItem(
+                                headline = stringResource(R.string.setpassword),
+                                supportingText = stringResource(R.string.setpassword_d),
+                                onClick = {
+                                    /*openSetPasswordDialog = true*/
+                                    startActivity(
+                                        Intent(this@with, AuthActivity::class.java).apply {
+                                            putExtra("setStarted", true)
+                                            putExtra("mode", 1)
+                                            putExtra("applocker", true)
+                                            flags = FLAG_ACTIVITY_NEW_TASK
+                                        }
+                                    )
+                                },
+                                materialDivider = true,
+                                leadingContent = {
+                                    Icon(
+                                        imageVector = Icons.Filled.Password,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
 
-                                sleep(500)
+                            ListItem(
+                                headline = stringResource(R.string.unlockmethod),
+                                supportingText = unlockMethodText,
+                                onClick = {
+                                    openUnlockMethodDialog = true
+                                },
+                                leadingContent = {
+                                    Icon(
+                                        imageVector = Icons.Filled.Key,
+                                        contentDescription = null
+                                    )
+                                },
+                                materialDivider = true,
+                            )
+                        }
 
-                                context.finish()
+                        Category(title = stringResource(R.string.customization)) {
+                            ListItem(
+                                headline = stringResource(R.string.showmode),
+                                supportingText = showModeText,
+                                onClick = {
+                                    openShowModeDialog = true
+                                },
+                                leadingContent = {
+                                    Icon(
+                                        imageVector = Icons.Filled.ImagesearchRoller,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+                        }
 
-                                val intent = Intent(context, FakeCrashActivity::class.java)
-                                intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
-                                val b = Bundle()
-                                b.putString("appPackage", context.packageName)
-                                context.startActivity(intent)
-                            },
-                            leadingContent = {
-                                Icon(
-                                    imageVector = Icons.Filled.Warning,
-                                    contentDescription = null
-                                )
-                            }
-                        )
+                        Category(title = stringResource(R.string.testing)) {
+                            ListItem(
+                                headline = stringResource(R.string.test_crash),
+                                supportingText = stringResource(R.string.test_crash_d),
+                                onClick = {
+                                    IssueReporter.enabled = false
+                                    Handler(Looper.getMainLooper()).postDelayed(500) {
+                                        IssueReporter.enabled = true
+                                    }
+                                    @Suppress("DIVISION_BY_ZERO")
+                                    0 / 0
+                                },
+                                materialDivider = true,
+                                leadingContent = {
+                                    Icon(
+                                        imageVector = Icons.Filled.Error,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+                            ListItem(
+                                headline = stringResource(R.string.test_fake_crash),
+                                supportingText = stringResource(R.string.test_fake_crash_d),
+                                onClick = {
+                                    this@with.homeScreen()
+
+                                    sleep(500)
+
+                                    finish()
+
+                                    val intent = Intent(this@with, FakeCrashActivity::class.java)
+                                    intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
+                                    val b = Bundle()
+                                    b.putString("appPackage", this@with.packageName)
+                                    startActivity(intent)
+                                },
+                                leadingContent = {
+                                    Icon(
+                                        imageVector = Icons.Filled.Warning,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             }
