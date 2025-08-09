@@ -43,9 +43,11 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PhonelinkLock
+import androidx.compose.material.icons.filled.SupportAgent
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.cardColors
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -175,7 +177,21 @@ fun HomeScreen(topBar: TopBarType, scrollBehavior: TopAppBarScrollBehavior) {
                 snackbarHost = {
                     SnackbarHost(hostState = snackbarHostState)
                 },
-                topBar = { topBar(scrollBehavior) }
+                topBar = { topBar(scrollBehavior) },
+                floatingActionButton = {
+                    FloatingActionButton(
+                        onClick = {
+                            startActivity(
+                                Intent(
+                                    this@with,
+                                    SupportActivity::class.java
+                                )
+                            )
+                        }
+                    ) {
+                        Icon(Icons.Filled.SupportAgent, stringResource(R.string.support))
+                    }
+                }
             ) { innerPadding ->
                 Column(
                     Modifier

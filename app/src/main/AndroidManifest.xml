@@ -42,7 +42,8 @@
         android:theme="@style/Theme.Toolbox_io"
         tools:targetApi="36"
         android:name=".App"
-        android:enableOnBackInvokedCallback="true">
+        android:enableOnBackInvokedCallback="true"
+        android:networkSecurityConfig="@xml/network_security_config">
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
@@ -67,6 +68,9 @@
             android:theme="@style/Theme.Toolbox_io.NoActionBar" />
         <activity android:name=".ui.main.GreenScreenActivity" />
         <activity android:name=".ui.main.OSSLicensesActivity" />
+        <activity
+            android:name=".ui.main.SupportActivity"
+            android:theme="@style/Theme.Toolbox_io.Website" />
 
         <activity
             android:name=".ui.protection.applocker.SelectAppsActivity"

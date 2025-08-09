@@ -24,6 +24,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.service.quicksettings.Tile
+import android.webkit.WebSettings
+import android.webkit.WebView
 import androidx.activity.OnBackPressedCallback
 import java.io.InputStream
 import java.lang.ref.WeakReference
@@ -290,3 +292,5 @@ inline fun String.decodeWindows1251() = String(
  * Returns true if the [MediaPlayer] is playing, or false if not or if an exception occurs.
  */
 inline val MediaPlayer.isPlayingSafe get() = runCatching { isPlaying }.getOrNull() == true
+
+inline fun WebView.settings(block: WebSettings.() -> Unit) = settings.block()
