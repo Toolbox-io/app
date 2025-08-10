@@ -110,6 +110,44 @@ fun ApplockerScreen(topBar: TopBarType, scrollBehavior: TopAppBarScrollBehavior)
 
                     if (!Accessibility.running) Settings.Applocker.enabled = false
 
+                    @Composable
+                    fun <T> RadioButtonList(
+                        options: List<T>,
+                        selectedOption: T,
+                        onOptionSelected: (T) -> Unit,
+                        optionText: (T) -> String
+                    ) {
+                        // Note that Modifier.selectableGroup() is essential to ensure correct accessibility behavior
+                        Column(Modifier.selectableGroup()) {
+                            options.forEach { option ->
+                                val selected = option == selectedOption
+
+                                Row(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(50.dp)
+                                        .selectable(
+                                            selected = selected,
+                                            onClick = { onOptionSelected(option) },
+                                            role = Role.RadioButton,
+                                        )
+                                        .padding(horizontal = 24.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButton(
+                                        selected = selected,
+                                        onClick = null
+                                    )
+                                    Text(
+                                        text = optionText(option),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(start = 16.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
                     // Main switch
                     var mainSwitch by remember {
                         mutableStateOf(
@@ -133,61 +171,35 @@ fun ApplockerScreen(topBar: TopBarType, scrollBehavior: TopAppBarScrollBehavior)
                                 shape = RoundedCornerShape(28.dp),
                                 colors = cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
                             ) {
-                                Column(modifier = Modifier.padding(24.dp)) {
+                                Column {
                                     Text(
                                         text = stringResource(R.string.unlockmethod),
                                         style = MaterialTheme.typography.headlineSmall,
-                                        modifier = Modifier
-                                            .padding()
-                                            .padding(bottom = 16.dp)
+                                        modifier = Modifier.padding(24.dp, 24.dp, 24.dp, 16.dp)
                                     )
-                                    val radioOptions = mutableListOf<Int>()
-                                    if (Build.VERSION.SDK_INT >= 28) {
-                                        radioOptions += LONG_PRESS_APP_INFO
-                                        radioOptions += LONG_PRESS_CLOSE
-                                    } else {
-                                        radioOptions += LONG_PRESS_OPEN_APP_AGAIN
-                                    }
-                                    radioOptions += LONG_PRESS_TITLE
-                                    radioOptions += PRESS_TITLE
+
                                     val (selectedOption, onOptionSelected) = remember {
-                                        mutableIntStateOf(
-                                            radioOptions[radioOptions.indexOf(unlockMode)]
-                                        )
+                                        mutableIntStateOf(unlockMode)
                                     }
-                                    // Note that Modifier.selectableGroup() is essential to ensure correct accessibility behavior
-                                    Column(Modifier.selectableGroup()) {
-                                        radioOptions.forEach { num ->
-                                            val text = Settings.Applocker.getUnlockModeDescription(num, this@with.resources)
 
-                                            Row(
-                                                Modifier
-                                                    .fillMaxWidth()
-                                                    .height(56.dp)
-                                                    .selectable(
-                                                        selected = (num == selectedOption),
-                                                        onClick = { onOptionSelected(num) },
-                                                        role = Role.RadioButton
-                                                    ),
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                RadioButton(
-                                                    selected = (num == selectedOption),
-                                                    onClick = null
-                                                )
-                                                Text(
-                                                    text = text,
-                                                    style = MaterialTheme.typography.bodyLarge,
-                                                    modifier = Modifier.padding(start = 16.dp)
-                                                )
+                                    RadioButtonList(
+                                        options = buildList {
+                                            if (Build.VERSION.SDK_INT >= 28) {
+                                                add(LONG_PRESS_APP_INFO)
+                                                add(LONG_PRESS_CLOSE)
+                                            } else {
+                                                add(LONG_PRESS_OPEN_APP_AGAIN)
                                             }
-                                        }
-                                    }
+                                            add(LONG_PRESS_TITLE)
+                                            add(PRESS_TITLE)
+                                        },
+                                        selectedOption = selectedOption,
+                                        onOptionSelected = onOptionSelected,
+                                        optionText = { Settings.Applocker.getUnlockModeDescription(it, resources) }
+                                    )
 
-                                    Row(Modifier.padding(top = 24.dp)) {
-                                        TextButton(
-                                            onClick = ::onDismissRequest
-                                        ) {
+                                    Row(Modifier.padding(24.dp, 16.dp, 24.dp, 24.dp)) {
+                                        TextButton(onClick = ::onDismissRequest) {
                                             Text(text = stringResource(R.string.cancel))
                                         }
                                         Spacer(Modifier.weight(1f))
@@ -195,7 +207,7 @@ fun ApplockerScreen(topBar: TopBarType, scrollBehavior: TopAppBarScrollBehavior)
                                             onClick = {
                                                 unlockMode = selectedOption
                                                 unlockMethodText = Settings.Applocker.getUnlockModeDescription(
-                                                    selectedOption, this@with.resources
+                                                    selectedOption, resources
                                                 )
                                                 onDismissRequest()
                                             }
@@ -221,50 +233,25 @@ fun ApplockerScreen(topBar: TopBarType, scrollBehavior: TopAppBarScrollBehavior)
                                 shape = RoundedCornerShape(28.dp),
                                 colors = cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
                             ) {
-                                Column(modifier = Modifier.padding(24.dp)) {
+                                Column {
                                     Text(
                                         text = stringResource(R.string.showmode),
                                         style = MaterialTheme.typography.headlineSmall,
-                                        modifier = Modifier
-                                            .padding()
-                                            .padding(bottom = 16.dp)
+                                        modifier = Modifier.padding(24.dp, 24.dp, 24.dp, 16.dp)
                                     )
-                                    val radioOptions = Settings.Applocker.ShowMode.entries.toList()
+
                                     val (selectedOption, onOptionSelected) = remember {
-                                        mutableStateOf(
-                                            radioOptions[radioOptions.indexOf(showMode)]
-                                        )
-                                    }
-                                    // Note that Modifier.selectableGroup() is essential to ensure correct accessibility behavior
-                                    Column(Modifier.selectableGroup()) {
-                                        radioOptions.forEach { num ->
-                                            val text = Settings.Applocker.getShowModeDescription(num, this@with.resources)
-
-                                            Row(
-                                                Modifier
-                                                    .fillMaxWidth()
-                                                    .height(56.dp)
-                                                    .selectable(
-                                                        selected = (num == selectedOption),
-                                                        onClick = { onOptionSelected(num) },
-                                                        role = Role.RadioButton
-                                                    ),
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                RadioButton(
-                                                    selected = (num == selectedOption),
-                                                    onClick = null
-                                                )
-                                                Text(
-                                                    text = text,
-                                                    style = MaterialTheme.typography.bodyLarge,
-                                                    modifier = Modifier.padding(start = 16.dp)
-                                                )
-                                            }
-                                        }
+                                        mutableStateOf(showMode)
                                     }
 
-                                    Row(Modifier.padding(top = 24.dp)) {
+                                    RadioButtonList(
+                                        options = Settings.Applocker.ShowMode.entries.toList(),
+                                        selectedOption = selectedOption,
+                                        onOptionSelected = onOptionSelected,
+                                        optionText = { Settings.Applocker.getShowModeDescription(it, resources) }
+                                    )
+
+                                    Row(modifier = Modifier.padding(24.dp, 16.dp, 24.dp, 24.dp)) {
                                         TextButton(
                                             onClick = ::onDismissRequest
                                         ) {
@@ -275,7 +262,7 @@ fun ApplockerScreen(topBar: TopBarType, scrollBehavior: TopAppBarScrollBehavior)
                                             onClick = {
                                                 showMode = selectedOption
                                                 showModeText = Settings.Applocker.getShowModeDescription(
-                                                    selectedOption, this@with.resources
+                                                    selectedOption, resources
                                                 )
                                                 onDismissRequest()
                                             }
@@ -300,21 +287,23 @@ fun ApplockerScreen(topBar: TopBarType, scrollBehavior: TopAppBarScrollBehavior)
                         body = stringResource(R.string.al_permissions),
                         positiveButtonText = stringResource(R.string.ok),
                         onPositiveButtonClick = {
-                            val intent = Intent(ACTION_ACCESSIBILITY_SETTINGS)
-                            intent.flags = FLAG_ACTIVITY_NEW_TASK
-                            var handler: (() -> Unit)? = null
-                            handler = {
-                                if (Accessibility.running) {
-                                    mainSwitch = true
-                                    Settings.Applocker.enabled = true
-                                    Settings.Applocker.used = true
+                            startActivity(
+                                Intent(ACTION_ACCESSIBILITY_SETTINGS).apply {
+                                    flags = FLAG_ACTIVITY_NEW_TASK
+                                    var handler: (() -> Unit)? = null
+                                    handler = {
+                                        if (Accessibility.running) {
+                                            mainSwitch = true
+                                            Settings.Applocker.enabled = true
+                                            Settings.Applocker.used = true
+                                        }
+                                        returnBack = false
+                                        resumeHandlers.remove(handler)
+                                    }
+                                    resumeHandlers.add(handler)
+                                    returnBack = true
                                 }
-                                returnBack = false
-                                resumeHandlers.remove(handler)
-                            }
-                            resumeHandlers.add(handler)
-                            returnBack = true
-                            startActivity(intent)
+                            )
                         },
                         negativeButtonText = stringResource(R.string.cancel),
                         onNegativeButtonClick = ::onPermissionDialogDismiss
@@ -327,14 +316,14 @@ fun ApplockerScreen(topBar: TopBarType, scrollBehavior: TopAppBarScrollBehavior)
                         SwitchCard(
                             text = stringResource(R.string.enable),
                             checked = mainSwitch,
-                            onCheckedChange = sw@{
+                            onCheckedChange = sw@ {
                                 if (it && !Accessibility.running) {
                                     openPermissionDialog = true
-                                    return@sw
+                                } else {
+                                    mainSwitch = it
+                                    Settings.Applocker.enabled = it
+                                    Settings.Applocker.used = false
                                 }
-                                mainSwitch = it
-                                Settings.Applocker.enabled = it
-                                Settings.Applocker.used = false
                             },
                             modifier = Modifier.padding(bottom = 12.dp)
                         )
