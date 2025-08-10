@@ -148,6 +148,7 @@ object Settings {
     const val TOKEN_LABEL = "wfreabcsgbeiugfcewaer"
     const val USE_SENSORS_LABEL = "awfvdxrgbhrdfujbawert"
     const val TRIGGER_ON_CHARGER_LABEL = "wfvjsdergbjgtberst"
+    const val UNLOCK_DURATION_LABEL = "fehbsrjgbvdesrgtfgergt"
 
     /**
      * Main initialization function.
@@ -503,6 +504,16 @@ object Settings {
             set(value) {
                 applocker_sharedPref.edit {
                     putInt(SHOW_MODE_LABEL, value.ordinal)
+                }
+            }
+
+        var unlockDuration: Int
+            get() = applocker_sharedPref.getInt(UNLOCK_DURATION_LABEL, 0)
+            set(value) {
+                if (value in 0..10) applocker_sharedPref.edit {
+                    putInt(UNLOCK_DURATION_LABEL, value)
+                } else {
+                    throw IllegalArgumentException("The argument must be from 0 to PRESS_TITLE.")
                 }
             }
     }

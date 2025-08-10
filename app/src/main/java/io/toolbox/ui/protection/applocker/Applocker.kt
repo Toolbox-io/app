@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,20 +24,30 @@ import androidx.compose.material.icons.filled.ImagesearchRoller
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.SettingsApplications
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.cardColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberSliderState
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -46,6 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -373,7 +385,6 @@ fun ApplockerScreen(topBar: TopBarType, scrollBehavior: TopAppBarScrollBehavior)
                                 headline = stringResource(R.string.setpassword),
                                 supportingText = stringResource(R.string.setpassword_d),
                                 onClick = {
-                                    /*openSetPasswordDialog = true*/
                                     startActivity(
                                         Intent(this@with, AuthActivity::class.java).apply {
                                             putExtra("setStarted", true)
@@ -391,7 +402,6 @@ fun ApplockerScreen(topBar: TopBarType, scrollBehavior: TopAppBarScrollBehavior)
                                     )
                                 }
                             )
-
                             ListItem(
                                 headline = stringResource(R.string.unlockmethod),
                                 supportingText = unlockMethodText,
@@ -404,8 +414,70 @@ fun ApplockerScreen(topBar: TopBarType, scrollBehavior: TopAppBarScrollBehavior)
                                         contentDescription = null
                                     )
                                 },
-                                materialDivider = true,
+                                materialDivider = true
                             )
+                            ListItem(
+                                headline = stringResource(R.string.unlock_duration),
+                                supportingText = stringResource(R.string.unlock_duration_d),
+                                leadingContent = {
+                                    Icon(
+                                        imageVector = Icons.Filled.Timer,
+                                        contentDescription = null
+                                    )
+                                }
+                            ) {
+                                Column(Modifier.padding(horizontal = 16.dp)) {
+                                    val interactionSource = remember { MutableInteractionSource() }
+                                    val tooltipState = rememberTooltipState(isPersistent = true)
+                                    val sliderState =
+                                        rememberSliderState(
+                                            value = remember { Settings.Applocker.unlockDuration }.toFloat(),
+                                            steps = 9,
+                                            valueRange = 0f..10f
+                                        ).also {
+                                            it.onValueChangeFinished = {
+                                                Settings.Applocker.unlockDuration = it.value.toInt()
+                                            }
+                                        }
+
+                                    LaunchedEffect(sliderState.isDragging) {
+                                        if (sliderState.isDragging) {
+                                            tooltipState.show()
+                                        } else {
+                                            tooltipState.dismiss()
+                                        }
+                                    }
+
+                                    Slider(
+                                        state = sliderState,
+                                        interactionSource = interactionSource,
+                                        thumb = {
+                                            TooltipBox(
+                                                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                                                    TooltipAnchorPosition.Above,
+                                                    4.dp
+                                                ),
+                                                tooltip = {
+                                                    PlainTooltip {
+                                                        Text(
+                                                            when (sliderState.value.toInt()) {
+                                                                0 -> stringResource(R.string.instant)
+                                                                10 -> stringResource(R.string.until_screen_locked)
+                                                                else -> sliderState.value.toInt().let {
+                                                                    pluralStringResource(R.plurals.minutes, it, it)
+                                                                }
+                                                            }
+                                                        )
+                                                    }
+                                                },
+                                                state = tooltipState
+                                            ) {
+                                                SliderDefaults.Thumb(interactionSource = interactionSource)
+                                            }
+                                        }
+                                    )
+                                }
+                            }
                         }
 
                         Category(title = stringResource(R.string.customization)) {

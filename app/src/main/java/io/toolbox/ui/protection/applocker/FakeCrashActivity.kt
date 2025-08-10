@@ -52,6 +52,7 @@ import io.toolbox.Settings.Applocker.unlockMode
 import io.toolbox.ui.OverlayAppTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import ru.morozovit.android.utils.allowOnLockScreen
 import ru.morozovit.android.utils.appName
 import ru.morozovit.android.utils.homeScreen
 import ru.morozovit.android.utils.screenWidth
@@ -282,8 +283,8 @@ class FakeCrashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        allowOnLockScreen()
         enableEdgeToEdge()
-
         setContentView(
             ComposeView {
                 FakeCrashScreen(intentAppPackage = intent.extras?.getString("appPackage"))

@@ -147,9 +147,19 @@ class PasswordInputActivity: AppCompatActivity() {
                                             Log.e("PasswordInputActivity", "Couldn't launch activity: ", e)
                                         }
 
-                                        Handler(mainLooper).postDelayed(2000) {
-                                            Accessibility.instance?.lock = false
+                                        when (Settings.Applocker.unlockDuration) {
+                                            0 -> Accessibility.instance?.lock = false
+                                            10 -> {
+                                                // TODO disable lock after screen locked
+                                            }
+                                            else -> Handler(mainLooper)
+                                                .postDelayed(
+                                                    (Settings.Applocker.unlockDuration * 60 * 1000).toLong()
+                                                ) {
+                                                    Accessibility.instance?.lock = false
+                                                }
                                         }
+
                                     } else {
                                         Toast.makeText(
                                             this@PasswordInputActivity,
@@ -171,7 +181,6 @@ class PasswordInputActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
         setContentView(
             ComposeView {
                 PasswordInputScreen(intent!!.extras!!.getString("appPackage")!!)

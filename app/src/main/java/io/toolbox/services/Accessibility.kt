@@ -6,7 +6,7 @@ import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK
 import android.content.Intent.FLAG_ACTIVITY_NEW_DOCUMENT
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-import android.util.Log
+import android.content.IntentFilter
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
 import io.toolbox.Settings
@@ -22,6 +22,7 @@ import java.lang.Thread.sleep
 class Accessibility: AccessibilityService() {
     var lock = false
     private var prevApp: String? = null
+    private val receiver = ScreenOffBroadcastReceiver()
 
     @SuppressLint("StaticFieldLeak")
     companion object {
@@ -36,6 +37,11 @@ class Accessibility: AccessibilityService() {
         if (returnBack) mainActivity()
         if (Settings.UnlockProtection.fgServiceEnabled)
             AccessibilityKeeperService.start(this)
+
+        registerReceiver(
+            receiver,
+            IntentFilter(Intent.ACTION_SCREEN_OFF)
+        )
     }
 
     @SuppressLint("SwitchIntDef")
@@ -43,21 +49,15 @@ class Accessibility: AccessibilityService() {
         when (event.eventType) {
             // App opened - App Locker
             TYPE_WINDOW_STATE_CHANGED -> {
-                Log.d("applocker", "Window state changed: $event")
                 if (Settings.Applocker.enabled) {
-                    Log.d("applocker", "applocker enabled")
-                    val newPackageName = event.packageName.toString() // App package name
-                    Log.d("applocker", "package: $newPackageName")
-                    Log.d("applocker", "app context package: ${applicationContext.packageName}")
-                    Log.d("applocker", "prevApp: $prevApp")
-                    Log.d("applocker", "lock: $lock")
-                    if (newPackageName != applicationContext.packageName && newPackageName != prevApp && !lock) {
+                    val newPackageName = event.packageName.toString()
+                    if (
+                        newPackageName != applicationContext.packageName &&
+                        newPackageName != prevApp &&
+                        !lock
+                    ) {
                         prevApp = newPackageName
-                        Log.i("applocker", "conditions met, locking")
-                        val apps = Settings.Applocker.apps
-                        Log.d("applocker", "apps list: $apps")
-                        if (newPackageName in apps) {
-                            Log.i("applocker", "app in list, locking...")
+                        if (newPackageName in Settings.Applocker.apps) {
                             when (showMode) {
                                 Settings.Applocker.ShowMode.FAKE_CRASH -> {
                                     homeScreen()
@@ -73,16 +73,11 @@ class Accessibility: AccessibilityService() {
                                 }
                                 Settings.Applocker.ShowMode.PASSWORD_POPUP -> PasswordInputActivity.start(this, newPackageName)
                                 Settings.Applocker.ShowMode.FULLSCREEN_POPUP -> {
-                                    Log.d("applocker", "enabling fullscreen auth")
                                     if (!ApplockerAuthOverlay.shown)
                                         ApplockerAuthOverlay(this).show()
                                 }
                             }
-                        } else {
-                            Log.w("applocker", "app not in list")
                         }
-                    } else {
-                        Log.w("applocker", "conditions not met")
                     }
 
                     if (newPackageName == "com.android.systemui") {
@@ -97,6 +92,7 @@ class Accessibility: AccessibilityService() {
         instance = null
         if (Settings.UnlockProtection.fgServiceEnabled)
             AccessibilityKeeperService.instance?.stopSelf()
+        unregisterReceiver(receiver)
     }
 
     override fun onDestroy() {

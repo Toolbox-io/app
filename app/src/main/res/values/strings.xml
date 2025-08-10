@@ -230,4 +230,8 @@
     <string name="wrong_password">Wrong password</string>
     <string name="shortcuts_unsuported1">Shortcuts aren\'t supported on your device.</string>
     <string name="support">Support</string>
+    <string name="unlock_duration">Unlock duration</string>
+    <string name="unlock_duration_d">Set the duration after which your apps will lock again</string>
+    <string name="instant">Instant</string>
+    <string name="until_screen_locked">Until screen locked</string>
 </resources>

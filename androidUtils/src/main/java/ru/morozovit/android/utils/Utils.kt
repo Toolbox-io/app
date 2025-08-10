@@ -2,6 +2,8 @@
 
 package ru.morozovit.android.utils
 
+import android.app.Activity
+import android.app.KeyguardManager
 import android.content.ComponentName
 import android.content.ContentResolver
 import android.content.Context
@@ -24,6 +26,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.service.quicksettings.Tile
+import android.view.WindowManager
 import android.webkit.WebSettings
 import android.webkit.WebView
 import androidx.activity.OnBackPressedCallback
@@ -209,7 +212,7 @@ fun ActivityInfo.isLauncher(context: Context): Boolean {
  * @return The JSON-encoded string.
  */
 fun String.encodeJSON() = buildString {
-    for (c in this) {
+    for (c in this@encodeJSON) {
         when (c) {
             '"', '\\', '/' -> append("\\$c")
             '\t' -> append("\\t")
@@ -294,3 +297,20 @@ inline fun String.decodeWindows1251() = String(
 inline val MediaPlayer.isPlayingSafe get() = runCatching { isPlaying }.getOrNull() == true
 
 inline fun WebView.settings(block: WebSettings.() -> Unit) = settings.block()
+
+inline fun Activity.allowOnLockScreen() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+        setShowWhenLocked(true)
+        setTurnScreenOn(true)
+        (
+            getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+        )?.requestDismissKeyguard(this, null);
+    } else {
+        @Suppress("DEPRECATION")
+        window.addFlags(
+            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
+            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+        )
+    }
+}
