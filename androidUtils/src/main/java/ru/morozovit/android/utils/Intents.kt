@@ -10,6 +10,7 @@ import android.content.Intent.ACTION_MAIN
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Build
 import android.os.Parcelable
+import android.util.Log
 import androidx.core.net.toUri
 import java.io.Serializable
 
@@ -61,12 +62,15 @@ inline fun openDocumentIntent(vararg fileTypes: String) =
 /**
  * Launches the home screen activity.
  */
-inline fun Context.homeScreen() = startActivity(
-    Intent(ACTION_MAIN).apply {
-        addCategory(Intent.CATEGORY_HOME)
-        flags = FLAG_ACTIVITY_NEW_TASK
-    }
-)
+inline fun Context.homeScreen() {
+    Log.d("App", "Launching home screen...")
+    startActivity(
+        Intent(ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+            flags = FLAG_ACTIVITY_NEW_TASK
+        }
+    )
+}
 
 private val PRIMARY_STORAGE_URI = "content://com.android.externalstorage.documents/root/primary".toUri()
 

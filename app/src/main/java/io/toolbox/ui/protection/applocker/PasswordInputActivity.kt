@@ -35,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,8 +48,11 @@ import io.toolbox.R
 import io.toolbox.Settings
 import io.toolbox.services.Accessibility
 import io.toolbox.ui.OverlayAppTheme
-import ru.morozovit.android.utils.ui.ComposeView
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import ru.morozovit.android.utils.homeScreen
 import ru.morozovit.android.utils.screenWidth
+import ru.morozovit.android.utils.ui.ComposeView
 import ru.morozovit.android.utils.ui.SecureTextField
 
 class PasswordInputActivity: AppCompatActivity() {
@@ -68,10 +72,11 @@ class PasswordInputActivity: AppCompatActivity() {
     }
 
     @Composable
-    inline fun PasswordInputScreen() {
+    inline fun PasswordInputScreen(packageName: String) {
         OverlayAppTheme(Modifier.fillMaxSize()) {
             var password by remember { mutableStateOf("") }
             var hidden by remember { mutableStateOf(true) }
+            val scope = rememberCoroutineScope()
 
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -114,8 +119,12 @@ class PasswordInputActivity: AppCompatActivity() {
                         ) {
                             TextButton(
                                 onClick = {
-                                    setResult(RESULT_CANCELED)
-                                    finish()
+                                    scope.launch {
+                                        homeScreen()
+                                        delay(1000)
+                                        setResult(RESULT_CANCELED)
+                                        finish()
+                                    }
                                 }
                             ) {
                                 Text(stringResource(id = R.string.cancel))
@@ -129,10 +138,11 @@ class PasswordInputActivity: AppCompatActivity() {
                                         Accessibility.instance?.lock = true
 
                                         try {
-                                            val launchIntent = applicationContext
-                                                .packageManager
-                                                .getLaunchIntentForPackage(packageName)
-                                            startActivity(launchIntent)
+                                            startActivity(
+                                                applicationContext
+                                                    .packageManager
+                                                    .getLaunchIntentForPackage(packageName)
+                                            )
                                         } catch (e: Exception) {
                                             Log.e("PasswordInputActivity", "Couldn't launch activity: ", e)
                                         }
@@ -160,12 +170,11 @@ class PasswordInputActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         enableEdgeToEdge()
 
         setContentView(
             ComposeView {
-                PasswordInputScreen()
+                PasswordInputScreen(intent!!.extras!!.getString("appPackage")!!)
             },
             ViewGroup.LayoutParams(
                 screenWidth,

@@ -86,7 +86,8 @@
             android:excludeFromRecents="true"
             android:theme="@style/Theme.FakeCrash"
             android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.protection.actions.ActionsActivity"
             android:theme="@style/Theme.Toolbox_io.NoActionBar"

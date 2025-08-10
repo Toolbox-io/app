@@ -31,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,9 +51,11 @@ import io.toolbox.Settings.Applocker.UnlockMode.PRESS_TITLE
 import io.toolbox.Settings.Applocker.unlockMode
 import io.toolbox.ui.OverlayAppTheme
 import kotlinx.coroutines.delay
-import ru.morozovit.android.utils.ui.ComposeView
+import kotlinx.coroutines.launch
 import ru.morozovit.android.utils.appName
+import ru.morozovit.android.utils.homeScreen
 import ru.morozovit.android.utils.screenWidth
+import ru.morozovit.android.utils.ui.ComposeView
 
 class FakeCrashActivity : AppCompatActivity() {
     @Composable
@@ -61,6 +64,7 @@ class FakeCrashActivity : AppCompatActivity() {
             val context = this@FakeCrashActivity
             val isNight = isSystemInDarkTheme()
             val api = Build.VERSION.SDK_INT
+            val scope = rememberCoroutineScope()
 
             // Per-API layout values from XMLs
             data class LayoutSpec(
@@ -93,6 +97,15 @@ class FakeCrashActivity : AppCompatActivity() {
                 isBold = api < 29
             )
 
+            fun exit() {
+                scope.launch {
+                    homeScreen()
+                    delay(1000)
+                    setResult(RESULT_OK)
+                    finish()
+                }
+            }
+
             val androidPrimary = if (isNight) Color(0xFF80cbc4) else Color(0xFF008577)
 
             // Button visibility by API
@@ -113,8 +126,7 @@ class FakeCrashActivity : AppCompatActivity() {
             // Auto-close after 15 seconds
             LaunchedEffect(Unit) {
                 delay(15000)
-                setResult(RESULT_CANCELED)
-                finish()
+                exit()
             }
 
             fun unlock(modeRequired: Int? = null) {
@@ -241,8 +253,7 @@ class FakeCrashActivity : AppCompatActivity() {
                                 text = stringResource(R.string.closeapp),
                                 modeRequired = LONG_PRESS_CLOSE
                             ) {
-                                setResult(RESULT_OK)
-                                finish()
+                                exit()
                             }
                         }
 
@@ -272,6 +283,7 @@ class FakeCrashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContentView(
             ComposeView {
                 FakeCrashScreen(intentAppPackage = intent.extras?.getString("appPackage"))

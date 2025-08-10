@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK
 import android.content.Intent.FLAG_ACTIVITY_NEW_DOCUMENT
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-import android.os.Bundle
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
@@ -61,22 +60,16 @@ class Accessibility: AccessibilityService() {
                             Log.i("applocker", "app in list, locking...")
                             when (showMode) {
                                 Settings.Applocker.ShowMode.FAKE_CRASH -> {
-                                    // App lock mechanism
                                     homeScreen()
-
-                                    sleep(500)
-
-                                    // Fake crash
-                                    val intent = Intent(this, FakeCrashActivity::class.java)
-
-                                    intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
-                                    intent.addFlags(FLAG_ACTIVITY_NEW_DOCUMENT)
-                                    intent.addFlags(FLAG_ACTIVITY_MULTIPLE_TASK)
-                                    val args = Bundle()
-
-                                    args.putString("appPackage", newPackageName)
-                                    intent.putExtras(args)
-                                    startActivity(intent)
+                                    sleep(1000)
+                                    startActivity(
+                                        Intent(this, FakeCrashActivity::class.java).apply {
+                                            addFlags(FLAG_ACTIVITY_NEW_TASK)
+                                            addFlags(FLAG_ACTIVITY_NEW_DOCUMENT)
+                                            addFlags(FLAG_ACTIVITY_MULTIPLE_TASK)
+                                            putExtra("appPackage", newPackageName)
+                                        }
+                                    )
                                 }
                                 Settings.Applocker.ShowMode.PASSWORD_POPUP -> PasswordInputActivity.start(this, newPackageName)
                                 Settings.Applocker.ShowMode.FULLSCREEN_POPUP -> {
