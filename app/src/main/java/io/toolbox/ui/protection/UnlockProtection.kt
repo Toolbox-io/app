@@ -139,7 +139,6 @@ fun UnlockProtectionScreen(EdgeToEdgeBar: EdgeToEdgeBarType) {
                             headline = stringResource(R.string.unlock_attempts),
                             supportingText = stringResource(R.string.unlock_attempts_d),
                             materialDivider = true,
-                            onClick = {},
                             leadingContent = {
                                 Icon(
                                     imageVector = Icons.Filled.Password,
