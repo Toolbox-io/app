@@ -2,6 +2,7 @@ package io.toolbox.ui.main
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.View
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
@@ -126,6 +127,9 @@ class SupportActivity: BaseActivity(configTheme = false) {
                                                     setHeight();
                                                     window.addEventListener('resize', setHeight);
                                                     window.addEventListener('orientationchange', setHeight);
+                                                    
+                                                    document.body.style.overflow = "hidden";
+                                                    document.documentElement.style.overflow = "hidden";
                                                 })();
                                                 """.trimIndent(),
                                                 null
@@ -141,14 +145,24 @@ class SupportActivity: BaseActivity(configTheme = false) {
                                 allowContentAccess = false
                                 mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
                                 useWideViewPort = true
+                                setSupportZoom(false)
+                                builtInZoomControls = false
+                                displayZoomControls = false
                             }
+
+                            isVerticalScrollBarEnabled = false
+                            isHorizontalScrollBarEnabled = false
+
+                            scrollBarStyle = WebView.SCROLLBARS_OUTSIDE_OVERLAY
+                            isScrollbarFadingEnabled = false
+                            overScrollMode = View.OVER_SCROLL_NEVER
 
                             loadUrl("$uri")
                         }
                     },
                     modifier = Modifier
                         .fillMaxSize()
-                        .windowInsetsPadding(WindowInsets.systemBars)
+                        .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Bottom))
                         .padding(innerPadding)
                 )
             }
