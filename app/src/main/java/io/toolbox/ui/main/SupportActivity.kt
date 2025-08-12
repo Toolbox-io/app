@@ -66,7 +66,7 @@ class SupportActivity: BaseActivity(configTheme = false) {
         AppTheme(darkTheme = true, dynamicColor = false) {
             val context = LocalContext()
             val scope = rememberCoroutineScope()
-            val uri = "http://192.168.1.16:8000/support?iframe=true".toUri()
+            val uri = "https://toolbox-io.ru/support?iframe=true".toUri()
 
             var loading by remember { mutableStateOf(true) }
 
