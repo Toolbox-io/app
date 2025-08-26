@@ -2,7 +2,7 @@
 accompanistDrawablepainter = "0.37.3"
 activityCompose = "1.10.1"
 agp = "8.12.1"
-animationGraphics = "1.8.3"
+animationGraphics = "1.9.0"
 biometric = "1.4.0-alpha04"
 composeBom = "2025.07.00"
 constraintlayoutCompose = "1.1.1"
